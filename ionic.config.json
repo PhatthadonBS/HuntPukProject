@@ -1,0 +1,7 @@
+{
+  "name": "HuntPuk",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
