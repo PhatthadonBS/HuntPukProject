@@ -1,0 +1,130 @@
+// สีพื้นหลัง MSU Theme
+$msu-dark: #333333;
+$msu-yellow: #FFD700; // สีเหลืองทอง
+
+ion-content {
+  --background: transparent; // ให้มองทะลุเห็น div ด้านใน
+}
+
+.main-container {
+  width: 100%;
+  height: 100%;
+  // สร้างพื้นหลังตัดเฉียง 155 องศา
+  background: linear-gradient(155deg, $msu-dark 45%, $msu-yellow 45%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+// --- ส่วนโลโก้ ---
+.logo-section {
+  margin-bottom: 40px;
+  
+  .logo-circle {
+    width: 150px;
+    height: 150px;
+    background-color: #e6e6e6; // สีพื้นหลังวงกลม
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    overflow: hidden;
+
+    img {
+      width: 80%; // ปรับขนาดรูปโลโก้ตามความเหมาะสม
+      height: auto;
+    }
+  }
+}
+
+// --- ส่วนฟอร์ม ---
+.form-section {
+  width: 85%;
+  max-width: 350px; // ไม่ให้กว้างเกินไปในจอคอม
+}
+
+.custom-input {
+  background: white;
+  border-radius: 8px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+    
+    &::placeholder {
+      color: #aaa;
+      font-weight: normal;
+    }
+  }
+
+  ion-icon {
+    font-size: 24px;
+    color: #888;
+  }
+}
+
+.forgot-pass {
+  text-align: right;
+  margin-bottom: 20px;
+  a {
+    color: blue;
+    text-decoration: none;
+    font-size: 14px;
+  }
+}
+
+.btn-login {
+  --background: #333; // สีปุ่มดำเทา
+  height: 50px;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  --box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.register-text {
+  text-align: center;
+  font-size: 16px;
+  color: #666; // สีเทาๆ ตามรูป "ยังไม่มีบัญชี?"
+
+  .link-register {
+    color: blue;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+}
+
+// --- ปุ่มข้าม ---
+.skip-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 30px;
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #aaa;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  ion-icon {
+    font-size: 24px;
+  }
+}
