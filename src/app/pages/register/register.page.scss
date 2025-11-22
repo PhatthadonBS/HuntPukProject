@@ -1,0 +1,120 @@
+// สี Theme เดิม
+$msu-dark: #333333;
+$msu-yellow: #FFD700;
+
+ion-content {
+  --background: transparent;
+}
+
+.register-container {
+  width: 100%;
+  height: 100%;
+  // ปรับพื้นหลัง Gradient ตัดเฉียง
+  background: linear-gradient(160deg, $msu-dark 50%, $msu-yellow 50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+// --- ปุ่มย้อนกลับ ---
+.back-button {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  background: white;
+  border-radius: 30px;
+  padding: 5px 15px 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #888;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+  ion-icon {
+    font-size: 24px;
+  }
+}
+
+// --- ส่วนฟอร์ม ---
+.form-section {
+  width: 85%;
+  max-width: 350px;
+  margin-top: 20px;
+}
+
+.custom-input {
+  background: white; // พื้นหลังกล่องเป็นสีขาว
+  border-radius: 8px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    
+    // ⭐⭐⭐ แก้ไขตรงนี้ครับ (สำคัญมาก) ⭐⭐⭐
+    background: transparent;       // สั่งให้พื้นหลังโปร่งใส (เพื่อให้เห็นสีขาวของกล่องแม่)
+    background-color: transparent; // ย้ำอีกที
+    color: #333;                   // บังคับตัวหนังสือให้เป็นสีดำเข้ม (จะได้อ่านออก)
+    // ⭐⭐⭐ ----------------------- ⭐⭐⭐
+    
+    font-weight: bold;
+    
+    &::placeholder {
+      color: #aaa;
+      font-weight: bold;
+    }
+  }
+
+  ion-icon {
+    font-size: 24px;
+    color: #666;
+  }
+}
+
+// --- ปุ่มถัดไป ---
+.next-button {
+  position: absolute;
+  bottom: 30px;
+  right: 20px;
+  background: white;
+  border-radius: 30px;
+  padding: 5px 10px 5px 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #aaa;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  ion-icon {
+    font-size: 28px;
+    color: #aaa;
+  }
+}
+.btn-register {
+  width: 85%;           // ความกว้างเท่ากับช่องกรอก
+  max-width: 350px;
+  margin-top: 25px;     // เว้นระยะห่างจากช่องกรอกลงมาหน่อย
+  height: 50px;         // ความสูงปุ่ม
+  
+  --background: #333;   // ใช้สีเทาเข้ม (เพื่อให้ตัดกับพื้นหลังสีเหลืองด้านล่าง)
+  --color: white;       // ตัวหนังสือสีขาว
+  
+  font-size: 18px;
+  font-weight: bold;
+  --box-shadow: 0 4px 10px rgba(0,0,0,0.3); // เงาปุ่ม
+}

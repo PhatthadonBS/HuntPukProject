@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; // <--- เพิ่ม
 import { FormsModule } from '@angular/forms';     // <--- เพิ่ม
 import { IonicModule } from '@ionic/angular';     // <--- สำคัญมาก! ต้อง import อันนี้
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import * as L from 'leaflet';
 
 @Component({
@@ -10,7 +10,7 @@ import * as L from 'leaflet';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,  // <--- สังเกตบรรทัดนี้ ถ้ามีแปลว่าเป็น Standalone
-  imports: [CommonModule, FormsModule, IonicModule] // <--- ใส่ IonicModule เข้าไปในวงเล็บนี้ครับ
+  imports: [CommonModule, FormsModule, IonicModule,RouterModule] // <--- ใส่ IonicModule เข้าไปในวงเล็บนี้ครับ
 })
 export class HomePage implements OnInit {
 

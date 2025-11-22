@@ -61,7 +61,13 @@ ion-content {
     border: none;
     outline: none;
     font-size: 16px;
-    color: #333;
+    
+    // --- แก้ไขตรงนี้ครับ (ลบแถบดำ) ---
+    background: transparent;       // สั่งให้พื้นหลังโปร่งใส (เห็นสีขาวของกล่องแม่)
+    background-color: transparent; // ย้ำอีกทีเผื่อ Browser บางตัวไม่ยอม
+    color: #333;                   // สีตัวหนังสือเทาเข้ม
+    // -------------------------------
+
     font-weight: bold;
     
     &::placeholder {
