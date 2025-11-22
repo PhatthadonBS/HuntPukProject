@@ -1,0 +1,42 @@
+<ion-content [fullscreen]="true">
+  
+  <div id="map" class="map-wrapper"></div>
+
+  <div class="search-overlay ion-padding-top">
+    <div class="search-row">
+      <div class="search-input-box">
+        <ion-icon name="search" size="large"></ion-icon>
+        <input type="text" placeholder="ค้นหารายชื่อหอพัก">
+      </div>
+      <button class="btn-search">ค้นหา</button>
+    </div>
+    
+     <div class="filter-row">
+      <div class="chip-button">
+        กรอง <ion-icon name="funnel-outline"></ion-icon>
+      </div>
+      <div class="chip-button">
+        เปรียบเทียบ <ion-icon name="location-outline"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<ion-footer class="custom-tab-bar">
+    <div class="tab-item active">
+    <div class="circle-bg">
+      <img src="assets/logo.png" alt="Home">
+    </div>
+    <span>หน้าหลัก</span>
+  </div>
+
+  <div class="tab-item">
+    <ion-icon name="list-outline" size="large"></ion-icon>
+    <span>เมนู</span>
+  </div>
+
+  <div class="tab-item link-text" (click)="goToLogin()">
+    <span>ลงทะเบียน&<br>เข้าสู่ระบบ</span>
+  </div>
+</ion-footer>

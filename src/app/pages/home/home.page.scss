@@ -1,0 +1,135 @@
+// ทำให้ Map เต็มจอ
+.map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 70px); // เว้นที่ให้ Footer นิดหน่อย
+  z-index: 0;
+}
+
+// ส่วนค้นหาที่ลอยอยู่
+.search-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10; // อยู่เหนือ Map
+  padding: 15px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
+}
+
+// แถวค้นหา
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  .search-input-box {
+    flex: 1;
+    background: #e0e0e0; // สีเทาแบบในรูป
+    border-radius: 30px;
+    border: 2px solid #000; // ขอบดำหนา
+    display: flex;
+    align-items: center;
+    padding: 5px 15px;
+    height: 50px;
+
+    ion-icon {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      width: 100%;
+      font-size: 16px;
+      outline: none;
+    }
+  }
+
+  .btn-search {
+    background: #e0e0e0;
+    border: 1px solid #000;
+    border-radius: 20px;
+    height: 50px;
+    padding: 0 20px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+}
+
+// แถวปุ่มกรอง
+.filter-row {
+  display: flex;
+  gap: 10px;
+
+  .chip-button {
+    background: #e0e0e0;
+    border: 1px solid #000;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+// Custom Footer
+.custom-tab-bar {
+  background: #e0e0e0;
+  height: 80px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding-bottom: 10px;
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 14px;
+
+    &.active {
+      position: relative;
+      top: -20px; // ดันให้ลอยขึ้นมาเหมือนในรูป
+      
+      .circle-bg {
+        background: #e6c66b; // สีเหลืองทอง
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 5px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+
+        img {
+          width: 30px; // ขนาดโลโก้
+          height: auto;
+        }
+      }
+    }
+
+    &.link-text {
+      color: #007bff; // สีน้ำเงิน
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+    }
+  }
+}
