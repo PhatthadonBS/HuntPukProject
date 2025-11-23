@@ -46,5 +46,9 @@ export const routes: Routes = [
     path: 'dorm-form',
     loadComponent: () => import('./pages/owner/dorm-form/dorm-form.page').then( m => m.DormFormPage)
   },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./pages/forgot-password/forgot-password.page').then( m => m.ForgotPasswordPage)
+  },
 
 ];
