@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SearchPage } from './search.page';
+import { ManageDormPage } from './manage-dorm.page';
 
-describe('SearchPage', () => {
-  let component: SearchPage;
-  let fixture: ComponentFixture<SearchPage>;
+describe('ManageDormPage', () => {
+  let component: ManageDormPage;
+  let fixture: ComponentFixture<ManageDormPage>;
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SearchPage);
+    fixture = TestBed.createComponent(ManageDormPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

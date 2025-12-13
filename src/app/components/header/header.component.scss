@@ -1,0 +1,110 @@
+.custom-toolbar {
+  --background: #ffc409; /* สีเหลือง */
+  padding: 5px 0;
+}
+
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px;
+  gap: 10px; /* ระยะห่างระหว่างส่วนต่างๆ */
+}
+
+/* Logo */
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+/* โซนค้นหา (Input + ปุ่ม) */
+.search-section {
+  flex: 1; /* ยืดเต็มพื้นที่ตรงกลาง */
+  display: flex;
+  align-items: center;
+  gap: 5px; /* ระยะห่างระหว่างช่องพิมพ์กับปุ่มค้นหา */
+  max-width: 600px; /* จำกัดความกว้างไม่ให้ยาวเกินไป */
+  
+  .search-box {
+    flex: 1; /* ยืดช่องพิมพ์ให้เต็ม */
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    height: 35px;
+    border: 1px solid #333;
+
+    input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
+
+      &::placeholder {
+        color: #777;
+        font-weight: normal;
+      }
+    }
+  }
+
+  /* สไตล์ปุ่มค้นหาที่เพิ่มมาใหม่ */
+  .btn-search-action {
+    background: #222; /* สีดำ */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    height: 35px;
+    padding: 0 15px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap; /* ห้ามตัดคำ */
+
+    &:hover {
+      background: #444;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+/* ปุ่มขวา (Login/Register) */
+.auth-buttons {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0; /* ห้ามปุ่มหดตัว */
+
+  .btn-register {
+    --background: transparent;
+    --color: black;
+    --box-shadow: none;
+    --padding-start: 10px;
+    --padding-end: 10px;
+    border: 1px solid black;
+    border-radius: 15px;
+    height: 30px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .btn-login {
+    --background: #504a4a;
+    --color: white;
+    --border-radius: 15px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 30px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+}

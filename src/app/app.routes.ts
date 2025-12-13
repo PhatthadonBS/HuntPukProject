@@ -22,10 +22,7 @@ export const routes: Routes = [
     path: 'home',
     loadComponent: () => import('./pages/home/home.page').then( m => m.HomePage)
   },
-  {
-    path: 'search',
-    loadComponent: () => import('./pages/search/search.page').then( m => m.SearchPage)
-  },
+
   {
     path: 'dorm-detail',
     loadComponent: () => import('./pages/dorm-detail/dorm-detail.page').then( m => m.DormDetailPage)
@@ -49,6 +46,30 @@ export const routes: Routes = [
   {
     path: 'forgot-password',
     loadComponent: () => import('./pages/forgot-password/forgot-password.page').then( m => m.ForgotPasswordPage)
+  },
+  {
+    path: 'list',
+    loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
+  },
+  {
+    path: 'manage-dorm',
+    loadComponent: () => import('./pages/manage-dorm/manage-dorm.page').then( m => m.ManageDormPage)
+  },
+  {
+    path: 'manage-users',
+    loadComponent: () => import('./pages/manage-users/manage-users.page').then( m => m.ManageUsersPage)
+  },
+  {
+    path: 'requests',
+    loadComponent: () => import('./pages/requests/requests.page').then( m => m.RequestsPage)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then( m => m.DashboardPage)
+  },
+  {
+    path: 'my-account',
+    loadComponent: () => import('./pages/my-account/my-account.page').then( m => m.MyAccountPage)
   },
 
 ];

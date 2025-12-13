@@ -1,73 +1,118 @@
-<ion-content [fullscreen]="true">
-  
-  <div class="map-wrapper">
-    <google-map 
-      *ngIf="apiLoaded | async"
-      height="100%" 
-      width="100%" 
-      [center]="center" 
-      [zoom]="zoom"
-      [options]="mapOptions">
-
-      <map-marker 
-        *ngFor="let dorm of dorms"
-        [position]="{ lat: dorm.lat, lng: dorm.lng }"
-        [title]="dorm.DORM_NAME"
-        (mapClick)="openInfoWindow(marker, dorm)"
-        #marker="mapMarker">
-      </map-marker>
-
-      <map-info-window>
-        <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px;">
-          <h3 style="margin: 0; font-size: 16px;">{{ selectedDorm?.DORM_NAME }}</h3>
-          <p style="margin: 5px 0;">เริ่ม {{ selectedDorm?.start_price }} บาท</p>
-          <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">
-            ดูรายละเอียด
-          </button>
+<ion-menu contentId="main-content" menuId="home-menu" type="overlay">
+  <ion-content class="menu-content-custom">
+    <div class="menu-wrapper">
+      <div class="menu-header">
         </div>
-      </map-info-window>
 
-    </google-map>
-
-    <div *ngIf="(apiLoaded | async) === false" style="display:flex; justify-content:center; align-items:center; height:100%; color:black;">
-        กำลังโหลดแผนที่...
-    </div>
-  </div>
-
-  <div class="search-overlay ion-padding-top">
-    <div class="search-row">
-      <div class="search-input-box">
-        <ion-icon name="search" size="large"></ion-icon>
-        <input type="text" placeholder="ค้นหารายชื่อหอพัก" [(ngModel)]="searchText" (keyup.enter)="onSearch()">
+      <div class="menu-list">
+        <div class="menu-item" (click)="navigateTo('/home')">หน้าแรก</div>
+        <div class="menu-item" (click)="navigateTo('/list')">รายการ</div>
+        <div class="menu-item" (click)="navigateTo('/my-account')">บัญชีของฉัน</div>
+        <div class="menu-item" (click)="navigateTo('/register')">ลงทะเบียน</div>
+        <div class="menu-item" (click)="navigateTo('/manage-dorm')">จัดการหอพัก</div>
+        <div class="menu-item" (click)="navigateTo('/favorites')">รายการโปรด</div>
+        <div class="menu-item" (click)="navigateTo('/manage-users')">จัดการบัญชีสมาชิก</div>
+        <div class="menu-item" (click)="navigateTo('/requests')">คำขอ</div>
+        <div class="menu-item" (click)="navigateTo('/dashboard')">Dashboard</div>
       </div>
-      <button class="btn-search" (click)="onSearch()">ค้นหา</button>
     </div>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  
+  <app-header title="หน้าหลัก" (searchChange)="onSearch($event)"></app-header>
+
+  <ion-content [fullscreen]="true" [scrollY]="false">
     
-    <div class="filter-row">
+    <div class="map-wrapper">
+      <google-map 
+        *ngIf="apiLoaded | async"
+        height="100%" 
+        width="100%" 
+        [center]="center" 
+        [zoom]="zoom"
+        [options]="mapOptions">
+
+        <map-marker 
+          *ngFor="let dorm of dorms"
+          [position]="{ lat: dorm.lat, lng: dorm.lng }"
+          [title]="dorm.DORM_NAME"
+          (mapClick)="openInfoWindow(marker, dorm)"
+          #marker="mapMarker">
+        </map-marker>
+
+        <map-info-window>
+          <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px;">
+            <h3 style="margin: 0; font-size: 16px;">{{ selectedDorm?.DORM_NAME }}</h3>
+            <p style="margin: 5px 0;">เริ่ม {{ selectedDorm?.start_price }} บาท</p>
+            <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">
+              ดูรายละเอียด
+            </button>
+          </div>
+        </map-info-window>
+
+      </google-map>
+    </div>
+
+    <div class="top-left-buttons">
       <div class="chip-button" (click)="openFilter()">
-        กรอง <ion-icon name="funnel-outline"></ion-icon>
+        กรอง <ion-icon name="caret-down-outline"></ion-icon>
       </div>
       <div class="chip-button" (click)="goToCompare()">
         เปรียบเทียบ <ion-icon name="layers-outline"></ion-icon>
       </div>
     </div>
-  </div>
 
-</ion-content> <ion-footer class="custom-tab-bar">
-  <div class="tab-item">
-    <ion-icon name="menu-outline" size="large"></ion-icon>
-    <span>รายการ</span>
-  </div>
-
-  <div class="tab-item active">
-    <div class="circle-bg">
-      <img src="assets/logo.png" class="logo-icon">
+    <div class="menu-toggle-btn" (click)="toggleMenu()">
+      <ion-icon name="menu-outline" style="font-size: 24px;"></ion-icon>
     </div>
-    <span>หน้าหลัก</span>
-  </div>
 
-  <div class="tab-item link-text" (click)="goToLogin()">
-    <ion-icon name="home" size="large"></ion-icon>
-    <span>เข้าสู่ระบบ</span>
-  </div>
-</ion-footer>
+    <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
+      <ng-template>
+        <div class="filter-wrapper">
+          <div class="filter-head">
+            <h2>ราคา</h2>
+            <ion-icon name="close" (click)="setOpen(false)" size="large"></ion-icon>
+          </div>
+
+          <div class="price-section">
+            <div class="price-col">
+              <span class="label">เริ่มต้น</span>
+              <div class="input-capsule">
+                <input type="number" [(ngModel)]="minPrice" placeholder="0">
+              </div>
+            </div>
+            <div class="dash">-</div>
+            <div class="price-col">
+              <span class="label">สูงสุด</span>
+              <div class="input-capsule">
+                <input type="number" [(ngModel)]="maxPrice" placeholder="Max">
+              </div>
+            </div>
+          </div>
+
+          <div class="zone-section">
+            <h2>บริเวณของหอพัก</h2>
+            <div class="zone-options">
+               <div class="zone-item" [class.selected]="selectedZone === 'ท่าขามเรียง'" (click)="selectZone('ท่าขามเรียง')">
+                 โซนท่าขามเรียง <ion-icon name="chevron-down-circle-outline"></ion-icon>
+               </div>
+               <div class="zone-item" [class.selected]="selectedZone === 'ท่าขอนยาง'" (click)="selectZone('ท่าขอนยาง')">
+                 โซนท่าขอนยาง <ion-icon name="chevron-down-circle-outline"></ion-icon>
+               </div>
+               <div class="zone-item full-width" [class.selected]="selectedZone === 'หน้ามหาวิทยาลัย'" (click)="selectZone('หน้ามหาวิทยาลัย')">
+                 โซนหน้ามหาวิทยาลัย <ion-icon name="chevron-down-circle-outline"></ion-icon>
+               </div>
+            </div>
+          </div>
+
+          <div class="action-section">
+            <button class="btn-confirm" (click)="applyFilter()">ยืนยัน</button>
+          </div>
+        </div>
+      </ng-template>
+    </ion-modal>
+
+  </ion-content> 
+</div>

@@ -1,0 +1,30 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    
+    <div class="toolbar-content">
+      <div class="logo-section">
+        <img src="assets/logo.png" class="header-logo">
+      </div>
+
+      <div class="search-section">
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="ค้นหาหอพัก..." 
+            [(ngModel)]="searchText" 
+            (keyup.enter)="onSearchInput()"
+          >
+        </div>
+        <button class="btn-search-action" (click)="onSearchInput()">
+          ค้นหา <ion-icon name="search"></ion-icon>
+        </button>
+      </div>
+
+      <div class="auth-buttons">
+        <ion-button class="btn-register" (click)="goToRegister()">สมัคร</ion-button>
+        <ion-button class="btn-login" (click)="goToLogin()">เข้าสู่ระบบ</ion-button>
+      </div>
+    </div>
+
+  </ion-toolbar>
+</ion-header>

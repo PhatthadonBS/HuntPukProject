@@ -1,165 +1,258 @@
-/* 1. ส่วนของแผนที่ */
+/* --- 1. สไตล์เมนู (Side Menu) --- */
+ion-content.menu-content-custom {
+  --background: #2a2a2a;
+}
+
+.menu-wrapper {
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.menu-item {
+  background-color: #ffc400;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 50px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.1s;
+}
+
+.menu-item:active {
+  transform: scale(0.98);
+}
+
+
+/* --- 2. สไตล์ปุ่มบนหน้าจอ (แก้ไขให้ Map เลื่อนได้) --- */
+
+/* กล่องรวมปุ่มด้านบน */
+.top-left-buttons {
+  position: absolute;
+  top: 80px;      
+  left: 15px;     
+  z-index: 99999 !important;
+  
+  /* [สำคัญที่สุด] ทำให้กล่องนี้โปร่งใสต่อการกด (นิ้วจิ้มทะลุไปโดนแผนที่) */
+  pointer-events: none; 
+  
+  display: flex;
+  gap: 10px;
+  width: auto;
+}
+
+/* ตัวปุ่มข้างในกล่อง */
+.chip-button {
+  /* [สำคัญ] คืนค่าให้ปุ่มกดได้ */
+  pointer-events: auto; 
+  
+  background: #e0e0e0;
+  color: black;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ปุ่มเมนู Hamburger (ล่างซ้าย) */
+.menu-toggle-btn {
+  position: absolute;
+  bottom: 30px; 
+  left: 20px;
+  z-index: 99999 !important;
+  
+  /* [สำคัญ] ให้ปุ่มกดได้ */
+  pointer-events: auto; 
+
+  background: rgba(0, 0, 0, 0.6); 
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+
+/* --- 3. สไตล์หน้ากรอง (Filter Modal) --- */
+ion-modal.filter-modal-custom {
+  --height: auto;
+  --width: 90%;
+  --max-width: 380px;
+  --border-radius: 20px;
+  --backdrop-opacity: 0.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.filter-wrapper {
+  background: #dcdcdc;
+  padding: 20px 25px;
+  border-radius: 20px;
+  font-family: sans-serif;
+}
+
+.filter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+  }
+}
+
+.price-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+}
+
+.price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 45%;
+}
+
+.price-col .label {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.input-capsule {
+  background: #b0b0b0;
+  width: 100%;
+  padding: 5px 15px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.input-capsule input {
+  background: transparent;
+  border: none;
+  width: 100%;
+  outline: none;
+  font-weight: bold;
+  font-size: 16px;
+  color: black;
+  text-align: center;
+}
+.input-capsule input::-webkit-outer-spin-button,
+.input-capsule input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.dash {
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 5px;
+}
+
+.zone-section {
+  margin-bottom: 30px;
+}
+
+.zone-section h2 {
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 15px;
+}
+
+.zone-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.zone-item {
+  background: #a8a8a8;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  width: 48%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.zone-item.selected {
+  background: black;
+  color: #ffc400;
+  border: 2px solid #ffc400;
+}
+.zone-item.selected ion-icon {
+  color: #ffc400;
+}
+
+.zone-item.full-width {
+  width: 100%;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.action-section {
+  text-align: center;
+}
+
+.btn-confirm {
+  background: black;
+  color: white;
+  padding: 12px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+}
+
+/* --- 4. แผนที่ --- */
 .map-wrapper {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
-  background-color: #e5e3df;
-
-  /* --- เพิ่มตรงนี้ครับ สำคัญมาก! --- */
-  google-map {
-    height: 100% !important;
-    width: 100% !important;
-    display: block;
-  }
+  z-index: 0; /* Layer ล่างสุด */
 }
 
-/* 2. ส่วน Overlay ค้นหา (ลอยข้างบน) */
-.search-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+google-map {
+  display: block;
   width: 100%;
-  z-index: 10; /* อยู่เหนือ Map */
-  padding: 15px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
-  
-  /* สำคัญ! เพื่อให้กดทะลุไปโดนแผนที่ได้ในส่วนที่ไม่มีปุ่ม */
-  pointer-events: none;
-}
-
-/* 3. คืนค่าการกดให้ปุ่มและช่องค้นหา */
-.search-row, .filter-row {
-  pointer-events: auto;
-}
-
-/* --- Styles เดิมของคุณ (ปรับปรุงเล็กน้อย) --- */
-.search-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-
-  .search-input-box {
-    flex: 1;
-    background: #e0e0e0;
-    border-radius: 30px;
-    border: 2px solid #333;
-    display: flex;
-    align-items: center;
-    padding: 5px 15px;
-    height: 50px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* เพิ่มเงา */
-
-    ion-icon {
-      font-weight: bold;
-      margin-right: 5px;
-      color: #333;
-    }
-
-    input {
-      background: transparent;
-      border: none;
-      width: 100%;
-      font-size: 16px;
-      outline: none;
-      color: #000;       
-      font-weight: bold;
-      
-      &::placeholder {
-        color: #555;
-        font-weight: normal;
-      }
-    }
-  }
-
-  .btn-search {
-    background: #ffc409; /* เปลี่ยนเป็นสีเหลืองให้เด่น */
-    border: 2px solid #333;
-    border-radius: 20px;
-    height: 50px;
-    padding: 0 20px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #000;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-}
-
-.filter-row {
-  display: flex;
-  gap: 10px;
-
-  .chip-button {
-    background: white;
-    border: 1px solid #333;
-    border-radius: 20px;
-    padding: 8px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #000;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    cursor: pointer;
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-}
-
-/* 4. Footer */
-.custom-tab-bar {
-  /* ไม่ต้อง position absolute ก็ได้เพราะอยู่ใน ion-footer แต่ถ้าอยาก fix ก็ตามนี้ */
-  background: #e0e0e0;
-  height: 80px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  padding-bottom: 10px;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-  z-index: 20; /* อยู่บนสุด */
-
-  .tab-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #000;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-
-    &.active {
-      position: relative;
-      top: -25px; 
-      
-      .circle-bg {
-        background: #e6c66b;
-        width: 65px;
-        height: 65px;
-        border-radius: 50%;
-        border: 2px solid #333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 5px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      }
-      
-      span {
-        font-size: 14px;
-      }
-    }
-
-    &.link-text {
-      color: #0056b3;
-    }
-  }
+  height: 100%;
 }

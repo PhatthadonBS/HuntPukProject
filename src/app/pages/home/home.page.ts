@@ -1,26 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ActionSheetController } from '@ionic/angular';
+import { IonicModule, MenuController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-
+import { HeaderComponent } from '../../components/header/header.component';
 import { DormitoryService, DormitoryData } from '../../services/dormitory';
 import { environment } from '../../../environments/environment';
-
-// --- 1. เพิ่ม Import ไอคอนที่ต้องใช้ ---
 import { addIcons } from 'ionicons';
 import { 
-  menuOutline,          // hamburger menu
-  home,                 // รูปบ้าน
-  listOutline, 
-  personCircleOutline, 
-  search, 
-  funnelOutline, 
-  layersOutline 
+  menuOutline, home, listOutline, personCircleOutline, search, 
+  funnelOutline, layersOutline, close, caretDown, caretDownOutline, chevronDown, chevronDownCircleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -29,62 +22,67 @@ import {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    IonicModule, 
-    RouterModule, 
-    HttpClientModule,
-    HttpClientJsonpModule, 
-    GoogleMapsModule
+    CommonModule, FormsModule, IonicModule, RouterModule, 
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, HeaderComponent
   ]
 })
 export class HomePage implements OnInit {
   
   apiLoaded: Observable<boolean>; 
-  center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 }; // ม.มหาสารคาม
+  center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   zoom = 14;
   mapOptions: google.maps.MapOptions = {
-    disableDefaultUI: false,
-    zoomControl: false, 
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
+    disableDefaultUI: false, zoomControl: false, mapTypeControl: false, 
+    streetViewControl: false, fullscreenControl: false
   };
 
   searchText: string = '';
   dorms: DormitoryData[] = [];
+  isModalOpen = false;
+
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+  selectedZone: string = '';
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
   selectedDorm: DormitoryData | undefined;
 
   constructor(
     private router: Router,
-    private actionSheetCtrl: ActionSheetController,
     private dormService: DormitoryService,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private menuCtrl: MenuController
   ) {
-    // --- 2. ลงทะเบียน Icon ใน Constructor ---
     addIcons({
-      'menu-outline': menuOutline, // ลงทะเบียน hamburger
-      home,                        // ลงทะเบียน home
-      'list-outline': listOutline,
-      'person-circle-outline': personCircleOutline,
-      search,
-      'funnel-outline': funnelOutline,
-      'layers-outline': layersOutline
+      'menu-outline': menuOutline, home, 'list-outline': listOutline,
+      'person-circle-outline': personCircleOutline, search,
+      'funnel-outline': funnelOutline, 'layers-outline': layersOutline,
+      'close': close, 'caret-down': caretDown, 'caret-down-outline': caretDownOutline,
+      'chevron-down': chevronDown, 'chevron-down-circle-outline': chevronDownCircleOutline
     });
 
-    this.apiLoaded = this.httpClient.jsonp(
-      `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 
-      'callback'
-    ).pipe(
-      map(() => true),
-      catchError(() => of(false)),
-    );
+    if (typeof google === 'object' && typeof google.maps === 'object') {
+        this.apiLoaded = of(true); 
+    } else {
+        this.apiLoaded = this.httpClient.jsonp(
+          `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 'callback'
+        ).pipe(map(() => true), catchError((err) => { console.error('Map Load Error:', err); return of(false); }));
+    }
   }
 
   ngOnInit() {
+    this.menuCtrl.enable(true, 'home-menu');
     this.fetchDorms();
+  }
+
+  async toggleMenu() {
+    await this.menuCtrl.enable(true, 'home-menu');
+    await this.menuCtrl.toggle('home-menu');
+  }
+
+  async navigateTo(path: string) {
+    await this.menuCtrl.close('home-menu'); 
+    this.router.navigate([path]);
   }
 
   fetchDorms() {
@@ -102,7 +100,9 @@ export class HomePage implements OnInit {
     });
   }
 
-  onSearch() {
+  onSearch(text: any) {
+    if (typeof text !== 'string') text = text.target.value;
+    this.searchText = text;
     if(this.searchText.trim() !== '') {
         this.dormService.searchDorms(this.searchText).subscribe((res: { success: any; data: DormitoryData[]; }) => {
             if(res.success) {
@@ -114,9 +114,7 @@ export class HomePage implements OnInit {
                 }
             }
         });
-    } else {
-        this.fetchDorms(); 
-    }
+    } else { this.fetchDorms(); }
   }
 
   openInfoWindow(marker: MapMarker, dorm: DormitoryData) {
@@ -124,18 +122,16 @@ export class HomePage implements OnInit {
     if (this.infoWindow) this.infoWindow.open(marker);
   }
 
-  goToDetail() {
-    if (this.selectedDorm) this.router.navigate(['/dorms', this.selectedDorm.DORM_ID]);
-  }
-  
+  goToDetail() { if (this.selectedDorm) this.router.navigate(['/dorms', this.selectedDorm.DORM_ID]); }
   goToLogin() { this.router.navigate(['/login']); }
   goToCompare() { this.router.navigate(['/compare']); }
   
-  async openFilter() { 
-      const actionSheet = await this.actionSheetCtrl.create({
-          header: 'กรองข้อมูล',
-          buttons: [{ text: 'ยกเลิก', role: 'cancel' }]
-      });
-      await actionSheet.present();
+  setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
+  openFilter() { this.setOpen(true); }
+  selectZone(zone: string) { if (this.selectedZone === zone) { this.selectedZone = ''; } else { this.selectedZone = zone; } }
+
+  applyFilter() {
+      console.log('Filter Data:', { minPrice: this.minPrice, maxPrice: this.maxPrice, zone: this.selectedZone });
+      this.setOpen(false);
   }
 }
