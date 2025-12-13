@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular'; // <--- 1. เพิ่ม AlertController
 import { Router } from '@angular/router';
+import { Auth } from '../../services/auth';
+import { UserRegPostReq } from '../../model/req/user_reg_post_req';
 
 @Component({
   selector: 'app-register',
@@ -23,7 +25,8 @@ export class RegisterPage implements OnInit {
   // 2. เพิ่ม alertController ใน constructor
   constructor(
     private router: Router,
-    private alertController: AlertController 
+    private alertController: AlertController,
+    private authService: Auth
   ) { }
 
   ngOnInit() {
@@ -47,6 +50,25 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    const userData: UserRegPostReq = {
+      username: this.username,
+      email: this.email,
+      password: this.password,
+      phone: this.phone
+    }
+
+    try {
+      const res = await this.authService.register(userData)
+      sessionStorage.clear();
+      sessionStorage.setItem("user", JSON.stringify(res));
+      this.router.navigateByUrl("/forgot-password");
+      return;
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
+    
     // --- ส่วนจำลองการบันทึกข้อมูล (Mock) ---
     console.log('สมัครสมาชิกสำเร็จ:', {
       user: this.username,

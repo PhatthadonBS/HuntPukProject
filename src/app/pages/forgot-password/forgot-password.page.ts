@@ -3,20 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
+import { Auth } from '../../services/auth';
+import { UserRegPostReq } from '../../model/req/user_reg_post_req';
+import { UserVerifyPostRes } from '../../model/res/user_verify_post_res';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.page.html',
   styleUrls: ['./forgot-password.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
 })
 export class ForgotPasswordPage implements OnInit {
-
   step: number = 1; // ตัวแปรคุมหน้าจอ (1=OTP, 2=Reset)
-  
-  // Step 1 Data
-  email: string = '';
+
+  storedUser = sessionStorage.getItem('user');
+  userData:UserRegPostReq = this.storedUser ? JSON.parse(this.storedUser) : '';
+  email: string = this.userData.email;
   otpInput: string = '';
   serverOtp: string = ''; // เก็บ OTP ที่สุ่มได้
 
@@ -26,11 +29,11 @@ export class ForgotPasswordPage implements OnInit {
 
   constructor(
     private router: Router,
-    private alertController: AlertController
-  ) { }
+    private alertController: AlertController,
+    private authService: Auth
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   // กลับไปหน้า Login
   goBack() {
@@ -39,25 +42,35 @@ export class ForgotPasswordPage implements OnInit {
 
   // 1. ขอ OTP
   async requestOTP() {
-    if(!this.email) {
+    if (!this.email) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกอีเมล');
       return;
     }
-    
-    // จำลองการสุ่ม OTP 4 หลัก
-    this.serverOtp = Math.floor(1000 + Math.random() * 9000).toString();
-    
-    // แสดง OTP ให้เห็น (Mock)
-    this.showAlert('OTP ส่งไปยังอีเมลแล้ว', `รหัส OTP ของคุณคือ: ${this.serverOtp}`);
+
+    try {
+      console.log("now here");
+      
+      const res = await this.authService.reqOTP(this.userData.email);
+      console.log(res); return;
+      
+    } catch (error) {
+      console.log(error);
+      
+    }
   }
 
   // 2. ตรวจสอบ OTP เพื่อไปหน้าถัดไป
-  verifyOTP() {
-    if (this.otpInput === this.serverOtp && this.serverOtp !== '') {
-      // ผ่าน! ไปหน้า 2
-      this.step = 2;
-    } else {
-      this.showAlert('ผิดพลาด', 'รหัส OTP ไม่ถูกต้อง');
+  async verifyOTP() {
+    try {
+      const res = await this.authService.verifyOTP(this.userData.email, this.otpInput) as UserVerifyPostRes;
+      console.log(res);
+      const res2 = await this.authService.registerSec2(this.userData, res.status)
+      console.log(res2);
+      sessionStorage.clear();
+      
+    } catch (error) {
+      console.log(error);
+      
     }
   }
 
@@ -67,7 +80,10 @@ export class ForgotPasswordPage implements OnInit {
     const regex = /^[a-z0-9]{8}$/;
 
     if (!regex.test(this.newPassword)) {
-      this.showAlert('รูปแบบไม่ถูกต้อง', 'รหัสผ่านต้องเป็น a-z และ 0-9 รวมกัน 8 ตัวอักษรเท่านั้น');
+      this.showAlert(
+        'รูปแบบไม่ถูกต้อง',
+        'รหัสผ่านต้องเป็น a-z และ 0-9 รวมกัน 8 ตัวอักษรเท่านั้น'
+      );
       return;
     }
 
@@ -83,15 +99,15 @@ export class ForgotPasswordPage implements OnInit {
       buttons: [
         {
           text: 'ยกเลิก',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'ตกลง',
           handler: () => {
             this.successAndRedirect();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await confirmAlert.present();
   }
@@ -102,12 +118,14 @@ export class ForgotPasswordPage implements OnInit {
       header: 'สำเร็จ',
       subHeader: '✅',
       message: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
-      buttons: [{
-        text: 'ตกลง',
-        handler: () => {
-          this.router.navigate(['/login']);
-        }
-      }]
+      buttons: [
+        {
+          text: 'ตกลง',
+          handler: () => {
+            this.router.navigate(['/login']);
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -116,9 +134,8 @@ export class ForgotPasswordPage implements OnInit {
     const alert = await this.alertController.create({
       header: header,
       message: msg,
-      buttons: ['ตกลง']
+      buttons: ['ตกลง'],
     });
     await alert.present();
   }
-
 }
