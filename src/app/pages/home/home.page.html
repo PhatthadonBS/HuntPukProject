@@ -1,6 +1,38 @@
 <ion-content [fullscreen]="true">
   
-  <div id="map" class="map-wrapper" style="height: 100%; width: 100%;"></div>
+  <div class="map-wrapper">
+    <google-map 
+      *ngIf="apiLoaded | async"
+      height="100%" 
+      width="100%" 
+      [center]="center" 
+      [zoom]="zoom"
+      [options]="mapOptions">
+
+      <map-marker 
+        *ngFor="let dorm of dorms"
+        [position]="{ lat: dorm.lat, lng: dorm.lng }"
+        [title]="dorm.DORM_NAME"
+        (mapClick)="openInfoWindow(marker, dorm)"
+        #marker="mapMarker">
+      </map-marker>
+
+      <map-info-window>
+        <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px;">
+          <h3 style="margin: 0; font-size: 16px;">{{ selectedDorm?.DORM_NAME }}</h3>
+          <p style="margin: 5px 0;">เริ่ม {{ selectedDorm?.start_price }} บาท</p>
+          <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">
+            ดูรายละเอียด
+          </button>
+        </div>
+      </map-info-window>
+
+    </google-map>
+
+    <div *ngIf="(apiLoaded | async) === false" style="display:flex; justify-content:center; align-items:center; height:100%; color:black;">
+        กำลังโหลดแผนที่...
+    </div>
+  </div>
 
   <div class="search-overlay ion-padding-top">
     <div class="search-row">
@@ -24,12 +56,12 @@
 </ion-content>
 
 <ion-footer class="custom-tab-bar">
-  <div class="tab-item active">
-    <div class="circle-bg">
-      <ion-icon name="home" style="font-size: 24px; color: white;"></ion-icon>
-      </div>
-    <span>หน้าหลัก</span>
+<div class="tab-item active">
+  <div class="circle-bg">
+    <img src="assets/logo.png" class="logo-icon">
   </div>
+  <span>หน้าหลัก</span>
+</div>
 
   <div class="tab-item">
     <ion-icon name="list-outline" size="large"></ion-icon>

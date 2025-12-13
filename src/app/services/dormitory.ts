@@ -36,7 +36,7 @@ export class DormitoryService { // <-- แนะนำให้เปลี่�
   // URL ของ API Backend
   // กรณีทดสอบบน Android Emulator ใช้ 'http://10.0.2.2:3000/api'
   // กรณีทดสอบบน iOS หรือ Browser ใช้ 'http://localhost:3000/api'
-  private apiUrl = 'http://localhost:3000/api'; 
+  private apiUrl = 'http://192.168.116.1:3000'; 
 
   constructor(private http: HttpClient) { }
 

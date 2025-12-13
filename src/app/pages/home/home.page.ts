@@ -1,174 +1,126 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ActionSheetController, ToastController } from '@ionic/angular';
+import { IonicModule, ActionSheetController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
-import * as L from 'leaflet';
+import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
+import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-// Import Service และ Interface ที่เราสร้างไว้
 import { DormitoryService, DormitoryData } from '../../services/dormitory';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule, HttpClientModule]
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    IonicModule, 
+    RouterModule, 
+    HttpClientModule,
+    HttpClientJsonpModule, 
+    GoogleMapsModule
+  ]
 })
 export class HomePage implements OnInit {
+  
+  apiLoaded: Observable<boolean>; 
+  center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 }; // ม.มหาสารคาม
+  zoom = 14;
+  mapOptions: google.maps.MapOptions = {
+    disableDefaultUI: false,
+    zoomControl: false, 
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+  };
 
-  map: L.Map | undefined;
   searchText: string = '';
-  dorms: DormitoryData[] = []; // ตัวแปรเก็บข้อมูลหอพักจาก API
+  dorms: DormitoryData[] = [];
+
+  @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
+  selectedDorm: DormitoryData | undefined;
 
   constructor(
     private router: Router,
     private actionSheetCtrl: ActionSheetController,
-    private toastCtrl: ToastController,
-    private dormService: DormitoryService // เรียกใช้ Service
-  ) {}
+    private dormService: DormitoryService,
+    private httpClient: HttpClient
+  ) {
+    this.apiLoaded = this.httpClient.jsonp(
+      `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 
+      'callback'
+    ).pipe(
+      map(() => true),
+      catchError(() => of(false)),
+    );
+  }
 
   ngOnInit() {
-    // โหลดข้อมูลหอพักทันทีที่เปิดหน้า
     this.fetchDorms();
   }
 
-  ionViewDidEnter() {
-    this.loadMap();
-  }
-
-  // --- 1. ฟังก์ชันดึงข้อมูลจาก API ---
   fetchDorms() {
     this.dormService.getAllDorms().subscribe({
-      next: (res: { success: any; data: DormitoryData[]; }) => {
-        if (res.success) {
-          this.dorms = res.data;
-          console.log('Got dorms:', this.dorms);
-          
-          // ถ้าโหลด map เสร็จแล้ว ให้ปักหมุดทันที
-          if (this.map) {
-            this.updateMarkers();
-          }
-        }
-      },
-      error: (err: any) => {
-        console.error('Error fetching dorms:', err);
-        this.presentToast('ไม่สามารถโหลดข้อมูลหอพักได้');
-      }
+        next: (res) => {
+            if (res.success) {
+                this.dorms = res.data;
+                
+                // --- จุดที่แก้ไข 1 ---
+                // ดึงตัวแรกออกมาใส่ตัวแปรก่อน เพื่อให้ TypeScript รู้ว่ามีตัวตนจริง
+                const firstDorm = this.dorms[0];
+                
+                // เช็คว่า firstDorm มีอยู่จริง และมีค่า lat/lng ครบ
+                if (firstDorm && firstDorm.lat && firstDorm.lng) {
+                    this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
+                }
+            }
+        },
+        error: (err: any) => console.error('API Error:', err)
     });
   }
 
-  // --- 2. ฟังก์ชันโหลดแผนที่ ---
-  loadMap() {
-    // ป้องกัน Map ซ้อนกัน
-    if (this.map) {
-      this.map.remove();
-      this.map = undefined;
-    }
-
-    // กำหนดพิกัดเริ่มต้น (ตัวอย่าง: ม.มหาสารคาม หรือพิกัดกลางโซนที่คุณต้องการ)
-    this.map = L.map('map').setView([16.246, 103.252], 14);
-
-    L.tileLayer('https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=cb153d15cb4e41f59e25cfda6468f1a0', {
-      attribution: 'Maps © Thunderforest, Data © OpenStreetMap contributors',
-      maxZoom: 22
-    }).addTo(this.map);
-
-    // ถ้ามีข้อมูลหอพักอยู่แล้ว (โหลดเสร็จก่อน map) ให้ปักหมุดเลย
-    if (this.dorms.length > 0) {
-      this.updateMarkers();
-    }
-  }
-
-  // --- 3. ฟังก์ชันปักหมุด (Markers) ---
-  updateMarkers() {
-    if (!this.map) return;
-
-    const iconDefault = L.icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
-
-    this.dorms.forEach((dorm) => {
-      // ตรวจสอบว่ามีพิกัดครบถ้วน
-      if (dorm.lat && dorm.lng) {
-        const marker = L.marker([dorm.lat, dorm.lng], { icon: iconDefault })
-          .addTo(this.map!);
-
-        // สร้าง Popup HTML
-        const popupContent = `
-          <div style="text-align:center; font-family: 'Kanit', sans-serif;">
-            <b style="font-size:16px;">${dorm.DORM_NAME}</b><br>
-            <span style="color:gray; font-size:12px;">${dorm.ZONE_NAME || ''}</span><br>
-            <span style="color:#2dd36f; font-weight:bold;">เริ่มต้น ${dorm.start_price ? dorm.start_price.toLocaleString() : '-'} บาท</span><br>
-            <button id="btn-dorm-${dorm.DORM_ID}" style="margin-top:8px; background:#3880ff; color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">
-              ดูรายละเอียด
-            </button>
-          </div>
-        `;
-
-        marker.bindPopup(popupContent);
-
-        // ดักจับ Event Click บนปุ่มใน Popup
-        marker.on('popupopen', () => {
-          const btn = document.getElementById(`btn-dorm-${dorm.DORM_ID}`);
-          if (btn) {
-            btn.addEventListener('click', () => {
-              this.router.navigate(['/dorms', dorm.DORM_ID]); // ลิงก์ไปหน้า Detail
-            });
-          }
-        });
-      }
-    });
-  }
-
-  // --- ฟังก์ชันอื่นๆ ---
   onSearch() {
-    if (this.searchText.trim() !== '') {
-      this.dormService.searchDorms(this.searchText).subscribe(res => {
-        if(res.success) {
-          this.dorms = res.data;
-          this.loadMap(); // รีโหลดแมพเพื่อเคลียร์หมุดเก่าและลงหมุดใหม่
-        }
-      });
+    if(this.searchText.trim() !== '') {
+        this.dormService.searchDorms(this.searchText).subscribe((res: { success: any; data: DormitoryData[]; }) => {
+            if(res.success) {
+                this.dorms = res.data;
+                
+                // --- จุดที่แก้ไข 2 ---
+                const firstDorm = this.dorms[0];
+                
+                if(firstDorm && firstDorm.lat && firstDorm.lng) {
+                    this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
+                    this.zoom = 16; 
+                }
+            }
+        });
     } else {
-      this.fetchDorms(); // ถ้าช่องค้นหาว่าง ให้โหลดทั้งหมดใหม่
+        this.fetchDorms(); 
     }
   }
 
-  goToLogin() {
-    this.router.navigate(['/login']);
+  openInfoWindow(marker: MapMarker, dorm: DormitoryData) {
+    this.selectedDorm = dorm;
+    if (this.infoWindow) this.infoWindow.open(marker);
   }
 
-  async openFilter() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'กรองข้อมูลหอพัก',
-      buttons: [
-        { text: 'ราคา: น้อยไปมาก', icon: 'arrow-up-outline', handler: () => { console.log('Sort Price ASC'); } },
-        { text: 'ราคา: มากไปน้อย', icon: 'arrow-down-outline', handler: () => { console.log('Sort Price DESC'); } },
-        { text: 'ใกล้ฉันที่สุด', icon: 'navigate-outline', handler: () => { console.log('Nearest'); } },
-        { text: 'ยกเลิก', role: 'cancel', icon: 'close' }
-      ]
-    });
-    await actionSheet.present();
+  goToDetail() {
+    if (this.selectedDorm) this.router.navigate(['/dorms', this.selectedDorm.DORM_ID]);
   }
-
-  goToCompare() {
-    this.router.navigate(['/compare']);
-  }
-
-  async presentToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message: message,
-      duration: 2000,
-      position: 'bottom'
-    });
-    toast.present();
+  
+  goToLogin() { this.router.navigate(['/login']); }
+  goToCompare() { this.router.navigate(['/compare']); }
+  
+  async openFilter() { 
+      const actionSheet = await this.actionSheetCtrl.create({
+          header: 'กรองข้อมูล',
+          buttons: [{ text: 'ยกเลิก', role: 'cancel' }]
+      });
+      await actionSheet.present();
   }
 }
