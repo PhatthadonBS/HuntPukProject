@@ -11,6 +11,18 @@ import { catchError, map } from 'rxjs/operators';
 import { DormitoryService, DormitoryData } from '../../services/dormitory';
 import { environment } from '../../../environments/environment';
 
+// --- 1. เพิ่ม Import ไอคอนที่ต้องใช้ ---
+import { addIcons } from 'ionicons';
+import { 
+  menuOutline,          // hamburger menu
+  home,                 // รูปบ้าน
+  listOutline, 
+  personCircleOutline, 
+  search, 
+  funnelOutline, 
+  layersOutline 
+} from 'ionicons/icons';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -51,6 +63,17 @@ export class HomePage implements OnInit {
     private dormService: DormitoryService,
     private httpClient: HttpClient
   ) {
+    // --- 2. ลงทะเบียน Icon ใน Constructor ---
+    addIcons({
+      'menu-outline': menuOutline, // ลงทะเบียน hamburger
+      home,                        // ลงทะเบียน home
+      'list-outline': listOutline,
+      'person-circle-outline': personCircleOutline,
+      search,
+      'funnel-outline': funnelOutline,
+      'layers-outline': layersOutline
+    });
+
     this.apiLoaded = this.httpClient.jsonp(
       `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 
       'callback'
@@ -69,12 +92,7 @@ export class HomePage implements OnInit {
         next: (res) => {
             if (res.success) {
                 this.dorms = res.data;
-                
-                // --- จุดที่แก้ไข 1 ---
-                // ดึงตัวแรกออกมาใส่ตัวแปรก่อน เพื่อให้ TypeScript รู้ว่ามีตัวตนจริง
                 const firstDorm = this.dorms[0];
-                
-                // เช็คว่า firstDorm มีอยู่จริง และมีค่า lat/lng ครบ
                 if (firstDorm && firstDorm.lat && firstDorm.lng) {
                     this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
                 }
@@ -89,10 +107,7 @@ export class HomePage implements OnInit {
         this.dormService.searchDorms(this.searchText).subscribe((res: { success: any; data: DormitoryData[]; }) => {
             if(res.success) {
                 this.dorms = res.data;
-                
-                // --- จุดที่แก้ไข 2 ---
                 const firstDorm = this.dorms[0];
-                
                 if(firstDorm && firstDorm.lat && firstDorm.lng) {
                     this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
                     this.zoom = 16; 

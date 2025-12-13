@@ -53,23 +53,21 @@
     </div>
   </div>
 
-</ion-content>
-
-<ion-footer class="custom-tab-bar">
-<div class="tab-item active">
-  <div class="circle-bg">
-    <img src="assets/logo.png" class="logo-icon">
-  </div>
-  <span>หน้าหลัก</span>
-</div>
-
+</ion-content> <ion-footer class="custom-tab-bar">
   <div class="tab-item">
-    <ion-icon name="list-outline" size="large"></ion-icon>
+    <ion-icon name="menu-outline" size="large"></ion-icon>
     <span>รายการ</span>
   </div>
 
+  <div class="tab-item active">
+    <div class="circle-bg">
+      <img src="assets/logo.png" class="logo-icon">
+    </div>
+    <span>หน้าหลัก</span>
+  </div>
+
   <div class="tab-item link-text" (click)="goToLogin()">
-    <ion-icon name="person-circle-outline" size="large"></ion-icon>
+    <ion-icon name="home" size="large"></ion-icon>
     <span>เข้าสู่ระบบ</span>
   </div>
 </ion-footer>
