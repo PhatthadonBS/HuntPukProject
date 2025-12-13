@@ -1,12 +1,12 @@
 <ion-content [fullscreen]="true">
   
-  <div id="map" class="map-wrapper"></div>
+  <div id="map" class="map-wrapper" style="height: 100%; width: 100%;"></div>
 
   <div class="search-overlay ion-padding-top">
     <div class="search-row">
       <div class="search-input-box">
         <ion-icon name="search" size="large"></ion-icon>
-        <input type="text" placeholder="ค้นหารายชื่อหอพัก" [(ngModel)]="searchText">
+        <input type="text" placeholder="ค้นหารายชื่อหอพัก" [(ngModel)]="searchText" (keyup.enter)="onSearch()">
       </div>
       <button class="btn-search" (click)="onSearch()">ค้นหา</button>
     </div>
@@ -16,7 +16,7 @@
         กรอง <ion-icon name="funnel-outline"></ion-icon>
       </div>
       <div class="chip-button" (click)="goToCompare()">
-        เปรียบเทียบ <ion-icon name="location-outline"></ion-icon>
+        เปรียบเทียบ <ion-icon name="layers-outline"></ion-icon>
       </div>
     </div>
   </div>
@@ -26,17 +26,18 @@
 <ion-footer class="custom-tab-bar">
   <div class="tab-item active">
     <div class="circle-bg">
-      <img src="assets/logo.png" alt="Home">
-    </div>
+      <ion-icon name="home" style="font-size: 24px; color: white;"></ion-icon>
+      </div>
     <span>หน้าหลัก</span>
   </div>
 
   <div class="tab-item">
     <ion-icon name="list-outline" size="large"></ion-icon>
-    <span>เมนู</span>
+    <span>รายการ</span>
   </div>
 
   <div class="tab-item link-text" (click)="goToLogin()">
-    <span>ลงทะเบียน&<br>เข้าสู่ระบบ</span>
+    <ion-icon name="person-circle-outline" size="large"></ion-icon>
+    <span>เข้าสู่ระบบ</span>
   </div>
 </ion-footer>
