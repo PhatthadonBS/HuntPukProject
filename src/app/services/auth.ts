@@ -16,7 +16,7 @@ export class Auth {
   ) {}
 
   public async register(user: UserRegPostReq) {
-    const url = this.endpoint.API_ENDPOINT + '/test';
+    const url = this.endpoint.API_ENDPOINT + '/auth/registerSec1';
     try {
       const res = await lastValueFrom(this.http.post(url, user));
       return res;
@@ -26,7 +26,7 @@ export class Auth {
   }
 
   public async registerSec2(user: UserRegPostReq, verify: boolean) {
-    const url = this.endpoint.API_ENDPOINT + '/test2';
+    const url = this.endpoint.API_ENDPOINT + '/auth/registerSec2';
     try {
       const obj = {
         userData: user, verify

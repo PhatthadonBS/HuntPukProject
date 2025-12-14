@@ -57,11 +57,16 @@ export class RegisterPage implements OnInit {
       phone: this.phone
     }
 
+    console.log(userData);
+    
+
     try {
       const res = await this.authService.register(userData)
       sessionStorage.clear();
       sessionStorage.setItem("user", JSON.stringify(res));
       this.router.navigateByUrl("/forgot-password");
+      console.log("move to fkpw");
+      
       return;
     } catch (error) {
       console.log(error);
