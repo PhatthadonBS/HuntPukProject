@@ -1,31 +1,44 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // 1. ต้อง import อันนี้เพื่อใช้ ngModel
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { search } from 'ionicons/icons';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule] // 2. ใส่ FormsModule ที่นี่
+  imports: [CommonModule, FormsModule, IonicModule]
 })
-export class HeaderComponent  implements OnInit {
-  @Input() title: string = ''; 
-  @Output() searchChange = new EventEmitter<string>(); // 3. ตัวส่งค่าออกไป
+export class HeaderComponent implements OnInit {
+
+  @Input() title: string = '';
+  @Output() searchChange = new EventEmitter<string>(); // ส่งค่าการค้นหากลับไปหน้า Home
 
   searchText: string = '';
 
-  constructor(private router: Router) { }
+  constructor(private router: Router) {
+    addIcons({ search });
+  }
 
   ngOnInit() {}
 
-  // ฟังก์ชันเมื่อกด Enter หรือพิมพ์
+  // ฟังก์ชันเมื่อกดค้นหา หรือกด Enter
   onSearchInput() {
-    this.searchChange.emit(this.searchText); // ส่งข้อความที่พิมพ์ออกไปให้หน้าแม่ (Home)
+    console.log('Searching for:', this.searchText);
+    this.searchChange.emit(this.searchText);
   }
 
-  goToLogin() { this.router.navigate(['/login']); }
-  goToRegister() { this.router.navigate(['/register']); }
+  // ไปหน้า Login
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+
+  // ไปหน้า Register
+  goToRegister() {
+    this.router.navigate(['/register']);
+  }
 }

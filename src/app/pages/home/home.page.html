@@ -1,25 +1,4 @@
-<ion-menu contentId="main-content" menuId="home-menu" type="overlay">
-  <ion-content class="menu-content-custom">
-    <div class="menu-wrapper">
-      <div class="menu-header">
-        </div>
-
-      <div class="menu-list">
-        <div class="menu-item" (click)="navigateTo('/home')">หน้าแรก</div>
-        <div class="menu-item" (click)="navigateTo('/list')">รายการ</div>
-        <div class="menu-item" (click)="navigateTo('/my-account')">บัญชีของฉัน</div>
-        <div class="menu-item" (click)="navigateTo('/register')">ลงทะเบียน</div>
-        <div class="menu-item" (click)="navigateTo('/manage-dorm')">จัดการหอพัก</div>
-        <div class="menu-item" (click)="navigateTo('/favorites')">รายการโปรด</div>
-        <div class="menu-item" (click)="navigateTo('/manage-users')">จัดการบัญชีสมาชิก</div>
-        <div class="menu-item" (click)="navigateTo('/requests')">คำขอ</div>
-        <div class="menu-item" (click)="navigateTo('/dashboard')">Dashboard</div>
-      </div>
-    </div>
-  </ion-content>
-</ion-menu>
-
-<div class="ion-page" id="main-content">
+<div class="ion-page">
   
   <app-header title="หน้าหลัก" (searchChange)="onSearch($event)"></app-header>
 
@@ -33,7 +12,7 @@
         [center]="center" 
         [zoom]="zoom"
         [options]="mapOptions">
-
+        
         <map-marker 
           *ngFor="let dorm of dorms"
           [position]="{ lat: dorm.lat, lng: dorm.lng }"
@@ -46,31 +25,33 @@
           <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px;">
             <h3 style="margin: 0; font-size: 16px;">{{ selectedDorm?.DORM_NAME }}</h3>
             <p style="margin: 5px 0;">เริ่ม {{ selectedDorm?.start_price }} บาท</p>
-            <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">
-              ดูรายละเอียด
-            </button>
+            <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">ดูรายละเอียด</button>
           </div>
         </map-info-window>
-
       </google-map>
     </div>
 
-    <div class="top-left-buttons">
-      <div class="chip-button" (click)="openFilter()">
-        กรอง <ion-icon name="caret-down-outline"></ion-icon>
+    <div slot="fixed" class="ui-overlay">
+      
+      <div class="top-left-buttons">
+        <div class="chip-button" (click)="openFilter()">
+          กรอง <ion-icon name="caret-down-outline"></ion-icon>
+        </div>
+        <div class="chip-button" (click)="goToCompare()">
+          เปรียบเทียบ <ion-icon name="layers-outline"></ion-icon>
+        </div>
       </div>
-      <div class="chip-button" (click)="goToCompare()">
-        เปรียบเทียบ <ion-icon name="layers-outline"></ion-icon>
-      </div>
-    </div>
 
-    <div class="menu-toggle-btn" (click)="toggleMenu()">
-      <ion-icon name="menu-outline" style="font-size: 24px;"></ion-icon>
+      <div class="menu-toggle-btn" (click)="toggleMenu()">
+        <ion-icon name="menu-outline" style="font-size: 24px; color: white;"></ion-icon>
+      </div>
+
     </div>
 
     <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
       <ng-template>
         <div class="filter-wrapper">
+          
           <div class="filter-head">
             <h2>ราคา</h2>
             <ion-icon name="close" (click)="setOpen(false)" size="large"></ion-icon>
@@ -110,9 +91,10 @@
           <div class="action-section">
             <button class="btn-confirm" (click)="applyFilter()">ยืนยัน</button>
           </div>
+
         </div>
       </ng-template>
     </ion-modal>
 
-  </ion-content> 
+  </ion-content>
 </div>

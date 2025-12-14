@@ -1,3 +1,55 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  
+  <ion-menu contentId="main-content" menuId="main-menu" type="overlay">
+    <ion-content class="menu-content-custom">
+      <div class="menu-wrapper">
+        <div class="menu-header">
+           <h3 style="color: white; margin: 20px 0 0 0; text-align: center;">เมนูหลัก</h3>
+        </div>
+
+        <div class="menu-list">
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/home" routerDirection="root">หน้าแรก</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/list" routerDirection="forward">รายการ</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/my-account" routerDirection="forward">บัญชีของฉัน</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/register" routerDirection="forward">ลงทะเบียน</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/manage-dorm" routerDirection="forward">จัดการหอพัก</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/favorites" routerDirection="forward">รายการโปรด</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/manage-users" routerDirection="forward">จัดการบัญชีสมาชิก</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/requests" routerDirection="forward">คำขอ</div>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+            <div class="menu-item" routerLink="/dashboard" routerDirection="forward">Dashboard</div>
+          </ion-menu-toggle>
+
+        </div>
+      </div>
+    </ion-content>
+  </ion-menu>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+  <
+  
 </ion-app>

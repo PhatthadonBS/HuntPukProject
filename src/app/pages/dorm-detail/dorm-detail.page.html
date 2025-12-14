@@ -1,13 +1,12 @@
-<ion-header [translucent]="true">
+<ion-header *ngIf="!isPopup">
   <ion-toolbar>
-    <ion-title>dorm-detail</ion-title>
+    <ion-title>รายละเอียดหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dorm-detail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div *ngIf="dormData">
+     <img [src]="dormData.image" />
+     <h2>{{ dormData.DORM_NAME }}</h2>
+     </div>
 </ion-content>

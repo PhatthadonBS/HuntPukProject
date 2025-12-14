@@ -1,6 +1,16 @@
+/* [แก้ไขสำคัญ] ยก Header ให้ลอยเหนือ Map และรับการกดได้ */
+ion-header {
+  position: relative;
+  z-index: 5000 !important; /* ต้องสูงกว่า Map (0) */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
 .custom-toolbar {
   --background: #ffc409; /* สีเหลือง */
   padding: 5px 0;
+  
+  /* [แก้ไข] บังคับให้พื้นที่ Toolbar รับการกด */
+  pointer-events: auto !important; 
 }
 
 .toolbar-content {
@@ -9,7 +19,7 @@
   justify-content: space-between;
   width: 100%;
   padding: 0 10px;
-  gap: 10px; /* ระยะห่างระหว่างส่วนต่างๆ */
+  gap: 10px; 
 }
 
 /* Logo */
@@ -18,16 +28,16 @@
   width: auto;
 }
 
-/* โซนค้นหา (Input + ปุ่ม) */
+/* โซนค้นหา */
 .search-section {
-  flex: 1; /* ยืดเต็มพื้นที่ตรงกลาง */
+  flex: 1; 
   display: flex;
   align-items: center;
-  gap: 5px; /* ระยะห่างระหว่างช่องพิมพ์กับปุ่มค้นหา */
-  max-width: 600px; /* จำกัดความกว้างไม่ให้ยาวเกินไป */
+  gap: 5px; 
+  max-width: 600px; 
   
   .search-box {
-    flex: 1; /* ยืดช่องพิมพ์ให้เต็ม */
+    flex: 1; 
     background: white;
     border-radius: 20px;
     display: flex;
@@ -52,7 +62,6 @@
     }
   }
 
-  /* สไตล์ปุ่มค้นหาที่เพิ่มมาใหม่ */
   .btn-search-action {
     background: #222; /* สีดำ */
     color: white;
@@ -66,7 +75,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    white-space: nowrap; /* ห้ามตัดคำ */
+    white-space: nowrap; 
 
     &:hover {
       background: #444;
@@ -82,7 +91,7 @@
 .auth-buttons {
   display: flex;
   gap: 5px;
-  flex-shrink: 0; /* ห้ามปุ่มหดตัว */
+  flex-shrink: 0; 
 
   .btn-register {
     --background: transparent;

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular'; // ✅ เพิ่ม ViewDidEnter
+import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
@@ -11,6 +11,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 import { DormitoryService, Dormitory } from '../../services/dormitory'; 
 import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
+import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 import { 
   menuOutline, home, listOutline, personCircleOutline, search, 
   funnelOutline, layersOutline, close, caretDown, caretDownOutline, chevronDown, chevronDownCircleOutline
@@ -23,10 +24,10 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule, IonicModule, RouterModule, 
-    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, HeaderComponent
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, HeaderComponent, DormDetailPage
   ]
 })
-export class HomePage implements OnInit, ViewDidEnter { // ✅ เพิ่ม implements ViewDidEnter
+export class HomePage implements OnInit, ViewDidEnter {
   
   apiLoaded: Observable<boolean>; 
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
@@ -43,6 +44,9 @@ export class HomePage implements OnInit, ViewDidEnter { // ✅ เพิ่ม i
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
+
+  // ✅ [เพิ่ม] ตัวแปรสำหรับเก็บข้อมูลหอพักที่จะโชว์ด้านขวา (Side Panel)
+  selectedDormDetail: Dormitory | null = null;
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
   selectedDorm: Dormitory | undefined;
@@ -77,39 +81,18 @@ export class HomePage implements OnInit, ViewDidEnter { // ✅ เพิ่ม i
   }
 
   ngOnInit() {
-    this.menuCtrl.enable(true, 'home-menu');
     this.fetchDorms();
   }
 
-  // 🔥🔥🔥 ไม้ตาย: สั่งลบม่านดำทิ้งทันทีเมื่อเข้าหน้านี้ 🔥🔥🔥
   ionViewDidEnter() {
-    console.log('🚀 กำลังบังคับลบม่านดำ (Backdrop)...');
-
-    // 1. สร้าง Style tag บังคับซ่อน Backdrop
-    const style = document.createElement('style');
-    style.innerHTML = `
-      ion-backdrop {
-        display: none !important;
-        opacity: 0 !important;
-        z-index: -9999 !important;
-        pointer-events: none !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    // 2. หา Element แล้วลบทิ้งเลย
     const backdrops = document.querySelectorAll('ion-backdrop');
-    backdrops.forEach(element => {
-      element.remove();
-    });
-    
-    console.log(`✅ ลบ Backdrop ไปแล้ว ${backdrops.length} ตัว`);
+    backdrops.forEach(element => element.remove());
   }
 
   async toggleMenu() {
-    console.log('Toggling menu...');
-    await this.menuCtrl.enable(true, 'home-menu');
-    await this.menuCtrl.toggle('home-menu');
+    console.log('Toggling Global Menu...');
+    await this.menuCtrl.enable(true, 'main-menu');
+    await this.menuCtrl.toggle('main-menu');
   }
 
   async navigateTo(path: string) {
@@ -120,7 +103,7 @@ export class HomePage implements OnInit, ViewDidEnter { // ✅ เพิ่ม i
   async fetchDorms() {
     try {
       const res = await this.dormService.getAllDorms();
-      if (res.success) {
+      if (res.success && res.data) {
           this.dorms = res.data;
           const firstDorm = this.dorms[0];
           if (firstDorm && firstDorm.lat && firstDorm.lng) {
@@ -139,7 +122,7 @@ export class HomePage implements OnInit, ViewDidEnter { // ✅ เพิ่ม i
     if(this.searchText.trim() !== '') {
         try {
           const res = await this.dormService.searchDorms(this.searchText);
-          if(res.success) {
+          if(res.success && res.data) {
               this.dorms = res.data;
               const firstDorm = this.dorms[0];
               if(firstDorm && firstDorm.lat && firstDorm.lng) {
@@ -160,12 +143,29 @@ export class HomePage implements OnInit, ViewDidEnter { // ✅ เพิ่ม i
     if (this.infoWindow) this.infoWindow.open(marker);
   }
 
-  goToDetail() { if (this.selectedDorm) this.router.navigate(['/dorms', this.selectedDorm.DORM_ID]); }
+  // ✅ [แก้ไข] ไม่ให้เปลี่ยนหน้า แต่ให้เปิด Side Panel แทน
+  goToDetail() { 
+    if (this.selectedDorm) {
+      console.log('Open Side Panel:', this.selectedDorm);
+      // ส่งข้อมูลเข้าตัวแปรนี้ เพื่อให้ HTML ฝั่งขวาแสดงผล
+      this.selectedDormDetail = this.selectedDorm;
+      
+      // (ตัวเลือก) ปิด InfoWindow เล็กๆ บนแผนที่ เพื่อความสะอาดตา
+      if (this.infoWindow) this.infoWindow.close();
+    }
+  }
+
+  // ✅ [เพิ่ม] ฟังก์ชันสำหรับปุ่มกากบาท เพื่อปิดหน้าต่างขวา
+  closeDetailPanel() {
+    this.selectedDormDetail = null;
+  }
+
   goToLogin() { this.router.navigate(['/login']); }
   goToCompare() { this.router.navigate(['/compare']); }
   
   setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
   openFilter() { this.setOpen(true); }
+  
   selectZone(zone: string) { 
       if (this.selectedZone === zone) { this.selectedZone = ''; } else { this.selectedZone = zone; } 
   }
