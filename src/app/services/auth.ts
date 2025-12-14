@@ -75,7 +75,7 @@ export class Auth {
   }
 
   public async login(email: string, password: string){
-    const url = this.endpoint.API_ENDPOINT + '/auth/login';
+    const url = this.endpoint.API_ENDPOINT + '/test';
 
     try {
       const obj = {
@@ -83,7 +83,7 @@ export class Auth {
         password
       }
       const res = await lastValueFrom(this.http.post(url, obj));
-      console.log("sc load");
+      console.log(res);
       return res
       
     } catch (error) {
