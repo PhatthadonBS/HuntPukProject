@@ -37,3 +37,20 @@
 @import '@ionic/angular/css/palettes/dark.system.css';
 /* เพิ่ม CSS ของ Leaflet */
 @import "leaflet/dist/leaflet.css";
+
+/* =========================================
+   🔥 แก้ปัญหาจอดำ/กดไม่ได้ (Global Fix) 🔥
+   ========================================= */
+
+/* บังคับปิดม่านดำ (Backdrop) ทั้งแอปแบบถาวร */
+ion-backdrop {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+}
+
+/* แก้ปุ่มเมนูให้เป็นสีขาวเสมอ (เผื่อมองไม่เห็นในบางหน้า) */
+ion-menu-button {
+    --color: white !important;
+}

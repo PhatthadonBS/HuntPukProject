@@ -1,24 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs'; // สำคัญ: ใช้แปลง Observable เป็น Promise
+import { Constants } from '../config/config';
 
 // ============================================
-// 1. ส่วน Interface (Model): กำหนดหน้าตาข้อมูล
+// 1. Interfaces
 // ============================================
-// ประกาศ Type ให้ตรงกับ Database เพื่อให้เรียกใช้ตัวแปรง่ายๆ
-export interface DormitoryData {
+export interface Dormitory {
   DORM_ID: number;
   DORM_NAME: string;
   ADDRESS: string;
-  lat: number;        // รับจาก API (ที่แปลง ST_X มาแล้ว)
-  lng: number;        // รับจาก API (ที่แปลง ST_Y มาแล้ว)
+  lat: number;
+  lng: number;
   start_price?: number;
   FRONT_DORM_IMAGE?: string;
   ZONE_NAME?: string;
   SCORE?: number;
 }
 
-// Interface สำหรับการตอบกลับจาก API (Response)
 export interface ApiResponse<T> {
   success: boolean;
   message?: string;
@@ -26,61 +25,81 @@ export interface ApiResponse<T> {
 }
 
 // ============================================
-// 2. ส่วน Service: ฟังก์ชันเรียก API
+// 2. Service Class
 // ============================================
 @Injectable({
   providedIn: 'root',
 })
-export class DormitoryService { // <-- แนะนำให้เปลี่ยนชื่อ Class เป็น Service ให้ชัดเจน
+export class DormitoryService {
 
-  // URL ของ API Backend
-  // กรณีทดสอบบน Android Emulator ใช้ 'http://10.0.2.2:3000/api'
-  // กรณีทดสอบบน iOS หรือ Browser ใช้ 'http://localhost:3000/api'
-  private apiUrl = 'http://192.168.116.1:3000'; 
+  // ✅ ขั้นตอนที่ 1: สร้าง Instance ของ Constants ขึ้นมา
+  private appConfig = new Constants(); 
+
+  // ✅ ขั้นตอนที่ 2: ดึงค่า API_ENDPOINT มาจากตัวแปร appConfig
+  private apiUrl = this.appConfig.API_ENDPOINT; 
 
   constructor(private http: HttpClient) { }
 
   /**
    * 1. ดึงหอพักทั้งหมด
-   * @returns Observable ของรายการหอพัก
    */
-  getAllDorms(): Observable<ApiResponse<DormitoryData[]>> {
-    return this.http.get<ApiResponse<DormitoryData[]>>(`${this.apiUrl}/dorms`);
+  public async getAllDorms(): Promise<ApiResponse<Dormitory[]>> {
+    const url = `${this.apiUrl}/dorms`;
+    try {
+      // ใช้ lastValueFrom เพื่อรอผลลัพธ์ (await)
+      const res = await lastValueFrom(this.http.get<ApiResponse<Dormitory[]>>(url));
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
   }
 
   /**
-   * 2. ดึงรายละเอียดหอพักตาม ID (เจาะลึก)
-   * @param id รหัสหอพัก
+   * 2. ดึงรายละเอียดหอพักตาม ID
    */
-  getDormById(id: number): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/dorms/${id}`);
+  public async getDormById(id: number): Promise<ApiResponse<any>> {
+    const url = `${this.apiUrl}/dorms/${id}`;
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<any>>(url));
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
   }
 
   /**
    * 3. ค้นหาหอพักด้วยชื่อ
-   * @param keyword คำค้นหา
    */
-  searchDorms(keyword: string): Observable<ApiResponse<DormitoryData[]>> {
+  public async searchDorms(keyword: string): Promise<ApiResponse<Dormitory[]>> {
+    const url = `${this.apiUrl}/dorms`;
     let params = new HttpParams();
     if (keyword) {
       params = params.set('q', keyword);
     }
-    // หมายเหตุ: ต้องไปเขียน Backend รองรับ query parameter 'q' เพิ่มเติม
-    return this.http.get<ApiResponse<DormitoryData[]>>(`${this.apiUrl}/dorms`, { params });
+
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<Dormitory[]>>(url, { params }));
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
   }
 
   /**
-   * 4. หาหอพักใกล้ฉัน (Optional)
-   * @param lat ละติจูดปัจจุบัน
-   * @param lng ลองจิจูดปัจจุบัน
-   * @param radius ระยะทาง (km)
+   * 4. หาหอพักใกล้ฉัน
    */
-  getNearbyDorms(lat: number, lng: number, radius: number = 5): Observable<ApiResponse<DormitoryData[]>> {
+  public async getNearbyDorms(lat: number, lng: number, radius: number = 5): Promise<ApiResponse<Dormitory[]>> {
+    const url = `${this.apiUrl}/dorms/nearby`;
     let params = new HttpParams()
       .set('lat', lat.toString())
       .set('lng', lng.toString())
       .set('radius', radius.toString());
       
-    return this.http.get<ApiResponse<DormitoryData[]>>(`${this.apiUrl}/dorms/nearby`, { params });
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<Dormitory[]>>(url, { params }));
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
   }
 }
