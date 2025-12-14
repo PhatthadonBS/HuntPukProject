@@ -1,12 +1,124 @@
-<ion-header *ngIf="!isPopup">
-  <ion-toolbar>
+<ion-header *ngIf="!isPopup" class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
     <ion-title>รายละเอียดหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div *ngIf="dormData">
-     <img [src]="dormData.image" />
-     <h2>{{ dormData.DORM_NAME }}</h2>
-     </div>
+<ion-content [fullscreen]="true" class="dorm-detail-content">
+  
+  <div *ngIf="dormData" class="detail-wrapper">
+    
+    <div class="image-header">
+      <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'" 
+           alt="Dorm Image"
+           onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+      <div class="price-badge">
+        เริ่ม {{ dormData.start_price | number }}.-
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
+      
+      <div class="rating-row">
+        <span class="score">4.8</span>
+        <div class="stars">
+           <ion-icon name="star"></ion-icon>
+           <ion-icon name="star"></ion-icon>
+           <ion-icon name="star"></ion-icon>
+           <ion-icon name="star"></ion-icon>
+           <ion-icon name="star-half"></ion-icon>
+        </div>
+        <span class="reviews">(จาก 24 รีวิว)</span>
+      </div>
+
+      <div class="address-row">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>{{ dormData.address || 'ต.ขามเรียง อ.กันทรวิชัย จ.มหาสารคาม' }}</span>
+      </div>
+    </div>
+
+    <div class="custom-segment">
+      <div class="segment-btn" [class.active]="activeTab === 'info'" (click)="switchTab('info')">
+        รายละเอียด
+      </div>
+      <div class="segment-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">
+        รีวิว
+      </div>
+    </div>
+
+    <div class="tab-content">
+      
+      <div *ngIf="activeTab === 'info'" class="info-tab fade-in">
+        
+        <div class="section-box">
+          <h3>สิ่งอำนวยความสะดวก</h3>
+          <div class="amenities-grid">
+            <div class="amenity-item"><ion-icon name="wifi"></ion-icon> WiFi ฟรี</div>
+            <div class="amenity-item"><ion-icon name="car"></ion-icon> ที่จอดรถ</div>
+            <div class="amenity-item"><ion-icon name="snow"></ion-icon> แอร์</div>
+            <div class="amenity-item">เครื่องทำน้ำอุ่น</div>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <h3>ข้อมูลติดต่อ</h3>
+          <p><ion-icon name="call-outline"></ion-icon> <strong>เบอร์โทร:</strong> {{ dormData.phone || '08x-xxx-xxxx' }}</p>
+          <p><strong>Facebook:</strong> {{ dormData.DORM_NAME }} Official</p>
+          <p><strong>Line ID:</strong> @{{ dormData.DORM_NAME }}</p>
+        </div>
+
+        <div class="section-box">
+           <h3>รายละเอียดเพิ่มเติม</h3>
+           <p class="desc-text">
+             หอพักบรรยากาศดี เงียบสงบ เหมาะแก่การพักผ่อน ใกล้มหาวิทยาลัยมหาสารคาม 
+             เดินทางสะดวก มีระบบรักษาความปลอดภัย 24 ชม. เข้า-ออกด้วยระบบคีย์การ์ด
+           </p>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'reviews'" class="reviews-tab fade-in">
+        <div class="review-card">
+          <div class="reviewer-info">
+            <div class="avatar">A</div>
+            <div>
+              <div class="name">Anon User</div>
+              <div class="date">2 วันที่แล้ว</div>
+            </div>
+          </div>
+          <div class="stars-mini">⭐⭐⭐⭐⭐</div>
+          <p>ห้องสะอาดมากครับ ป้าดูแลหอใจดี</p>
+        </div>
+
+        <div class="review-card">
+          <div class="reviewer-info">
+            <div class="avatar" style="background: pink;">B</div>
+            <div>
+              <div class="name">BamBam</div>
+              <div class="date">1 สัปดาห์ที่แล้ว</div>
+            </div>
+          </div>
+          <div class="stars-mini">⭐⭐⭐⭐</div>
+          <p>เน็ตแรงดีค่ะ แต่ที่จอดรถเต็มไวไปหน่อย</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="!dormData" class="no-data">
+    <p>กำลังโหลดข้อมูล...</p>
+  </div>
+
 </ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <div class="footer-btn-wrapper">
+       <button class="btn-contact">จอง / ติดต่อสอบถาม</button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

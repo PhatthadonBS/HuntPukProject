@@ -1,8 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core'; // ✅ เพิ่ม Input
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-// ... imports อื่นๆ
+import { addIcons } from 'ionicons';
+import { star, starHalf, locationOutline, callOutline, wifi, car, snow } from 'ionicons/icons';
 
 @Component({
   selector: 'app-dorm-detail',
@@ -13,22 +14,25 @@ import { IonicModule } from '@ionic/angular';
 })
 export class DormDetailPage implements OnInit {
 
-  // ✅ 1. เพิ่มตัวแปรรับค่าจากหน้า Home
   @Input() dormData: any = null; 
-  
-  // ✅ 2. ตัวแปรเช็คว่าเป็น Popup หรือไม่ (เพื่อซ่อน Header)
   @Input() isPopup: boolean = false; 
 
-  constructor() { }
+  // ตัวแปรสำหรับสลับแท็บ (default เป็น 'info')
+  activeTab: string = 'info';
+
+  constructor() { 
+    // เพิ่มไอคอนที่ต้องใช้
+    addIcons({ star, 'star-half': starHalf, 'location-outline': locationOutline, 'call-outline': callOutline, wifi, car, snow });
+  }
 
   ngOnInit() {
-    // ถ้ามีข้อมูลส่งมา (แบบ Popup) ก็ใช้เลย
     if (this.dormData) {
-      console.log('Load from Input:', this.dormData);
-    } else {
-      // ถ้าไม่มี (แปลว่าเปิดหน้าใหม่ปกติ) ให้โหลดจาก ID ตามเดิม
-      // this.loadFromRoute(); 
+      console.log('Dorm Data Loaded:', this.dormData);
     }
   }
 
+  // ฟังก์ชันสลับแท็บ
+  switchTab(tab: string) {
+    this.activeTab = tab;
+  }
 }
