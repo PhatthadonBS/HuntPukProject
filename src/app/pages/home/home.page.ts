@@ -45,7 +45,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   maxPrice: number | null = null;
   selectedZone: string = '';
 
-  // ✅ [เพิ่ม] ตัวแปรสำหรับเก็บข้อมูลหอพักที่จะโชว์ด้านขวา (Side Panel)
+  // ✅ ตัวแปรสำหรับเก็บข้อมูลหอพักที่จะโชว์ด้านขวา (Side Panel)
   selectedDormDetail: Dormitory | null = null;
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
@@ -84,11 +84,13 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.fetchDorms();
   }
 
+  // 🔥 ไม้ตาย: สั่งลบ Backdrop ทิ้งทันทีเมื่อเข้าหน้านี้
   ionViewDidEnter() {
     const backdrops = document.querySelectorAll('ion-backdrop');
     backdrops.forEach(element => element.remove());
   }
 
+  // ✅ สั่งเปิดเมนู Global (main-menu) ที่อยู่ที่ app.component
   async toggleMenu() {
     console.log('Toggling Global Menu...');
     await this.menuCtrl.enable(true, 'main-menu');
@@ -115,26 +117,40 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
+  // ✅ [Updated] ฟังก์ชันค้นหาแบบใหม่: วาร์ปไปจุดที่เจอและซูมเข้าไป (Zoom 18)
   async onSearch(text: any) {
-    if (typeof text !== 'string') text = text.target.value;
-    this.searchText = text;
-    
-    if(this.searchText.trim() !== '') {
-        try {
-          const res = await this.dormService.searchDorms(this.searchText);
-          if(res.success && res.data) {
-              this.dorms = res.data;
-              const firstDorm = this.dorms[0];
-              if(firstDorm && firstDorm.lat && firstDorm.lng) {
-                  this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
-                  this.zoom = 16; 
-              }
-          }
-        } catch (err) {
-          console.error('Search Error:', err);
+    const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
+    this.searchText = searchValue;
+
+    if (searchValue === '') {
+        this.fetchDorms(); 
+        this.zoom = 14; 
+        return;
+    }
+
+    try {
+        const res = await this.dormService.searchDorms(searchValue);
+        
+        if (res.success && res.data && res.data.length > 0) {
+            console.log('เจอหอพัก:', res.data.length, 'แห่ง');
+
+            this.dorms = res.data;
+            const targetDorm = this.dorms[0];
+
+            // ✅ [แก้ไข] เพิ่ม 'targetDorm &&' ข้างหน้า เพื่อเช็คว่ามีข้อมูลแน่ๆ ไม่ใช่ undefined
+            if (targetDorm && targetDorm.lat && targetDorm.lng) {
+                this.center = { 
+                    lat: Number(targetDorm.lat), 
+                    lng: Number(targetDorm.lng) 
+                };
+                this.zoom = 18; 
+            }
+        } else {
+            console.log('ไม่พบหอพักที่ค้นหา');
+            this.dorms = []; 
         }
-    } else { 
-      this.fetchDorms(); 
+    } catch (err) {
+        console.error('Search Error:', err);
     }
   }
 
@@ -143,19 +159,19 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (this.infoWindow) this.infoWindow.open(marker);
   }
 
-  // ✅ [แก้ไข] ไม่ให้เปลี่ยนหน้า แต่ให้เปิด Side Panel แทน
+  // ✅ ไม่ให้เปลี่ยนหน้า แต่ให้เปิด Side Panel แทน
   goToDetail() { 
     if (this.selectedDorm) {
       console.log('Open Side Panel:', this.selectedDorm);
       // ส่งข้อมูลเข้าตัวแปรนี้ เพื่อให้ HTML ฝั่งขวาแสดงผล
       this.selectedDormDetail = this.selectedDorm;
       
-      // (ตัวเลือก) ปิด InfoWindow เล็กๆ บนแผนที่ เพื่อความสะอาดตา
+      // ปิด InfoWindow เล็กๆ บนแผนที่ เพื่อความสะอาดตา
       if (this.infoWindow) this.infoWindow.close();
     }
   }
 
-  // ✅ [เพิ่ม] ฟังก์ชันสำหรับปุ่มกากบาท เพื่อปิดหน้าต่างขวา
+  // ✅ ฟังก์ชันสำหรับปุ่มกากบาท เพื่อปิดหน้าต่างขวา
   closeDetailPanel() {
     this.selectedDormDetail = null;
   }

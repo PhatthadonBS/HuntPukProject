@@ -1,0 +1,82 @@
+/* --- โหมดเลือก (Selection) --- */
+.dorm-select-card {
+  margin-bottom: 10px;
+  border: 1px solid #eee;
+  transition: all 0.2s;
+  
+  &.selected {
+    border: 2px solid #ffc409; /* สีเหลืองเมื่อเลือก */
+    background: #fffcf0;
+  }
+}
+
+/* --- โหมดเปรียบเทียบ (Comparison) --- */
+.comparison-mode {
+  height: 100%;
+  background: #f4f5f8;
+  padding-top: 10px;
+}
+
+.compare-container {
+  display: flex;
+  width: 100%;
+  overflow: hidden; /* ซ่อนส่วนเกิน */
+  background: white;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+/* คอลัมน์ซ้ายสุด (Label) - ติดอยู่กับที่ */
+.compare-column.labels {
+  flex: 0 0 120px; /* กว้างคงที่ */
+  background: #f9f9f9;
+  border-right: 1px solid #ddd;
+  z-index: 2;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+
+  .cell {
+    font-weight: bold;
+    color: #666;
+    justify-content: flex-start;
+    padding-left: 10px;
+  }
+}
+
+/* พื้นที่เลื่อนแนวนอนสำหรับหอพัก */
+.compare-scroll-area {
+  display: flex;
+  overflow-x: auto; /* ให้เลื่อนแนวนอนได้ */
+  flex: 1;
+  scroll-behavior: smooth;
+}
+
+/* คอลัมน์ข้อมูลหอพัก */
+.compare-column.dorm-data {
+  flex: 0 0 160px; /* ความกว้างของแต่ละหอพัก */
+  border-right: 1px solid #eee;
+  background: white;
+  text-align: center;
+}
+
+/* สไตล์ของแต่ละช่อง (Cell) */
+.cell {
+  height: 60px; /* ความสูงมาตรฐานของแต่ละแถว */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  padding: 5px;
+
+  /* ปรับความสูงเฉพาะแถว */
+  &.header-cell { height: 50px; background: #ffc409; color: black; }
+  &.image-cell { height: 100px; padding: 0; }
+  &.amenities-cell { height: 100px; flex-wrap: wrap; gap: 5px; align-content: center; }
+  &.price-cell { color: #d32f2f; font-weight: bold; font-size: 14px; }
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
