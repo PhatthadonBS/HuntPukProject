@@ -96,3 +96,61 @@ ion-modal.filter-modal-custom {
 .zone-item.full-width { width: 100%; justify-content: center; margin-top: 5px; }
 .action-section { text-align: center; }
 .btn-confirm { background: black; color: white; padding: 12px 40px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; }
+/* --- [ส่วนที่ขาดหายไป] Side Panel (หน้าต่างขวา) --- */
+.dorm-side-panel {
+  position: absolute;
+  top: 80px;   /* เว้นระยะจาก Header */
+  right: 20px; /* ชิดขวา */
+  width: 380px; /* ความกว้าง */
+  height: calc(100% - 100px); /* ความสูง */
+  
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  
+  z-index: 2000; /* สำคัญ! ต้องสูงกว่า Map (0) และ ui-overlay (10) */
+  
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out; /* เอฟเฟกต์เลื่อนเข้า */
+}
+
+/* ปุ่มปิดกากบาท */
+.btn-close-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2001; /* อยู่เหนือเนื้อหา */
+  background: rgba(0,0,0,0.5);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* เอฟเฟกต์ Animation */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Responsive: บนมือถือให้เด้งจากข้างล่าง */
+@media (max-width: 576px) {
+  .dorm-side-panel {
+    width: 100%;
+    height: 60%;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-radius: 20px 20px 0 0;
+    animation: slideUp 0.3s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+}

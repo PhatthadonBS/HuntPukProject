@@ -32,7 +32,6 @@
     </div>
 
     <div slot="fixed" class="ui-overlay">
-      
       <div class="top-left-buttons">
         <div class="chip-button" (click)="openFilter()">
           กรอง <ion-icon name="caret-down-outline"></ion-icon>
@@ -45,6 +44,19 @@
       <div class="menu-toggle-btn" (click)="toggleMenu()">
         <ion-icon name="menu-outline" style="font-size: 24px; color: white;"></ion-icon>
       </div>
+    </div>
+
+    <div class="dorm-side-panel" *ngIf="selectedDormDetail">
+      
+      <div class="btn-close-panel" (click)="closeDetailPanel()">
+        <ion-icon name="close-icon"></ion-icon>
+      </div>
+
+      <app-dorm-detail 
+        [dormData]="selectedDormDetail" 
+        [isPopup]="true"
+        style="height: 100%; display: block;">
+      </app-dorm-detail>
 
     </div>
 
