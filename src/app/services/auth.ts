@@ -73,4 +73,21 @@ export class Auth {
       throw new Error(JSON.stringify(error.error, null, 2));
     }
   }
+
+  public async login(email: string, password: string){
+    const url = this.endpoint.API_ENDPOINT + '/auth/login';
+
+    try {
+      const obj = {
+        email,
+        password
+      }
+      const res = await lastValueFrom(this.http.post(url, obj));
+      console.log("sc load");
+      return res
+      
+    } catch (error) {
+      
+    }
+  }
 }
