@@ -21,8 +21,24 @@
       </div>
 
       <div class="auth-buttons">
-        <ion-button class="btn-register" (click)="goToRegister()">สมัคร</ion-button>
-        <ion-button class="btn-login" (click)="goToLogin()">เข้าสู่ระบบ</ion-button>
+        
+        <ng-container *ngIf="!userData">
+          <ion-button class="btn-register" (click)="goToRegister()">สมัคร</ion-button>
+          <ion-button class="btn-login" (click)="goToLogin()">เข้าสู่ระบบ</ion-button>
+        </ng-container>
+
+       <ng-container *ngIf="userData">
+          <div class="user-badge" (click)="goToMyAccount()" style="cursor: pointer;">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <span>{{ userData.username }}</span>
+          </div>
+
+          <div class="logout-btn" (click)="logout()">
+            <span>Logout</span>
+            <ion-icon name="log-out-outline"></ion-icon>
+          </div>
+        </ng-container>
+
       </div>
     </div>
 

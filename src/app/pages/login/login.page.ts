@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular'; // <--- 1. เพิ่ม AlertController
+import { IonicModule, AlertController } from '@ionic/angular';
 import {
   User,
   UserLoggedInPostRes,
@@ -17,11 +17,9 @@ import { Auth } from '../../services/auth';
   imports: [CommonModule, FormsModule, IonicModule, RouterModule],
 })
 export class LoginPage implements OnInit {
-  // ตัวแปรรับค่าจากฟอร์ม
   email: string = '';
   password: string = '';
 
-  // 3. เพิ่ม alertController เข้ามาใน constructor
   constructor(
     private router: Router,
     private alertController: AlertController,
@@ -42,25 +40,44 @@ export class LoginPage implements OnInit {
         this.password
       )) as UserLoggedInPostRes;
 
-      const UserDataRes: UserLoggedInPostRes = {
-        logged_in: res.logged_in,
-        message: res.message,
-        user: res.user,
-      };
+      if (res.logged_in) {
+        
+        // ✅ [เพิ่ม] เช็คเงื่อนไข Role และ Status ตรงนี้เลย
+        const roleId = res.user.role_id;
+        const status = res.user.accout_status; // (ตามชื่อตัวแปรใน model คุณ)
 
-      const userData = {
-        logggedIn: UserDataRes.logged_in,
-        id: UserDataRes.user.id,
-        email: UserDataRes.user.email,
-        username: UserDataRes.user.username,
-        role_id: UserDataRes.user.role_id,
-        accout_status: UserDataRes.user.accout_status,
-      };
+        // เงื่อนไข: (Role เป็น 1 หรือ 2) AND (Status เป็น 0)
+        if ((roleId === 1 || roleId === 2) && status === 0) {
+          
+          // --- ผ่านเงื่อนไข: บันทึกและไปต่อ ---
+          const userData = {
+            loggedIn: res.logged_in, // แก้ typo logggedIn -> loggedIn ให้สวยงาม
+            id: res.user.id,
+            email: res.user.email,
+            username: res.user.username,
+            role_id: res.user.role_id,
+            accout_status: res.user.accout_status,
+          };
 
-      localStorage.setItem("loggedIn", JSON.stringify(userData))
-      this.router.navigateByUrl('home')
+          localStorage.setItem("loggedIn", JSON.stringify(userData));
+          
+          // ไปหน้า Home
+          this.router.navigateByUrl('home');
+
+        } else {
+          // ❌ ไม่ผ่านเงื่อนไข: แจ้งเตือนและไม่ให้เข้า
+          this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'สิทธิ์การใช้งานของคุณไม่ถูกต้อง หรือบัญชีถูกระงับ');
+          // (ทางเลือก) อาจจะล้าง localStorage เผื่อไว้
+          localStorage.removeItem("loggedIn");
+        }
+
+      } else {
+        this.showAlert('แจ้งเตือน', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      }
+
     } catch (error) {
-    } finally {
+      console.error(error);
+      this.showAlert('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
     }
   }
 
@@ -68,7 +85,6 @@ export class LoginPage implements OnInit {
     this.router.navigate(['/home']);
   }
 
-  // ฟังก์ชันช่วยแสดง Popup แจ้งเตือนสวยๆ ของ Ionic
   async showAlert(header: string, message: string) {
     const alert = await this.alertController.create({
       header: header,

@@ -1,6 +1,10 @@
 <div class="ion-page">
   
-  <app-header title="หน้าหลัก" (searchChange)="onSearch($event)"></app-header>
+  <app-header 
+    title="หน้าหลัก" 
+    [userData]="currentUser" 
+    (searchChange)="onSearch($event)">
+  </app-header>
 
   <ion-content [fullscreen]="true" [scrollY]="false">
     

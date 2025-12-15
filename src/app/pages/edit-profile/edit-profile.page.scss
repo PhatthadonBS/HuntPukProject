@@ -1,0 +1,90 @@
+ion-content {
+  --background: #f5f5f5;
+}
+
+.custom-toolbar {
+  --background: #FFD600;
+  --color: #000;
+}
+
+.edit-header-bg {
+  background: #FFD600;
+  height: 100px; /* สั้นกว่าหน้า Profile */
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+}
+
+.form-card {
+  background: white;
+  margin: -50px 20px 20px 20px;
+  border-radius: 24px;
+  padding: 30px 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.form-group {
+  margin-bottom: 25px;
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 10px;
+    margin-left: 5px;
+  }
+}
+
+/* Custom Input สวยๆ */
+.input-container {
+  display: flex;
+  align-items: center;
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 5px 15px;
+  transition: all 0.3s;
+
+  ion-icon {
+    color: #aaa;
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    outline: none;
+
+    &::placeholder {
+      color: #ccc;
+    }
+  }
+
+  /* เวลาจิ้มพิมพ์ ให้ขอบเป็นสีเหลือง */
+  &:focus-within {
+    border-color: #FFD600;
+    background: white;
+    box-shadow: 0 4px 10px rgba(255, 214, 0, 0.15);
+    
+    ion-icon {
+      color: #FFD600;
+    }
+  }
+}
+
+.action-area {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* เว้นระยะห่างระหว่างปุ่มบันทึกกับยกเลิก */
+}
+
+.btn-cancel {
+  --border-width: 2px;
+}

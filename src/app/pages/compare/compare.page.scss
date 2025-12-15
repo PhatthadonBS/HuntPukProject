@@ -1,82 +1,181 @@
-/* --- โหมดเลือก (Selection) --- */
-.dorm-select-card {
-  margin-bottom: 10px;
-  border: 1px solid #eee;
-  transition: all 0.2s;
-  
-  &.selected {
-    border: 2px solid #ffc409; /* สีเหลืองเมื่อเลือก */
-    background: #fffcf0;
-  }
+/* พื้นหลังสีเทาอ่อน สบายตา */
+ion-content {
+  --background: #f5f5f5;
 }
 
-/* --- โหมดเปรียบเทียบ (Comparison) --- */
-.comparison-mode {
-  height: 100%;
-  background: #f4f5f8;
-  padding-top: 10px;
+/* Toolbar สีเหลือง */
+.custom-toolbar {
+  --background: #FFD600;
 }
 
-.compare-container {
-  display: flex;
-  width: 100%;
-  overflow: hidden; /* ซ่อนส่วนเกิน */
-  background: white;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+/* แถบโค้งสีเหลืองด้านบน (เหมือนหน้า Profile) */
+.header-curve-bg {
+  background: #FFD600;
+  height: 60px;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
 }
 
-/* คอลัมน์ซ้ายสุด (Label) - ติดอยู่กับที่ */
-.compare-column.labels {
-  flex: 0 0 120px; /* กว้างคงที่ */
-  background: #f9f9f9;
-  border-right: 1px solid #ddd;
-  z-index: 2;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-
-  .cell {
-    font-weight: bold;
-    color: #666;
-    justify-content: flex-start;
-    padding-left: 10px;
-  }
+/* --- Container --- */
+.selection-container {
+  padding: 0 15px;
+  position: relative;
+  z-index: 1; /* ให้เนื้อหาลอยทับแถบสีเหลือง */
 }
 
-/* พื้นที่เลื่อนแนวนอนสำหรับหอพัก */
-.compare-scroll-area {
-  display: flex;
-  overflow-x: auto; /* ให้เลื่อนแนวนอนได้ */
-  flex: 1;
-  scroll-behavior: smooth;
-}
-
-/* คอลัมน์ข้อมูลหอพัก */
-.compare-column.dorm-data {
-  flex: 0 0 160px; /* ความกว้างของแต่ละหอพัก */
-  border-right: 1px solid #eee;
-  background: white;
+.instruction-text {
   text-align: center;
+  margin-bottom: 15px;
+  p {
+    font-size: 13px;
+    color: #444; /* สีเข้มขึ้นนิดนึงให้อ่านง่ายบนสีเหลือง */
+    font-weight: 500;
+    margin: 0;
+  }
 }
 
-/* สไตล์ของแต่ละช่อง (Cell) */
-.cell {
-  height: 60px; /* ความสูงมาตรฐานของแต่ละแถว */
+/* --- Grid Layout --- */
+.dorm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 คอลัมน์ */
+  gap: 12px; /* ช่องไฟระหว่างการ์ด */
+}
+
+/* --- Card Style (เล็กลง) --- */
+.dorm-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  position: relative;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
+
+  &.selected {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 214, 0, 0.4);
+    
+    .border-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 2px solid #FFD600;
+      border-radius: 12px;
+      pointer-events: none;
+      z-index: 10;
+    }
+  }
+}
+
+/* รูปภาพ (ลดความสูงลง) */
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100px; /* ✅ Fix ความสูงให้เล็กลง */
+  background: #eee;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Checkbox วงกลม */
+.checkbox-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  width: 24px; /* เล็กลง */
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #eee;
-  font-size: 13px;
-  padding: 5px;
-
-  /* ปรับความสูงเฉพาะแถว */
-  &.header-cell { height: 50px; background: #ffc409; color: black; }
-  &.image-cell { height: 100px; padding: 0; }
-  &.amenities-cell { height: 100px; flex-wrap: wrap; gap: 5px; align-content: center; }
-  &.price-cell { color: #d32f2f; font-weight: bold; font-size: 14px; }
+  z-index: 5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* เนื้อหาในการ์ด */
+.content-wrapper {
+  padding: 8px;
+  text-align: left; /* จัดชิดซ้ายดูอ่านง่ายกว่า */
+
+  .dorm-name {
+    margin: 0 0 4px 0;
+    font-size: 13px; /* ตัวอักษรเล็กลง */
+    font-weight: bold;
+    color: #222;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dorm-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: #E65100; /* สีส้มเข้ม */
+    margin-bottom: 2px;
+  }
+
+  .dorm-zone {
+    font-size: 10px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+}
+
+/* --- ปุ่มเปรียบเทียบ (Floating Footer) --- */
+.floating-footer {
+  padding: 10px 20px 20px 20px; /* Padding ล่างเยอะหน่อยเผื่อ iPhone จอแหว่ง */
+  background: transparent;
+  pointer-events: none; /* ให้คลิกทะลุพื้นหลังได้ */
+  display: flex;
+  justify-content: center;
+}
+
+.btn-compare {
+  pointer-events: auto; /* ให้ปุ่มกดได้ */
+  background: #222; /* สีดำด้าน */
+  color: #FFD600; /* ตัวหนังสือสีเหลือง */
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* --- Table Comparison --- */
+.comparison-mode {
+  background: white;
+  margin-top: -10px; /* ดึงขึ้นมาทับ Curve นิดนึง */
+  border-radius: 20px 20px 0 0;
+  padding: 20px 0;
+  min-height: 80vh;
+}
+
+.compare-container {
+  display: flex; width: 100%; overflow: hidden;
+}
+/* (ใช้ CSS ตารางชุดเดิมได้เลยครับ หรือปรับสี Header ให้เป็น #FFD600) */
+.cell.header-cell {
+    background: #FFD600; /* หัวตารางสีเหลือง */
+    color: black;
 }

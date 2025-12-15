@@ -45,11 +45,13 @@ export class HomePage implements OnInit, ViewDidEnter {
   maxPrice: number | null = null;
   selectedZone: string = '';
 
-  // ✅ ตัวแปรสำหรับเก็บข้อมูลหอพักที่จะโชว์ด้านขวา (Side Panel)
   selectedDormDetail: Dormitory | null = null;
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
   selectedDorm: Dormitory | undefined;
+
+  // ✅ ตัวแปรเก็บข้อมูล User ที่ผ่านการตรวจสอบแล้ว
+  currentUser: any = null;
 
   constructor(
     private router: Router,
@@ -82,15 +84,45 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   ngOnInit() {
     this.fetchDorms();
+    this.checkLoginStatus(); // เช็คสถานะตอนเริ่ม
   }
 
-  // 🔥 ไม้ตาย: สั่งลบ Backdrop ทิ้งทันทีเมื่อเข้าหน้านี้
   ionViewDidEnter() {
     const backdrops = document.querySelectorAll('ion-backdrop');
     backdrops.forEach(element => element.remove());
+
+    this.checkLoginStatus(); // เช็คสถานะอีกครั้งเมื่อกลับมาหน้านี้
   }
 
-  // ✅ สั่งเปิดเมนู Global (main-menu) ที่อยู่ที่ app.component
+  // ✅ ฟังก์ชันเช็คสถานะการล็อกอินและเงื่อนไข Role/Status
+  checkLoginStatus() {
+    const storedData = localStorage.getItem('loggedIn');
+    
+    if (storedData) {
+      try {
+        const userObj = JSON.parse(storedData);
+        
+        // เงื่อนไข: (Role เป็น 1 หรือ 2) AND (Status เป็น 0)
+        // หมายเหตุ: ใช้ชื่อ 'accout_status' ตาม JSON ของคุณ (ระวังคำว่า account ตก n)
+        const isRoleValid = (userObj.role_id === 1 || userObj.role_id === 2);
+        const isStatusValid = (userObj.accout_status === 0);
+
+        if (isRoleValid && isStatusValid) {
+          console.log('User Valid:', userObj.username);
+          this.currentUser = userObj; // ผ่านเงื่อนไข -> เก็บค่า User
+        } else {
+          console.log('User Invalid Role or Status');
+          this.currentUser = null; // ไม่ผ่าน -> เคลียร์ค่า
+        }
+      } catch (e) {
+        console.error('Error parsing user data', e);
+        this.currentUser = null;
+      }
+    } else {
+      this.currentUser = null;
+    }
+  }
+
   async toggleMenu() {
     console.log('Toggling Global Menu...');
     await this.menuCtrl.enable(true, 'main-menu');
@@ -117,7 +149,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  // ✅ [Updated] ฟังก์ชันค้นหาแบบใหม่: วาร์ปไปจุดที่เจอและซูมเข้าไป (Zoom 18)
   async onSearch(text: any) {
     const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
@@ -137,7 +168,6 @@ export class HomePage implements OnInit, ViewDidEnter {
             this.dorms = res.data;
             const targetDorm = this.dorms[0];
 
-            // ✅ [แก้ไข] เพิ่ม 'targetDorm &&' ข้างหน้า เพื่อเช็คว่ามีข้อมูลแน่ๆ ไม่ใช่ undefined
             if (targetDorm && targetDorm.lat && targetDorm.lng) {
                 this.center = { 
                     lat: Number(targetDorm.lat), 
@@ -159,19 +189,14 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (this.infoWindow) this.infoWindow.open(marker);
   }
 
-  // ✅ ไม่ให้เปลี่ยนหน้า แต่ให้เปิด Side Panel แทน
   goToDetail() { 
     if (this.selectedDorm) {
       console.log('Open Side Panel:', this.selectedDorm);
-      // ส่งข้อมูลเข้าตัวแปรนี้ เพื่อให้ HTML ฝั่งขวาแสดงผล
       this.selectedDormDetail = this.selectedDorm;
-      
-      // ปิด InfoWindow เล็กๆ บนแผนที่ เพื่อความสะอาดตา
       if (this.infoWindow) this.infoWindow.close();
     }
   }
 
-  // ✅ ฟังก์ชันสำหรับปุ่มกากบาท เพื่อปิดหน้าต่างขวา
   closeDetailPanel() {
     this.selectedDormDetail = null;
   }

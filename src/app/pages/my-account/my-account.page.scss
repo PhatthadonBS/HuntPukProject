@@ -1,0 +1,106 @@
+/* พื้นหลังรวม */
+ion-content {
+  --background: #f5f5f5; /* สีเทาอ่อนมาก สบายตา */
+}
+
+/* Toolbar โปร่งใส */
+.custom-toolbar {
+  --background: #FFD600;
+  --color: #000;
+}
+
+/* 1. Header สีเหลืองโค้งๆ */
+.profile-header-bg {
+  background: #FFD600;
+  height: 220px;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 50px; /* เผื่อพื้นที่ให้การ์ดทับ */
+  position: relative;
+}
+
+.avatar-wrapper {
+  text-align: center;
+  color: black;
+}
+
+.avatar-circle {
+  width: 90px;
+  height: 90px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  border: 4px solid rgba(255,255,255,0.5);
+  
+  ion-icon {
+    font-size: 50px;
+    color: #555;
+  }
+}
+
+.user-name-display h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 5px 0 0 0;
+}
+.user-name-display p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* 2. การ์ดข้อมูลลอย */
+.profile-content-card {
+  background: white;
+  margin: -50px 20px 20px 20px; /* ดึงขึ้นไปทับ Header -50px */
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 10;
+}
+
+/* รายการข้อมูล */
+.info-group {
+  padding: 15px 0;
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  
+  ion-icon {
+    color: #FFD600; /* ไอคอนสีเหลืองธีม */
+    font-size: 18px;
+  }
+}
+
+.info-value {
+  padding-left: 26px; /* ให้ตรงกับตัวหนังสือข้างบน */
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 5px 0;
+}
+.edit-btn-wrapper {
+  display: flex;
+  justify-content: flex-end; /* ดันปุ่มไปขวาสุด */
+  margin-bottom: 15px;
+}

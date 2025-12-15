@@ -1,93 +1,106 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="custom-toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="isComparing ? cancelCompare() : goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
+        <ion-icon name="arrow-back" style="color: black;"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isComparing ? 'ผลการเปรียบเทียบ' : 'เลือกหอพักเพื่อเปรียบเทียบ' }}</ion-title>
+    <ion-title style="color: black; font-weight: bold;">
+      {{ isComparing ? 'ผลการเปรียบเทียบ' : 'เลือกหอพัก' }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding-bottom">
+<ion-content>
+  
+  <div class="header-curve-bg"></div>
 
-  <div *ngIf="!isComparing" class="selection-mode">
-    <ion-list lines="none">
-      <ion-card *ngFor="let dorm of allDorms" class="dorm-select-card" [class.selected]="dorm.isChecked">
-        <ion-item>
-          <ion-thumbnail slot="start">
-            <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" />
-          </ion-thumbnail>
-          <ion-label>
-            <h2>{{ dorm.DORM_NAME }}</h2>
-            <p>เริ่มต้น {{ dorm.start_price }} บาท</p>
-          </ion-label>
-          <ion-checkbox slot="end" [(ngModel)]="dorm.isChecked" (ionChange)="onSelectDorm(dorm)"></ion-checkbox>
-        </ion-item>
-      </ion-card>
-    </ion-list>
+  <div *ngIf="!isComparing" class="selection-container">
+    
+    <div class="instruction-text">
+      <p>เลือกเปรียบเทียบได้สูงสุด {{ maxSelection }} แห่ง (เลือกแล้ว {{ getSelectedCount() }})</p>
+    </div>
+
+    <div class="dorm-grid">
+      <div class="dorm-card" *ngFor="let dorm of allDorms" [class.selected]="dorm.isChecked"
+        (click)="dorm.isChecked = !dorm.isChecked; onSelectDorm(dorm)">
+        
+        <div class="image-wrapper">
+          <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" />
+          <div class="checkbox-badge">
+            <ion-checkbox mode="ios" [(ngModel)]="dorm.isChecked" (click)="$event.stopPropagation(); onSelectDorm(dorm)"></ion-checkbox>
+          </div>
+        </div>
+
+        <div class="content-wrapper">
+          <h3 class="dorm-name">{{ dorm.DORM_NAME }}</h3>
+          <div class="dorm-price">เริ่ม {{ dorm.start_price | number }}</div>
+          <div class="dorm-zone"><ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุ' }}</div>
+        </div>
+        
+        <div class="border-overlay" *ngIf="dorm.isChecked"></div>
+      </div>
+    </div>
+    <div style="height: 80px;"></div>
   </div>
 
 
   <div *ngIf="isComparing" class="comparison-mode">
-    
-    <div class="compare-container">
-      
-      <div class="compare-column labels">
-        <div class="cell header-cell">หัวข้อเปรียบเทียบ</div>
-        <div class="cell">รูปภาพ</div>
-        <div class="cell">ราคาเริ่มต้น</div>
-        <div class="cell">โซน/ที่อยู่</div>
-        <div class="cell">เบอร์โทร</div>
-        <div class="cell">สิ่งอำนวยความสะดวก</div>
-        <div class="cell">Action</div>
-      </div>
-
-      <div class="compare-scroll-area">
-        <div class="compare-column dorm-data" *ngFor="let item of selectedDorms">
-          
-          <div class="cell header-cell">
-            <strong>{{ item.DORM_NAME }}</strong>
-          </div>
-
-          <div class="cell image-cell">
-            <img [src]="item.image || 'assets/dorm-placeholder.jpg'">
-          </div>
-
-          <div class="cell price-cell">
-            <ion-icon name="cash-outline"></ion-icon> {{ item.start_price | number }}.-
-          </div>
-
-          <div class="cell">
-            <ion-icon name="location-outline"></ion-icon> {{ item.zone || '-' }}
-          </div>
-
-          <div class="cell">
-            {{ item.phone || '-' }}
-          </div>
-
-          <div class="cell amenities-cell">
-            <ion-badge color="light">WiFi</ion-badge>
-            <ion-badge color="light">แอร์</ion-badge>
-            <ion-badge color="light">ที่จอดรถ</ion-badge>
-          </div>
-          
-          <div class="cell">
-             <ion-button fill="outline" size="small" [routerLink]="['/dorms', item.DORM_ID]">ดูรายละเอียด</ion-button>
-          </div>
-
+     <div class="compare-container">
+        
+        <div class="compare-column labels">
+             <div class="cell header-cell">ชื่อหอพัก</div>
+             <div class="cell image-cell">รูปภาพ</div>
+             <div class="cell">ราคาเริ่มต้น</div>
+             <div class="cell">โซน/ที่อยู่</div>
+             <div class="cell">เบอร์โทร</div>
+             <div class="cell amenities-cell">สิ่งอำนวยความสะดวก</div>
+             <div class="cell action-cell"></div>
         </div>
-      </div>
 
-    </div>
+        <div class="compare-scroll-area">
+           <div class="compare-column dorm-data" *ngFor="let item of selectedDorms">
+              
+              <div class="cell header-cell">
+                <strong>{{ item.DORM_NAME }}</strong>
+              </div>
+
+              <div class="cell image-cell">
+                <img [src]="item.image || 'assets/dorm-placeholder.jpg'">
+              </div>
+
+              <div class="cell price-cell">
+                 {{ item.start_price | number }}.-
+              </div>
+
+              <div class="cell">{{ item.zone || '-' }}</div>
+              
+              <div class="cell">{{ item.phone || '-' }}</div>
+
+              <div class="cell amenities-cell">
+                 <ion-badge color="light" style="margin: 2px;">WiFi</ion-badge>
+                 <ion-badge color="light" style="margin: 2px;">แอร์</ion-badge>
+                 <ion-badge color="light" style="margin: 2px;">จอดรถ</ion-badge>
+                 </div>
+
+              <div class="cell action-cell">
+                 <ion-button color="dark" size="small" shape="round" [routerLink]="['/dorms', item.DORM_ID]">
+                   ดูรายละเอียด
+                 </ion-button>
+              </div>
+
+           </div>
+        </div>
+     </div>
   </div>
 
 </ion-content>
 
 <ion-footer *ngIf="!isComparing" class="ion-no-border">
-  <ion-toolbar style="--background: transparent; padding: 10px;">
-    <ion-button expand="block" shape="round" color="dark" (click)="startCompare()">
-      เปรียบเทียบที่เลือก
-    </ion-button>
-  </ion-toolbar>
+  <div class="floating-footer">
+    <button class="btn-compare" (click)="startCompare()">
+      เปรียบเทียบ ({{ getSelectedCount() }} รายการ)
+      <ion-icon name="layers-outline"></ion-icon>
+    </button>
+  </div>
 </ion-footer>

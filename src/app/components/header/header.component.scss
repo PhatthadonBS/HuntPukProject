@@ -117,3 +117,38 @@ ion-header {
     font-weight: bold;
   }
 }
+/* ... CSS เดิม ... */
+
+/* ปุ่มแสดงชื่อ User */
+.user-badge {
+  background: #00b0ff;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  margin-right: 10px;
+  border: 1px solid black;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ปุ่ม Logout */
+.logout-btn {
+  background: #ff3d00;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid black;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+
+  &:hover {
+    background: #d50000;
+  }
+}
