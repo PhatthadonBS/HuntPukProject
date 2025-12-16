@@ -14,7 +14,8 @@ import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 import { 
   menuOutline, home, listOutline, personCircleOutline, search, 
-  funnelOutline, layersOutline, close, caretDown, caretDownOutline, chevronDown, chevronDownCircleOutline
+  funnelOutline, layersOutline, close, caretDown, caretDownOutline, 
+  chevronDown, chevronDownCircleOutline, checkmarkCircle 
 } from 'ionicons/icons';
 
 @Component({
@@ -30,8 +31,11 @@ import {
 export class HomePage implements OnInit, ViewDidEnter {
   
   apiLoaded: Observable<boolean>; 
+  
+  // พิกัดเริ่มต้น (ม.สารคาม)
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   zoom = 14;
+  
   mapOptions: google.maps.MapOptions = {
     disableDefaultUI: false, zoomControl: false, mapTypeControl: false, 
     streetViewControl: false, fullscreenControl: false
@@ -41,16 +45,18 @@ export class HomePage implements OnInit, ViewDidEnter {
   dorms: Dormitory[] = []; 
   isModalOpen = false;
 
+  // ตัวแปรสำหรับ Filter
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
+  
+  zoneOptions: any[] = []; 
 
   selectedDormDetail: Dormitory | null = null;
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
   selectedDorm: Dormitory | undefined;
 
-  // ✅ ตัวแปรเก็บข้อมูล User ที่ผ่านการตรวจสอบแล้ว
   currentUser: any = null;
 
   constructor(
@@ -64,7 +70,8 @@ export class HomePage implements OnInit, ViewDidEnter {
       'person-circle-outline': personCircleOutline, search,
       'funnel-outline': funnelOutline, 'layers-outline': layersOutline,
       'close': close, 'caret-down': caretDown, 'caret-down-outline': caretDownOutline,
-      'chevron-down': chevronDown, 'chevron-down-circle-outline': chevronDownCircleOutline
+      'chevron-down': chevronDown, 'chevron-down-circle-outline': chevronDownCircleOutline,
+      'checkmark-circle': checkmarkCircle
     });
 
     if (typeof google === 'object' && typeof google.maps === 'object') {
@@ -84,38 +91,29 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   ngOnInit() {
     this.fetchDorms();
-    this.checkLoginStatus(); // เช็คสถานะตอนเริ่ม
+    this.fetchZones(); 
+    this.checkLoginStatus(); 
   }
 
   ionViewDidEnter() {
     const backdrops = document.querySelectorAll('ion-backdrop');
     backdrops.forEach(element => element.remove());
-
-    this.checkLoginStatus(); // เช็คสถานะอีกครั้งเมื่อกลับมาหน้านี้
+    this.checkLoginStatus(); 
   }
 
-  // ✅ ฟังก์ชันเช็คสถานะการล็อกอินและเงื่อนไข Role/Status
   checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
-    
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
-        
-        // เงื่อนไข: (Role เป็น 1 หรือ 2) AND (Status เป็น 0)
-        // หมายเหตุ: ใช้ชื่อ 'accout_status' ตาม JSON ของคุณ (ระวังคำว่า account ตก n)
         const isRoleValid = (userObj.role_id === 1 || userObj.role_id === 2);
         const isStatusValid = (userObj.accout_status === 0);
-
         if (isRoleValid && isStatusValid) {
-          console.log('User Valid:', userObj.username);
-          this.currentUser = userObj; // ผ่านเงื่อนไข -> เก็บค่า User
+          this.currentUser = userObj; 
         } else {
-          console.log('User Invalid Role or Status');
-          this.currentUser = null; // ไม่ผ่าน -> เคลียร์ค่า
+          this.currentUser = null; 
         }
       } catch (e) {
-        console.error('Error parsing user data', e);
         this.currentUser = null;
       }
     } else {
@@ -123,8 +121,18 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
+  async fetchZones() {
+    try {
+      const res = await this.dormService.getZones();
+      if (res.success) {
+        this.zoneOptions = res.data;
+      }
+    } catch (error) {
+      console.error('Error fetching zones:', error);
+    }
+  }
+
   async toggleMenu() {
-    console.log('Toggling Global Menu...');
     await this.menuCtrl.enable(true, 'main-menu');
     await this.menuCtrl.toggle('main-menu');
   }
@@ -134,54 +142,88 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.router.navigate([path]);
   }
 
+  // โหลดหอพักทั้งหมด (ค่าเริ่มต้น)
   async fetchDorms() {
     try {
       const res = await this.dormService.getAllDorms();
       if (res.success && res.data) {
           this.dorms = res.data;
-          const firstDorm = this.dorms[0];
-          if (firstDorm && firstDorm.lat && firstDorm.lng) {
-              this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
-          }
+          this.dorms.forEach(d => {
+             d.lat = Number(d.lat);
+             d.lng = Number(d.lng);
+          });
       }
     } catch (err) {
       console.error('API Error:', err);
     }
   }
 
+  // ✅ ฟังก์ชันค้นหาหลัก (รับ Search Text จาก Header)
   async onSearch(text: any) {
     const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
 
-    if (searchValue === '') {
+    // ถ้าช่องค้นหาว่าง และไม่มีการกรองโซน/ราคา ให้โหลดทั้งหมด
+    if (searchValue === '' && !this.selectedZone && !this.minPrice && !this.maxPrice) {
         this.fetchDorms(); 
         this.zoom = 14; 
         return;
     }
 
-    try {
-        const res = await this.dormService.searchDorms(searchValue);
-        
-        if (res.success && res.data && res.data.length > 0) {
-            console.log('เจอหอพัก:', res.data.length, 'แห่ง');
+    // เรียกฟังก์ชันกลาง
+    this.performSearch();
+  }
 
-            this.dorms = res.data;
-            const targetDorm = this.dorms[0];
+  // ✅ ฟังก์ชัน Apply Filter (กดปุ่มยืนยันใน Modal)
+  applyFilter() {
+      console.log('Filter Data:', { minPrice: this.minPrice, maxPrice: this.maxPrice, zone: this.selectedZone });
+      this.setOpen(false);
+      this.performSearch(); // เรียกฟังก์ชันกลางเพื่อค้นหาและซูม
+  }
 
-            if (targetDorm && targetDorm.lat && targetDorm.lng) {
-                this.center = { 
-                    lat: Number(targetDorm.lat), 
-                    lng: Number(targetDorm.lng) 
-                };
-                this.zoom = 18; 
-            }
-        } else {
-            console.log('ไม่พบหอพักที่ค้นหา');
-            this.dorms = []; 
-        }
-    } catch (err) {
-        console.error('Search Error:', err);
-    }
+  // ✅ ฟังก์ชันกลางสำหรับการค้นหาและซูมแผนที่
+  async performSearch() {
+      try {
+          // ส่งค่าทุกอย่างไปที่ Service
+          const res = await this.dormService.searchDorms(
+              this.searchText, 
+              this.selectedZone, 
+              this.minPrice || undefined, 
+              this.maxPrice || undefined
+          );
+          
+          if (res.success && res.data) {
+              console.log('Found:', res.data.length);
+              this.dorms = res.data;
+              
+              // แปลงพิกัด
+              this.dorms.forEach(d => {
+                 d.lat = Number(d.lat);
+                 d.lng = Number(d.lng);
+              });
+
+              // ✅ LOGIC ย้ายแผนที่ (Re-center) ไปหาจุดแรกที่เจอ
+              if (this.dorms.length > 0) {
+                  const target = this.dorms[0];
+                  if (target && target.lat && target.lng) {
+                      // สร้าง Object ใหม่เพื่อให้ Map รู้ว่าค่าเปลี่ยน
+                      this.center = { 
+                          lat: target.lat, 
+                          lng: target.lng 
+                      };
+                      // ปรับ Zoom: ถ้าน้อยกว่า 3 แห่งให้ซูมใกล้, ถ้าเยอะให้ซูมห่าง
+                      this.zoom = this.dorms.length < 3 ? 16 : 14; 
+                  }
+              } else {
+                  console.log('No dorms match criteria');
+                  // อาจจะใส่ Alert แจ้งเตือนว่าไม่พบข้อมูลก็ได้
+              }
+          } else {
+              this.dorms = [];
+          }
+      } catch (err) {
+          console.error('Search Error:', err);
+      }
   }
 
   openInfoWindow(marker: MapMarker, dorm: Dormitory) {
@@ -189,10 +231,18 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (this.infoWindow) this.infoWindow.open(marker);
   }
 
-  goToDetail() { 
+  async goToDetail() { 
     if (this.selectedDorm) {
-      console.log('Open Side Panel:', this.selectedDorm);
-      this.selectedDormDetail = this.selectedDorm;
+      try {
+        const res = await this.dormService.getDormById(this.selectedDorm.DORM_ID);
+        if (res.success) {
+           this.selectedDormDetail = res.data;
+        } else {
+           this.selectedDormDetail = this.selectedDorm;
+        }
+      } catch (e) {
+        this.selectedDormDetail = this.selectedDorm;
+      }
       if (this.infoWindow) this.infoWindow.close();
     }
   }
@@ -207,12 +257,11 @@ export class HomePage implements OnInit, ViewDidEnter {
   setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
   openFilter() { this.setOpen(true); }
   
-  selectZone(zone: string) { 
-      if (this.selectedZone === zone) { this.selectedZone = ''; } else { this.selectedZone = zone; } 
-  }
-
-  applyFilter() {
-      console.log('Filter Data:', { minPrice: this.minPrice, maxPrice: this.maxPrice, zone: this.selectedZone });
-      this.setOpen(false);
+  selectZone(zoneName: string) { 
+      if (this.selectedZone === zoneName) { 
+        this.selectedZone = ''; 
+      } else { 
+        this.selectedZone = zoneName; 
+      } 
   }
 }

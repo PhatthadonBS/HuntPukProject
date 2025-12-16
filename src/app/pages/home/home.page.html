@@ -26,10 +26,16 @@
         </map-marker>
 
         <map-info-window>
-          <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px;">
-            <h3 style="margin: 0; font-size: 16px;">{{ selectedDorm?.DORM_NAME }}</h3>
-            <p style="margin: 5px 0;">เริ่ม {{ selectedDorm?.start_price }} บาท</p>
-            <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 5px 10px; border-radius: 4px;">ดูรายละเอียด</button>
+          <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px; min-width: 150px;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: bold;">{{ selectedDorm?.DORM_NAME }}</h3>
+            
+            <p style="margin: 5px 0; font-size: 14px; color: #555;">
+              เริ่ม <span style="color: #d32f2f; font-weight: bold;">{{ selectedDorm?.start_price | number }}</span> บาท
+            </p>
+            
+            <button (click)="goToDetail()" style="background: #3880ff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 5px;">
+              ดูรายละเอียด
+            </button>
           </div>
         </map-info-window>
       </google-map>
@@ -53,7 +59,7 @@
     <div class="dorm-side-panel" *ngIf="selectedDormDetail">
       
       <div class="btn-close-panel" (click)="closeDetailPanel()">
-        <ion-icon name="close-icon"></ion-icon>
+        <ion-icon name="close"></ion-icon>
       </div>
 
       <app-dorm-detail 
@@ -69,43 +75,56 @@
         <div class="filter-wrapper">
           
           <div class="filter-head">
-            <h2>ราคา</h2>
+            <h2>ตัวกรองค้นหา</h2>
             <ion-icon name="close" (click)="setOpen(false)" size="large"></ion-icon>
           </div>
 
           <div class="price-section">
-            <div class="price-col">
-              <span class="label">เริ่มต้น</span>
-              <div class="input-capsule">
-                <input type="number" [(ngModel)]="minPrice" placeholder="0">
+            <h3>ช่วงราคา</h3>
+            <div class="price-inputs">
+              <div class="price-col">
+                <span class="label">ต่ำสุด</span>
+                <div class="input-capsule">
+                  <input type="number" [(ngModel)]="minPrice" placeholder="0">
+                </div>
               </div>
-            </div>
-            <div class="dash">-</div>
-            <div class="price-col">
-              <span class="label">สูงสุด</span>
-              <div class="input-capsule">
-                <input type="number" [(ngModel)]="maxPrice" placeholder="Max">
+              <div class="dash">-</div>
+              <div class="price-col">
+                <span class="label">สูงสุด</span>
+                <div class="input-capsule">
+                  <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด">
+                </div>
               </div>
             </div>
           </div>
 
           <div class="zone-section">
-            <h2>บริเวณของหอพัก</h2>
+            <h3>บริเวณหอพัก</h3>
             <div class="zone-options">
-               <div class="zone-item" [class.selected]="selectedZone === 'ท่าขามเรียง'" (click)="selectZone('ท่าขามเรียง')">
-                 โซนท่าขามเรียง <ion-icon name="chevron-down-circle-outline"></ion-icon>
+               
+               <div 
+                 class="zone-item" 
+                 *ngFor="let zone of zoneOptions"
+                 [class.selected]="selectedZone === zone.ZONE_NAME" 
+                 (click)="selectZone(zone.ZONE_NAME)">
+                 
+                 <span>{{ zone.ZONE_NAME }}</span>
+                 
+                 <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle" color="primary"></ion-icon>
+                 <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>
+               
                </div>
-               <div class="zone-item" [class.selected]="selectedZone === 'ท่าขอนยาง'" (click)="selectZone('ท่าขอนยาง')">
-                 โซนท่าขอนยาง <ion-icon name="chevron-down-circle-outline"></ion-icon>
+
+               <div *ngIf="zoneOptions.length === 0" style="width: 100%; text-align: center; color: #999; padding: 10px;">
+                 กำลังโหลดข้อมูลโซน...
                </div>
-               <div class="zone-item full-width" [class.selected]="selectedZone === 'หน้ามหาวิทยาลัย'" (click)="selectZone('หน้ามหาวิทยาลัย')">
-                 โซนหน้ามหาวิทยาลัย <ion-icon name="chevron-down-circle-outline"></ion-icon>
-               </div>
+
             </div>
           </div>
 
           <div class="action-section">
-            <button class="btn-confirm" (click)="applyFilter()">ยืนยัน</button>
+            <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
+            <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; applyFilter()">ล้างตัวกรอง</button>
           </div>
 
         </div>

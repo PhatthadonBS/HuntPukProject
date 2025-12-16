@@ -37,7 +37,7 @@
 
       <div class="address-row">
         <ion-icon name="location-outline"></ion-icon>
-        <span>{{ dormData.address || 'ต.ขามเรียง อ.กันทรวิชัย จ.มหาสารคาม' }}</span>
+        <span>{{ dormData.address || 'ไม่ระบุที่อยู่' }}</span>
       </div>
     </div>
 
@@ -56,17 +56,22 @@
         
         <div class="section-box">
           <h3>สิ่งอำนวยความสะดวก</h3>
-          <div class="amenities-grid">
-            <div class="amenity-item"><ion-icon name="wifi"></ion-icon> WiFi ฟรี</div>
-            <div class="amenity-item"><ion-icon name="car"></ion-icon> ที่จอดรถ</div>
-            <div class="amenity-item"><ion-icon name="snow"></ion-icon> แอร์</div>
-            <div class="amenity-item">เครื่องทำน้ำอุ่น</div>
+          
+          <div class="amenities-grid" *ngIf="facilitiesList.length > 0">
+            <div class="amenity-item" *ngFor="let fac of facilitiesList">
+              <ion-icon name="checkmark-circle-outline" color="primary"></ion-icon> 
+              {{ fac }}
+            </div>
           </div>
+
+          <p *ngIf="facilitiesList.length === 0" style="color: #999; font-size: 14px;">
+            - ไม่ระบุสิ่งอำนวยความสะดวก -
+          </p>
         </div>
 
         <div class="section-box">
           <h3>ข้อมูลติดต่อ</h3>
-          <p><ion-icon name="call-outline"></ion-icon> <strong>เบอร์โทร:</strong> {{ dormData.phone || '08x-xxx-xxxx' }}</p>
+          <p><ion-icon name="call-outline"></ion-icon> <strong>เบอร์โทร:</strong> {{ dormData.phone || '-' }}</p>
           <p><strong>Facebook:</strong> {{ dormData.DORM_NAME }} Official</p>
           <p><strong>Line ID:</strong> @{{ dormData.DORM_NAME }}</p>
         </div>
@@ -74,8 +79,7 @@
         <div class="section-box">
            <h3>รายละเอียดเพิ่มเติม</h3>
            <p class="desc-text">
-             หอพักบรรยากาศดี เงียบสงบ เหมาะแก่การพักผ่อน ใกล้มหาวิทยาลัยมหาสารคาม 
-             เดินทางสะดวก มีระบบรักษาความปลอดภัย 24 ชม. เข้า-ออกด้วยระบบคีย์การ์ด
+             {{ dormData.description || 'หอพักบรรยากาศดี เงียบสงบ เหมาะแก่การพักผ่อน ใกล้มหาวิทยาลัยมหาสารคาม เดินทางสะดวก มีระบบรักษาความปลอดภัย 24 ชม. เข้า-ออกด้วยระบบคีย์การ์ด' }}
            </p>
         </div>
       </div>

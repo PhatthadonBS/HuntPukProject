@@ -1,181 +1,290 @@
-/* พื้นหลังสีเทาอ่อน สบายตา */
-ion-content {
-  --background: #f5f5f5;
+/* --- Variables & Base --- */
+:host {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-main: #2b2d42;
+  --text-light: #8d99ae;
+  --border-color: #edf2f4;
+  --success-color: #2ec4b6;
+  --header-height: 60px;
 }
 
-/* Toolbar สีเหลือง */
 .custom-toolbar {
-  --background: #FFD600;
+  --background: transparent;
+  --color: var(--text-main);
+  ion-title { font-weight: 700; font-size: 18px; }
+  .btn-back ion-icon { font-size: 24px; color: var(--text-main); }
 }
 
-/* แถบโค้งสีเหลืองด้านบน (เหมือนหน้า Profile) */
-.header-curve-bg {
-  background: #FFD600;
-  height: 60px;
-  border-bottom-left-radius: 30px;
-  border-bottom-right-radius: 30px;
+.main-content {
+  --background: var(--bg-color);
+}
+
+.bg-curve {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
+  height: 200px;
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+  border-radius: 0 0 50% 50% / 20px;
+  opacity: 0.3;
   z-index: 0;
 }
 
-/* --- Container --- */
+/* --- Selection Mode (Grid) --- */
 .selection-container {
-  padding: 0 15px;
   position: relative;
-  z-index: 1; /* ให้เนื้อหาลอยทับแถบสีเหลือง */
-}
+  z-index: 1;
+  padding: 10px 15px;
 
-.instruction-text {
-  text-align: center;
-  margin-bottom: 15px;
-  p {
-    font-size: 13px;
-    color: #444; /* สีเข้มขึ้นนิดนึงให้อ่านง่ายบนสีเหลือง */
-    font-weight: 500;
-    margin: 0;
+  .instruction-header {
+    margin-bottom: 20px;
+    h2 { font-size: 24px; font-weight: 800; color: var(--text-main); margin: 0; }
+    p { color: var(--text-light); margin: 5px 0 0; display: flex; align-items: center; gap: 8px; }
+    .badge { background: var(--primary-color); color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
   }
 }
 
-/* --- Grid Layout --- */
 .dorm-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 คอลัมน์ */
-  gap: 12px; /* ช่องไฟระหว่างการ์ด */
+  grid-template-columns: 1fr 1fr; /* 2 คอลัมน์ */
+  gap: 15px;
 }
 
-/* --- Card Style (เล็กลง) --- */
 .dorm-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--card-bg);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
-  transition: all 0.2s;
   cursor: pointer;
-  border: 2px solid transparent;
 
   &.selected {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 214, 0, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(67, 97, 238, 0.2);
+    border: 2px solid var(--primary-color);
+  }
+
+  .card-image {
+    height: 120px;
+    position: relative;
+    img { width: 100%; height: 100%; object-fit: cover; }
     
-    .border-overlay {
+    .price-tag {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border: 2px solid #FFD600;
-      border-radius: 12px;
-      pointer-events: none;
-      z-index: 10;
+      bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      backdrop-filter: blur(4px);
+    }
+
+    .checkbox-wrapper {
+      position: absolute;
+      top: 8px; right: 8px;
+      z-index: 2;
+    }
+    
+    .custom-checkbox {
+      width: 24px; height: 24px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 50%;
+      border: 2px solid #ddd;
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+      
+      &.checked {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: white;
+        font-size: 18px;
+      }
+    }
+  }
+
+  .card-content {
+    padding: 10px;
+    h3 { font-size: 14px; font-weight: 700; margin: 0 0 5px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .zone { font-size: 12px; color: var(--text-light); margin: 0; display: flex; align-items: center; gap: 4px; }
+  }
+
+  .selected-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(67, 97, 238, 0.1);
+    display: flex; align-items: center; justify-content: center;
+    span {
+      background: var(--primary-color); color: white;
+      padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
     }
   }
 }
 
-/* รูปภาพ (ลดความสูงลง) */
-.image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100px; /* ✅ Fix ความสูงให้เล็กลง */
-  background: #eee;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-/* Checkbox วงกลม */
-.checkbox-badge {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(255,255,255,0.9);
-  border-radius: 50%;
-  width: 24px; /* เล็กลง */
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* เนื้อหาในการ์ด */
-.content-wrapper {
-  padding: 8px;
-  text-align: left; /* จัดชิดซ้ายดูอ่านง่ายกว่า */
-
-  .dorm-name {
-    margin: 0 0 4px 0;
-    font-size: 13px; /* ตัวอักษรเล็กลง */
-    font-weight: bold;
-    color: #222;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .dorm-price {
-    font-size: 12px;
-    font-weight: 700;
-    color: #E65100; /* สีส้มเข้ม */
-    margin-bottom: 2px;
-  }
-
-  .dorm-zone {
-    font-size: 10px;
-    color: #888;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
-}
-
-/* --- ปุ่มเปรียบเทียบ (Floating Footer) --- */
-.floating-footer {
-  padding: 10px 20px 20px 20px; /* Padding ล่างเยอะหน่อยเผื่อ iPhone จอแหว่ง */
-  background: transparent;
-  pointer-events: none; /* ให้คลิกทะลุพื้นหลังได้ */
-  display: flex;
-  justify-content: center;
-}
-
-.btn-compare {
-  pointer-events: auto; /* ให้ปุ่มกดได้ */
-  background: #222; /* สีดำด้าน */
-  color: #FFD600; /* ตัวหนังสือสีเหลือง */
-  border: none;
-  padding: 12px 30px;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: transform 0.2s;
-
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-/* --- Table Comparison --- */
-.comparison-mode {
+/* --- Comparison Mode (Premium Table) --- */
+.comparison-wrapper {
   background: white;
-  margin-top: -10px; /* ดึงขึ้นมาทับ Curve นิดนึง */
-  border-radius: 20px 20px 0 0;
-  padding: 20px 0;
-  min-height: 80vh;
+  min-height: 100vh;
+  padding-top: 10px;
 }
 
-.compare-container {
-  display: flex; width: 100%; overflow: hidden;
+.compare-table {
+  display: flex;
+  width: 100%;
+  overflow: hidden; /* ซ่อน scroll นอก */
+  position: relative;
 }
-/* (ใช้ CSS ตารางชุดเดิมได้เลยครับ หรือปรับสี Header ให้เป็น #FFD600) */
-.cell.header-cell {
-    background: #FFD600; /* หัวตารางสีเหลือง */
-    color: black;
+
+/* Sticky Left Labels */
+.column-labels {
+  flex: 0 0 120px; /* ความกว้างหัวข้อซ้าย */
+  background: #fff;
+  z-index: 10;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+  position: sticky;
+  left: 0;
+  
+  .row-header {
+     background: #f8f9fa;
+     color: var(--text-light);
+     font-size: 12px;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     border-bottom: 1px solid var(--border-color);
+     border-right: 1px solid var(--border-color);
+  }
+  
+  .row-cell {
+    justify-content: flex-start;
+    padding-left: 15px;
+    font-weight: 600;
+    color: var(--text-light);
+    background: #fff;
+    font-size: 12px;
+    border-right: 1px solid var(--border-color);
+  }
 }
+
+/* Scrollable Data Area */
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  flex: 1;
+  scroll-behavior: smooth;
+  
+  /* ซ่อน Scrollbar */
+  &::-webkit-scrollbar { display: none; }
+}
+
+.column-data {
+  flex: 0 0 200px; /* ความกว้างต่อหอพัก */
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+  background: #fff;
+}
+
+/* --- Row & Cell Styling (Alignment is Key) --- */
+.row-header {
+  height: 60px; /* ความสูงส่วนหัว */
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 10px;
+  position: sticky; top: 0; z-index: 5; /* หัวหอพักติดบน */
+  background: #fff;
+  border-bottom: 2px solid var(--primary-color);
+  
+  h3 { font-size: 14px; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; }
+}
+
+.row-cell {
+  display: flex; align-items: center; justify-content: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px;
+  font-size: 13px; color: var(--text-main);
+
+  /* Fix Height สำหรับแต่ละ Row ให้ตรงกันเป๊ะ */
+  &.img-row { height: 140px; padding: 10px; }
+  &.room-row { height: 120px; align-items: flex-start; }
+  &.fac-row { height: 150px; align-items: flex-start; }
+  &.desc-row { height: 120px; align-items: flex-start; }
+  &:not(.img-row):not(.room-row):not(.fac-row):not(.desc-row) { height: 60px; }
+}
+
+/* Specific Stylings */
+.img-box {
+  width: 100%; height: 100%; border-radius: 12px; overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.price-text {
+  color: var(--primary-color); font-weight: 800; font-size: 16px;
+}
+
+.list-wrapper {
+  width: 100%;
+  .list-item {
+    display: flex; justify-content: space-between;
+    font-size: 11px; margin-bottom: 4px; border-bottom: 1px dashed #eee; padding-bottom: 2px;
+    .value { font-weight: bold; color: var(--secondary-color); }
+  }
+}
+
+.tags-wrapper {
+  display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;
+  .tag {
+    font-size: 10px; background: #e0f2f1; color: #00695c;
+    padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; gap: 3px;
+    ion-icon { font-size: 10px; }
+  }
+}
+
+.desc-box {
+  font-size: 11px; color: #666; text-align: left;
+  overflow-y: auto; height: 100%; line-height: 1.4;
+}
+
+.btn-call {
+  background: var(--success-color); color: white;
+  padding: 6px 12px; border-radius: 20px; text-decoration: none;
+  font-size: 12px; display: flex; align-items: center; gap: 5px;
+}
+
+/* --- Floating Button --- */
+.footer-transparent {
+  background: transparent;
+  box-shadow: none;
+  padding-bottom: 20px;
+  pointer-events: none; /* เพื่อให้คลิกทะลุพื้นที่ว่าง */
+  
+  .floating-btn-container {
+    display: flex; justify-content: center;
+    pointer-events: auto; /* ปุ่มกดได้ */
+  }
+
+  .btn-premium-compare {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
+    display: flex; align-items: center; gap: 10px;
+    transition: transform 0.2s;
+
+    &:active { transform: scale(0.95); }
+    &:disabled { opacity: 0.6; box-shadow: none; filter: grayscale(1); }
+
+    .btn-content { display: flex; align-items: center; gap: 8px; }
+    .count-badge { background: white; color: var(--primary-color); padding: 2px 6px; border-radius: 10px; font-size: 12px; }
+    ion-icon { font-size: 24px; }
+  }
+}
+
+/* Animations */
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
