@@ -1,13 +1,65 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>dashboard</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="dashboard-container">
+    
+    <aside class="sidebar">
+      <div class="logo-area">
+        <img src="assets/logo.png" alt="Logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
+      </div>
+      <nav class="menu">
+        <div class="menu-item" (click)="router.navigate(['/home'])">หน้าแรก</div>
+        <div class="menu-item">รายการ</div>
+        <div class="menu-item">บัญชีของฉัน</div>
+        <div class="menu-item">ลงทะเบียน</div>
+        <div class="menu-item">จัดการหอพัก</div>
+        <div class="menu-item">รายการโปรด</div>
+        <div class="menu-item">จัดการบัญชีสมาชิก</div>
+        <div class="menu-item">คำขอ</div>
+        <div class="menu-item">ร้องขอสิทธิ์เจ้าของ</div>
+        <div class="menu-item active-dashboard">Dashboard</div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      
+      <app-header title="Dashboard" [userData]="currentUser"></app-header>
+
+      <div class="content-body" *ngIf="dashboardData">
+        
+        <div class="chart-section shadow-card">
+          <h2 class="section-title">สถิติหอพักรวม</h2>
+          <p class="subtitle">จำนวนหอพักทั้งหมด: <strong>{{ dashboardData.totalDorms }}</strong> แห่ง</p>
+          
+          <div class="canvas-wrapper">
+             <canvas baseChart
+              [data]="barChartData"
+              [options]="barChartOptions"
+              [type]="barChartType">
+            </canvas>
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <div class="stat-card shadow-card" *ngFor="let item of dashboardData.items">
+            <div class="card-header" [ngClass]="item.colorClass">
+              {{ item.zoneName }}
+            </div>
+            
+            <div class="card-body">
+              <span class="big-number">{{ item.count }}</span>
+              <span class="unit-text">หอพัก</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <footer class="footer">
+        <div class="copyright">© 2568 By Ammanat&Patthadon</div>
+        <div class="contact-info">
+           <span>Admin: 099-9999999</span>
+        </div>
+      </footer>
+
+    </main>
+  </div>
 </ion-content>

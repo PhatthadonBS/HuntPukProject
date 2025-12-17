@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular';
+import { IonicModule, MenuController, ViewDidEnter, AlertController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
@@ -12,10 +12,13 @@ import { DormitoryService, Dormitory } from '../../services/dormitory';
 import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
+
+// ✅ Import Icon ให้ครบทุกตัวที่ใช้ เพื่อแก้ Error สีแดง
 import { 
   menuOutline, home, listOutline, personCircleOutline, search, 
   funnelOutline, layersOutline, close, caretDown, caretDownOutline, 
-  chevronDown, chevronDownCircleOutline, checkmarkCircle 
+  chevronDown, chevronDownCircleOutline, checkmarkCircle,
+  person, create, personOutline, callOutline, key, mail, shieldCheckmark
 } from 'ionicons/icons';
 
 @Component({
@@ -31,11 +34,8 @@ import {
 export class HomePage implements OnInit, ViewDidEnter {
   
   apiLoaded: Observable<boolean>; 
-  
-  // พิกัดเริ่มต้น (ม.สารคาม)
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   zoom = 14;
-  
   mapOptions: google.maps.MapOptions = {
     disableDefaultUI: false, zoomControl: false, mapTypeControl: false, 
     streetViewControl: false, fullscreenControl: false
@@ -45,11 +45,10 @@ export class HomePage implements OnInit, ViewDidEnter {
   dorms: Dormitory[] = []; 
   isModalOpen = false;
 
-  // ตัวแปรสำหรับ Filter
+  // Filter Variables
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
-  
   zoneOptions: any[] = []; 
 
   selectedDormDetail: Dormitory | null = null;
@@ -63,17 +62,27 @@ export class HomePage implements OnInit, ViewDidEnter {
     private router: Router,
     private dormService: DormitoryService,
     private httpClient: HttpClient,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private alertCtrl: AlertController
   ) {
+    // ✅ ลงทะเบียน Icon ให้ครบ (แก้ Error: Invalid base URL / Could not load icon)
     addIcons({
       'menu-outline': menuOutline, home, 'list-outline': listOutline,
       'person-circle-outline': personCircleOutline, search,
       'funnel-outline': funnelOutline, 'layers-outline': layersOutline,
       'close': close, 'caret-down': caretDown, 'caret-down-outline': caretDownOutline,
       'chevron-down': chevronDown, 'chevron-down-circle-outline': chevronDownCircleOutline,
-      'checkmark-circle': checkmarkCircle
+      'checkmark-circle': checkmarkCircle,
+      'person': person,
+      'create': create,
+      'person-outline': personOutline,
+      'call-outline': callOutline,
+      'key': key,
+      'mail': mail,
+      'shield-checkmark': shieldCheckmark
     });
 
+    // Load Google Map
     if (typeof google === 'object' && typeof google.maps === 'object') {
         this.apiLoaded = of(true); 
     } else {
@@ -96,24 +105,33 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   ionViewDidEnter() {
+    // ลบ backdrop ที่อาจค้างอยู่
     const backdrops = document.querySelectorAll('ion-backdrop');
     backdrops.forEach(element => element.remove());
     this.checkLoginStatus(); 
   }
 
+  // ✅ [แก้ไขจุดสำคัญ] เช็ค Login ให้ตรงกับโครงสร้างที่หน้า Login บันทึกมา
   checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
+    
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
-        const isRoleValid = (userObj.role_id === 1 || userObj.role_id === 2);
-        const isStatusValid = (userObj.accout_status === 0);
-        if (isRoleValid && isStatusValid) {
-          this.currentUser = userObj; 
+        console.log('📦 Home Check User:', userObj);
+
+        // เช็คว่ามี ID และสถานะปกติ (accout_status = 0)
+        // ไม่ต้องเช็ค role_id แบบเจาะจง เพื่อให้ Admin (Role 3) ก็ถือว่า Login แล้ว
+        if (userObj.id && userObj.accout_status === 0) {
+           this.currentUser = userObj;
+           console.log('✅ User Set:', this.currentUser);
         } else {
-          this.currentUser = null; 
+           console.warn('❌ User invalid status');
+           this.currentUser = null;
         }
+
       } catch (e) {
+        console.error('Parse Error', e);
         this.currentUser = null;
       }
     } else {
@@ -121,6 +139,50 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
+  // ✅ เปิดเมนู (แก้ให้กดติดง่ายขึ้น)
+  async toggleMenu() {
+    console.log('🔘 กดปุ่ม Hamburger แล้ว!'); // เช็คใน Console ว่าขึ้นไหม
+
+    // 1. บังคับ Enable เมนู 'home-menu' ก่อน (กันเหนียว)
+    await this.menuCtrl.enable(true, 'home-menu');
+    
+    // 2. สั่งเปิดเมนู
+    await this.menuCtrl.open('home-menu');
+  }
+
+  // ✅ ไปหน้าทั่วไป
+  async navigate(path: string) {
+    await this.menuCtrl.close('home-menu'); 
+    this.router.navigate([path]);
+  }
+
+  // ✅ ไปหน้าส่วนตัว (ต้อง Login ก่อน)
+  async checkAuthAndNavigate(path: string) {
+    await this.menuCtrl.close('home-menu'); 
+
+    if (this.currentUser) {
+      // Login แล้ว -> ไปได้
+      this.router.navigate([path]);
+    } else {
+      // ยังไม่ Login -> แจ้งเตือน
+      const alert = await this.alertCtrl.create({
+        header: 'แจ้งเตือน',
+        message: 'กรุณาเข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้',
+        buttons: [
+          { text: 'ยกเลิก', role: 'cancel' },
+          { 
+            text: 'เข้าสู่ระบบ', 
+            handler: () => {
+              this.router.navigate(['/login']);
+            } 
+          }
+        ]
+      });
+      await alert.present();
+    }
+  }
+
+  // API Calls
   async fetchZones() {
     try {
       const res = await this.dormService.getZones();
@@ -132,17 +194,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  async toggleMenu() {
-    await this.menuCtrl.enable(true, 'main-menu');
-    await this.menuCtrl.toggle('main-menu');
-  }
-
-  async navigateTo(path: string) {
-    await this.menuCtrl.close('home-menu'); 
-    this.router.navigate([path]);
-  }
-
-  // โหลดหอพักทั้งหมด (ค่าเริ่มต้น)
   async fetchDorms() {
     try {
       const res = await this.dormService.getAllDorms();
@@ -158,33 +209,26 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  // ✅ ฟังก์ชันค้นหาหลัก (รับ Search Text จาก Header)
+  // Search Logic
   async onSearch(text: any) {
     const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
 
-    // ถ้าช่องค้นหาว่าง และไม่มีการกรองโซน/ราคา ให้โหลดทั้งหมด
     if (searchValue === '' && !this.selectedZone && !this.minPrice && !this.maxPrice) {
         this.fetchDorms(); 
         this.zoom = 14; 
         return;
     }
-
-    // เรียกฟังก์ชันกลาง
     this.performSearch();
   }
 
-  // ✅ ฟังก์ชัน Apply Filter (กดปุ่มยืนยันใน Modal)
   applyFilter() {
-      console.log('Filter Data:', { minPrice: this.minPrice, maxPrice: this.maxPrice, zone: this.selectedZone });
       this.setOpen(false);
-      this.performSearch(); // เรียกฟังก์ชันกลางเพื่อค้นหาและซูม
+      this.performSearch(); 
   }
 
-  // ✅ ฟังก์ชันกลางสำหรับการค้นหาและซูมแผนที่
   async performSearch() {
       try {
-          // ส่งค่าทุกอย่างไปที่ Service
           const res = await this.dormService.searchDorms(
               this.searchText, 
               this.selectedZone, 
@@ -193,30 +237,18 @@ export class HomePage implements OnInit, ViewDidEnter {
           );
           
           if (res.success && res.data) {
-              console.log('Found:', res.data.length);
               this.dorms = res.data;
-              
-              // แปลงพิกัด
               this.dorms.forEach(d => {
                  d.lat = Number(d.lat);
                  d.lng = Number(d.lng);
               });
 
-              // ✅ LOGIC ย้ายแผนที่ (Re-center) ไปหาจุดแรกที่เจอ
               if (this.dorms.length > 0) {
                   const target = this.dorms[0];
                   if (target && target.lat && target.lng) {
-                      // สร้าง Object ใหม่เพื่อให้ Map รู้ว่าค่าเปลี่ยน
-                      this.center = { 
-                          lat: target.lat, 
-                          lng: target.lng 
-                      };
-                      // ปรับ Zoom: ถ้าน้อยกว่า 3 แห่งให้ซูมใกล้, ถ้าเยอะให้ซูมห่าง
+                      this.center = { lat: target.lat, lng: target.lng };
                       this.zoom = this.dorms.length < 3 ? 16 : 14; 
                   }
-              } else {
-                  console.log('No dorms match criteria');
-                  // อาจจะใส่ Alert แจ้งเตือนว่าไม่พบข้อมูลก็ได้
               }
           } else {
               this.dorms = [];
@@ -226,6 +258,7 @@ export class HomePage implements OnInit, ViewDidEnter {
       }
   }
 
+  // Map & Panel Logic
   openInfoWindow(marker: MapMarker, dorm: Dormitory) {
     this.selectedDorm = dorm;
     if (this.infoWindow) this.infoWindow.open(marker);
@@ -247,13 +280,10 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  closeDetailPanel() {
-    this.selectedDormDetail = null;
-  }
-
-  goToLogin() { this.router.navigate(['/login']); }
+  closeDetailPanel() { this.selectedDormDetail = null; }
   goToCompare() { this.router.navigate(['/compare']); }
   
+  // Filter Modal
   setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
   openFilter() { this.setOpen(true); }
   

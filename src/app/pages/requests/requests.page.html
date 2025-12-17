@@ -1,13 +1,122 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>requests</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>ร้องขอเป็นเจ้าของหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">requests</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  
+  <div class="main-container">
+    
+    <div class="form-card fade-in" *ngIf="!isSuccess">
+      
+      <div class="profile-section">
+        <div class="img-wrapper">
+          <img src="assets/icon/user-placeholder.png" alt="Profile">
+          <div class="edit-badge"><ion-icon name="create"></ion-icon></div>
+        </div>
+        <h3>ข้อมูลผู้ยื่นคำขอ</h3>
+        <p class="sub-text">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อการตรวจสอบ</p>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage">
+        <ion-icon name="alert-circle"></ion-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        
+        <div class="input-group">
+          <label>ชื่อ <span class="req">*</span></label>
+          <div class="input-wrapper" [class.error-border]="isSubmitted && !formData.first_name">
+            <ion-input [(ngModel)]="formData.first_name" name="first_name" type="text" placeholder="ชื่อจริง"></ion-input>
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>นามสกุล <span class="req">*</span></label>
+          <div class="input-wrapper" [class.error-border]="isSubmitted && !formData.last_name">
+            <ion-input [(ngModel)]="formData.last_name" name="last_name" type="text" placeholder="นามสกุล"></ion-input>
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>เบอร์โทร <span class="req">*</span></label>
+          <div class="input-wrapper" [class.error-border]="isSubmitted && !formData.phone_number">
+            <ion-input [(ngModel)]="formData.phone_number" name="phone_number" type="tel" maxlength="10" placeholder="0xxxxxxxxx"></ion-input>
+            <ion-icon name="call-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="divider">ช่องทางติดต่อเพิ่มเติม (ถ้ามี)</div>
+
+        <div class="dual-inputs">
+           <div class="input-group">
+             <div class="input-wrapper social-input">
+               <ion-icon name="logo-facebook" class="fb-color"></ion-icon>
+               <ion-input [(ngModel)]="formData.facebook" name="facebook" placeholder="Facebook"></ion-input>
+             </div>
+           </div>
+           
+           <div class="input-group">
+             <div class="input-wrapper social-input">
+               <ion-icon name="chatbubbles" class="line-color"></ion-icon>
+               <ion-input [(ngModel)]="formData.line" name="line" placeholder="Line ID"></ion-input>
+             </div>
+           </div>
+        </div>
+
+        <div class="dual-inputs">
+           <div class="input-group">
+             <div class="input-wrapper social-input">
+               <ion-icon name="logo-instagram" class="ig-color"></ion-icon>
+               <ion-input [(ngModel)]="formData.instagram" name="instagram" placeholder="Instagram"></ion-input>
+             </div>
+           </div>
+
+           <div class="input-group">
+             <div class="input-wrapper social-input">
+               <ion-icon name="logo-twitter" class="x-color"></ion-icon>
+               <ion-input [(ngModel)]="formData.x" name="x" placeholder="X (Twitter)"></ion-input>
+             </div>
+           </div>
+        </div>
+
+        <div class="input-group">
+           <div class="input-wrapper social-input">
+             <ion-icon name="paper-plane" class="tg-color"></ion-icon>
+             <ion-input [(ngModel)]="formData.telegram" name="telegram" placeholder="Telegram"></ion-input>
+           </div>
+        </div>
+
+        <div class="btn-container">
+          <button type="button" class="btn cancel" (click)="onCancel()">ยกเลิก</button>
+          <button type="submit" class="btn confirm">ตกลง</button>
+        </div>
+
+      </form>
+    </div>
+
+
+    <div class="success-card fade-in" *ngIf="isSuccess">
+      <div class="success-icon">
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </div>
+      <h2>ร้องขอสำเร็จ</h2>
+      <p class="status-text">
+        <ion-icon name="time"></ion-icon> รอการยืนยัน
+      </p>
+      <p class="desc">
+        ข้อมูลของคุณถูกส่งไปยังผู้ดูแลระบบเรียบร้อยแล้ว<br>
+        กรุณารอการตรวจสอบและอนุมัติสิทธิ์
+      </p>
+      <button class="btn back-home" (click)="onCancel()">กลับหน้าหลัก</button>
+    </div>
+
+  </div>
 </ion-content>

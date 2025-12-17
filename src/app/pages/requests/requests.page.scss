@@ -1,0 +1,153 @@
+/* --- Global --- */
+ion-content {
+  --background: #f5f5f5; /* พื้นหลังรวมสีเทาอ่อน */
+}
+
+.main-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* --- Toolbar --- */
+.custom-toolbar {
+  --background: #FFD600; /* สีเหลืองธีม */
+  --color: #000;
+  ion-title { font-weight: bold; }
+}
+
+/* --- Card Form --- */
+.form-card, .success-card {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* --- Profile Section --- */
+.profile-section {
+  text-align: center; margin-bottom: 25px;
+  .img-wrapper {
+    position: relative; width: 80px; height: 80px; margin: 0 auto 10px;
+    img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #FFD600; object-fit: cover; }
+    .edit-badge {
+      position: absolute; bottom: 0; right: 0; background: #333; color: #fff;
+      width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+  }
+  h3 { margin: 0; font-weight: 800; font-size: 18px; color: #333; }
+  .sub-text { font-size: 13px; color: #666; margin-top: 5px; }
+}
+
+/* --- Error Banner --- */
+.error-banner {
+  background: #ffebee; color: #c62828; padding: 10px 15px; border-radius: 10px;
+  display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; margin-bottom: 20px;
+  ion-icon { font-size: 18px; }
+}
+
+/* --- Input Groups --- */
+.input-group { margin-bottom: 15px; }
+label {
+  display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 5px;
+  .req { color: red; }
+}
+
+/* ✅ ส่วนสำคัญ: ปรับสีช่องกรอกให้ชัดเจน */
+.input-wrapper {
+  background: #F0F0F0; /* พื้นหลังช่องกรอก: สีเทาอ่อน */
+  border-radius: 12px;
+  display: flex; align-items: center;
+  padding: 0 15px;
+  border: 1px solid transparent;
+  transition: 0.3s;
+  height: 50px;
+
+  /* เมื่อกำลังพิมพ์ หรือโฟกัส ให้ขอบเป็นสีเหลือง */
+  &:focus-within {
+    border-color: #FFD600;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+  }
+
+  /* ถ้ามี Error ให้ขอบแดง */
+  &.error-border {
+    border-color: #ef5350;
+    background: #ffebee;
+  }
+
+  /* ปรับแต่ง ion-input */
+  ion-input {
+    --padding-start: 0;
+    --color: #000000; /* ✅ บังคับตัวหนังสือสีดำสนิท */
+    --placeholder-color: #777777; /* ✅ Placeholder สีเทาเข้มขึ้น */
+    --placeholder-opacity: 1;
+    font-size: 15px;
+  }
+
+  /* ไอคอนท้ายช่อง */
+  ion-icon {
+    font-size: 20px;
+    color: #888;
+    margin-left: 10px;
+  }
+}
+
+.divider {
+  font-size: 12px; color: #888; text-align: center; margin: 20px 0; position: relative;
+  &::before, &::after {
+    content: ''; position: absolute; top: 50%; width: 30%; height: 1px; background: #ddd;
+  }
+  &::before { left: 0; }
+  &::after { right: 0; }
+}
+
+/* --- Dual Inputs (2 ช่องติดกัน) --- */
+.dual-inputs {
+  display: flex; gap: 10px;
+  .input-group { flex: 1; margin-bottom: 0; }
+}
+
+/* --- Social Icons Color --- */
+.social-input {
+  ion-icon { margin-left: 0; margin-right: 10px; font-size: 22px; }
+  .fb-color { color: #1877F2; }
+  .line-color { color: #00C300; }
+  .ig-color { color: #E1306C; }
+  .x-color { color: #000; }
+  .tg-color { color: #0088cc; }
+}
+
+/* --- Buttons --- */
+.btn-container {
+  display: flex; gap: 15px; margin-top: 25px;
+  .btn {
+    flex: 1; height: 45px; border-radius: 25px; font-weight: bold; font-size: 15px; cursor: pointer; border: none; transition: 0.2s;
+    &:active { transform: scale(0.95); }
+  }
+  .cancel { background: #e0e0e0; color: #333; }
+  .confirm { background: #000; color: #FFD600; }
+}
+
+/* --- Success State --- */
+.success-card {
+  text-align: center; padding: 40px 20px;
+  .success-icon {
+    font-size: 60px; color: #4CAF50; margin-bottom: 10px;
+  }
+  h2 { font-weight: 800; margin: 0 0 10px; }
+  .status-text {
+    display: inline-block; background: #FFF9C4; color: #FBC02D;
+    padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 auto 15px;
+    width: fit-content;
+  }
+  .desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 30px; }
+  .back-home {
+    background: #000; color: #fff; width: 100%; padding: 12px; border-radius: 25px; font-weight: bold; border: none;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

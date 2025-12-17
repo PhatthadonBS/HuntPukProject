@@ -74,20 +74,23 @@ export class Auth {
     }
   }
 
-  public async login(email: string, password: string){
-    const url = this.endpoint.API_ENDPOINT + '/test';
+public async login(email: string, password: string) {
+    const url = this.endpoint.API_ENDPOINT + '/auth/login';
 
     try {
       const obj = {
         email,
         password
       }
-      const res = await lastValueFrom(this.http.post(url, obj));
-      console.log(res);
-      return res
+      // ใช้ <any> หรือ Type Response เพื่อให้ TS รู้จัก structure
+      const res = await lastValueFrom(this.http.post<any>(url, obj));
+      console.log('API Response:', res);
+      return res;
       
     } catch (error) {
-      
+      // ⚠️ สำคัญมาก: ต้องโยน Error ออกไป ไม่งั้นหน้า Login จะได้ค่า undefined
+      console.error('API Error:', error);
+      throw error; 
     }
   }
 }

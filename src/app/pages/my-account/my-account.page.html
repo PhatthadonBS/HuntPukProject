@@ -14,11 +14,10 @@
   <div class="profile-header-bg">
     <div class="avatar-wrapper">
       <div class="avatar-circle">
-        <ion-icon name="person-outline"></ion-icon>
-      </div>
+        <ion-icon name="person"></ion-icon> </div>
       <div class="user-name-display">
         <h2>{{ user.username || 'Guest' }}</h2>
-        <p>Member</p>
+        <p>สมาชิกทั่วไป</p>
       </div>
     </div>
   </div>
@@ -26,17 +25,17 @@
   <div class="profile-content-card">
     
     <div class="edit-btn-wrapper">
-      <ion-button fill="outline" shape="round" color="dark" size="small" (click)="goToEditProfile()">
-        <ion-icon name="create-outline" slot="start"></ion-icon>
-        แก้ไขข้อมูล
+      <ion-button class="btn-edit-custom" expand="block" shape="round" (click)="goToEditProfile()">
+        <ion-icon name="create" slot="start"></ion-icon>
+        แก้ไขข้อมูลส่วนตัว
       </ion-button>
     </div>
 
-    <div class="divider"></div>
-
     <div class="info-group">
       <div class="info-label">
-        <ion-icon name="person-circle-outline"></ion-icon>
+        <div class="icon-box">
+          <ion-icon name="person"></ion-icon>
+        </div>
         <span>ชื่อผู้ใช้งาน</span>
       </div>
       <div class="info-value">
@@ -48,11 +47,28 @@
 
     <div class="info-group">
       <div class="info-label">
-        <ion-icon name="mail-outline"></ion-icon>
+        <div class="icon-box">
+          <ion-icon name="mail"></ion-icon>
+        </div>
         <span>อีเมล</span>
       </div>
       <div class="info-value">
         {{ user.email || '-' }}
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="info-group">
+      <div class="info-label">
+        <div class="icon-box">
+          <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        <span>สถานะบัญชี</span>
+      </div>
+      <div class="info-value status-active">
+        <span *ngIf="user.accout_status === 0">ปกติ</span>
+        <span *ngIf="user.accout_status !== 0" style="color: red;">ถูกระงับ</span>
       </div>
     </div>
 

@@ -1,0 +1,153 @@
+/* --- Global --- */
+ion-content { --background: #333; }
+.dashboard-container { 
+  display: flex; 
+  height: 100vh; 
+  font-family: 'Kanit', sans-serif; /* แนะนำใช้ฟอนต์อ่านง่าย */
+  overflow: hidden; 
+}
+
+/* --- Sidebar (ซ้าย) --- */
+.sidebar {
+  width: 250px; 
+  background-color: #333; 
+  display: flex; flex-direction: column; 
+  padding: 20px 15px;
+  flex-shrink: 0;
+
+  .logo-area { 
+    text-align: center; margin-bottom: 30px; 
+    img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FFD600; background: #fff; } 
+  }
+
+  .menu { display: flex; flex-direction: column; gap: 12px; }
+  .menu-item {
+    background: #FFD600; 
+    color: #222; /* สีตัวอักษรเข้ม */
+    font-weight: 700; 
+    font-size: 15px;
+    padding: 12px 15px; 
+    border-radius: 30px; 
+    text-align: center; 
+    cursor: pointer;
+    transition: 0.2s;
+    &:hover { filter: brightness(1.1); transform: scale(1.02); }
+    &.active-dashboard { 
+      background: #FFAB00; 
+      color: #000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+    }
+  }
+}
+
+/* --- Main Content (ขวา) --- */
+.main-content {
+  flex: 1; 
+  background-color: #FFD600; 
+  border-radius: 25px 0 0 25px; 
+  padding: 20px 25px;
+  display: flex; flex-direction: column; 
+  overflow-y: auto;
+}
+
+/* --- Content Body --- */
+.content-body {
+  background: #F5F5F5; /* พื้นหลังสีเทาอ่อน สบายตา */
+  border-radius: 20px;
+  padding: 25px;
+  flex: 1;
+  display: flex; flex-direction: column; 
+  gap: 25px; /* ระยะห่างระหว่างกราฟกับการ์ด */
+}
+
+/* Common Shadow */
+.shadow-card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* เงาบางๆ ให้ดูลอย */
+  overflow: hidden;
+}
+
+/* Chart Section */
+.chart-section {
+  padding: 20px;
+  text-align: center;
+  
+  .section-title { 
+    margin: 0; 
+    font-size: 20px; 
+    font-weight: 800; 
+    color: #333; 
+  }
+  .subtitle { 
+    font-size: 16px; 
+    color: #555; 
+    margin-bottom: 20px; 
+    strong { color: #000; font-size: 18px; }
+  }
+  .canvas-wrapper { 
+    height: 300px; /* เพิ่มความสูงกราฟให้ชัด */
+    width: 100%;
+  }
+}
+
+/* Cards Container (Grid) */
+.cards-container {
+  display: flex;
+  gap: 20px; /* ช่องว่างระหว่างการ์ด */
+  justify-content: space-between;
+
+  .stat-card {
+    flex: 1; /* ให้การ์ดทุกใบกว้างเท่ากัน */
+    display: flex; flex-direction: column;
+    text-align: center;
+    transition: transform 0.2s;
+    
+    &:hover { transform: translateY(-5px); } /* เอฟเฟกต์ลอยเมื่อเอาเมาส์ชี้ */
+
+    .card-header {
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #333; /* ตัวหนังสือสีเข้ม */
+      border-bottom: 2px solid rgba(0,0,0,0.05);
+
+      /* สีพื้นหลังหัวข้อ */
+      &.header-green { background: #A5D6A7; } /* เขียวพาสเทล */
+      &.header-orange { background: #FFCC80; } /* ส้มพาสเทล */
+      &.header-blue { background: #90CAF9; }   /* ฟ้าพาสเทล */
+    }
+
+    .card-body {
+      padding: 20px;
+      background: #fff;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .big-number {
+        font-size: 56px; /* ตัวเลขใหญ่สะใจ */
+        font-weight: 900;
+        color: #222;
+        line-height: 1;
+        margin-bottom: 5px;
+      }
+      .unit-text {
+        font-size: 16px;
+        color: #666;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+/* Footer */
+.footer {
+  background: #333; 
+  color: #ddd; 
+  font-size: 12px; 
+  padding: 15px 20px; 
+  margin-top: 15px; 
+  border-radius: 12px;
+  display: flex; justify-content: space-between;
+}

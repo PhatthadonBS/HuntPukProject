@@ -46,12 +46,10 @@ export class LoginPage implements OnInit {
         const roleId = res.user.role_id;
         const status = res.user.accout_status; // (ตามชื่อตัวแปรใน model คุณ)
 
-        // เงื่อนไข: (Role เป็น 1 หรือ 2) AND (Status เป็น 0)
-        if ((roleId === 1 || roleId === 2) && status === 0) {
+        if ((roleId === 1 || roleId === 2 || roleId === 3) && status === 0) {
           
-          // --- ผ่านเงื่อนไข: บันทึกและไปต่อ ---
           const userData = {
-            loggedIn: res.logged_in, // แก้ typo logggedIn -> loggedIn ให้สวยงาม
+            loggedIn: true,
             id: res.user.id,
             email: res.user.email,
             username: res.user.username,
@@ -60,17 +58,18 @@ export class LoginPage implements OnInit {
           };
 
           localStorage.setItem("loggedIn", JSON.stringify(userData));
-          
-          // ไปหน้า Home
-          this.router.navigateByUrl('home');
+
+          // ✅ แยกทางเดิน: ถ้าเป็น Admin (3) ไป dashboard, คนอื่นไป home
+          if (roleId === 3) {
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/home']);
+          }
 
         } else {
-          // ❌ ไม่ผ่านเงื่อนไข: แจ้งเตือนและไม่ให้เข้า
-          this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'สิทธิ์การใช้งานของคุณไม่ถูกต้อง หรือบัญชีถูกระงับ');
-          // (ทางเลือก) อาจจะล้าง localStorage เผื่อไว้
+          this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'สิทธิ์การใช้งานของคุณไม่ถูกต้อง');
           localStorage.removeItem("loggedIn");
         }
-
       } else {
         this.showAlert('แจ้งเตือน', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       }

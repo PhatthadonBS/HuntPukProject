@@ -3,12 +3,10 @@
   "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
-"scripts": {
+  "scripts": {
     "ng": "ng",
-    
-    "config": "node scripts/set-env.js", 
-    "start": "npm run config && ng serve", 
-    
+    "config": "node scripts/set-env.js",
+    "start": "npm run config && ng serve",
     "build": "npm run config && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -31,9 +29,11 @@
     "@capacitor/keyboard": "7.0.3",
     "@capacitor/status-bar": "7.0.3",
     "@ionic/angular": "^8.7.10",
+    "chart.js": "^4.5.1",
     "firebase": "^12.6.0",
     "ionicons": "^7.0.0",
     "leaflet": "^1.9.4",
+    "ng2-charts": "^8.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
