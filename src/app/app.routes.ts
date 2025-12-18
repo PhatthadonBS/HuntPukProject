@@ -71,5 +71,9 @@ export const routes: Routes = [
     path: 'my-account',
     loadComponent: () => import('./pages/my-account/my-account.page').then( m => m.MyAccountPage)
   },
+  {
+    path: 'recover-account',
+    loadComponent: () => import('./pages/recover-account/recover-account.page').then( m => m.RecoverAccountPage)
+  },
 
 ];

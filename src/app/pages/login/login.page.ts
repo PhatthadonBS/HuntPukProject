@@ -8,6 +8,8 @@ import {
   UserLoggedInPostRes,
 } from '../../model/res/user_loggedIn_post_res';
 import { Auth } from '../../services/auth';
+import { addIcons } from 'ionicons';
+import { arrowBack, key, person } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -24,10 +26,17 @@ export class LoginPage implements OnInit {
     private router: Router,
     private alertController: AlertController,
     private authService: Auth
-  ) {}
+  ) {
+    // ✅ ลงทะเบียน Icon
+    addIcons({ arrowBack, person, key });
+  }
 
   ngOnInit() {}
 
+  // ✅ ฟังก์ชันกลับหน้า Home
+  goHome() {
+    this.router.navigate(['/home']);
+  }
   async login() {
     if (!this.email || !this.password) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกอีเมลและรหัสผ่าน');

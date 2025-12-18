@@ -14,9 +14,10 @@
   <div class="profile-header-bg">
     <div class="avatar-wrapper">
       <div class="avatar-circle">
-        <ion-icon name="person"></ion-icon> </div>
+        <ion-icon name="person"></ion-icon> 
+      </div>
       <div class="user-name-display">
-        <h2>{{ user.username || 'Guest' }}</h2>
+        <h2>{{ user.username || user.USERNAME || 'Guest' }}</h2>
         <p>สมาชิกทั่วไป</p>
       </div>
     </div>
@@ -39,7 +40,7 @@
         <span>ชื่อผู้ใช้งาน</span>
       </div>
       <div class="info-value">
-        {{ user.username || '-' }}
+        {{ user.username || user.USERNAME || '-' }}
       </div>
     </div>
 
@@ -53,7 +54,21 @@
         <span>อีเมล</span>
       </div>
       <div class="info-value">
-        {{ user.email || '-' }}
+        {{ user.email || user.EMAIL || '-' }}
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="info-group">
+      <div class="info-label">
+        <div class="icon-box">
+          <ion-icon name="call"></ion-icon>
+        </div>
+        <span>เบอร์โทรศัพท์</span>
+      </div>
+      <div class="info-value">
+        {{ user.phone_number || user.PHONE_NUMBER || '-' }}
       </div>
     </div>
 

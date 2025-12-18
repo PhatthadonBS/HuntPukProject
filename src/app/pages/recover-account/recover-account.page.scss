@@ -1,0 +1,258 @@
+/* --- Global --- */
+ion-content {
+  --background: #fff;
+}
+
+.main-container {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #FFD600 0%, #FFA000 100%); /* สีเหลืองไล่เฉดเข้มขึ้น */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 20px;
+  overflow: hidden;
+
+  /* ตกแต่งพื้นหลังด้วยวงกลมจางๆ (Optional) */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50px; left: -50px;
+    width: 200px; height: 200px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+  }
+}
+
+/* --- ✅ ปุ่มย้อนกลับ (มุมซ้ายบน) --- */
+.floating-back-btn {
+  position: absolute;
+  top: 40px; /* เว้นระยะจากขอบบน (เผื่อติ่งหน้าจอ) */
+  left: 20px;
+  z-index: 100;
+  width: 45px;
+  height: 45px;
+  background: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  ion-icon {
+    font-size: 24px;
+    color: #333;
+  }
+
+  &:active {
+    transform: scale(0.9);
+    background: #f0f0f0;
+  }
+}
+
+/* --- Layout --- */
+.content-wrapper {
+  width: 100%;
+  max-width: 380px;
+  z-index: 1;
+}
+
+/* --- Typography --- */
+.header-text {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333; /* เปลี่ยนเป็นสีเข้มเพื่อให้มองเห็นชัด */
+
+  h1 {
+    font-size: 32px;
+    font-weight: 900;
+    margin: 0 0 10px 0;
+    color: #000;
+    letter-spacing: -0.5px;
+  }
+
+  p {
+    font-size: 15px;
+    margin: 0;
+    color: rgba(0, 0, 0, 0.7); /* สีดำจางๆ */
+    line-height: 1.5;
+    
+    strong {
+      color: #000;
+      text-decoration: underline;
+    }
+  }
+}
+
+/* --- Glass Card --- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95); /* สีขาวเกือบทึบ เพื่อให้อ่านง่าย */
+  border-radius: 24px;
+  padding: 35px 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+/* --- Input Groups --- */
+.input-group {
+  margin-bottom: 25px;
+  
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 8px;
+    margin-left: 5px;
+  }
+}
+
+.custom-input {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 0 15px;
+  height: 55px;
+  transition: 0.3s;
+
+  ion-icon {
+    color: #999;
+    font-size: 22px;
+    margin-right: 10px;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    height: 100%;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    outline: none;
+
+    &::placeholder {
+      color: #bbb;
+      font-weight: 400;
+    }
+  }
+
+  &:focus-within {
+    background: #fff;
+    border-color: #FFD600;
+    box-shadow: 0 5px 15px rgba(255, 214, 0, 0.2);
+    ion-icon { color: #FFD600; }
+  }
+}
+
+/* --- OTP Input --- */
+.otp-container {
+  input.otp-input {
+    width: 100%;
+    height: 60px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    background: white;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 12px; /* เว้นระยะตัวอักษรให้ดูเหมือน OTP */
+    color: #333;
+    outline: none;
+    transition: 0.3s;
+
+    &:focus {
+      border-color: #FFD600;
+      box-shadow: 0 5px 20px rgba(255, 214, 0, 0.25);
+    }
+    
+    &::placeholder {
+      color: #ddd;
+      letter-spacing: 5px;
+    }
+  }
+}
+
+/* --- Button --- */
+.btn-main {
+  --background: #111; /* สีดำเข้ม */
+  --color: #FFD600;   /* ตัวหนังสือสีเหลือง */
+  --border-radius: 16px;
+  height: 55px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  --box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+
+  ion-icon { margin-left: 8px; font-size: 20px; }
+}
+
+.resend-text {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  text-decoration: underline;
+  
+  &:hover { color: #000; }
+}
+
+/* --- Animation --- */
+.fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Resend Area --- */
+.resend-wrapper {
+  margin-top: 25px;
+  text-align: center;
+  min-height: 24px; /* กันกระตุกเวลาสลับข้อความ */
+}
+
+.wait-text {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+
+  .timer {
+    color: #FFD600; /* สีเหลือง */
+    font-weight: bold;
+    font-size: 16px;
+    background: #333;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 5px;
+  }
+}
+
+.action-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #666;
+
+  .divider { color: #ccc; }
+
+  .link {
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    text-decoration: underline;
+    transition: 0.2s;
+
+    &:hover {
+      color: #000;
+    }
+  }
+}

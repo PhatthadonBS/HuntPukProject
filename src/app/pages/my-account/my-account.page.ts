@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { personOutline, mailOutline, createOutline, arrowBack } from 'ionicons/icons';
+// ✅ Import ไอคอนให้ครบ (ใช้แบบ Filled เพื่อให้ตรงกับ HTML)
+import { person, mail, create, arrowBack, call, shieldCheckmark } from 'ionicons/icons';
 
-// ✅ Import Component ของ Ionic แบบ Standalone มาให้ครบทุกตัวที่ใช้ใน HTML
 import { 
   IonContent, 
   IonHeader, 
@@ -21,7 +21,6 @@ import {
   templateUrl: './my-account.page.html',
   styleUrls: ['./my-account.page.scss'],
   standalone: true,
-  // ✅ ใส่ชื่อ Component ที่ Import มาลงในนี้ให้หมด
   imports: [
     CommonModule, 
     FormsModule, 
@@ -39,7 +38,8 @@ export class MyAccountPage implements OnInit {
   user: any = {};
 
   constructor(private router: Router) { 
-    addIcons({ personOutline, mailOutline, createOutline, arrowBack });
+    // ✅ ลงทะเบียนไอคอนให้ครบตามที่ใช้ใน HTML
+    addIcons({ person, mail, create, arrowBack, call, shieldCheckmark });
   }
 
   ngOnInit() {

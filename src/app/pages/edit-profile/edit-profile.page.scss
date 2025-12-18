@@ -1,19 +1,24 @@
+/* --- Global Background --- */
 ion-content {
   --background: #f5f5f5;
 }
 
+/* --- Toolbar --- */
 .custom-toolbar {
   --background: #FFD600;
   --color: #000;
+  ion-title { font-weight: bold; }
 }
 
+/* --- Header Decoration --- */
 .edit-header-bg {
   background: #FFD600;
-  height: 100px; /* สั้นกว่าหน้า Profile */
+  height: 100px;
   border-bottom-left-radius: 30px;
   border-bottom-right-radius: 30px;
 }
 
+/* --- Form Card --- */
 .form-card {
   background: white;
   margin: -50px 20px 20px 20px;
@@ -35,7 +40,7 @@ ion-content {
   }
 }
 
-/* Custom Input สวยๆ */
+/* --- Input Styling --- */
 .input-container {
   display: flex;
   align-items: center;
@@ -51,7 +56,7 @@ ion-content {
     margin-right: 10px;
   }
 
-  input {
+  input, span {
     width: 100%;
     border: none;
     background: transparent;
@@ -60,13 +65,13 @@ ion-content {
     color: #333;
     font-weight: 500;
     outline: none;
-
+    
     &::placeholder {
       color: #ccc;
     }
   }
 
-  /* เวลาจิ้มพิมพ์ ให้ขอบเป็นสีเหลือง */
+  /* Focus Effect */
   &:focus-within {
     border-color: #FFD600;
     background: white;
@@ -78,13 +83,30 @@ ion-content {
   }
 }
 
+/* --- Buttons Area --- */
 .action-area {
   margin-top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* เว้นระยะห่างระหว่างปุ่มบันทึกกับยกเลิก */
+  gap: 15px;
 }
 
+/* ✅ [เพิ่มใหม่] โซนอันตราย (ปุ่มลบ) */
+.danger-zone {
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0; /* เส้นคั่นบางๆ */
+  
+  ion-button {
+    --color: #ff4444; /* สีแดง */
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    --background-hover: rgba(255, 0, 0, 0.05);
+  }
+}
+
+/* ปรับแต่งปุ่มยกเลิก */
 .btn-cancel {
   --border-width: 2px;
 }

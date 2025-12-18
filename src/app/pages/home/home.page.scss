@@ -219,3 +219,42 @@ ion-modal.filter-modal-custom {
   .dorm-side-panel { width: 100%; height: 60%; top: auto; bottom: 0; right: 0; left: 0; border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease-out; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 }
+/* ✅ สไตล์ปุ่มย้อนกลับ */
+.back-arrow-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100; /* ให้ลอยอยู่เหนือทุกอย่าง */
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.5); /* พื้นหลังโปร่งใสหน่อย */
+  backdrop-filter: blur(5px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+
+  ion-icon {
+    font-size: 24px;
+    color: #333;
+  }
+
+  &:active {
+    transform: scale(0.9);
+    background: #FFD600; /* กดแล้วเปลี่ยนสี */
+  }
+}
+
+/* เพิ่ม Effect ให้โลโก้ดูน่ากด */
+.logo-circle {
+  /* ... css เดิม ... */
+  cursor: pointer;
+  transition: transform 0.2s;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}

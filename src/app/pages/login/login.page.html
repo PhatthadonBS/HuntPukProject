@@ -2,8 +2,12 @@
   
   <div class="main-container">
     
+    <div class="back-arrow-btn" (click)="goHome()">
+      <ion-icon name="arrow-back"></ion-icon>
+    </div>
+    
     <div class="logo-section">
-      <div class="logo-circle">
+      <div class="logo-circle" (click)="goHome()" style="cursor: pointer;">
         <img src="assets/logo.png" alt="MSU Dormitory">
       </div>
     </div>
@@ -21,8 +25,8 @@
       </div>
 
       <div class="forgot-pass text-end">
-<a class="link-forgot-password" routerLink="/forgot-password">ลืมรหัสผ่าน</a>     
- </div>
+        <a class="link-forgot-password" routerLink="/forgot-password">ลืมรหัสผ่าน</a>     
+      </div>
 
       <ion-button expand="block" shape="round" color="dark" class="btn-login" (click)="login()">
         เข้าสู่ระบบ
@@ -31,6 +35,9 @@
       <div class="register-text">
         <span>ยังไม่มีบัญชี? </span>
         <a class="link-register" routerLink="/register">สมัครสมาชิก</a>
+        
+        <span class="divider"> | </span>
+        <a class="link-register" routerLink="/recover-account">กู้คืนบัญชี</a>
       </div>
 
     </div>

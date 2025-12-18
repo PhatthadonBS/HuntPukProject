@@ -24,10 +24,18 @@
     </div>
 
     <div class="form-group">
-      <label>อีเมล</label>
+      <label>เบอร์โทรศัพท์</label>
       <div class="input-container">
+        <ion-icon name="call-outline"></ion-icon>
+        <input type="tel" maxlength="10" [(ngModel)]="editData.phone_number" placeholder="0xxxxxxxxx">
+      </div>
+    </div>
+
+    <div class="form-group" style="opacity: 0.6;">
+      <label>อีเมล (แก้ไขไม่ได้)</label>
+      <div class="input-container" style="background: #eee;">
         <ion-icon name="mail-outline"></ion-icon>
-        <input type="email" [(ngModel)]="editData.email" placeholder="name@example.com">
+        <span style="padding: 12px 0; color: #555;">{{ fullUserData.email || '-' }}</span>
       </div>
     </div>
 
@@ -37,9 +45,12 @@
         บันทึกการเปลี่ยนแปลง
       </ion-button>
 
-      <ion-button expand="block" shape="round" fill="outline" color="medium" (click)="goBack()" class="btn-cancel">
-        ยกเลิก
-      </ion-button>
+      <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+        <ion-button expand="block" fill="clear" color="danger" (click)="deleteAccount()">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          ปิดใช้งานบัญชี
+        </ion-button>
+      </div>
 
     </div>
 

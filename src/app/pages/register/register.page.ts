@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular'; // <--- 1. เพิ่ม AlertController
+import { IonicModule, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { UserRegPostReq } from '../../model/req/user_reg_post_req';
+
+// ✅ 1. Import addIcons และ Icon ที่ต้องการใช้ (เช่น arrowBack)
+import { addIcons } from 'ionicons';
+import { arrowBack, chevronBack } from 'ionicons/icons';
 
 @Component({
   selector: 'app-register',
@@ -22,21 +26,24 @@ export class RegisterPage implements OnInit {
   confirmPassword: string = '';
   phone: string = '';
 
-  // 2. เพิ่ม alertController ใน constructor
   constructor(
     private router: Router,
     private alertController: AlertController,
     private authService: Auth
-  ) { }
+  ) {
+    // ✅ 2. ลงทะเบียน Icon ที่จะใช้ในหน้านี้
+    // ถ้าใน HTML คุณใช้ <ion-icon name="arrow-back"></ion-icon> ให้ใส่ arrowBack
+    addIcons({ arrowBack, chevronBack }); 
+  }
 
   ngOnInit() {
   }
 
   goBack() {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/home']);
   }
 
-  // 3. ฟังก์ชันเมื่อกดปุ่ม "ถัดไป" (ปุ่มลูกศร)
+  // ฟังก์ชันเมื่อกดปุ่ม "ถัดไป"
   async register() {
     // เช็คว่ากรอกข้อมูลครบไหม
     if(!this.username || !this.email || !this.password || !this.phone) {
@@ -58,7 +65,6 @@ export class RegisterPage implements OnInit {
     }
 
     console.log(userData);
-    
 
     try {
       const res = await this.authService.register(userData)
@@ -70,17 +76,15 @@ export class RegisterPage implements OnInit {
       return;
     } catch (error) {
       console.log(error);
-      
     }
     
-    
     // --- ส่วนจำลองการบันทึกข้อมูล (Mock) ---
+    // (โค้ดส่วนนี้อาจจะไม่ได้ถูกเรียกถ้า router.navigate ทำงานไปแล้วใน try block)
     console.log('สมัครสมาชิกสำเร็จ:', {
       user: this.username,
       email: this.email
     });
 
-    // 4. แสดง Popup สำเร็จ และพากลับหน้า Login
     const alert = await this.alertController.create({
       header: 'ดำเนินการสำเร็จ',
       subHeader: '✅',
@@ -89,18 +93,16 @@ export class RegisterPage implements OnInit {
         {
           text: 'ตกลง',
           handler: () => {
-            // เมื่อกดตกลง ให้ทำงานตรงนี้
             this.router.navigate(['/login']);
           }
         }
       ],
-      cssClass: 'custom-success-alert' // (เผื่ออยากแต่ง CSS เพิ่ม)
+      cssClass: 'custom-success-alert'
     });
 
     await alert.present();
   }
 
-  // ฟังก์ชันแจ้งเตือนเมื่อกรอกผิด
   async showErrorAlert(msg: string) {
     const alert = await this.alertController.create({
       header: 'แจ้งเตือน',

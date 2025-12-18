@@ -1,6 +1,6 @@
 /* --- Global Background --- */
 ion-content {
-  --background: #f8f9fa; /* สีพื้นหลังเทาอ่อนมาก เพื่อให้สีเหลืองเด่น */
+  --background: #f8f9fa;
 }
 
 /* --- Toolbar --- */
@@ -11,10 +11,10 @@ ion-content {
   ion-icon { font-size: 24px; color: #000; }
 }
 
-/* --- Header Section (Yellow Background) --- */
+/* --- Header Section --- */
 .profile-header-bg {
   background: #FFD600;
-  height: 240px; /* เพิ่มความสูงนิดหน่อยให้ดูโปร่ง */
+  height: 240px;
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
   display: flex;
@@ -53,27 +53,27 @@ ion-content {
   p { font-size: 14px; margin: 5px 0 0; opacity: 0.8; font-weight: 500; }
 }
 
-/* --- Content Card (Floating) --- */
+/* --- Content Card --- */
 .profile-content-card {
   background: white;
-  margin: -60px 20px 30px 20px; /* ดึงขึ้นไปทับ Header */
+  margin: -60px 20px 30px 20px;
   border-radius: 25px;
   padding: 30px 25px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.08); /* เงาฟุ้งๆ ดูพรีเมียม */
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
   position: relative;
   z-index: 10;
 }
 
-/* --- ✅ ปุ่มแก้ไขข้อมูล (Highlight) --- */
+/* --- Edit Button --- */
 .edit-btn-wrapper {
-  margin-bottom: 30px; /* เว้นระยะห่างจากข้อมูล */
+  margin-bottom: 30px;
 }
 
 .btn-edit-custom {
-  --background: #212121;       /* พื้นหลังสีดำด้าน */
-  --color: #FFD600;            /* ตัวหนังสือสีเหลืองทอง */
+  --background: #212121;
+  --color: #FFD600;
   --border-radius: 50px;
-  --box-shadow: 0 8px 20px rgba(0,0,0,0.2); /* เงาใต้ปุ่ม */
+  --box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   --padding-top: 15px;
   --padding-bottom: 15px;
   
@@ -88,7 +88,6 @@ ion-content {
     margin-right: 8px; 
   }
 
-  /* เอฟเฟกต์กดปุ่ม */
   &:active {
     transform: scale(0.98);
     --box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -111,7 +110,7 @@ ion-content {
 
   .icon-box {
     width: 32px; height: 32px;
-    background: #FFF9C4; /* พื้นหลังไอคอนสีเหลืองอ่อน */
+    background: #FFF9C4;
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     ion-icon { color: #FBC02D; font-size: 18px; }
@@ -119,17 +118,17 @@ ion-content {
 }
 
 .info-value {
-  padding-left: 44px; /* เยื้องให้ตรงกับข้อความ Label */
+  padding-left: 44px;
   font-size: 18px;
   font-weight: 700;
   color: #333;
-  word-break: break-all; /* ป้องกันอีเมลยาวเกิน */
+  word-break: break-all;
   
-  &.status-active { color: #4CAF50; } /* สีเขียวสำหรับสถานะปกติ */
+  &.status-active { color: #4CAF50; }
 }
 
 .divider {
   height: 1px;
   background: #eee;
-  margin: 15px 0 15px 44px; /* เส้นคั่น */
+  margin: 15px 0 15px 44px;
 }
