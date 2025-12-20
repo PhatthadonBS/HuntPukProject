@@ -1,72 +1,30 @@
 <ion-content [fullscreen]="true">
   
-  <div class="main-container">
-
-    <div class="floating-back-btn" (click)="goBack()">
+  <div class="recover-container">
+    
+    <div class="back-button" (click)="goBack()">
       <ion-icon name="arrow-back"></ion-icon>
+      <span>กลับ</span>
     </div>
 
-    <div class="content-wrapper">
+    <div class="header-text">
+      <h1>กู้คืนบัญชี</h1>
+      <p>หากบัญชีของคุณถูกระงับ<br>กรอกอีเมลเพื่อยืนยันตัวตนและเปิดใช้งาน</p>
+    </div>
 
-      <div class="step-content" *ngIf="step === 1">
-        <div class="header-text">
-          <h1>กู้คืนบัญชี</h1>
-          <p>ลืมรหัสผ่านหรือเข้าไม่ได้?<br>กรอกอีเมลเพื่อรับรหัสยืนยัน</p>
-        </div>
-
-        <div class="glass-card fade-up">
-          <div class="input-group">
-            <label>อีเมล</label>
-            <div class="custom-input">
-              <ion-icon name="mail-outline"></ion-icon>
-              <input type="email" placeholder="name@example.com" [(ngModel)]="email">
-            </div>
-          </div>
-
-          <ion-button expand="block" shape="round" class="btn-main" (click)="requestOTP()">
-            ส่งรหัส OTP
-            <ion-icon name="arrow-forward" slot="end"></ion-icon>
-          </ion-button>
-        </div>
+    <div class="form-card fade-in">
+      
+      <div class="custom-input">
+        <input type="email" placeholder="อีเมลของคุณ" [(ngModel)]="email">
+        <ion-icon name="mail" color="medium"></ion-icon>
       </div>
 
-      <div class="step-content" *ngIf="step === 2">
-        
-        <div class="header-text">
-          <h1>ยืนยันตัวตน</h1>
-          <p>รหัส OTP 6 หลักถูกส่งไปที่<br><strong>{{ email }}</strong></p>
-        </div>
+      <ion-button expand="block" shape="round" class="btn-action" (click)="requestRecovery()">
+        ตรวจสอบและกู้คืน <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
 
-        <div class="glass-card fade-up">
-          
-          <div class="input-group">
-            <label>รหัสความปลอดภัย</label>
-            <div class="otp-container">
-               <input type="text" class="otp-input" placeholder="------" [(ngModel)]="otpInput" maxlength="6">
-            </div>
-          </div>
+    </div>
 
-          <ion-button expand="block" shape="round" class="btn-main" (click)="verifyAndRecover()">
-            ยืนยันและกู้คืน
-          </ion-button>
-
-          <div class="resend-wrapper">
-            
-            <p *ngIf="isResendDisabled" class="wait-text">
-              ส่งรหัสใหม่ได้ใน <span class="timer">{{ timeLeft }}s</span>
-            </p>
-
-            <div *ngIf="!isResendDisabled" class="action-links">
-               <span class="link" (click)="resendOTP()">ส่งรหัส OTP ใหม่</span>
-               <span class="divider">|</span>
-               <span class="link" (click)="goBack()">แก้ไขอีเมล</span>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-      </div>
   </div>
 
 </ion-content>

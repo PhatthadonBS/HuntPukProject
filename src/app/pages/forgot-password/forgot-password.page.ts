@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ModalController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../services/auth';
-import { UserRegPostReq } from '../../model/req/user_reg_post_req';
-import { UserVerifyPostRes } from '../../model/res/user_verify_post_res';
+import { addIcons } from 'ionicons';
+import { arrowBack, mail, key, arrowForward, checkmarkCircle } from 'ionicons/icons';
+
+// ✅ Import Modal OTP
+import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -15,14 +18,10 @@ import { UserVerifyPostRes } from '../../model/res/user_verify_post_res';
   imports: [CommonModule, FormsModule, IonicModule, RouterModule],
 })
 export class ForgotPasswordPage implements OnInit {
-  step: number = 1; // ตัวแปรคุมหน้าจอ (1=OTP, 2=Reset)
-
-  storedUser = sessionStorage.getItem('user');
-  userData:UserRegPostReq = this.storedUser ? JSON.parse(this.storedUser) : '';
-  email: string = this.userData.email;
-  otpInput: string = '';
-  serverOtp: string = ''; // เก็บ OTP ที่สุ่มได้
-
+  
+  step: number = 1; // 1=กรอกอีเมล, 2=ตั้งรหัสใหม่
+  email: string = '';
+  
   // Step 2 Data
   newPassword: string = '';
   confirmPassword: string = '';
@@ -30,17 +29,19 @@ export class ForgotPasswordPage implements OnInit {
   constructor(
     private router: Router,
     private alertController: AlertController,
+    private modalCtrl: ModalController, // ✅ เพิ่ม ModalController
     private authService: Auth
-  ) {}
+  ) {
+    addIcons({ arrowBack, mail, key, arrowForward, checkmarkCircle });
+  }
 
   ngOnInit() {}
 
-  // กลับไปหน้า Login
   goBack() {
     this.router.navigate(['/login']);
   }
 
-  // 1. ขอ OTP
+  // STEP 1: ขอ OTP และเปิด Modal
   async requestOTP() {
     if (!this.email) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกอีเมล');
@@ -48,84 +49,70 @@ export class ForgotPasswordPage implements OnInit {
     }
 
     try {
-      console.log("now here");
-      
-      const res = await this.authService.reqOTP(this.userData.email);
-      console.log(res); return;
-      
-    } catch (error) {
-      console.log(error);
-      
+      // 1. เรียก API ขอ OTP
+      await this.authService.reqOTP(this.email);
+
+      // 2. ✅ เปิด Modal OTP (ใช้ตัวเดียวกับ Register)
+      const modal = await this.modalCtrl.create({
+        component: OtpModalComponent,
+        componentProps: { email: this.email },
+        backdropDismiss: false
+      });
+
+      await modal.present();
+
+      // 3. รอผลลัพธ์จาก Modal (เมื่อกดยืนยันใน Modal ผ่าน)
+      const { data } = await modal.onWillDismiss();
+
+      if (data && data.success) {
+        // ถ้า OTP ผ่าน -> ไปหน้าตั้งรหัสใหม่ (Step 2)
+        this.step = 2;
+      }
+
+    } catch (error: any) {
+      console.error(error);
+      this.showAlert('ข้อผิดพลาด', 'ไม่พบอีเมลในระบบ หรือเกิดข้อผิดพลาด');
     }
   }
 
-  // 2. ตรวจสอบ OTP เพื่อไปหน้าถัดไป
-  async verifyOTP() {
-    try {
-      const res = await this.authService.verifyOTP(this.userData.email, this.otpInput) as UserVerifyPostRes;
-      console.log(res);
-      const res2 = await this.authService.registerSec2(this.userData, res.status)
-      console.log(res2);
-      sessionStorage.clear();
-      
-    } catch (error) {
-      console.log(error);
-      
-    }
-  }
-
-  // 3. ยืนยันการเปลี่ยนรหัสผ่าน (หน้า 2)
+  // STEP 2: บันทึกรหัสผ่านใหม่
   async confirmReset() {
-    // ตรวจสอบเงื่อนไข (a-z และ 0-9 เท่านั้น, ความยาว 8 ตัวเป๊ะตามรูป)
+    // Validation
     const regex = /^[a-z0-9]{8}$/;
-
     if (!regex.test(this.newPassword)) {
-      this.showAlert(
-        'รูปแบบไม่ถูกต้อง',
-        'รหัสผ่านต้องเป็น a-z และ 0-9 รวมกัน 8 ตัวอักษรเท่านั้น'
-      );
+      this.showAlert('รูปแบบไม่ถูกต้อง', 'รหัสผ่านต้องเป็น a-z และ 0-9 รวมกัน 8 ตัวอักษรเท่านั้น');
       return;
     }
 
     if (this.newPassword !== this.confirmPassword) {
-      this.showAlert('ผิดพลาด', 'รหัสผ่านทั้งสองช่องไม่ตรงกัน');
+      this.showAlert('ผิดพลาด', 'รหัสผ่านไม่ตรงกัน');
       return;
     }
 
-    // ถามยืนยันอีกครั้ง
-    const confirmAlert = await this.alertController.create({
-      header: 'ยืนยันการเปลี่ยนรหัสผ่าน',
-      message: 'คุณต้องการเปลี่ยนรหัสผ่านใช่หรือไม่?',
-      buttons: [
-        {
-          text: 'ยกเลิก',
-          role: 'cancel',
-        },
-        {
-          text: 'ตกลง',
-          handler: () => {
-            this.successAndRedirect();
-          },
-        },
-      ],
-    });
-    await confirmAlert.present();
+    try {
+      // ✅ เรียก API เปลี่ยนรหัสผ่าน (ส่ง verify=true เพราะผ่าน OTP แล้ว)
+      await this.authService.resetPassword(this.email, this.newPassword, true);
+
+      this.successAndRedirect();
+
+    } catch (error: any) {
+      console.error(error);
+      this.showAlert('ผิดพลาด', 'ไม่สามารถเปลี่ยนรหัสผ่านได้');
+    }
   }
 
-  // 4. เปลี่ยนสำเร็จ -> กลับหน้า Login
   async successAndRedirect() {
     const alert = await this.alertController.create({
       header: 'สำเร็จ',
       subHeader: '✅',
       message: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
-      buttons: [
-        {
-          text: 'ตกลง',
-          handler: () => {
-            this.router.navigate(['/login']);
-          },
+      buttons: [{
+        text: 'ตกลง',
+        handler: () => {
+          this.router.navigate(['/login']);
         },
-      ],
+      }],
+      cssClass: 'custom-success-alert'
     });
     await alert.present();
   }

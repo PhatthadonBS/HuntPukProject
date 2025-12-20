@@ -1,14 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ModalController } from '@ionic/angular'; // ✅ เพิ่ม ModalController
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { UserRegPostReq } from '../../model/req/user_reg_post_req';
 
-// ✅ 1. Import addIcons และ Icon ที่ต้องการใช้ (เช่น arrowBack)
+// Import Icons
 import { addIcons } from 'ionicons';
-import { arrowBack, chevronBack } from 'ionicons/icons';
+import { arrowBack, person, key, call, mail, arrowForward } from 'ionicons/icons';
+
+// ✅ Import Modal
+import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
 
 @Component({
   selector: 'app-register',
@@ -19,41 +22,42 @@ import { arrowBack, chevronBack } from 'ionicons/icons';
 })
 export class RegisterPage implements OnInit {
 
-  // ตัวแปรรับค่า
+  // ไม่ต้องมี step แล้ว เพราะ OTP เด้งเป็น Modal แทน
+  // Form Data
   username: string = '';
   email: string = '';
   password: string = '';
   confirmPassword: string = '';
   phone: string = '';
+  
+  // ❌ ลบตัวแปร otpInput ออก เพราะไปใช้ใน Modal
+
+  tempUserData: any = null;
 
   constructor(
     private router: Router,
     private alertController: AlertController,
+    private modalCtrl: ModalController, // ✅ เพิ่ม
     private authService: Auth
   ) {
-    // ✅ 2. ลงทะเบียน Icon ที่จะใช้ในหน้านี้
-    // ถ้าใน HTML คุณใช้ <ion-icon name="arrow-back"></ion-icon> ให้ใส่ arrowBack
-    addIcons({ arrowBack, chevronBack }); 
+    addIcons({ arrowBack, person, key, call, mail, arrowForward }); 
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   goBack() {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/login']); 
   }
 
-  // ฟังก์ชันเมื่อกดปุ่ม "ถัดไป"
-  async register() {
-    // เช็คว่ากรอกข้อมูลครบไหม
+  // ฟังก์ชันเดียวจบ: กรอกข้อมูล -> กดถัดไป -> เด้ง OTP -> จบงาน
+  async onNextStep() {
+    // 1. Validation
     if(!this.username || !this.email || !this.password || !this.phone) {
-      this.showErrorAlert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      this.showAlert('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
-
-    // เช็คว่ารหัสผ่านตรงกันไหม
     if (this.password !== this.confirmPassword) {
-      this.showErrorAlert('รหัสผ่านไม่ตรงกัน');
+      this.showAlert('แจ้งเตือน', 'รหัสผ่านไม่ตรงกัน');
       return;
     }
 
@@ -62,54 +66,77 @@ export class RegisterPage implements OnInit {
       email: this.email,
       password: this.password,
       phone: this.phone
-    }
-
-    console.log(userData);
+    };
 
     try {
-      const res = await this.authService.register(userData)
-      sessionStorage.clear();
-      sessionStorage.setItem("user", JSON.stringify(res));
-      this.router.navigateByUrl("/forgot-password");
-      console.log("move to fkpw");
+      // 2. เรียก registerSec1 
+      this.tempUserData = await this.authService.register(userData);
       
-      return;
-    } catch (error) {
-      console.log(error);
-    }
-    
-    // --- ส่วนจำลองการบันทึกข้อมูล (Mock) ---
-    // (โค้ดส่วนนี้อาจจะไม่ได้ถูกเรียกถ้า router.navigate ทำงานไปแล้วใน try block)
-    console.log('สมัครสมาชิกสำเร็จ:', {
-      user: this.username,
-      email: this.email
-    });
+      // 3. เรียกขอ OTP
+      await this.authService.reqOTP(this.email);
 
-    const alert = await this.alertController.create({
-      header: 'ดำเนินการสำเร็จ',
-      subHeader: '✅',
-      message: 'สมัครสมาชิกเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
-      buttons: [
-        {
+      // 4. ✅ เปิด Modal OTP (แบบเดียวกับ Forgot Password)
+      const modal = await this.modalCtrl.create({
+        component: OtpModalComponent,
+        componentProps: { email: this.email },
+        backdropDismiss: false
+      });
+
+      await modal.present();
+
+      // 5. รอผลลัพธ์จาก Modal
+      const { data } = await modal.onWillDismiss();
+
+      if (data && data.success) {
+        // ✅ ถ้า OTP ผ่าน ให้บันทึกข้อมูลทันที
+        await this.finishRegister();
+      }
+      
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.error || error.message || 'เกิดข้อผิดพลาด';
+      this.showAlert('ผิดพลาด', 'อีเมลนี้อาจถูกใช้งานแล้ว หรือระบบขัดข้อง');
+    }
+  }
+
+  // แยกฟังก์ชันบันทึกข้อมูลออกมา
+  async finishRegister() {
+    try {
+       const isVerified = true; 
+
+       if (this.tempUserData) {
+          await this.authService.registerSec2(this.tempUserData, isVerified);
+       } else {
+          throw new Error("ไม่พบข้อมูลผู้ใช้");
+       }
+
+       // Alert สำเร็จ -> ไป Login
+       const alert = await this.alertController.create({
+        header: 'สมัครสมาชิกสำเร็จ',
+        subHeader: '✅',
+        message: 'บัญชีของคุณถูกสร้างเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
+        buttons: [{
           text: 'ตกลง',
           handler: () => {
             this.router.navigate(['/login']);
           }
-        }
-      ],
-      cssClass: 'custom-success-alert'
-    });
+        }],
+        cssClass: 'custom-success-alert'
+      });
+      await alert.present();
 
-    await alert.present();
+    } catch (error: any) {
+      console.error(error);
+      this.showAlert('ผิดพลาด', 'การบันทึกล้มเหลว');
+    }
   }
 
-  async showErrorAlert(msg: string) {
+  async showAlert(header: string, msg: string) {
     const alert = await this.alertController.create({
-      header: 'แจ้งเตือน',
+      header: header,
       message: msg,
       buttons: ['ตกลง']
     });
     await alert.present();
   }
-
 }

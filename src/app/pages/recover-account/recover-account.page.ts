@@ -1,9 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ModalController } from '@ionic/angular'; // ✅ เพิ่ม ModalController
 import { Router } from '@angular/router';
-import { Auth } from '../../services/auth'; // Import Service
+import { Auth } from '../../services/auth';
+import { addIcons } from 'ionicons';
+import { arrowBack, mail, arrowForward } from 'ionicons/icons';
+// ✅ Import Modal
+import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
 
 @Component({
   selector: 'app-recover-account',
@@ -12,87 +16,51 @@ import { Auth } from '../../services/auth'; // Import Service
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule]
 })
-export class RecoverAccountPage implements OnInit, OnDestroy {
+export class RecoverAccountPage implements OnInit {
 
-  step: number = 1; // 1=กรอกอีเมล, 2=กรอก OTP
   email: string = '';
-  otpInput: string = '';
-
-  // ✅ ตัวแปรสำหรับตัวนับเวลา
-  timeLeft: number = 60;
-  interval: any;
-  isResendDisabled: boolean = false;
 
   constructor(
     private router: Router,
     private alertController: AlertController,
+    private modalCtrl: ModalController, // ✅
     private authService: Auth
-  ) { }
+  ) {
+    addIcons({ arrowBack, mail, arrowForward });
+  }
 
   ngOnInit() { }
 
-  // ✅ เมื่อออกจากหน้า ต้องเคลียร์ตัวนับเวลา
-  ngOnDestroy() {
-    this.stopTimer();
-  }
-
   goBack() {
-    if (this.step === 2) {
-      this.step = 1;
-      this.stopTimer(); // หยุดเวลาเมื่อย้อนกลับ
-    } else {
-      this.router.navigate(['/login']);
-    }
+    this.router.navigate(['/login']);
   }
 
-  // --- Logic Timer ---
-  startTimer() {
-    this.stopTimer(); // เคลียร์อันเก่าก่อน
-    this.timeLeft = 60;
-    this.isResendDisabled = true; // ปิดปุ่มกด
-
-    this.interval = setInterval(() => {
-      if (this.timeLeft > 0) {
-        this.timeLeft--;
-      } else {
-        this.stopTimer();
-        this.isResendDisabled = false; // เปิดปุ่มเมื่อครบเวลา
-      }
-    }, 1000);
-  }
-
-  stopTimer() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-  }
-
-  // --- Logic API ---
-
-  // ฟังก์ชันกดปุ่ม "ส่งรหัส OTP ใหม่"
-  async resendOTP() {
-    await this.requestOTP(true); 
-  }
-
-  // 1. ขอ OTP
-  async requestOTP(isResend: boolean = false) {
+  // ฟังก์ชันหลัก: ขอ OTP -> เปิด Modal -> กู้คืน
+  async requestRecovery() {
     if (!this.email) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกอีเมลของบัญชีที่ต้องการกู้คืน');
       return;
     }
 
     try {
-      // เรียก API ขอ OTP
-      const res: any = await this.authService.reqOTP(this.email);
-      console.log('OTP Res:', res);
-      
-      // ✅ เริ่มนับเวลาถอยหลังทันทีที่ส่งสำเร็จ
-      this.startTimer();
+      // 1. เรียก API ขอ OTP
+      await this.authService.reqOTP(this.email);
 
-      if (!isResend) {
-        this.step = 2; // ไปหน้ากรอก OTP
-      } else {
-        this.showAlert('สำเร็จ', 'ส่งรหัส OTP ใหม่เรียบร้อยแล้ว');
+      // 2. ✅ เปิด Modal OTP
+      const modal = await this.modalCtrl.create({
+        component: OtpModalComponent,
+        componentProps: { email: this.email },
+        backdropDismiss: false
+      });
+
+      await modal.present();
+
+      // 3. รอผลลัพธ์จาก Modal
+      const { data } = await modal.onWillDismiss();
+
+      if (data && data.success) {
+        // ✅ ถ้า OTP ผ่าน -> เรียก API กู้คืนบัญชีทันที
+        await this.performRecovery();
       }
 
     } catch (error: any) {
@@ -101,25 +69,13 @@ export class RecoverAccountPage implements OnInit, OnDestroy {
     }
   }
 
-  // 2. ยืนยัน OTP และ กู้คืนบัญชี
-  async verifyAndRecover() {
-    if (!this.otpInput) {
-      this.showAlert('แจ้งเตือน', 'กรุณากรอกรหัส OTP');
-      return;
-    }
-
+  // ฟังก์ชันกู้คืนบัญชี (แยกออกมาเพื่อให้โค้ดสะอาด)
+  async performRecovery() {
     try {
-      // 2.1 ยืนยัน OTP
-      const verifyRes: any = await this.authService.verifyOTP(this.email, this.otpInput);
-      console.log('Verify Res:', verifyRes);
-      console.log(this.otpInput);
+      // เรียก API recoverAccount (ส่ง verify=true)
+      // (ต้องแน่ใจว่าใน Service มีฟังก์ชันนี้และรับ email, boolean)
+      await this.authService.recoverAccount(this.email, true);
 
-      // ✅ 2.2 เรียก API กู้คืนบัญชี (ส่ง Email แทน ID)
-      // (ต้องแน่ใจว่าไฟล์ auth.ts แก้ไขให้ recoverAccount รับ string แล้วนะครับ)
-      const recoverRes = await this.authService.recoverAccount(this.email, true);
-      console.log('Recover Res:', recoverRes);
-
-      // 3. สำเร็จ -> แจ้งเตือนและกลับหน้า Login
       const alert = await this.alertController.create({
         header: 'กู้คืนสำเร็จ',
         subHeader: '✅',
@@ -129,13 +85,14 @@ export class RecoverAccountPage implements OnInit, OnDestroy {
           handler: () => {
             this.router.navigate(['/login']);
           }
-        }]
+        }],
+        cssClass: 'custom-success-alert'
       });
       await alert.present();
 
     } catch (error: any) {
       console.error(error);
-      this.showAlert('ผิดพลาด', 'รหัส OTP ไม่ถูกต้อง หรือกู้คืนไม่สำเร็จ');
+      this.showAlert('ผิดพลาด', 'ไม่สามารถกู้คืนบัญชีได้ กรุณาลองใหม่อีกครั้ง');
     }
   }
 

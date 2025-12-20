@@ -1,0 +1,50 @@
+<ion-content class="modal-content">
+  <div class="otp-container">
+    
+    <div class="icon-wrapper">
+      <ion-icon name="shield-checkmark"></ion-icon>
+    </div>
+
+    <h2>ยืนยันตัวตน</h2>
+    <p>รหัส OTP 6 หลักถูกส่งไปที่<br><strong>{{ email }}</strong></p>
+
+    <div class="otp-inputs">
+      <input type="text" 
+             *ngFor="let digit of otp; let i = index; trackBy: trackByIndex"
+             [(ngModel)]="otp[i]"
+             (input)="handleInput($event, i)"
+             (keydown)="handleDelete($event, i)"
+             maxlength="1"
+             class="otp-box"
+             id="otp-{{i}}"
+             inputmode="numeric"
+             autocomplete="one-time-code">
+    </div>
+
+    <ion-button 
+      expand="block" 
+      shape="round" 
+      class="btn-verify" 
+      (click)="verify()"
+      [disabled]="isLoading"> 
+      
+      <span *ngIf="!isLoading">ยืนยัน</span>
+      <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner> 
+    </ion-button>
+
+    <div class="resend-wrapper">
+      <p *ngIf="timeLeft > 0" class="wait-text">
+        ส่งรหัสใหม่ได้ใน <span class="timer">{{ timeLeft }}s</span>
+      </p>
+      
+      <div *ngIf="timeLeft === 0 && !isLoading" class="action-links">
+         <span class="link" (click)="resendOTP()">ส่งรหัส OTP ใหม่</span>
+      </div>
+    </div>
+
+    <div class="cancel-btn" (click)="closeModal()">
+      ยกเลิก
+    </div>
+
+  </div>
+</ion-content>

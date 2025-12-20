@@ -20,6 +20,7 @@ export class Auth {
     try {
       const res = await lastValueFrom(this.http.post(url, user));
       return res;
+      console.log(res);
     } catch (error: any) {
       throw new Error(JSON.stringify(error.error, null, 2));
     }
@@ -139,6 +140,25 @@ public async login(email: string, password: string) {
       throw new Error(JSON.stringify(error.error, null, 2));
     }
   }
+  public async resetPassword(email: string, newPass: string, verify: boolean) {
+    // API Route: /user/resetPassword
+    const url = this.endpoint.API_ENDPOINT + '/user/resetPassword';
+    
+    try {
+      const body = {
+        email: email,
+        password: newPass, 
+        verify: verify    
+      };
+
+      // ใช้ PUT ตาม Router Backend
+      const res = await lastValueFrom(this.http.put(url, body)); 
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error, null, 2));
+    }
+  }
+
 
 }
 
