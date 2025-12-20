@@ -54,3 +54,14 @@ ion-backdrop {
 ion-menu-button {
     --color: white !important;
 }
+/* --- src/global.scss --- */
+
+/* บังคับเมนูหน้า Home ให้ลอยทับ Google Map แบบ Global */
+ion-menu[menuId="home-menu"] {
+  z-index: 9999 !important;
+}
+
+/* แก้เผื่อกรณีตัว Backdrop (พื้นหลังมืดๆ) โดนบังด้วย */
+ion-backdrop {
+  z-index: 9998 !important;
+}

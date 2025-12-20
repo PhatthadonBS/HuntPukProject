@@ -134,4 +134,45 @@ export class DormitoryService {
       throw new Error(JSON.stringify(error.error || error.message, null, 2));
     }
   }
+
+  /**
+   * เพิ่มรายการโปรด
+   */
+  public async addFavorite(userId: number, dormId: number) {
+    const url = `${this.apiUrl}/favorites/add`; // ⚠️ ตรวจสอบ Path API ของคุณว่าชื่อ route อะไร
+    const body = { user_id: userId, dorm_id: dormId };
+    
+    try {
+      const res = await lastValueFrom(this.http.post<any>(url, body));
+      return res;
+    } catch (error: any) {
+      // ถ้า Error 409 (ซ้ำ) ให้ throw error เฉพาะออกไป หรือจัดการตามเหมาะสม
+      throw error;
+    }
+  }
+
+  /**
+   * ลบรายการโปรด
+   * หมายเหตุ: HTTP Delete ส่ง body ต้องซับซ้อนหน่อยใน Angular
+   */
+  public async removeFavorite(userId: number, dormId: number) {
+    const url = `${this.apiUrl}/favorites/remove`; // ⚠️ ตรวจสอบ Path API
+    
+    try {
+      // delete ต้องส่ง options ที่มี key 'body'
+      const options = {
+        body: { user_id: userId, dorm_id: dormId }
+      };
+      
+      const res = await lastValueFrom(this.http.delete<any>(url, options));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  // เตรียมไว้สำหรับดึงรายการโปรด (ตอนนี้ยัง mock data ในหน้า page เอา)
+  public async getMyFavorites(userId: number) {
+     // รอ API เสร็จค่อยมาเขียน
+  }
 }

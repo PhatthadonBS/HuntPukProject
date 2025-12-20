@@ -5,7 +5,7 @@ import { IonicModule, AlertController, ModalController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { addIcons } from 'ionicons';
-import { arrowBack, mail, key, arrowForward, checkmarkCircle } from 'ionicons/icons';
+import { arrowBack, mail, key, arrowForward, checkmarkCircle, eye, eyeOff } from 'ionicons/icons';
 
 // ✅ Import Modal OTP
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
@@ -26,17 +26,27 @@ export class ForgotPasswordPage implements OnInit {
   newPassword: string = '';
   confirmPassword: string = '';
 
+  showNewPassword: boolean = false;
+  showConfirmPassword: boolean = false;
+
   constructor(
     private router: Router,
     private alertController: AlertController,
     private modalCtrl: ModalController, // ✅ เพิ่ม ModalController
     private authService: Auth
   ) {
-    addIcons({ arrowBack, mail, key, arrowForward, checkmarkCircle });
+    addIcons({ arrowBack, mail, key, arrowForward, checkmarkCircle ,eye ,eyeOff});
   }
 
   ngOnInit() {}
+toggleNewPassword() {
+    this.showNewPassword = !this.showNewPassword;
+  }
 
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+  
   goBack() {
     this.router.navigate(['/login']);
   }

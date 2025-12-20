@@ -8,7 +8,7 @@ import { UserRegPostReq } from '../../model/req/user_reg_post_req';
 
 // Import Icons
 import { addIcons } from 'ionicons';
-import { arrowBack, person, key, call, mail, arrowForward } from 'ionicons/icons';
+import { arrowBack, person, key, call, mail, arrowForward, eye, eyeOff } from 'ionicons/icons';
 
 // ✅ Import Modal
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
@@ -30,7 +30,8 @@ export class RegisterPage implements OnInit {
   confirmPassword: string = '';
   phone: string = '';
   
-  // ❌ ลบตัวแปร otpInput ออก เพราะไปใช้ใน Modal
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   tempUserData: any = null;
 
@@ -40,13 +41,21 @@ export class RegisterPage implements OnInit {
     private modalCtrl: ModalController, // ✅ เพิ่ม
     private authService: Auth
   ) {
-    addIcons({ arrowBack, person, key, call, mail, arrowForward }); 
+    addIcons({ arrowBack, person, key, call, mail, arrowForward, eye,eyeOff}); 
   }
 
   ngOnInit() {}
 
   goBack() {
     this.router.navigate(['/login']); 
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   // ฟังก์ชันเดียวจบ: กรอกข้อมูล -> กดถัดไป -> เด้ง OTP -> จบงาน
@@ -56,8 +65,21 @@ export class RegisterPage implements OnInit {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
+    
+    const passwordRegex = /^[a-zA-Z0-9]{8}$/;
+    if (!passwordRegex.test(this.password)) {
+      this.showAlert('รหัสผ่านไม่ถูกต้อง', 'รหัสผ่านต้องเป็นภาษาอังกฤษหรือตัวเลข และมีความยาว 8 ตัวอักษรเท่านั้น');
+      return;
+    }
+
     if (this.password !== this.confirmPassword) {
       this.showAlert('แจ้งเตือน', 'รหัสผ่านไม่ตรงกัน');
+      return;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(this.phone)) {
+      this.showAlert('เบอร์โทรศัพท์ไม่ถูกต้อง', 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก (เฉพาะตัวเลข)');
       return;
     }
 

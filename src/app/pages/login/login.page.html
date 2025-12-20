@@ -20,8 +20,18 @@
       </div>
 
       <div class="custom-input">
-        <input type="password" placeholder="รหัสผ่าน" [(ngModel)]="password">
-        <ion-icon name="key" color="medium"></ion-icon>
+        <input 
+          [type]="showPassword ? 'text' : 'password'" 
+          placeholder="รหัสผ่าน" 
+          [(ngModel)]="password"
+        >
+        
+        <ion-icon 
+          [name]="showPassword ? 'eye' : 'eye-off'" 
+          (click)="togglePasswordVisibility()" 
+          color="medium"
+          style="cursor: pointer; z-index: 10;">
+        </ion-icon>
       </div>
 
       <div class="forgot-pass text-end">

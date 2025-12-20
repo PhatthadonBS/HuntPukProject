@@ -24,17 +24,46 @@
       </div>
 
       <div class="custom-input">
-        <input type="password" placeholder="รหัสผ่าน" [(ngModel)]="password">
-        <ion-icon name="key" color="medium"></ion-icon>
+        <input 
+          [type]="showPassword ? 'text' : 'password'" 
+          placeholder="รหัสผ่าน" 
+          [(ngModel)]="password"
+          maxlength="8">
+        
+        <ion-icon 
+          [name]="showPassword ? 'eye' : 'eye-off'" 
+          (click)="togglePassword()" 
+          style="cursor: pointer; pointer-events: auto; z-index: 10;"
+          color="medium">
+        </ion-icon>
       </div>
 
       <div class="custom-input">
-        <input type="password" placeholder="รหัสผ่านอีกครั้ง" [(ngModel)]="confirmPassword">
-        <ion-icon name="key" color="medium"></ion-icon>
+        <input 
+          [type]="showConfirmPassword ? 'text' : 'password'" 
+          placeholder="รหัสผ่านอีกครั้ง" 
+          [(ngModel)]="confirmPassword"
+          maxlength="8">
+        
+        <ion-icon 
+          [name]="showConfirmPassword ? 'eye' : 'eye-off'" 
+          (click)="toggleConfirmPassword()" 
+          style="cursor: pointer; pointer-events: auto; z-index: 10;"
+          color="medium">
+        </ion-icon>
+      </div>
+
+      <div class="warning-text" style="font-size: 12px; color: #666; margin-bottom: 15px; padding-left: 10px; opacity: 0.9;">
+         <p style="margin: 2px 0;">* เป็นตัวอักษร a-z ผสมตัวเลข 0-9 เท่านั้น</p>
+         <p style="margin: 2px 0;">* ความยาวอย่างน้อย 8 ตัวอักษรและสูงสุด 8 ตัวอักษร</p>
       </div>
 
       <div class="custom-input">
-        <input type="tel" placeholder="เบอร์โทรศัพท์" [(ngModel)]="phone">
+        <input 
+          type="tel" 
+          placeholder="เบอร์โทรศัพท์" 
+          [(ngModel)]="phone" 
+          maxlength="10">
         <ion-icon name="call" color="medium"></ion-icon>
       </div>
 
@@ -48,6 +77,6 @@
 
     </div>
 
-    </div>
+  </div>
 
 </ion-content>

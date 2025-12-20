@@ -9,7 +9,7 @@ import {
 } from '../../model/res/user_loggedIn_post_res';
 import { Auth } from '../../services/auth';
 import { addIcons } from 'ionicons';
-import { arrowBack, key, person } from 'ionicons/icons';
+import { arrowBack, key, person ,eye,eyeOff} from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -22,16 +22,22 @@ export class LoginPage implements OnInit {
   email: string = '';
   password: string = '';
 
+  showPassword: boolean = false;
+
   constructor(
     private router: Router,
     private alertController: AlertController,
     private authService: Auth
   ) {
     // ✅ ลงทะเบียน Icon
-    addIcons({ arrowBack, person, key });
+    addIcons({ arrowBack, person, key, eye, eyeOff });
   }
 
   ngOnInit() {}
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
   // ✅ ฟังก์ชันกลับหน้า Home
   goHome() {

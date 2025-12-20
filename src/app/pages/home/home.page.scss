@@ -1,13 +1,13 @@
 /* =========================================
-   🎨 1. Sidebar Decoration (Modern Dark UI)
+   🎨 1. Sidebar Decoration
    ========================================= */
 
 ion-menu {
-  --width: 280px; /* กว้างขึ้นนิดนึงให้ดูโปร่ง */
+  --width: 280px;
+  z-index: 99999 !important; 
 }
 
 .sidebar-content {
-  /* ไล่เฉดสีดำ-เทาเข้ม ให้ดูมีมิติ หรูหรา */
   --background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
@@ -18,166 +18,94 @@ ion-menu {
   height: 100%;
 }
 
-/* --- โซนโลโก้ / รูปโปรไฟล์ --- */
+/* --- โซนโลโก้ --- */
 .logo-area {
   text-align: center;
   margin-bottom: 40px;
   
-  /* วงกลมรูปโปรไฟล์ (กรณี Login แล้ว) */
   .user-avatar-circle {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background: #333;
-    border: 3px solid #FFD600; /* ขอบสีเหลืองธีม */
-    box-shadow: 0 0 15px rgba(255, 214, 0, 0.4); /* เงาเรืองแสง */
-    margin: 0 auto 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    ion-icon {
-      font-size: 45px;
-      color: #FFD600;
-    }
-  }
-
-  /* รูปโลโก้ (กรณี Guest) */
-  img {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    border: 3px solid #FFD600;
-    background: #fff;
-    object-fit: cover;
+    width: 90px; height: 90px; border-radius: 50%;
+    background: #333; border: 3px solid #FFD600;
     box-shadow: 0 0 15px rgba(255, 214, 0, 0.4);
+    margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+    ion-icon { font-size: 45px; color: #FFD600; }
   }
 
-  h3 {
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    margin: 10px 0 0;
-    letter-spacing: 0.5px;
+  img {
+    width: 90px; height: 90px; border-radius: 50%;
+    border: 3px solid #FFD600; background: #fff;
+    object-fit: cover; box-shadow: 0 0 15px rgba(255, 214, 0, 0.4);
   }
+
+  h3 { color: #fff; font-size: 18px; font-weight: 700; margin: 10px 0 0; letter-spacing: 0.5px; }
 }
 
 /* --- รายการเมนู --- */
-.menu-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px; /* ระยะห่างระหว่างปุ่ม */
-}
+.menu-list { display: flex; flex-direction: column; gap: 12px; }
 
 .menu-item {
-  /* สไตล์ตั้งต้น: สีเข้ม ตัวหนังสือขาว ดูสะอาด */
-  background: rgba(255, 255, 255, 0.05); /* โปร่งใสเล็กน้อย */
-  color: #ccc;
-  font-weight: 500;
-  font-size: 15px;
-  padding: 14px 20px;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  border-left: 4px solid transparent; /* เตรียมเส้นแถบข้างซ้ายไว้ */
+  background: rgba(255, 255, 255, 0.05); color: #ccc;
+  font-weight: 500; font-size: 15px; padding: 14px 20px;
+  border-radius: 15px; cursor: pointer; transition: all 0.3s ease;
+  position: relative; overflow: hidden; border-left: 4px solid transparent;
 
-  /* Effect เมื่อเอาเมาส์ชี้ (Hover) */
   &:hover {
-    background: rgba(255, 214, 0, 0.15); /* พื้นหลังเหลืองจางๆ */
-    color: #FFD600; /* ตัวหนังสือเปลี่ยนเป็นสีเหลือง */
-    transform: translateX(5px); /* ขยับขวานิดนึงให้ดูมีปฏิกิริยา */
-    border-left: 4px solid #FFD600; /* แถบซ้ายเหลืองโผล่มา */
+    background: rgba(255, 214, 0, 0.15); color: #FFD600;
+    transform: translateX(5px); border-left: 4px solid #FFD600;
   }
+  &:active { transform: scale(0.98); background: rgba(255, 214, 0, 0.25); }
 
-  /* Effect เวลากด */
-  &:active {
-    transform: scale(0.98);
-    background: rgba(255, 214, 0, 0.25);
-  }
-
-  /* --- ปุ่มหน้าแรก (Active State) --- */
-  /* ให้ดูเด่นกว่าเพื่อนว่าเป็นหน้าปัจจุบัน */
   &.active-home {
-    background: #FFD600; /* สีเหลืองเต็มใบ */
-    color: #000; /* ตัวหนังสือดำ */
-    font-weight: 800;
-    box-shadow: 0 4px 12px rgba(255, 214, 0, 0.3); /* เงา */
-    border-left: none;
-    
-    &:hover {
-      background: #ffea00; /* สว่างขึ้นตอนชี้ */
-      transform: none;
-      color: #000;
-    }
+    background: #FFD600; color: #000; font-weight: 800;
+    box-shadow: 0 4px 12px rgba(255, 214, 0, 0.3); border-left: none;
+    &:hover { background: #ffea00; transform: none; color: #000; }
   }
 
-  /* --- ปุ่ม Dashboard (Highlight พิเศษ) --- */
   &.dashboard-btn {
-    margin-top: 15px;
-    border: 1px solid #FFD600;
-    color: #FFD600;
-    background: transparent;
-    text-align: center;
-    border-left: 1px solid #FFD600; /* reset border left */
-    
-    &:hover {
-      background: #FFD600;
-      color: #000;
-    }
+    margin-top: 15px; border: 1px solid #FFD600; color: #FFD600;
+    background: transparent; text-align: center; border-left: 1px solid #FFD600;
+    &:hover { background: #FFD600; color: #000; }
   }
 }
 
-
 /* =========================================
-   🗺️ 2. Map & Main UI (Existing Logic)
+   🗺️ 2. Map & Main UI
    ========================================= */
 
-/* แผนที่ (Layer ล่างสุด) */
 .map-wrapper {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   z-index: 0; 
 }
 google-map { display: block; width: 100%; height: 100%; }
 
-/* กล่องครอบปุ่มลอย (Layer กลาง) */
 .ui-overlay {
-  position: absolute;
-  width: 100%; height: 100%;
-  pointer-events: none; /* ✅ หัวใจสำคัญ: อนุญาตให้นิ้วจิ้มทะลุที่ว่างไปโดน Map */
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  z-index: 100; /* สูงกว่า Map */
+  position: absolute; width: 100%; height: 100%;
+  pointer-events: none; padding: 15px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  z-index: 100;
 }
 
-/* ปุ่มกรองด้านบน */
 .top-left-buttons {
-  display: flex; gap: 10px; pointer-events: auto; /* ✅ คืนค่าให้ปุ่มกดได้ */ margin-top: 60px;
+  display: flex; gap: 10px; margin-top: 60px;
+  pointer-events: auto; /* ให้กดได้ */
 }
+
+/* ✅ เติม CSS ของปุ่ม กรอง/เปรียบเทียบ ที่หายไป */
 .chip-button {
   background: #fff; color: #333; padding: 8px 16px; border-radius: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 5px;
   font-weight: bold; font-size: 14px; cursor: pointer; pointer-events: auto;
+  
+  &:active { transform: scale(0.95); background: #f0f0f0; }
 }
 
-/* ปุ่ม Hamburger (ล่างซ้าย) */
 .menu-toggle-btn {
-  width: 50px; height: 50px;
-  background: rgba(0, 0, 0, 0.75); /* สีเข้มโปร่งแสง */
-  color: #FFD600; /* ไอคอนสีเหลือง */
-  border-radius: 14px;
+  width: 50px; height: 50px; background: rgba(0, 0, 0, 0.75);
+  color: #FFD600; border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  margin-bottom: 20px; cursor: pointer;
-  
-  pointer-events: auto; /* ✅ กดได้ */
-  z-index: 101;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  margin-bottom: 20px; cursor: pointer; z-index: 101;
+  border: 1px solid rgba(255, 255, 255, 0.1); pointer-events: auto;
 
   &:active { transform: scale(0.92); background: #000; }
 }
@@ -202,7 +130,7 @@ ion-modal.filter-modal-custom {
 .btn-confirm { background: #333; color: #FFD600; padding: 12px 40px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; }
 .btn-clear { background: transparent; border: 1px solid #ccc; color: #666; padding: 10px; border-radius: 30px; font-weight: bold; cursor: pointer; }
 
-/* --- Side Panel (หน้ารายละเอียดหอพัก) --- */
+/* --- Side Panel --- */
 .dorm-side-panel {
   position: absolute; top: 80px; right: 20px; width: 380px; height: calc(100% - 100px);
   background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
@@ -214,47 +142,18 @@ ion-modal.filter-modal-custom {
 }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-/* Responsive Mobile */
 @media (max-width: 576px) {
   .dorm-side-panel { width: 100%; height: 60%; top: auto; bottom: 0; right: 0; left: 0; border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease-out; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 }
-/* ✅ สไตล์ปุ่มย้อนกลับ */
+
 .back-arrow-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 100; /* ให้ลอยอยู่เหนือทุกอย่าง */
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.5); /* พื้นหลังโปร่งใสหน่อย */
-  backdrop-filter: blur(5px);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
-
-  ion-icon {
-    font-size: 24px;
-    color: #333;
-  }
-
-  &:active {
-    transform: scale(0.9);
-    background: #FFD600; /* กดแล้วเปลี่ยนสี */
-  }
+  position: absolute; top: 20px; left: 20px; z-index: 100;
+  width: 40px; height: 40px; background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s;
+  ion-icon { font-size: 24px; color: #333; }
+  &:active { transform: scale(0.9); background: #FFD600; }
 }
 
-/* เพิ่ม Effect ให้โลโก้ดูน่ากด */
-.logo-circle {
-  /* ... css เดิม ... */
-  cursor: pointer;
-  transition: transform 0.2s;
-  
-  &:active {
-    transform: scale(0.95);
-  }
-}
+.logo-circle { cursor: pointer; transition: transform 0.2s; &:active { transform: scale(0.95); } }

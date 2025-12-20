@@ -1,6 +1,5 @@
-<ion-menu contentId="home-content" menuId="home-menu" side="start" type="overlay" swipeGesture="false">
+<ion-menu #homeMenu contentId="home-content" menuId="home-menu" side="start" type="overlay" swipeGesture="false" style="z-index: 99999 !important;">
   <ion-content class="sidebar-content">
-    
     <div class="sidebar-wrapper">
       <div class="logo-area">
         <ng-container *ngIf="currentUser; else showLogo">
@@ -15,51 +14,21 @@
       </div>
 
       <div class="menu-list">
-        
-        <div class="menu-item active-home" (click)="navigate('/home')">
-          หน้าแรก
-        </div>
-
-        <div class="menu-item" (click)="navigate('/list')">
-          รายการ
-        </div>
-
-        <div class="menu-item" (click)="checkAuthAndNavigate('/my-account')">
-          บัญชีของฉัน
-        </div>
-
-        <div class="menu-item" (click)="checkAuthAndNavigate('/owner/dorm-form')">
-          ลงทะเบียนหอพัก
-        </div>
-
-        <div class="menu-item" (click)="checkAuthAndNavigate('/manage-dorm')">
-          จัดการหอพัก
-        </div>
-
-        <div class="menu-item" (click)="checkAuthAndNavigate('/favorites')">
-          รายการโปรด
-        </div>
-
-        <div class="menu-item" (click)="checkAuthAndNavigate('/manage-users')">
-          จัดการบัญชีสมาชิก
-        </div>
-
-        <div class="menu-item" (click)="checkAuthAndNavigate('/requests')">
-          ร้องขอเป็นเจ้าของหอพัก
-        </div>
-
-        <div class="menu-item dashboard-btn" (click)="checkAuthAndNavigate('/dashboard')">
-          Dashboard
-        </div>
-
+        <div class="menu-item active-home" (click)="navigate('/home')">หน้าแรก</div>
+        <div class="menu-item" (click)="navigate('/list')">รายการ</div>
+        <div class="menu-item" (click)="checkAuthAndNavigate('/my-account')">บัญชีของฉัน</div>
+        <div class="menu-item" (click)="checkAuthAndNavigate('/owner/dorm-form')">ลงทะเบียนหอพัก</div>
+        <div class="menu-item" (click)="checkAuthAndNavigate('/manage-dorm')">จัดการหอพัก</div>
+        <div class="menu-item" (click)="checkAuthAndNavigate('/favorites')">รายการโปรด</div>
+        <div class="menu-item" (click)="checkAuthAndNavigate('/manage-users')">จัดการบัญชีสมาชิก</div>
+        <div class="menu-item" (click)="checkAuthAndNavigate('/requests')">ร้องขอเป็นเจ้าของหอพัก</div>
+        <div class="menu-item dashboard-btn" (click)="checkAuthAndNavigate('/dashboard')">Dashboard</div>
       </div>
     </div>
-
   </ion-content>
 </ion-menu>
 
-
-<div class="ion-page" id="home-content">
+<div class="ion-page" id="home-content" style="height: 100vh; width: 100%; position: relative;">
   
   <app-header 
     title="หน้าหลัก" 
@@ -133,7 +102,6 @@
              <h2>ตัวกรองค้นหา</h2>
              <ion-icon name="close" (click)="setOpen(false)" size="large"></ion-icon>
            </div>
-           
            <div class="price-section">
              <h3>ช่วงราคา</h3>
              <div class="price-inputs">
@@ -152,7 +120,6 @@
                 </div>
              </div>
            </div>
-           
            <div class="zone-section">
              <h3>บริเวณหอพัก</h3>
              <div class="zone-options">
@@ -168,7 +135,6 @@
                </div>
              </div>
            </div>
-
            <div class="action-section">
              <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
              <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; applyFilter()">ล้างตัวกรอง</button>
