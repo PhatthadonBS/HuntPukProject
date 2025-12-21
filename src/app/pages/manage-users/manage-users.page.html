@@ -1,13 +1,60 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>manage-users</ion-title>
-  </ion-toolbar>
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>Admin Dashboard</ion-title>
+    </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">manage-users</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="bg-yellow">
+  
+  <div class="main-container">
+    
+    <div class="content-box">
+      
+      <div class="header-row">
+        <div class="title-section">
+          <ion-icon name="person-outline" size="large"></ion-icon>
+          <h2>รายชื่อสมาชิก</h2>
+        </div>
+
+        <div class="search-section">
+          <input type="text" placeholder="รายชื่อสมาชิก......" [(ngModel)]="searchTerm">
+          <button class="btn-search" (click)="onSearch()">ค้นหา</button>
+        </div>
+
+        <div class="add-section" (click)="goToRegister()">
+          <ion-icon name="person-add-outline"></ion-icon>
+          <span>เพิ่มสมาชิก</span>
+        </div>
+      </div>
+
+    <div class="table-container">
+        
+        <div class="table-header">
+          <div class="col-1">ชื่อผู้ใช้งาน</div>
+          <div class="col-2">ข้อมูลการลงทะเบียน</div>
+          <div class="col-3">จัดการ</div>
+        </div>
+
+        <div class="scrollable-list"> <div class="table-row" *ngFor="let user of users">
+            <div class="col-1 user-link" (click)="goToProfile(user.id)">
+              {{ user.username }}
+            </div>
+            <div class="col-2 status-text">
+              {{ getDormStatusText(user.role_id) }}
+            </div>
+            <div class="col-3 action-icons">
+              <ion-icon name="create-outline" color="warning" class="icon-btn" (click)="goToProfile(user.id)"></ion-icon>
+              <ion-icon name="trash-outline" color="danger" class="icon-btn" (click)="confirmBan(user)"></ion-icon>
+            </div>
+          </div>
+
+          <div class="no-data" *ngIf="users.length === 0">
+            ไม่พบข้อมูลสมาชิก
+          </div>
+
+        </div> </div>
+
+    </div>
+  </div>
+
 </ion-content>

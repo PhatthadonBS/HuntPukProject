@@ -9,7 +9,7 @@
             <ion-icon name="person"></ion-icon>
           </div>
           <h3 style="color: white; margin: 10px 0 0;">{{ currentUser.username || currentUser.USERNAME }}</h3>
-          </ng-container>
+        </ng-container>
         <ng-template #showLogo>
           <img src="assets/logo.png" alt="Logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
         </ng-template>
@@ -92,6 +92,12 @@
       <google-map *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
         [options]="mapOptions">
 
+        <map-circle *ngIf="circleCenter" 
+            [center]="circleCenter" 
+            [radius]="circleRadius" 
+            [options]="circleOptions">
+        </map-circle>
+
         <map-marker *ngFor="let dorm of dorms" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
@@ -141,6 +147,19 @@
             <h2>ตัวกรองค้นหา</h2>
             <ion-icon name="close" (click)="setOpen(false)" size="large"></ion-icon>
           </div>
+
+          <div class="distance-section" style="margin-bottom: 20px;">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h3 style="margin:0;">ระยะทาง (กม.)</h3>
+                <span style="font-size: 12px; color: #888;">จากจุดกึ่งกลาง</span>
+             </div>
+             <div class="input-capsule">
+                <ion-icon name="location-outline" style="color: #666; font-size: 20px; margin-left:10px; margin-right: 5px;"></ion-icon>
+                <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20">
+             </div>
+             <p style="font-size: 11px; color: #999; margin-top: 5px;">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
+          </div>
+
           <div class="price-section">
             <h3>ช่วงราคา</h3>
             <div class="price-inputs">
@@ -178,7 +197,7 @@
           <div class="action-section">
             <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
             <button class="btn-clear"
-              (click)="minPrice=null; maxPrice=null; selectedZone=''; applyFilter()">ล้างตัวกรอง</button>
+              (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; applyFilter()">ล้างตัวกรอง</button>
           </div>
         </div>
       </ng-template>

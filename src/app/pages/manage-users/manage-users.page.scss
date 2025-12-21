@@ -1,0 +1,152 @@
+// พื้นหลังสีเหลืองของหน้า
+.bg-yellow {
+  --background: #FFD700; // หรือสีเหลืองตามธีมของคุณ
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  height: 100%;
+}
+
+// กล่องสีเทาตรงกลาง
+.content-box {
+  background-color: #E0E0E0; // สีเทาอ่อน
+  border-radius: 20px;
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+// แถวหัวข้อ + ค้นหา
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 15px;
+
+  .title-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  }
+
+  .search-section {
+    display: flex;
+    gap: 5px;
+    
+    input {
+      padding: 5px 10px;
+      border-radius: 15px;
+      border: 1px solid #999;
+      outline: none;
+    }
+    
+    .btn-search {
+      background-color: #666;
+      color: white;
+      border: none;
+      padding: 5px 15px;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+  }
+
+  .add-section {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+
+// ตาราง
+.table-container {
+  width: 100%;
+}
+
+.table-header {
+  display: flex;
+  font-weight: bold;
+  padding: 10px 0;
+  color: #333;
+  text-align: center;
+}
+.scrollable-list {
+  max-height: 400px; /* กำหนดความสูงของพื้นที่แสดงรายชื่อ (ปรับเลขนี้ได้ตามชอบ) */
+  overflow-y: auto;  /* สั่งให้มี Scrollbar แนวตั้งถ้าข้อมูลล้น */
+  overflow-x: hidden; /* ซ่อน Scrollbar แนวนอน */
+  
+  // ปรับแต่ง Scrollbar ให้สวยงาม (สำหรับ Chrome/Edge/Safari)
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+.table-row {
+  display: flex;
+  padding: 15px 0;
+  border-bottom: 1px solid #ccc;
+  align-items: center;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.table-row {
+  display: flex;
+  padding: 15px 0;
+  border-bottom: 1px solid #ccc;
+  align-items: center;
+  text-align: center;
+  font-size: 1rem;
+}
+
+// Grid Columns
+.col-1 { flex: 1; text-align: left; padding-left: 20px; }
+.col-2 { flex: 2; text-decoration: underline; }
+.col-3 { flex: 1; display: flex; justify-content: center; gap: 15px; }
+
+// Link User
+.user-link {
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+
+// Actions
+.icon-btn {
+  font-size: 1.4rem;
+  cursor: pointer;
+  &:hover { transform: scale(1.1); }
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}

@@ -1,13 +1,118 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>manage-requests-dormOwner</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="admin-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>จัดการคำร้องขอ</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">manage-requests-dormOwner</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="main-container">
+    
+    <div class="header-card">
+      <div class="icon-wrapper">
+        <ion-icon name="people"></ion-icon>
+      </div>
+      <h2>รายชื่อยืนยันการเข้าร่วมหอพัก</h2>
+      <p>ตรวจสอบและอนุมัติสิทธิ์การเป็นเจ้าของหอพัก</p>
+    </div>
+
+    <div class="table-card fade-in">
+      
+      <div class="table-header">
+        <div class="col-name">ชื่อผู้ใช้งาน</div>
+        <div class="col-status">สถานะ</div>
+        <div class="col-action">ข้อมูลต่างๆ</div>
+      </div>
+
+      <div *ngIf="isLoading" class="loading-state">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>กำลังโหลดข้อมูล...</p>
+      </div>
+
+      <div *ngIf="!isLoading && requests.length === 0" class="empty-state">
+        <ion-icon name="folder-open-outline"></ion-icon>
+        <p>ไม่มีรายการคำร้องขอ</p>
+      </div>
+
+      <div class="table-row" *ngFor="let req of requests">
+        
+        <div class="col-name">
+          <div class="user-info">
+            <ion-avatar>
+              <img [src]="req.profile_img || 'assets/default-avatar.png'" 
+                   onerror="this.src='https://placehold.co/100x100?text=User'">
+            </ion-avatar>
+            <span>{{ req.first_name }} {{ req.last_name }}</span>
+          </div>
+        </div>
+
+        <div class="col-status">
+          <span class="status-badge" [ngClass]="req.status">
+            {{ getStatusLabel(req.status) }}
+          </span>
+        </div>
+
+        <div class="col-action">
+          <div class="view-link" (click)="openDetailModal(req)">
+            ข้อมูลผู้ลงทะเบียน
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" class="detail-modal">
+    <ng-template>
+      <div class="modal-content" *ngIf="selectedReq">
+        
+        <div class="modal-header">
+          <h3>รายละเอียดคำขอ</h3>
+          <ion-icon name="close" (click)="closeModal()"></ion-icon>
+        </div>
+
+        <div class="profile-preview">
+          <img [src]="selectedReq.profile_img || 'assets/default-avatar.png'" class="profile-pic"
+               onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+        </div>
+
+        <div class="info-list">
+          <div class="info-item">
+            <label>ชื่อ-นามสกุล:</label>
+            <span>{{ selectedReq.first_name }} {{ selectedReq.last_name }}</span>
+          </div>
+          <div class="info-item">
+            <label>เบอร์โทรศัพท์:</label>
+            <span>{{ selectedReq.phone_number }}</span>
+          </div>
+          
+          <div class="divider">ช่องทางติดต่อ</div>
+          
+          <div class="social-links">
+            <a *ngIf="selectedReq.facebook" [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
+              <ion-icon name="logo-facebook"></ion-icon> Facebook
+            </a>
+            <a *ngIf="selectedReq.line" class="social-btn line">
+              <ion-icon name="chatbubbles"></ion-icon> Line: {{ selectedReq.line }}
+            </a>
+          </div>
+        </div>
+
+        <div class="action-buttons" *ngIf="selectedReq.status === 'pending'">
+          <button class="btn-reject" (click)="updateStatus(selectedReq, 'rejected')">ปฏิเสธ</button>
+          <button class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">ยืนยัน (อนุมัติ)</button>
+        </div>
+
+        <div class="action-note" *ngIf="selectedReq.status !== 'pending'">
+          <p>รายการนี้ถูกดำเนินการแล้ว: 
+            <strong [ngClass]="selectedReq.status">{{ getStatusLabel(selectedReq.status) }}</strong>
+          </p>
+        </div>
+
+      </div>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

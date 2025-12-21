@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, MenuController, ViewDidEnter, AlertController, IonMenu } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
-import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
+// ✅ Import MapCircle เพิ่มเข้ามา
+import { GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle } from '@angular/google-maps';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -13,13 +14,13 @@ import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 
-// Icons
+// Icons ... (เหมือนเดิม)
 import { 
   menuOutline, home, listOutline, personCircleOutline, search, 
   funnelOutline, layersOutline, close, caretDown, caretDownOutline, 
   chevronDown, chevronDownCircleOutline, checkmarkCircle,
   person, create, personOutline, callOutline, key, mail, shieldCheckmark,
-  logOutOutline // เพิ่มไอคอน logout
+  logOutOutline, locationOutline // เพิ่มไอคอน location
 } from 'ionicons/icons';
 
 @Component({
@@ -35,6 +36,7 @@ import {
 export class HomePage implements OnInit, ViewDidEnter {
   
   apiLoaded: Observable<boolean>; 
+  // จุดกึ่งกลาง (สมมติว่าเป็นตำแหน่งเรา หรือ Default)
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   zoom = 14;
   mapOptions: google.maps.MapOptions = {
@@ -44,17 +46,36 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   searchText: string = '';
   dorms: Dormitory[] = []; 
+  
+  // เก็บข้อมูลทั้งหมดไว้สำรองเพื่อทำ Filter client-side
+  allDorms: Dormitory[] = []; 
+
   isModalOpen = false;
 
   // Filter Variables
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
+  // ✅ ตัวแปรระยะทาง (กิโลเมตร)
+  maxDistance: number | null = null;
+  
   zoneOptions: any[] = []; 
 
   selectedDormDetail: Dormitory | null = null;
   selectedDorm: Dormitory | undefined;
   currentUser: any = null;
+
+  // ✅ ตัวแปรสำหรับวงกลม (Circle)
+  circleCenter: google.maps.LatLngLiteral | undefined;
+  circleRadius: number = 0; // หน่วยเป็นเมตร
+  circleOptions: google.maps.CircleOptions = {
+    fillColor: '#FFD600',
+    fillOpacity: 0.2,
+    strokeColor: '#FFD600',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    clickable: false, // ไม่ให้กดโดนวงกลม (ให้กดทะลุไป Map ได้)
+  };
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
   @ViewChild('homeMenu') menuRef: IonMenu | undefined;
@@ -75,10 +96,9 @@ export class HomePage implements OnInit, ViewDidEnter {
       'checkmark-circle': checkmarkCircle,
       'person': person, 'create': create, 'person-outline': personOutline,
       'call-outline': callOutline, 'key': key, 'mail': mail, 'shield-checkmark': shieldCheckmark,
-      'log-out-outline': logOutOutline
+      'log-out-outline': logOutOutline, 'location-outline': locationOutline
     });
 
-    // Load Google Maps API
     if (typeof google === 'object' && typeof google.maps === 'object') {
         this.apiLoaded = of(true); 
     } else {
@@ -94,11 +114,8 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  // ✅ Getter สำหรับเช็ค Role ง่ายๆ ใน HTML
-  // 0 = Guest, 1 = User, 2 = Owner, 3 = Admin
   get userRole(): number {
     if (!this.currentUser) return 0;
-    // เช็คครอบคลุมทั้งตัวเล็กตัวใหญ่
     return this.currentUser.role_id || this.currentUser.ROLE_TYPE_ID || this.currentUser.role_type_id || 1;
   }
 
@@ -106,10 +123,11 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.fetchDorms();
     this.fetchZones(); 
     this.checkLoginStatus(); 
+    // ถ้าอยากดึง Location จริงของ User ให้เรียกฟังก์ชัน Geolocation ตรงนี้
+    // this.getCurrentLocation(); 
   }
 
   async ionViewDidEnter() {
-    // ลบ Backdrop ค้าง (ถ้ามี)
     const backdrops = document.querySelectorAll('ion-backdrop');
     backdrops.forEach(element => element.remove());
     this.checkLoginStatus();
@@ -120,7 +138,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
-        // เช็คว่า User Valid และไม่โดนแบน
         if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
            this.currentUser = userObj;
         } else {
@@ -135,9 +152,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   async toggleMenu() {
-    if (this.menuRef) {
-        await this.menuRef.toggle();
-    }
+    if (this.menuRef) await this.menuRef.toggle();
   }
 
   async navigate(path: string) {
@@ -147,7 +162,6 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   async checkAuthAndNavigate(path: string) {
     if (this.menuRef) await this.menuRef.close();
-
     if (this.currentUser) {
       this.router.navigate([path]);
     } else {
@@ -156,19 +170,13 @@ export class HomePage implements OnInit, ViewDidEnter {
         message: 'กรุณาเข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้',
         buttons: [
           { text: 'ยกเลิก', role: 'cancel' },
-          { 
-            text: 'เข้าสู่ระบบ', 
-            handler: () => {
-              this.router.navigate(['/login']);
-            } 
-          }
+          { text: 'เข้าสู่ระบบ', handler: () => { this.router.navigate(['/login']); } }
         ]
       });
       await alert.present();
     }
   }
 
-  // ✅ ฟังก์ชันออกจากระบบ
   async logout() {
     const alert = await this.alertCtrl.create({
         header: 'ยืนยัน',
@@ -201,8 +209,9 @@ export class HomePage implements OnInit, ViewDidEnter {
     try {
       const res = await this.dormService.getAllDorms();
       if (res.success && res.data) {
-          this.dorms = res.data;
-          this.dorms.forEach(d => { d.lat = Number(d.lat); d.lng = Number(d.lng); });
+          // เก็บข้อมูลทั้งหมดไว้ใน allDorms เพื่อใช้คำนวณระยะทาง
+          this.allDorms = res.data.map(d => ({...d, lat: Number(d.lat), lng: Number(d.lng)}));
+          this.dorms = [...this.allDorms];
       }
     } catch (err) { console.error('Fetch Dorms Error:', err); }
   }
@@ -210,11 +219,6 @@ export class HomePage implements OnInit, ViewDidEnter {
   async onSearch(text: any) {
     const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
-    if (searchValue === '' && !this.selectedZone && !this.minPrice && !this.maxPrice) {
-        this.fetchDorms(); 
-        this.zoom = 14; 
-        return;
-    }
     this.performSearch();
   }
 
@@ -222,6 +226,7 @@ export class HomePage implements OnInit, ViewDidEnter {
       this.setOpen(false);
       this.performSearch(); 
   }
+
 
   async performSearch() {
       try {
@@ -231,15 +236,32 @@ export class HomePage implements OnInit, ViewDidEnter {
           );
           
           if (res.success && res.data) {
-              this.dorms = res.data;
-              this.dorms.forEach(d => { d.lat = Number(d.lat); d.lng = Number(d.lng); });
+              let tempDorms = res.data.map(d => ({...d, lat: Number(d.lat), lng: Number(d.lng)}));
+
+              // กรองระยะทาง (Client-side)
+              if (this.maxDistance) {
+                 tempDorms = tempDorms.filter(dorm => {
+                    const distKm = this.calculateDistance(
+                        this.center.lat, this.center.lng, 
+                        dorm.lat, dorm.lng
+                    );
+                    return distKm <= this.maxDistance!;
+                 });
+              }
+
+              this.dorms = tempDorms;
 
               if (this.dorms.length > 0) {
-                  const target = this.dorms[0];
-                  if (target && target.lat && target.lng) {
-                      this.center = { lat: target.lat, lng: target.lng };
-                      this.zoom = this.dorms.length < 3 ? 16 : 14; 
+                  // ถ้าไม่ได้กรองระยะทาง ให้ย้าย Map ไปหาหอแรก
+                  if (!this.maxDistance) {
+                     const target = this.dorms[0];
+                     
+                     // 🔴🔴🔴 แก้ตรงนี้ครับ: เช็คว่า target มีค่าจริงก่อนใช้ 🔴🔴🔴
+                     if (target) {
+                        this.center = { lat: target.lat, lng: target.lng };
+                     }
                   }
+                  this.zoom = this.maxDistance ? 12 : 14; 
               }
           } else {
               this.dorms = [];
@@ -247,8 +269,34 @@ export class HomePage implements OnInit, ViewDidEnter {
       } catch (err) { console.error('Search Error:', err); }
   }
 
+  // ✅ ฟังก์ชันคำนวณระยะทาง (Haversine Formula) หน่วยเป็น กม.
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // รัศมีโลก (km)
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // ระยะทาง (km)
+  }
+
+  deg2rad(deg: number): number {
+    return deg * (Math.PI / 180);
+  }
+
+  // ✅ เมื่อคลิกที่ Marker
   openInfoWindow(marker: MapMarker, dorm: Dormitory) {
     this.selectedDorm = dorm;
+    
+    // 1. ตั้งค่าวงกลม
+    this.circleCenter = { lat: dorm.lat, lng: dorm.lng };
+    this.circleRadius = 1000; 
+    
+    this.center = { lat: dorm.lat, lng: dorm.lng };
+    this.zoom = 11; 
+
     if (this.infoWindow) this.infoWindow.open(marker);
   }
 
@@ -259,6 +307,9 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.selectedDormDetail = res.success ? res.data : this.selectedDorm;
       } catch (e) { this.selectedDormDetail = this.selectedDorm; }
       if (this.infoWindow) this.infoWindow.close();
+      
+      // ลบวงกลมออกเมื่อเข้าหน้า Detail (ถ้าต้องการ)
+      // this.circleCenter = undefined; 
     }
   }
 

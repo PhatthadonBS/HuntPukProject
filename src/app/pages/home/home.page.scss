@@ -61,11 +61,37 @@ ion-menu {
     &:hover { background: #ffea00; transform: none; color: #000; }
   }
 
+  /* Admin Dashboard Button */
   &.dashboard-btn {
-    margin-top: 15px; border: 1px solid #FFD600; color: #FFD600;
-    background: transparent; text-align: center; border-left: 1px solid #FFD600;
-    &:hover { background: #FFD600; color: #000; }
+    margin-top: 15px; 
+    border: 1px solid #FFD600; 
+    color: #FFD600;
+    background: transparent; 
+    text-align: center; 
+    justify-content: center;
+    
+    &:hover { 
+      background: #FFD600; 
+      color: #000; 
+      box-shadow: 0 0 10px rgba(255, 214, 0, 0.4);
+    }
   }
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 10px 0;
+}
+
+.menu-title {
+  color: #FFD600;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  opacity: 0.8;
+  padding-left: 10px;
 }
 
 /* =========================================
@@ -87,10 +113,9 @@ google-map { display: block; width: 100%; height: 100%; }
 
 .top-left-buttons {
   display: flex; gap: 10px; margin-top: 60px;
-  pointer-events: auto; /* ให้กดได้ */
+  pointer-events: auto;
 }
 
-/* ✅ เติม CSS ของปุ่ม กรอง/เปรียบเทียบ ที่หายไป */
 .chip-button {
   background: #fff; color: #333; padding: 8px 16px; border-radius: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 5px;
@@ -110,27 +135,117 @@ google-map { display: block; width: 100%; height: 100%; }
   &:active { transform: scale(0.92); background: #000; }
 }
 
-/* --- Filter Modal --- */
+/* =========================================
+   🛠️ 3. Filter Modal (Updated)
+   ========================================= */
+
 ion-modal.filter-modal-custom {
   --height: auto; --width: 90%; --max-width: 380px; --border-radius: 20px;
   --backdrop-opacity: 0.4; z-index: 20000 !important;
 }
-.filter-wrapper { background: #f5f5f5; padding: 25px; border-radius: 20px; font-family: sans-serif; width: 100%; }
-.filter-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; h2 { margin: 0; font-size: 18px; font-weight: 800; color: #333; } }
-.price-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
-.price-col { display: flex; flex-direction: column; align-items: center; width: 45%; }
-.input-capsule { background: #fff; width: 100%; padding: 5px 10px; border-radius: 12px; border: 1px solid #ddd; display: flex; align-items: center; overflow: hidden; }
-.input-capsule input { background: transparent; border: none; width: 100%; outline: none; font-weight: bold; font-size: 16px; color: #333; text-align: center; }
-.dash { font-size: 24px; font-weight: bold; color: #888; margin-bottom: 5px; }
+
+.filter-wrapper { 
+  background: #f5f5f5; padding: 25px; border-radius: 20px; font-family: sans-serif; width: 100%; 
+  
+  /* ✅ เพิ่ม: ปรับหัวข้อ h3 ทั้งหมดใน Modal ให้ชัดเจน */
+  h3 {
+    color: #111; /* สีดำเกือบสนิท */
+    font-size: 16px;
+    font-weight: 800; /* ตัวหนามาก */
+    margin-bottom: 12px;
+    letter-spacing: 0.3px;
+  }
+}
+
+.filter-head { 
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; 
+  h2 { margin: 0; font-size: 20px; font-weight: 900; color: #000; } 
+}
+
+/* Shared Input Style */
+.input-capsule { 
+  background: #fff; width: 100%; padding: 5px 10px; border-radius: 12px; 
+  border: 1px solid #ddd; display: flex; align-items: center; overflow: hidden; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03); /* เพิ่มเงานิดๆ ให้ input ลอยขึ้นมา */
+  
+  input { 
+    background: transparent; border: none; width: 100%; outline: none; 
+    font-weight: bold; font-size: 16px; color: #000; text-align: center; 
+  }
+}
+
+/* ส่วน Distance */
+.distance-section {
+  margin-bottom: 30px;
+  
+  .input-capsule {
+    justify-content: flex-start;
+    padding-left: 15px;
+    
+    ion-icon { 
+        font-size: 22px; color: #FFD600; /* เปลี่ยนไอคอนเป็นสีเหลืองธีม */
+        margin-right: 8px; flex-shrink: 0;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    input { 
+        text-align: left;
+    }
+  }
+}
+
+/* ส่วน Price */
+.price-section { 
+  display: flex; flex-direction: column; margin-bottom: 30px;
+  
+  h3 { margin-bottom: 15px; }
+
+  .price-inputs {
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+}
+
+.price-col { 
+  display: flex; flex-direction: column; align-items: center; width: 45%; 
+  
+  /* ✅ ปรับคำว่า ต่ำสุด/สูงสุด ให้ชัดขึ้น */
+  .label {
+    font-size: 13px; font-weight: 700; color: #555; margin-bottom: 6px; display: block;
+  }
+}
+
+.dash { font-size: 24px; font-weight: 900; color: #aaa; margin-bottom: 5px; }
+
+/* ส่วน Zone */
 .zone-section { margin-bottom: 30px; }
 .zone-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
-.zone-item { background: #e0e0e0; padding: 10px 15px; border-radius: 20px; font-size: 13px; color: #333; display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 48%; cursor: pointer; transition: 0.2s; }
-.zone-item.selected { background: #333; color: #FFD600; border: 2px solid #FFD600; ion-icon { color: #FFD600; } }
-.action-section { text-align: center; display: flex; flex-direction: column; gap: 10px; }
-.btn-confirm { background: #333; color: #FFD600; padding: 12px 40px; border-radius: 30px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; }
-.btn-clear { background: transparent; border: 1px solid #ccc; color: #666; padding: 10px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+.zone-item { 
+  background: #e0e0e0; padding: 12px 15px; border-radius: 20px; font-size: 14px; color: #333; font-weight: 600;
+  display: flex; align-items: center; justify-content: space-between; gap: 5px; width: 48%; cursor: pointer; transition: 0.2s; 
+}
+.zone-item.selected { 
+  background: #333; color: #FFD600; border: 2px solid #FFD600; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  ion-icon { color: #FFD600; } 
+}
 
-/* --- Side Panel --- */
+/* Buttons */
+.action-section { text-align: center; display: flex; flex-direction: column; gap: 12px; }
+.btn-confirm { 
+  background: #000; color: #FFD600; 
+  padding: 14px 40px; border-radius: 30px; 
+  font-size: 16px; font-weight: 800; border: none; cursor: pointer; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  &:active { transform: scale(0.98); }
+}
+.btn-clear { 
+  background: transparent; border: 1px solid #ccc; color: #666; 
+  padding: 10px; border-radius: 30px; font-weight: 700; cursor: pointer; 
+}
+
+/* =========================================
+   🏠 4. Side Panel
+   ========================================= */
+
 .dorm-side-panel {
   position: absolute; top: 80px; right: 20px; width: 380px; height: calc(100% - 100px);
   background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
@@ -145,45 +260,4 @@ ion-modal.filter-modal-custom {
 @media (max-width: 576px) {
   .dorm-side-panel { width: 100%; height: 60%; top: auto; bottom: 0; right: 0; left: 0; border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease-out; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-}
-
-.back-arrow-btn {
-  position: absolute; top: 20px; left: 20px; z-index: 100;
-  width: 40px; height: 40px; background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(5px); border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s;
-  ion-icon { font-size: 24px; color: #333; }
-  &:active { transform: scale(0.9); background: #FFD600; }
-}
-
-.logo-circle { cursor: pointer; transition: transform 0.2s; &:active { transform: scale(0.95); } }
-.menu-item.dashboard-btn {
-  margin-top: 15px; 
-  border: 1px solid #FFD600; 
-  color: #FFD600;
-  background: transparent; 
-  text-align: center; 
-  justify-content: center; /* จัดกลาง */
-  
-  &:hover { 
-    background: #FFD600; 
-    color: #000; 
-    box-shadow: 0 0 10px rgba(255, 214, 0, 0.4);
-  }
-}
-
-.menu-divider {
-  height: 1px;
-  background: rgba(255,255,255,0.1);
-  margin: 10px 0;
-}
-
-.menu-title {
-  color: #FFD600;
-  font-size: 11px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  margin-bottom: 5px;
-  opacity: 0.8;
-  padding-left: 10px;
 }

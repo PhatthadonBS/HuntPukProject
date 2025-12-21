@@ -1,0 +1,148 @@
+/* --- Global Theme --- */
+ion-content {
+  --background: #222; /* พื้นหลังแอพสีเข้มเหมือน Admin Sidebar */
+}
+
+.admin-toolbar {
+  --background: #FFD600;
+  --color: #000;
+  ion-title { font-weight: 800; }
+}
+
+.main-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* --- Header Section (Yellow Area) --- */
+.header-card {
+  background: #FFD600;
+  border-radius: 20px 20px 0 0; /* มุมบนโค้ง */
+  padding: 30px;
+  text-align: center;
+  color: #000;
+  
+  .icon-wrapper {
+    width: 60px; height: 60px; background: #000; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
+    ion-icon { font-size: 30px; color: #FFD600; }
+  }
+  
+  h2 { margin: 0; font-weight: 800; font-size: 22px; }
+  p { margin: 5px 0 0; opacity: 0.8; font-size: 14px; }
+}
+
+/* --- Table Card (Content Area) --- */
+.table-card {
+  background: #EFEFEF; /* พื้นหลังตารางสีเทาอ่อน */
+  border-radius: 0 0 20px 20px; /* มุมล่างโค้ง */
+  padding: 20px;
+  min-height: 400px;
+}
+
+/* --- Table Structure --- */
+.table-header {
+  display: flex;
+  padding: 10px 15px;
+  background: transparent;
+  font-weight: bold; color: #555; font-size: 14px;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.table-row {
+  display: flex; align-items: center;
+  padding: 15px;
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: 0.2s;
+  
+  &:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+}
+
+/* Columns Config */
+.col-name { flex: 2; }
+.col-status { flex: 1; text-align: center; }
+.col-action { flex: 1; text-align: right; }
+
+/* User Info Styling */
+.user-info {
+  display: flex; align-items: center; gap: 10px;
+  ion-avatar { width: 40px; height: 40px; }
+  span { font-weight: 600; color: #333; font-size: 14px; }
+}
+
+/* Status Badge */
+.status-badge {
+  font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 15px;
+  display: inline-block;
+  
+  &.pending { color: #F57F17; background: #FFF9C4; } /* รอ = เหลือง */
+  &.approved { color: #2E7D32; background: #C8E6C9; } /* ยืนยัน = เขียว */
+  &.rejected { color: #C62828; background: #FFCDD2; } /* ปฏิเสธ = แดง */
+}
+
+/* View Link Button */
+.view-link {
+  font-size: 13px; color: #333; text-decoration: underline; cursor: pointer;
+  font-weight: 600;
+  &:hover { color: #000; }
+}
+
+/* States */
+.loading-state, .empty-state {
+  text-align: center; padding: 40px; color: #888;
+  ion-icon { font-size: 40px; margin-bottom: 10px; }
+}
+
+/* --- Modal Styling --- */
+ion-modal.detail-modal {
+  --width: 90%; --max-width: 400px; --height: auto; --border-radius: 20px;
+}
+.modal-content {
+  background: #fff; padding: 20px;
+}
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+  h3 { margin: 0; font-weight: 800; }
+  ion-icon { font-size: 24px; cursor: pointer; }
+}
+.profile-preview {
+  text-align: center; margin-bottom: 20px;
+  img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #FFD600; }
+}
+.info-item {
+  display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;
+  label { color: #666; font-weight: bold; }
+  span { color: #000; }
+}
+.divider { font-size: 12px; color: #aaa; text-align: center; margin: 15px 0; border-bottom: 1px solid #eee; line-height: 0.1em; }
+
+.social-links {
+  display: flex; gap: 10px; justify-content: center;
+  .social-btn {
+    display: flex; align-items: center; gap: 5px; padding: 8px 12px; border-radius: 20px; font-size: 12px; text-decoration: none; color: white;
+    &.fb { background: #1877F2; }
+    &.line { background: #06C755; }
+  }
+}
+
+.action-buttons {
+  display: flex; gap: 10px; margin-top: 25px;
+  button {
+    flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
+    &.btn-reject { background: #FFCDD2; color: #C62828; }
+    &.btn-approve { background: #000; color: #FFD600; }
+  }
+}
+.action-note { text-align: center; margin-top: 20px; font-size: 13px; color: #666; }
+
+/* Responsive Table */
+@media (max-width: 480px) {
+  .col-name { flex: 1.5; }
+  .user-info span { font-size: 13px; }
+  .view-link { font-size: 12px; }
+}
