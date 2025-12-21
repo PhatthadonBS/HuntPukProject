@@ -11,82 +11,89 @@
 
 <ion-content>
   
-  <div class="profile-header-bg">
-    <div class="avatar-wrapper">
-      <div class="avatar-circle">
-        <ion-icon name="person"></ion-icon> 
-      </div>
-      <div class="user-name-display">
-        <h2>{{ user.username || user.USERNAME || 'Guest' }}</h2>
-        <p>สมาชิกทั่วไป</p>
-      </div>
-    </div>
+  <div *ngIf="isLoading" class="loading-center">
+     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <div class="profile-content-card">
-    
-    <div class="edit-btn-wrapper">
-      <ion-button class="btn-edit-custom" expand="block" shape="round" (click)="goToEditProfile()">
-        <ion-icon name="create" slot="start"></ion-icon>
-        แก้ไขข้อมูลส่วนตัว
-      </ion-button>
-    </div>
+  <div *ngIf="!isLoading && user" class="fade-in">
 
-    <div class="info-group">
-      <div class="info-label">
-        <div class="icon-box">
-          <ion-icon name="person"></ion-icon>
+    <div class="profile-header-bg">
+      <div class="avatar-wrapper">
+        <div class="avatar-circle">
+          <ion-icon name="person"></ion-icon> 
         </div>
-        <span>ชื่อผู้ใช้งาน</span>
-      </div>
-      <div class="info-value">
-        {{ user.username || user.USERNAME || '-' }}
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="info-group">
-      <div class="info-label">
-        <div class="icon-box">
-          <ion-icon name="mail"></ion-icon>
+        <div class="user-name-display">
+          <h2>{{ user.username || 'Guest' }}</h2>
+          <p>สมาชิกทั่วไป</p>
         </div>
-        <span>อีเมล</span>
-      </div>
-      <div class="info-value">
-        {{ user.email || user.EMAIL || '-' }}
       </div>
     </div>
 
-    <div class="divider"></div>
+    <div class="profile-content-card">
+      
+      <div class="edit-btn-wrapper">
+        <ion-button class="btn-edit-custom" expand="block" shape="round" (click)="goToEditProfile()">
+          <ion-icon name="create" slot="start"></ion-icon>
+          แก้ไขข้อมูลส่วนตัว
+        </ion-button>
+      </div>
 
-    <div class="info-group">
-      <div class="info-label">
-        <div class="icon-box">
-          <ion-icon name="call"></ion-icon>
+      <div class="info-group">
+        <div class="info-label">
+          <div class="icon-box">
+            <ion-icon name="person"></ion-icon>
+          </div>
+          <span>ชื่อผู้ใช้งาน</span>
         </div>
-        <span>เบอร์โทรศัพท์</span>
-      </div>
-      <div class="info-value">
-        {{ user.phone_number || user.PHONE_NUMBER || '-' }}
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="info-group">
-      <div class="info-label">
-        <div class="icon-box">
-          <ion-icon name="shield-checkmark"></ion-icon>
+        <div class="info-value">
+          {{ user.username || '-' }}
         </div>
-        <span>สถานะบัญชี</span>
       </div>
-      <div class="info-value status-active">
-        <span *ngIf="user.accout_status === 0">ปกติ</span>
-        <span *ngIf="user.accout_status !== 0" style="color: red;">ถูกระงับ</span>
-      </div>
-    </div>
 
+      <div class="divider"></div>
+
+      <div class="info-group">
+        <div class="info-label">
+          <div class="icon-box">
+            <ion-icon name="mail"></ion-icon>
+          </div>
+          <span>อีเมล</span>
+        </div>
+        <div class="info-value">
+          {{ user.email || '-' }}
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="info-group">
+        <div class="info-label">
+          <div class="icon-box">
+            <ion-icon name="call"></ion-icon>
+          </div>
+          <span>เบอร์โทรศัพท์</span>
+        </div>
+        <div class="info-value">
+          {{ user.phone || '-' }}
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="info-group">
+        <div class="info-label">
+          <div class="icon-box">
+            <ion-icon name="shield-checkmark"></ion-icon>
+          </div>
+          <span>สถานะบัญชี</span>
+        </div>
+        <div class="info-value status-active">
+          <span *ngIf="user.status === 0" style="color: green;">ปกติ</span>
+          <span *ngIf="user.status !== 0" style="color: red;">ถูกระงับ</span>
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </ion-content>

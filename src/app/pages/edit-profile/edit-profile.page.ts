@@ -33,17 +33,43 @@ export class EditProfilePage implements OnInit {
     addIcons({ closeOutline, personOutline, callOutline, mailOutline, trashOutline });
   }
 
-  ngOnInit() {
+ngOnInit() {
+    // ลอง Log ดูว่าข้อมูลใน LocalStorage หน้าตาเป็นยังไง
+    console.log('LocalStorage Data:', localStorage.getItem('loggedIn'));
+    
     this.loadUserData();
   }
 
   loadUserData() {
-    const stored = localStorage.getItem('loggedIn');
-    if (stored) {
-      this.fullUserData = JSON.parse(stored);
-      this.userId = this.fullUserData.id || this.fullUserData.USER_ID;
-      this.editData.username = this.fullUserData.username || this.fullUserData.USERNAME || '';
-      this.editData.phone_number = this.fullUserData.phone_number || this.fullUserData.PHONE_NUMBER || '';
+    // 1. ลองดึงข้อมูลที่ส่งมาจากหน้า MyAccount (ถ้ามี) ** ข้อมูลนี้จะสดใหม่กว่า **
+    const navState = this.router.getCurrentNavigation()?.extras.state;
+    let userData = navState ? navState['user'] : null;
+
+    // 2. ถ้าไม่มีข้อมูลส่งมา ค่อยไปดึงจาก LocalStorage (ข้อมูลเก่า)
+    if (!userData) {
+      const stored = localStorage.getItem('loggedIn');
+      if (stored) {
+        userData = JSON.parse(stored);
+      }
+    }
+
+    // 3. ถ้ามีข้อมูล ให้เอามาใส่ฟอร์ม
+    if (userData) {
+      this.fullUserData = userData;
+      this.userId = userData.id || userData.user_id || userData.USER_ID;
+
+      // ✅ Map ข้อมูลชื่อ (ดักจับทุกแบบ)
+      this.editData.username = userData.username || userData.USERNAME || userData.first_name || '';
+
+      // ✅ Map เบอร์โทร (เพิ่ม phone และ PHONE เผื่อไว้)
+      this.editData.phone_number = 
+        userData.phone_number || 
+        userData.PHONE_NUMBER || 
+        userData.phone || 
+        userData.PHONE || 
+        '';
+
+      console.log('Loaded Edit Data:', this.editData); // เช็คดูว่าค่ามาไหม
     }
   }
 

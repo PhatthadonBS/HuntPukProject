@@ -39,22 +39,27 @@ export class ListPage implements OnInit {
     this.loadDorms();
   }
 
-  getUserInfo() {
-    const userStr = sessionStorage.getItem('user');
+getUserInfo() {
+    // เปลี่ยนจาก sessionStorage.getItem('user') เป็น localStorage.getItem('loggedIn')
+    const userStr = localStorage.getItem('loggedIn'); 
+    
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        this.currentUserId = user.id || user.user_id || user.USER_ID || 0;
+        
+        // เช็คชื่อ field ให้ตรงกับที่บันทึกในหน้า Login
+        // หน้า Login บันทึก: id, email, username, role_id, accout_status
+        this.currentUserId = user.id || 0;
+        
         console.log('Current User ID:', this.currentUserId);
       } catch (e) {
         console.error('Error parsing user data', e);
       }
     } else {
       console.warn('User not logged in');
-      
+      this.currentUserId = 0; // ตั้งค่าเป็น 0 ถ้าไม่มีข้อมูล
     }
   }
-
   async loadDorms() {
     const loading = await this.loadingCtrl.create({
       message: 'กำลังโหลดข้อมูล...',

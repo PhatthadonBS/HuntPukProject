@@ -10,11 +10,11 @@
 </ion-header>
 
 <ion-content>
-  
+
   <div class="edit-header-bg"></div>
 
   <div class="form-card">
-    
+
     <div class="form-group">
       <label>ชื่อผู้ใช้งาน</label>
       <div class="input-container">
@@ -27,7 +27,10 @@
       <label>เบอร์โทรศัพท์</label>
       <div class="input-container">
         <ion-icon name="call-outline"></ion-icon>
-        <input type="tel" maxlength="10" [(ngModel)]="editData.phone_number" placeholder="0xxxxxxxxx">
+
+        <input type="tel" maxlength="10" [(ngModel)]="editData.phone_number" name="phone_number"
+          placeholder="0xxxxxxxxx">
+
       </div>
     </div>
 
@@ -40,7 +43,7 @@
     </div>
 
     <div class="action-area">
-      
+
       <ion-button expand="block" shape="round" color="dark" (click)="saveProfile()">
         บันทึกการเปลี่ยนแปลง
       </ion-button>

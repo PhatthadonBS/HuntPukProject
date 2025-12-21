@@ -1,153 +1,274 @@
+// --- Variables (Theme) ---
+$primary-yellow: #FFD600;
+$primary-dark: #1A1A1A;
+$text-dark: #222222;
+$text-light: #666666;
+$bg-color: #f8f9fa;
+$error-color: #ff4d4d;
+
 /* --- Global --- */
 ion-content {
-  --background: #f5f5f5; /* พื้นหลังรวมสีเทาอ่อน */
+  --background: #{$bg-color};
 }
 
 .main-container {
   padding: 20px;
-  max-width: 600px;
+  max-width: 500px; // บีบความกว้างให้ดูดีบน Tablet/Desktop
   margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 /* --- Toolbar --- */
 .custom-toolbar {
-  --background: #FFD600; /* สีเหลืองธีม */
+  --background: #{$primary-yellow};
   --color: #000;
-  ion-title { font-weight: bold; }
+  --border-width: 0;
+  box-shadow: 0 4px 10px rgba(255, 214, 0, 0.2); // เงาใต้ Toolbar นิดๆ
+
+  ion-title { 
+    font-weight: 800; 
+    font-size: 18px; 
+    letter-spacing: 0.5px;
+  }
 }
 
-/* --- Card Form --- */
+/* --- Card Form & Success --- */
 .form-card, .success-card {
   background: white;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  animation: fadeIn 0.5s ease-out;
+  border-radius: 24px; // มุมโค้งมนขึ้น
+  padding: 30px 25px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08); // เงานุ่มๆ ลอยๆ
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); // Animation ลอยขึ้นแบบสมูท
+  margin-top: 10px;
 }
 
 /* --- Profile Section --- */
 .profile-section {
-  text-align: center; margin-bottom: 25px;
+  text-align: center; 
+  margin-bottom: 30px;
+
   .img-wrapper {
-    position: relative; width: 80px; height: 80px; margin: 0 auto 10px;
-    img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #FFD600; object-fit: cover; }
+    position: relative; 
+    width: 90px; height: 90px; 
+    margin: 0 auto 15px;
+    
+    img { 
+      width: 100%; height: 100%; 
+      border-radius: 50%; 
+      border: 4px solid #fff; // ขอบขาวตัดรูป
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15); // เงารูป
+      object-fit: cover; 
+    }
+
     .edit-badge {
-      position: absolute; bottom: 0; right: 0; background: #333; color: #fff;
-      width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;
+      position: absolute; bottom: 0; right: 0; 
+      background: $primary-dark; color: $primary-yellow;
+      width: 32px; height: 32px; 
+      border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 16px;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
   }
-  h3 { margin: 0; font-weight: 800; font-size: 18px; color: #333; }
-  .sub-text { font-size: 13px; color: #666; margin-top: 5px; }
+
+  h3 { 
+    margin: 0; font-weight: 800; font-size: 20px; color: $text-dark; 
+  }
+  .sub-text { 
+    font-size: 14px; color: $text-light; margin-top: 6px; 
+  }
 }
 
 /* --- Error Banner --- */
 .error-banner {
-  background: #ffebee; color: #c62828; padding: 10px 15px; border-radius: 10px;
-  display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; margin-bottom: 20px;
-  ion-icon { font-size: 18px; }
+  background: #FFF1F0; 
+  color: #E02020; 
+  padding: 12px 16px; 
+  border-radius: 12px;
+  border: 1px solid #FFCCC7;
+  display: flex; align-items: center; gap: 10px; 
+  font-size: 13px; font-weight: 600; 
+  margin-bottom: 25px;
+  
+  ion-icon { font-size: 20px; }
 }
 
 /* --- Input Groups --- */
-.input-group { margin-bottom: 15px; }
+.input-group { margin-bottom: 20px; }
+
 label {
-  display: block; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 5px;
-  .req { color: red; }
+  display: block; font-size: 14px; font-weight: 700; color: #444; margin-bottom: 8px;
+  .req { color: $error-color; margin-left: 2px;}
 }
 
-/* ✅ ส่วนสำคัญ: ปรับสีช่องกรอกให้ชัดเจน */
+/* ✅ Style ช่องกรอกใหม่แบบ Modern */
 .input-wrapper {
-  background: #F0F0F0; /* พื้นหลังช่องกรอก: สีเทาอ่อน */
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0; // ขอบสีเทาจางๆ
+  border-radius: 16px;
   display: flex; align-items: center;
-  padding: 0 15px;
-  border: 1px solid transparent;
-  transition: 0.3s;
-  height: 50px;
+  padding: 0 16px;
+  height: 52px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 
-  /* เมื่อกำลังพิมพ์ หรือโฟกัส ให้ขอบเป็นสีเหลือง */
+  // Effect ตอนกดพิมพ์
   &:focus-within {
-    border-color: #FFD600;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+    border-color: $primary-dark; // ขอบเปลี่ยนเป็นสีดำ
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); // มีเงาเพิ่ม
+    transform: translateY(-1px); // ลอยขึ้นนิดนึง
+    
+    ion-icon { color: $primary-yellow; transform: scale(1.1); } // ไอคอนเปลี่ยนสี
   }
 
-  /* ถ้ามี Error ให้ขอบแดง */
   &.error-border {
-    border-color: #ef5350;
-    background: #ffebee;
+    border-color: $error-color;
+    background: #FFF5F5;
+    animation: shake 0.3s ease-in-out; // สั่นเตือนเมื่อผิด
+    ion-icon { color: $error-color; }
   }
 
-  /* ปรับแต่ง ion-input */
   ion-input {
     --padding-start: 0;
-    --color: #000000; /* ✅ บังคับตัวหนังสือสีดำสนิท */
-    --placeholder-color: #777777; /* ✅ Placeholder สีเทาเข้มขึ้น */
+    --color: #000;
+    --placeholder-color: #999;
     --placeholder-opacity: 1;
     font-size: 15px;
+    font-weight: 500;
   }
 
-  /* ไอคอนท้ายช่อง */
   ion-icon {
-    font-size: 20px;
-    color: #888;
+    font-size: 22px;
+    color: #BBB;
     margin-left: 10px;
+    transition: 0.3s;
   }
 }
 
+/* --- Divider --- */
 .divider {
-  font-size: 12px; color: #888; text-align: center; margin: 20px 0; position: relative;
+  font-size: 13px; color: #999; font-weight: 600; text-align: center; margin: 30px 0 20px; position: relative;
+  
   &::before, &::after {
-    content: ''; position: absolute; top: 50%; width: 30%; height: 1px; background: #ddd;
+    content: ''; position: absolute; top: 50%; width: 30%; height: 1px; background: #EEE;
   }
   &::before { left: 0; }
   &::after { right: 0; }
 }
 
-/* --- Dual Inputs (2 ช่องติดกัน) --- */
+/* --- Dual Inputs --- */
 .dual-inputs {
-  display: flex; gap: 10px;
+  display: flex; gap: 15px;
   .input-group { flex: 1; margin-bottom: 0; }
 }
 
-/* --- Social Icons Color --- */
+/* --- Social Icons Custom --- */
 .social-input {
-  ion-icon { margin-left: 0; margin-right: 10px; font-size: 22px; }
+  background: #FAFAFA; // พื้นหลังเทาจางๆ แยกความต่างจาก input หลัก
+  border-color: transparent;
+
+  &:focus-within {
+    background: #FFF;
+    border-color: #E0E0E0;
+  }
+
+  ion-icon { 
+    margin-left: 0; margin-right: 12px; font-size: 24px; 
+  }
+  
   .fb-color { color: #1877F2; }
-  .line-color { color: #00C300; }
-  .ig-color { color: #E1306C; }
+  .line-color { color: #06C755; }
+  .ig-color { 
+    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); 
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+  }
   .x-color { color: #000; }
-  .tg-color { color: #0088cc; }
+  .tg-color { color: #229ED9; }
 }
 
 /* --- Buttons --- */
 .btn-container {
-  display: flex; gap: 15px; margin-top: 25px;
+  display: flex; gap: 15px; margin-top: 35px;
+  
   .btn {
-    flex: 1; height: 45px; border-radius: 25px; font-weight: bold; font-size: 15px; cursor: pointer; border: none; transition: 0.2s;
-    &:active { transform: scale(0.95); }
+    flex: 1; 
+    height: 50px; 
+    border-radius: 16px; 
+    font-weight: 800; font-size: 16px; 
+    cursor: pointer; border: none; 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
+    
+    &:active { transform: scale(0.96); }
   }
-  .cancel { background: #e0e0e0; color: #333; }
-  .confirm { background: #000; color: #FFD600; }
+
+  .cancel { 
+    background: #F5F5F5; color: #666; 
+    &:hover { background: #E0E0E0; }
+  }
+  
+  .confirm { 
+    background: $primary-dark; color: $primary-yellow;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    
+    &:hover { 
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      transform: translateY(-2px);
+    }
+    &:active {
+      transform: translateY(0) scale(0.96);
+    }
+  }
 }
 
 /* --- Success State --- */
 .success-card {
-  text-align: center; padding: 40px 20px;
+  text-align: center; padding: 50px 30px;
+  display: flex; flex-direction: column; align-items: center;
+
   .success-icon {
-    font-size: 60px; color: #4CAF50; margin-bottom: 10px;
+    font-size: 70px; color: #4CAF50; margin-bottom: 20px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  h2 { font-weight: 800; margin: 0 0 10px; }
+
+  h2 { font-weight: 900; font-size: 24px; margin: 0 0 10px; color: $text-dark; }
+  
   .status-text {
-    display: inline-block; background: #FFF9C4; color: #FBC02D;
-    padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
-    display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 auto 15px;
-    width: fit-content;
+    background: #FFF9C4; color: #F57F17;
+    padding: 8px 20px; border-radius: 30px; font-weight: 700; font-size: 14px;
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px;
   }
-  .desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 30px; }
+  
+  .desc { 
+    font-size: 15px; color: $text-light; line-height: 1.6; margin-bottom: 40px; 
+  }
+  
   .back-home {
-    background: #000; color: #fff; width: 100%; padding: 12px; border-radius: 25px; font-weight: bold; border: none;
+    background: $primary-dark; color: #FFF; 
+    width: 100%; padding: 16px; border-radius: 16px; 
+    font-weight: 800; border: none; font-size: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   }
 }
 
-/* Animation */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* --- Animations --- */
+@keyframes slideUp { 
+  from { opacity: 0; transform: translateY(40px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}

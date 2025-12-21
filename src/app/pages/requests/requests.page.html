@@ -11,15 +11,27 @@
   
   <div class="main-container">
     
-    <div class="form-card fade-in" *ngIf="!isSuccess">
+    <div class="form-card" *ngIf="!isSuccess">
       
       <div class="profile-section">
-        <div class="img-wrapper">
-          <img src="assets/icon/user-placeholder.png" alt="Profile">
-          <div class="edit-badge"><ion-icon name="create"></ion-icon></div>
+        <input 
+          type="file" 
+          #fileInput 
+          (change)="onFileSelected($event)" 
+          accept="image/*" 
+          style="display: none;"
+        >
+
+        <div class="img-wrapper" (click)="fileInput.click()" style="cursor: pointer;">
+          <img [src]="previewImage || 'assets/logo.png'" alt="Profile">
+          
+          <div class="edit-badge">
+            <ion-icon name="image"></ion-icon>
+          </div>
         </div>
+
         <h3>ข้อมูลผู้ยื่นคำขอ</h3>
-        <p class="sub-text">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อการตรวจสอบ</p>
+        <p class="sub-text">แตะที่รูปเพื่ออัปโหลดโปรไฟล์ใหม่ (*)</p>
       </div>
 
       <div class="error-banner" *ngIf="errorMessage">
@@ -96,24 +108,23 @@
 
         <div class="btn-container">
           <button type="button" class="btn cancel" (click)="onCancel()">ยกเลิก</button>
-          <button type="submit" class="btn confirm">ตกลง</button>
+          <button type="submit" class="btn confirm">ยืนยันการขอสิทธิ์</button>
         </div>
 
       </form>
     </div>
 
-
-    <div class="success-card fade-in" *ngIf="isSuccess">
+    <div class="success-card" *ngIf="isSuccess">
       <div class="success-icon">
         <ion-icon name="checkmark-circle"></ion-icon>
       </div>
-      <h2>ร้องขอสำเร็จ</h2>
-      <p class="status-text">
-        <ion-icon name="time"></ion-icon> รอการยืนยัน
-      </p>
+      <h2>ส่งคำขอเรียบร้อย!</h2>
+      <div class="status-text">
+        <ion-icon name="time"></ion-icon> รอการตรวจสอบ
+      </div>
       <p class="desc">
-        ข้อมูลของคุณถูกส่งไปยังผู้ดูแลระบบเรียบร้อยแล้ว<br>
-        กรุณารอการตรวจสอบและอนุมัติสิทธิ์
+        ข้อมูลของคุณถูกส่งไปยังผู้ดูแลระบบแล้ว<br>
+        กรุณารอการอนุมัติภายใน 24 ชม.
       </p>
       <button class="btn back-home" (click)="onCancel()">กลับหน้าหลัก</button>
     </div>

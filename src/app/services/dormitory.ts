@@ -139,7 +139,7 @@ export class DormitoryService {
    * เพิ่มรายการโปรด
    */
   public async addFavorite(userId: number, dormId: number) {
-    const url = `${this.apiUrl}/favorites/add`; // ⚠️ ตรวจสอบ Path API ของคุณว่าชื่อ route อะไร
+    const url = `${this.apiUrl}/other/addFavorite`; // ⚠️ ตรวจสอบ Path API ของคุณว่าชื่อ route อะไร
     const body = { user_id: userId, dorm_id: dormId };
     
     try {
@@ -151,15 +151,16 @@ export class DormitoryService {
     }
   }
 
+  
+
   /**
    * ลบรายการโปรด
    * หมายเหตุ: HTTP Delete ส่ง body ต้องซับซ้อนหน่อยใน Angular
    */
   public async removeFavorite(userId: number, dormId: number) {
-    const url = `${this.apiUrl}/favorites/remove`; // ⚠️ ตรวจสอบ Path API
+    const url = `${this.apiUrl}/other/delFavorite`; // ✅ Path ตามที่คุณแจ้ง
     
     try {
-      // delete ต้องส่ง options ที่มี key 'body'
       const options = {
         body: { user_id: userId, dorm_id: dormId }
       };
@@ -171,8 +172,31 @@ export class DormitoryService {
     }
   }
 
-  // เตรียมไว้สำหรับดึงรายการโปรด (ตอนนี้ยัง mock data ในหน้า page เอา)
-  public async getMyFavorites(userId: number) {
-     // รอ API เสร็จค่อยมาเขียน
+ public async getMyFavorites(userId: number): Promise<Dormitory[]> {
+    const url = `${this.apiUrl}/spec/favorite/${userId}`; // ✅ ตรงกับ router.get('/spec/favorite/:id')
+
+    try {
+      // Backend ส่งมาเป็น Array ตรงๆ (res.json(rows)) ไม่ได้ห่อ data: {}
+      const res = await lastValueFrom(this.http.get<any[]>(url));
+      
+      // ✅ แปลงชื่อตัวแปรจาก SQL Alias (Backend) -> Interface (Frontend)
+      // SQL: DORMID, DORMNAME, COVERIMAGE, ADDRESS
+      // Front: DORM_ID, DORM_NAME, image, ADDRESS
+      return res.map(item => ({
+        DORM_ID: item.DORMID,
+        DORM_NAME: item.DORMNAME,
+        ADDRESS: item.ADDRESS,
+        image: item.COVERIMAGE, // Map ให้ตรงกัน
+        SCORE: item.SCORE,
+        // ค่าเหล่านี้ SQL ไม่ได้ส่งมา ใส่ค่า Default ไว้ก่อนกัน Error
+        lat: 0,
+        lng: 0,
+        start_price: item.START_PRICE || 0, // ถ้า SQL ไม่ได้ select ราคามา มันจะเป็น undefined
+        zone: '',
+      }));
+
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
   }
 }
