@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// ✅ Import IonMenu เพิ่มเข้ามา
 import { IonicModule, MenuController, ViewDidEnter, AlertController, IonMenu } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
@@ -19,7 +18,8 @@ import {
   menuOutline, home, listOutline, personCircleOutline, search, 
   funnelOutline, layersOutline, close, caretDown, caretDownOutline, 
   chevronDown, chevronDownCircleOutline, checkmarkCircle,
-  person, create, personOutline, callOutline, key, mail, shieldCheckmark
+  person, create, personOutline, callOutline, key, mail, shieldCheckmark,
+  logOutOutline // เพิ่มไอคอน logout
 } from 'ionicons/icons';
 
 @Component({
@@ -53,14 +53,11 @@ export class HomePage implements OnInit, ViewDidEnter {
   zoneOptions: any[] = []; 
 
   selectedDormDetail: Dormitory | null = null;
-
-  @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
-  
-  // ✅ เชื่อมตัวแปรนี้กับ #homeMenu ใน HTML
-  @ViewChild('homeMenu') menuRef: IonMenu | undefined;
-
   selectedDorm: Dormitory | undefined;
   currentUser: any = null;
+
+  @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
+  @ViewChild('homeMenu') menuRef: IonMenu | undefined;
 
   constructor(
     private router: Router,
@@ -77,9 +74,11 @@ export class HomePage implements OnInit, ViewDidEnter {
       'chevron-down': chevronDown, 'chevron-down-circle-outline': chevronDownCircleOutline,
       'checkmark-circle': checkmarkCircle,
       'person': person, 'create': create, 'person-outline': personOutline,
-      'call-outline': callOutline, 'key': key, 'mail': mail, 'shield-checkmark': shieldCheckmark
+      'call-outline': callOutline, 'key': key, 'mail': mail, 'shield-checkmark': shieldCheckmark,
+      'log-out-outline': logOutOutline
     });
 
+    // Load Google Maps API
     if (typeof google === 'object' && typeof google.maps === 'object') {
         this.apiLoaded = of(true); 
     } else {
@@ -95,6 +94,14 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
+  // ✅ Getter สำหรับเช็ค Role ง่ายๆ ใน HTML
+  // 0 = Guest, 1 = User, 2 = Owner, 3 = Admin
+  get userRole(): number {
+    if (!this.currentUser) return 0;
+    // เช็คครอบคลุมทั้งตัวเล็กตัวใหญ่
+    return this.currentUser.role_id || this.currentUser.ROLE_TYPE_ID || this.currentUser.role_type_id || 1;
+  }
+
   ngOnInit() {
     this.fetchDorms();
     this.fetchZones(); 
@@ -102,6 +109,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   async ionViewDidEnter() {
+    // ลบ Backdrop ค้าง (ถ้ามี)
     const backdrops = document.querySelectorAll('ion-backdrop');
     backdrops.forEach(element => element.remove());
     this.checkLoginStatus();
@@ -112,7 +120,8 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
-        if (userObj.id && userObj.accout_status === 0) {
+        // เช็คว่า User Valid และไม่โดนแบน
+        if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
            this.currentUser = userObj;
         } else {
            this.currentUser = null;
@@ -125,15 +134,9 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  // ✅ ฟังก์ชันเปิดเมนูแบบใช้ ViewChild (แก้ปัญหา Not Found)
   async toggleMenu() {
-    console.log('🔘 กดปุ่ม Hamburger แล้ว!'); 
-    
     if (this.menuRef) {
-        // ใช้ตัวแปร menuRef สั่งเปิดโดยตรง ไม่ต้องผ่าน ID
         await this.menuRef.toggle();
-    } else {
-        console.warn('⚠️ Menu reference not loaded yet.');
     }
   }
 
@@ -163,6 +166,28 @@ export class HomePage implements OnInit, ViewDidEnter {
       });
       await alert.present();
     }
+  }
+
+  // ✅ ฟังก์ชันออกจากระบบ
+  async logout() {
+    const alert = await this.alertCtrl.create({
+        header: 'ยืนยัน',
+        message: 'ต้องการออกจากระบบใช่หรือไม่?',
+        buttons: [
+            { text: 'ยกเลิก', role: 'cancel' },
+            {
+                text: 'ออกจากระบบ',
+                role: 'destructive',
+                handler: async () => {
+                    localStorage.removeItem('loggedIn');
+                    this.currentUser = null;
+                    if (this.menuRef) await this.menuRef.close();
+                    this.router.navigate(['/login']);
+                }
+            }
+        ]
+    });
+    await alert.present();
   }
 
   async fetchZones() {
@@ -211,7 +236,6 @@ export class HomePage implements OnInit, ViewDidEnter {
 
               if (this.dorms.length > 0) {
                   const target = this.dorms[0];
-                  // ✅ เช็ค target undefined ตรงนี้
                   if (target && target.lat && target.lng) {
                       this.center = { lat: target.lat, lng: target.lng };
                       this.zoom = this.dorms.length < 3 ? 16 : 14; 

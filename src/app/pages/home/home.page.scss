@@ -157,3 +157,33 @@ ion-modal.filter-modal-custom {
 }
 
 .logo-circle { cursor: pointer; transition: transform 0.2s; &:active { transform: scale(0.95); } }
+.menu-item.dashboard-btn {
+  margin-top: 15px; 
+  border: 1px solid #FFD600; 
+  color: #FFD600;
+  background: transparent; 
+  text-align: center; 
+  justify-content: center; /* จัดกลาง */
+  
+  &:hover { 
+    background: #FFD600; 
+    color: #000; 
+    box-shadow: 0 0 10px rgba(255, 214, 0, 0.4);
+  }
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 10px 0;
+}
+
+.menu-title {
+  color: #FFD600;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  opacity: 0.8;
+  padding-left: 10px;
+}

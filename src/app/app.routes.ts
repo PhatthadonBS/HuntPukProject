@@ -75,5 +75,17 @@ export const routes: Routes = [
     path: 'recover-account',
     loadComponent: () => import('./pages/recover-account/recover-account.page').then( m => m.RecoverAccountPage)
   },
+  {
+    path: 'manage-requests-dorm-owner',
+    loadComponent: () => import('./pages/manage-requests-dorm-owner/manage-requests-dorm-owner.page').then( m => m.ManageRequestsDormOwnerPage)
+  },
+  {
+    path: 'manage-requests-createdorm',
+    loadComponent: () => import('./pages/manage-requests-createdorm/manage-requests-createdorm.page').then( m => m.ManageRequestsCreatedormPage)
+  },
+  {
+    path: 'manage-reviews',
+    loadComponent: () => import('./pages/manage-reviews/manage-reviews.page').then( m => m.ManageReviewsPage)
+  },
 
 ];
