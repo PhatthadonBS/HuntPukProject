@@ -8,84 +8,123 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./pages/login/login.page').then( m => m.LoginPage)
+    loadComponent: () =>
+      import('./pages/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'register',
-    loadComponent: () => import('./pages/register/register.page').then( m => m.RegisterPage)
+    loadComponent: () =>
+      import('./pages/register/register.page').then((m) => m.RegisterPage),
   },
   {
     path: 'edit-profile',
-    loadComponent: () => import('./pages/edit-profile/edit-profile.page').then( m => m.EditProfilePage)
+    loadComponent: () =>
+      import('./pages/edit-profile/edit-profile.page').then(
+        (m) => m.EditProfilePage
+      ),
   },
   {
     path: 'home',
-    loadComponent: () => import('./pages/home/home.page').then( m => m.HomePage)
+    loadComponent: () =>
+      import('./pages/home/home.page').then((m) => m.HomePage),
   },
 
   {
     path: 'dorm-detail',
-    loadComponent: () => import('./pages/dorm-detail/dorm-detail.page').then( m => m.DormDetailPage)
+    loadComponent: () =>
+      import('./pages/dorm-detail/dorm-detail.page').then(
+        (m) => m.DormDetailPage
+      ),
   },
   {
     path: 'compare',
-    loadComponent: () => import('./pages/compare/compare.page').then( m => m.ComparePage)
+    loadComponent: () =>
+      import('./pages/compare/compare.page').then((m) => m.ComparePage),
   },
   {
     path: 'favorites',
-    loadComponent: () => import('./pages/favorites/favorites.page').then( m => m.FavoritesPage)
+    loadComponent: () =>
+      import('./pages/favorites/favorites.page').then((m) => m.FavoritesPage),
   },
   {
     path: 'my-dorms',
-    loadComponent: () => import('./pages/owner/my-dorms/my-dorms.page').then( m => m.MyDormsPage)
+    loadComponent: () =>
+      import('./pages/owner/my-dorms/my-dorms.page').then((m) => m.MyDormsPage),
   },
   {
     path: 'dorm-form',
-    loadComponent: () => import('./pages/owner/dorm-form/dorm-form.page').then( m => m.DormFormPage)
+    loadComponent: () =>
+      import('./pages/owner/dorm-form/dorm-form.page').then(
+        (m) => m.DormFormPage
+      ),
   },
   {
     path: 'forgot-password',
-    loadComponent: () => import('./pages/forgot-password/forgot-password.page').then( m => m.ForgotPasswordPage)
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password.page').then(
+        (m) => m.ForgotPasswordPage
+      ),
   },
   {
     path: 'list',
-    loadComponent: () => import('./pages/list/list.page').then( m => m.ListPage)
+    loadComponent: () =>
+      import('./pages/list/list.page').then((m) => m.ListPage),
   },
   {
     path: 'manage-dorm',
-    loadComponent: () => import('./pages/manage-dorm/manage-dorm.page').then( m => m.ManageDormPage)
+    loadComponent: () =>
+      import('./pages/manage-dorm/manage-dorm.page').then(
+        (m) => m.ManageDormPage
+      ),
   },
   {
     path: 'manage-users',
-    loadComponent: () => import('./pages/manage-users/manage-users.page').then( m => m.ManageUsersPage)
+    loadComponent: () =>
+      import('./pages/manage-users/manage-users.page').then(
+        (m) => m.ManageUsersPage
+      ),
   },
   {
     path: 'requests',
-    loadComponent: () => import('./pages/requests/requests.page').then( m => m.RequestsPage)
+    loadComponent: () =>
+      import('./pages/requests/requests.page').then((m) => m.RequestsPage),
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then( m => m.DashboardPage)
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
-    path: 'my-account',
-    loadComponent: () => import('./pages/my-account/my-account.page').then( m => m.MyAccountPage)
+    path: 'my-account/:id',
+    loadComponent: () =>
+      import('./pages/my-account/my-account.page').then((m) => m.MyAccountPage),
   },
   {
     path: 'recover-account',
-    loadComponent: () => import('./pages/recover-account/recover-account.page').then( m => m.RecoverAccountPage)
+    loadComponent: () =>
+      import('./pages/recover-account/recover-account.page').then(
+        (m) => m.RecoverAccountPage
+      ),
   },
   {
     path: 'manage-requests-dorm-owner',
-    loadComponent: () => import('./pages/manage-requests-dorm-owner/manage-requests-dorm-owner.page').then( m => m.ManageRequestsDormOwnerPage)
+    loadComponent: () =>
+      import(
+        './pages/manage-requests-dorm-owner/manage-requests-dorm-owner.page'
+      ).then((m) => m.ManageRequestsDormOwnerPage),
   },
   {
     path: 'manage-requests-createdorm',
-    loadComponent: () => import('./pages/manage-requests-createdorm/manage-requests-createdorm.page').then( m => m.ManageRequestsCreatedormPage)
+    loadComponent: () =>
+      import(
+        './pages/manage-requests-createdorm/manage-requests-createdorm.page'
+      ).then((m) => m.ManageRequestsCreatedormPage),
   },
   {
     path: 'manage-reviews',
-    loadComponent: () => import('./pages/manage-reviews/manage-reviews.page').then( m => m.ManageReviewsPage)
+    loadComponent: () =>
+      import('./pages/manage-reviews/manage-reviews.page').then(
+        (m) => m.ManageReviewsPage
+      ),
   },
-
 ];

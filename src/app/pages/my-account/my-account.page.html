@@ -5,8 +5,7 @@
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>บัญชีของฉัน</ion-title>
-  </ion-toolbar>
+    <ion-title>บัญชีผู้ใช้</ion-title> </ion-toolbar>
 </ion-header>
 
 <ion-content>
@@ -24,14 +23,18 @@
         </div>
         <div class="user-name-display">
           <h2>{{ user.username || 'Guest' }}</h2>
-          <p>สมาชิกทั่วไป</p>
+          <p>
+            <span *ngIf="user.role_id === 1">สมาชิกทั่วไป</span>
+            <span *ngIf="user.role_id === 2">เจ้าของหอพัก</span>
+            <span *ngIf="user.role_id === 3">ผู้ดูแลระบบ</span>
+          </p>
         </div>
       </div>
     </div>
 
     <div class="profile-content-card">
       
-      <div class="edit-btn-wrapper">
+      <div class="edit-btn-wrapper" *ngIf="canEdit">
         <ion-button class="btn-edit-custom" expand="block" shape="round" (click)="goToEditProfile()">
           <ion-icon name="create" slot="start"></ion-icon>
           แก้ไขข้อมูลส่วนตัว
@@ -88,8 +91,8 @@
           <span>สถานะบัญชี</span>
         </div>
         <div class="info-value status-active">
-          <span *ngIf="user.status === 0" style="color: green;">ปกติ</span>
-          <span *ngIf="user.status !== 0" style="color: red;">ถูกระงับ</span>
+          <span *ngIf="user.status === 0 || user.status === 'active'" style="color: green;">ปกติ</span>
+          <span *ngIf="user.status !== 0 && user.status !== 'active'" style="color: red;">ถูกระงับ</span>
         </div>
       </div>
 

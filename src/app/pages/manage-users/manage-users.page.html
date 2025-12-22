@@ -1,60 +1,107 @@
-<ion-header>
-  <ion-toolbar color="dark">
-    <ion-title>Admin Dashboard</ion-title>
-    </ion-toolbar>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="admin-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>จัดการสมาชิก</ion-title>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="bg-yellow">
   
   <div class="main-container">
-    
     <div class="content-box">
       
       <div class="header-row">
-        <div class="title-section">
-          <ion-icon name="person-outline" size="large"></ion-icon>
-          <h2>รายชื่อสมาชิก</h2>
+        
+        <div class="filter-dropdown">
+          <select [(ngModel)]="filterType">
+            <option value="all">ทั้งหมด</option>
+            <option value="member">สมาชิกทั่วไป</option>
+            <option value="owner">เจ้าของหอพัก</option>
+          </select>
+          <ion-icon name="caret-down" class="select-icon"></ion-icon>
         </div>
 
         <div class="search-section">
-          <input type="text" placeholder="รายชื่อสมาชิก......" [(ngModel)]="searchTerm">
-          <button class="btn-search" (click)="onSearch()">ค้นหา</button>
+          <input type="text" placeholder="ค้นหา (ID หรือ ชื่อ)..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+          <button class="btn-search" (click)="onSearch()">
+            <ion-icon name="search-outline"></ion-icon> ค้นหา
+          </button>
         </div>
 
-        <div class="add-section" (click)="goToRegister()">
+        <div class="add-section" (click)="openAddModal()">
           <ion-icon name="person-add-outline"></ion-icon>
           <span>เพิ่มสมาชิก</span>
         </div>
       </div>
 
-    <div class="table-container">
-        
+      <div class="table-container">
         <div class="table-header">
           <div class="col-1">ชื่อผู้ใช้งาน</div>
           <div class="col-2">ข้อมูลการลงทะเบียน</div>
           <div class="col-3">จัดการ</div>
         </div>
 
-        <div class="scrollable-list"> <div class="table-row" *ngFor="let user of users">
+        <div class="scrollable-list">
+          <div class="table-row" *ngFor="let user of displayedUsers">
             <div class="col-1 user-link" (click)="goToProfile(user.id)">
               {{ user.username }}
             </div>
             <div class="col-2 status-text">
-              {{ getDormStatusText(user.role_id) }}
+              <span [class.is-owner]="user.role_id === 2">
+                {{ getDormStatusText(user.role_id) }}
+              </span>
             </div>
             <div class="col-3 action-icons">
               <ion-icon name="create-outline" color="warning" class="icon-btn" (click)="goToProfile(user.id)"></ion-icon>
               <ion-icon name="trash-outline" color="danger" class="icon-btn" (click)="confirmBan(user)"></ion-icon>
             </div>
           </div>
-
-          <div class="no-data" *ngIf="users.length === 0">
+          <div class="no-data" *ngIf="displayedUsers.length === 0">
             ไม่พบข้อมูลสมาชิก
           </div>
-
-        </div> </div>
-
+        </div> 
+      </div>
     </div>
   </div>
+
+  <ion-modal [isOpen]="isAddModalOpen" (didDismiss)="closeAddModal()" class="add-user-modal">
+    <ng-template>
+      <div class="modal-content">
+        
+        <div class="modal-header">
+          <h3>เพิ่มสมาชิกใหม่</h3>
+          <ion-icon name="close" (click)="closeAddModal()"></ion-icon>
+        </div>
+
+        <div class="form-container">
+          
+          <div class="form-group">
+            <label>ชื่อผู้ใช้งาน (Username)</label>
+            <input type="text" [(ngModel)]="newUser.username" placeholder="ตั้งชื่อผู้ใช้">
+          </div>
+
+          <div class="form-group">
+            <label>รหัสผ่าน (Password)</label>
+            <input type="password" [(ngModel)]="newUser.password" placeholder="ตั้งรหัสผ่าน">
+          </div>
+
+          <div class="form-group">
+            <label>อีเมล (Email)</label>
+            <input type="email" [(ngModel)]="newUser.email" placeholder="example@mail.com">
+          </div>
+
+          <div class="form-group">
+            <label>เบอร์โทรศัพท์</label>
+            <input type="tel" [(ngModel)]="newUser.phone_number" placeholder="08xxxxxxxx">
+          </div>
+
+          <button class="btn-save" (click)="saveNewUser()">บันทึกข้อมูล</button>
+
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>

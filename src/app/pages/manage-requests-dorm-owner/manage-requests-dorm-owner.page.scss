@@ -146,3 +146,20 @@ ion-modal.detail-modal {
   .user-info span { font-size: 13px; }
   .view-link { font-size: 12px; }
 }
+.social-links {
+  display: flex;
+  flex-direction: column; /* เรียงลงมาเป็นบรรทัด */
+  gap: 10px;
+}
+
+.social-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  .social-text {
+    font-size: 0.9rem;
+    color: #555;
+    word-break: break-all; /* ตัดคำถ้ายาวเกิน */
+  }
+}

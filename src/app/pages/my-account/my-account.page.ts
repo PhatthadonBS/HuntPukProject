@@ -1,24 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router'; 
 import { addIcons } from 'ionicons';
 import { person, mail, create, arrowBack, call, shieldCheckmark } from 'ionicons/icons';
 
-// ✅ ตรวจสอบ Path ให้ชัวร์ (ปกติจะมี .service)
 import { UserService } from '../../services/user'; 
 
 import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonButtons, 
-  IonButton, 
-  IonIcon,
-  IonSpinner,       // ✅ 1. Import IonSpinner มาด้วย
-  LoadingController, 
-  ToastController 
+  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, 
+  IonButton, IonIcon, IonSpinner, 
+  LoadingController, ToastController 
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -27,25 +19,21 @@ import {
   styleUrls: ['./my-account.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonButtons, 
-    IonButton, 
-    IonIcon,
-    IonSpinner // ✅ 2. ใส่ IonSpinner ลงใน imports array
+    CommonModule, FormsModule, IonContent, IonHeader, 
+    IonTitle, IonToolbar, IonButtons, IonButton, 
+    IonIcon, IonSpinner
   ]
 })
 export class MyAccountPage implements OnInit {
 
   user: any = {};
   isLoading: boolean = false;
+  isOwnProfile: boolean = true; 
+  canEdit: boolean = false; // ✅ เพิ่มตัวแปรนี้เพื่อคุมปุ่มแก้ไข
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute, 
     private userService: UserService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController
@@ -53,63 +41,84 @@ export class MyAccountPage implements OnInit {
     addIcons({ person, mail, create, arrowBack, call, shieldCheckmark });
   }
 
-  ngOnInit() {
-    this.loadUserData();
-  }
+  ngOnInit() {}
 
   ionViewWillEnter() {
     this.loadUserData();
   }
 
   async loadUserData() {
-    // 1. ดึง ID จาก LocalStorage
-    const stored = localStorage.getItem('loggedIn');
-    
-    if (!stored) {
-      console.warn('No user logged in');
-      // ถ้าไม่ได้ล็อกอิน อาจจะ Redirect ไป Login หรือปล่อยไว้ (แล้วแต่ Flow)
-      // this.router.navigate(['/login']); 
-      return;
-    }
+    this.isLoading = true;
 
     try {
-      const localData = JSON.parse(stored);
-      // เช็คว่าตอน Login บันทึก key ไหนแน่? (id, user_id, หรือ USER_ID)
-      const userId = localData.id || localData.user_id || localData.USER_ID; 
+      // 1. ดึงข้อมูล "คนกด" (Current User)
+      const stored = localStorage.getItem('loggedIn');
+      let currentUser: any = null;
+      let myRole: number = 1;
+      let myId: number = 0;
 
-      if (userId) {
-        this.isLoading = true; // เริ่มหมุน Loading
-
-        try {
-           // 2. ยิง API ไปขอข้อมูลล่าสุด
-           const userData = await this.userService.getUserProfile(userId);
-           
-           if (userData) {
-               // userData นี้ควรผ่านการ Map เป็นตัวพิมพ์เล็กมาจาก Service แล้ว
-               this.user = userData;
-               console.log('User Data Loaded:', this.user);
-           }
-        } catch(e) {
-           console.error('API Error:', e);
-           this.showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ แสดงข้อมูลเก่าแทน', 'warning');
-           // ถ้า API พัง อาจจะใช้ข้อมูล localData แก้ขัดไปก่อน
-           this.user = localData; 
-        } finally {
-           this.isLoading = false; // หยุดหมุน
-        }
+      if (stored) {
+         currentUser = JSON.parse(stored);
+         // เช็ค key ให้ชัวร์ว่า Database ส่งอะไรมา (role_id หรือ role_type_id)
+         myRole = currentUser.role_id || currentUser.role_type_id || 1; 
+         myId = currentUser.id || currentUser.user_id || currentUser.USER_ID;
       }
+
+      // 2. เช็คว่า "กำลังดูใคร?" (Target User) จาก URL
+      const routeId = this.route.snapshot.paramMap.get('id');
+
+      if (routeId) {
+        // 🅰️ กรณี: กำลังส่องคนอื่น (มี ID ใน URL)
+        this.isOwnProfile = false;
+        
+        // โหลดข้อมูลคนนั้นมาโชว์
+        const targetUser = await this.userService.getUserProfile(Number(routeId));
+        this.user = targetUser || {};
+
+        // 🔥 Logic สิทธิ์การแก้ไขเมื่อดูคนอื่น:
+        // Role 2 (เจ้าของ) และ Role 3 (แอดมิน) -> แก้ไขได้ ✅
+        // Role 1 (สมาชิก) -> แก้ไขไม่ได้ ❌
+        if (myRole === 2 || myRole === 3) {
+           this.canEdit = true;
+        } else {
+           this.canEdit = false;
+        }
+
+      } else {
+        // 🅱️ กรณี: ดูตัวเอง (ไม่มี ID ใน URL)
+        this.isOwnProfile = true;
+        
+        // โหลดข้อมูลตัวเอง
+        if (myId) {
+           const userData = await this.userService.getUserProfile(myId);
+           this.user = userData || currentUser; 
+        }
+        
+        // 🔥 Logic สิทธิ์การแก้ไขเมื่อดูตัวเอง:
+        // ทุกคนแก้ของตัวเองได้เสมอ ✅
+        this.canEdit = true; 
+      }
+
     } catch (e) {
-      console.error('Error parsing user data', e);
+      console.error('Error loading profile:', e);
       this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
+    } finally {
+      this.isLoading = false;
     }
   }
 
   goToEditProfile() {
+    // ส่งข้อมูล User ที่กำลังแสดงผลไปหน้าแก้ไข
     this.router.navigate(['/edit-profile'], { state: { user: this.user } });
   }
   
   goBack() {
-    this.router.navigate(['/home']);
+    // ถ้าดูคนอื่นอยู่ ให้กลับไปหน้า Manage Users
+    if (!this.isOwnProfile) {
+        this.router.navigate(['/manage-users']); 
+    } else {
+        this.router.navigate(['/home']);
+    }
   }
 
   async showToast(msg: string, color: string) {

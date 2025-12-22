@@ -41,8 +41,7 @@
         <div class="col-name">
           <div class="user-info">
             <ion-avatar>
-              <img [src]="req.profile_img || 'assets/default-avatar.png'" 
-                   onerror="this.src='https://placehold.co/100x100?text=User'">
+              <img [src]="req.profile_img" (error)="handleImageError($event)">
             </ion-avatar>
             <span>{{ req.first_name }} {{ req.last_name }}</span>
           </div>
@@ -56,7 +55,7 @@
 
         <div class="col-action">
           <div class="view-link" (click)="openDetailModal(req)">
-            ข้อมูลผู้ลงทะเบียน
+            ตรวจสอบข้อมูล
           </div>
         </div>
 
@@ -74,8 +73,7 @@
         </div>
 
         <div class="profile-preview">
-          <img [src]="selectedReq.profile_img || 'assets/default-avatar.png'" class="profile-pic"
-               onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+          <img [src]="selectedReq.profile_img" class="profile-pic" (error)="handleImageError($event)">
         </div>
 
         <div class="info-list">
@@ -89,24 +87,53 @@
           </div>
           
           <div class="divider">ช่องทางติดต่อ</div>
-          
-          <div class="social-links">
-            <a *ngIf="selectedReq.facebook" [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
-              <ion-icon name="logo-facebook"></ion-icon> Facebook
-            </a>
-            <a *ngIf="selectedReq.line" class="social-btn line">
-              <ion-icon name="chatbubbles"></ion-icon> Line: {{ selectedReq.line }}
-            </a>
+      <div class="social-links">
+            
+            <div *ngIf="selectedReq.facebook" class="social-row">
+               <a [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
+                 <ion-icon name="logo-facebook"></ion-icon> Facebook
+               </a>
+               <span class="social-text">{{ selectedReq.facebook }}</span>
+            </div>
+
+            <div *ngIf="selectedReq.line" class="social-row">
+               <div class="social-btn line">
+                 <ion-icon name="chatbubbles"></ion-icon> Line
+               </div>
+               <span class="social-text">{{ selectedReq.line }}</span>
+            </div>
+
+            <div *ngIf="selectedReq.instagram" class="social-row">
+              <a [href]="selectedReq.instagram" target="_blank" class="social-btn ig">
+                <ion-icon name="logo-instagram"></ion-icon> Instagram
+              </a>
+              <span class="social-text">{{ selectedReq.instagram }}</span>
+            </div>
+            
+            <div *ngIf="selectedReq.x" class="social-row">
+              <a [href]="selectedReq.x" target="_blank" class="social-btn x-tw">
+                <ion-icon name="logo-twitter"></ion-icon> X
+              </a>
+              <span class="social-text">{{ selectedReq.x }}</span>
+            </div>
+
+            <div *ngIf="selectedReq.telegram" class="social-row">
+              <a [href]="selectedReq.telegram" target="_blank" class="social-btn tg">
+                <ion-icon name="paper-plane"></ion-icon> Telegram
+              </a>
+              <span class="social-text">{{ selectedReq.telegram }}</span>
+            </div>
+
           </div>
         </div>
 
         <div class="action-buttons" *ngIf="selectedReq.status === 'pending'">
           <button class="btn-reject" (click)="updateStatus(selectedReq, 'rejected')">ปฏิเสธ</button>
-          <button class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">ยืนยัน (อนุมัติ)</button>
+          <button class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">อนุมัติสิทธิ์</button>
         </div>
 
         <div class="action-note" *ngIf="selectedReq.status !== 'pending'">
-          <p>รายการนี้ถูกดำเนินการแล้ว: 
+          <p>สถานะปัจจุบัน: 
             <strong [ngClass]="selectedReq.status">{{ getStatusLabel(selectedReq.status) }}</strong>
           </p>
         </div>
