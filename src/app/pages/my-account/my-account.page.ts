@@ -76,9 +76,9 @@ export class MyAccountPage implements OnInit {
         this.user = targetUser || {};
 
         // 🔥 Logic สิทธิ์การแก้ไขเมื่อดูคนอื่น:
-        // Role 2 (เจ้าของ) และ Role 3 (แอดมิน) -> แก้ไขได้ ✅
-        // Role 1 (สมาชิก) -> แก้ไขไม่ได้ ❌
-        if (myRole === 2 || myRole === 3) {
+        // Role 3 (แอดมิน) -> แก้ไขได้ ✅
+        // Role 1 (สมาชิก)// Role 2 (เจ้าของ) -> แก้ไขไม่ได้ ❌
+        if (myRole === 3) {
            this.canEdit = true;
         } else {
            this.canEdit = false;

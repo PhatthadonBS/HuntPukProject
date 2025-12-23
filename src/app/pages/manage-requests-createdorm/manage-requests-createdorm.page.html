@@ -1,13 +1,94 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>manage-requests-createdorm</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: #222; color: white;">
+    <ion-buttons slot="start">
+      <ion-button color="warning" (click)="goBack()">
+        <ion-icon name="arrow-back" slot="start" style="font-size: 24px;"></ion-icon>
+        <span style="font-size: 16px; font-weight: bold;">กลับ</span>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>จัดการคำร้องขอเปิดหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">manage-requests-createdorm</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="main-container">
+
+    <div class="loading-container" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <p>กำลังโหลดข้อมูล...</p>
+    </div>
+    
+    <div class="yellow-card" *ngIf="!isLoading">
+      
+      <div class="header-section">
+        <div class="icon-badge">
+          <ion-icon name="document-text"></ion-icon>
+        </div>
+        <h2>รายชื่อคำขอที่รอการตรวจสอบ</h2>
+      </div>
+
+      <div class="table-container">
+        
+        <div class="table-header">
+          <div class="col-owner">
+            <ion-icon name="person" style="margin-right:5px"></ion-icon> เจ้าของ
+          </div>
+          <div class="col-dorm">
+            <ion-icon name="business" style="margin-right:5px"></ion-icon> ข้อมูลหอพัก
+          </div>
+          <div class="col-date">
+            <ion-icon name="calendar" style="margin-right:5px"></ion-icon> วันที่ยื่น
+          </div>
+          <div class="col-action">
+            จัดการ
+          </div>
+        </div>
+
+        <ng-container *ngIf="requests.length > 0; else noData">
+          <div class="table-row" *ngFor="let item of requests">
+            
+            <div class="col-owner">
+              <div class="main-text">{{ item.FIRST_NAME }} {{ item.LAST_NAME }}</div>
+              <div class="sub-text">
+                <ion-icon name="mail" style="font-size: 10px;"></ion-icon> {{ item.EMAIL }}
+              </div>
+            </div>
+            
+            <div class="col-dorm">
+              <div class="dorm-name-text">{{ item.DORM_NAME || '(ไม่มีชื่อ)' }}</div>
+              
+              <div class="detail-badge" (click)="viewOwnerDetail(item)">
+                <ion-icon name="eye"></ion-icon> ดูรายละเอียด
+              </div>
+            </div>
+
+            <div class="col-date">
+              <div class="date-badge">
+                {{ item.REG_AT | date:'dd/MM/yyyy' }}
+              </div>
+            </div>
+
+            <div class="col-action">
+              <ion-button class="action-btn" color="success" (click)="confirmAction(item, true)" title="อนุมัติ">
+                <ion-icon name="checkmark-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button class="action-btn" color="danger" (click)="confirmAction(item, false)" title="ปฏิเสธ">
+                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+
+          </div>
+        </ng-container>
+
+        <ng-template #noData>
+          <div class="no-data">
+            <ion-icon name="folder-open-outline"></ion-icon>
+            <p>ไม่พบรายการคำขอใหม่</p>
+          </div>
+        </ng-template>
+
+      </div>
+
+    </div>
+  </div>
 </ion-content>

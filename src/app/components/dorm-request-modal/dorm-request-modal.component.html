@@ -1,0 +1,105 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="modal-toolbar">
+    <ion-title>ตรวจสอบรายละเอียด</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()" class="close-btn">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="modal-container">
+
+    <div class="section-header">
+      <div class="icon-box">
+        <ion-icon name="person"></ion-icon>
+      </div>
+      <div class="header-text">ข้อมูลเจ้าของหอพัก</div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-item">
+        <span class="label">ชื่อ-สกุล</span>
+        <span class="value">{{ dorm.FIRST_NAME }} {{ dorm.LAST_NAME }}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-item">
+        <span class="label"><ion-icon name="mail"></ion-icon> อีเมล</span>
+        <span class="value">{{ dorm.EMAIL }}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-item">
+        <span class="label"><ion-icon name="call"></ion-icon> เบอร์โทร</span>
+        <span class="value highlight">{{ dorm.PHONE_NUMBER || 'ไม่ระบุ' }}</span>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="icon-box">
+        <ion-icon name="home"></ion-icon>
+      </div>
+      <div class="header-text">ข้อมูลสถานที่</div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-item vertical">
+        <span class="label">ชื่อหอพัก</span>
+        <span class="value big-text">{{ dorm.DORM_NAME }}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="info-item">
+        <span class="label"><ion-icon name="location"></ion-icon> ที่อยู่</span>
+        <span class="value">{{ dorm.ADDRESS }}</span>
+      </div>
+      <div class="tag-container">
+        <div class="tag">{{ dorm.ZONE_NAME || 'ไม่ระบุโซน' }}</div>
+        <div class="tag outline">{{ dorm.DORM_TYPE_NAME || 'ไม่ระบุประเภท' }}</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="icon-box">
+        <ion-icon name="images"></ion-icon>
+      </div>
+      <div class="header-text">เอกสารและรูปภาพ</div>
+    </div>
+
+    <ion-grid class="ion-no-padding img-grid">
+      <ion-row>
+        <ion-col size="6" class="col-left">
+          <div class="img-card" (click)="viewImage(dorm.FRONT_DORM_IMAGE)">
+            <div class="img-header">หน้าหอพัก</div>
+            <div class="img-wrapper">
+              <ion-img [src]="dorm.FRONT_DORM_IMAGE || 'assets/no-image.png'"></ion-img>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="6" class="col-right">
+          <div class="img-card" (click)="viewImage(dorm.DORM_LICENSE)">
+            <div class="img-header">ใบอนุญาต</div>
+            <div class="img-wrapper">
+              <ion-img [src]="dorm.DORM_LICENSE || 'assets/no-doc.png'"></ion-img>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="action-section">
+      <ion-button class="btn-approve" expand="block" (click)="action(true)">
+        <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+        อนุมัติคำขอ
+      </ion-button>
+      
+      <ion-button class="btn-reject" expand="block" fill="outline" (click)="action(false)">
+        <ion-icon name="close-circle" slot="start"></ion-icon>
+        ปฏิเสธคำขอ
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>

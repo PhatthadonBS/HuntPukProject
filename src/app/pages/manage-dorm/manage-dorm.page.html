@@ -1,13 +1,80 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>manage-dorm</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: #222; color: white;">
+    <ion-buttons slot="start">
+      <ion-button color="warning" (click)="goBack()">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        กลับ
+      </ion-button>
+    </ion-buttons>
+    <ion-title>จัดการหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">manage-dorm</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="main-container">
+
+    <div class="loading-center" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+    </div>
+
+    <div class="yellow-card" *ngIf="!isLoading">
+      
+      <div class="top-bar">
+        <div class="add-btn" (click)="goToAddDorm()">
+           เพิ่มข้อมูลหอพัก
+        </div>
+      </div>
+
+      <div class="custom-table">
+        
+        <div class="table-header">
+          <div class="col-id">ลำดับ</div>
+          <div class="col-dorm">ชื่อหอพัก</div>
+          <div class="col-owner">ชื่อผู้ดูแลหอพัก</div>
+          <div class="col-action">จัดการ</div>
+        </div>
+
+        <ng-container *ngIf="dorms.length > 0; else noData">
+          <div class="table-row" *ngFor="let item of dorms; let i = index">
+            
+            <div class="col-id">{{ i + 1 }}</div>
+            
+            <div class="col-dorm">
+              {{ item.DORM_NAME }}
+              <span *ngIf="item.DORM_STATUS_ID === 2" class="status-closed">(ปิดปรับปรุง)</span>
+            </div>
+            
+            <div class="col-owner">
+              {{ item.FIRST_NAME }} {{ item.LAST_NAME }}
+            </div>
+
+            <div class="col-action">
+              
+              <div class="icon-btn edit-btn" (click)="goToDetail(item.DORM_ID)" title="แก้ไข">
+                <ion-icon name="person"></ion-icon>
+                <div class="tiny-pen">✎</div>
+              </div>
+
+              <div class="icon-btn delete-btn" *ngIf="item.DORM_STATUS_ID !== 2" (click)="confirmRemove(item)" title="ลบ/ปิดปรับปรุง">
+                <ion-icon name="trash"></ion-icon>
+              </div>
+
+              <div class="icon-btn restore-btn" *ngIf="item.DORM_STATUS_ID === 2" (click)="confirmRestore(item)" title="กู้คืน">
+                <ion-icon name="refresh"></ion-icon>
+              </div>
+
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noData>
+          <div class="no-data-row">
+            ไม่พบข้อมูลหอพัก
+          </div>
+        </ng-template>
+
+      </div>
+
+    </div>
+  </div>
 </ion-content>

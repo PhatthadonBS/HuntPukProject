@@ -1,0 +1,183 @@
+ion-content {
+  --background: #2c2c2c; // พื้นหลังดำเทา
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  min-height: 100%;
+}
+
+.yellow-card {
+  background-color: #FFD700;
+  width: 100%;
+  max-width: 950px; // กว้างขึ้นนิดนึง
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.header-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  
+  .icon-badge {
+    background: #222;
+    color: #FFD700;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15px;
+    font-size: 24px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #222;
+    margin: 0;
+  }
+}
+
+// === Table Layout ===
+.table-container {
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  padding: 5px; // ลด padding นอกลงเพื่อให้แถวเต็มพื้นที่
+  min-height: 300px;
+  overflow: hidden; // ตัดมุมมน
+}
+
+.table-header {
+  display: flex;
+  padding: 15px 20px;
+  background: #eaeaea;
+  border-bottom: 1px solid #ddd;
+  font-weight: 700;
+  color: #555;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 12px 12px 0 0;
+}
+
+.table-row {
+  display: flex;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+  background-color: white;
+  transition: all 0.2s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: #fffbf0; // สีเหลืองอ่อนๆ เวลาเอาเมาส์ชี้
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    z-index: 1;
+  }
+}
+
+// === Columns Configuration ===
+// ปรับสัดส่วน Column ให้สวยงาม
+.col-owner  { flex: 2; padding-right: 10px; }
+.col-dorm   { flex: 2; padding-right: 10px; }
+.col-date   { flex: 1.5; text-align: center; }
+.col-action { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
+
+// === Text Styles ===
+.main-text {
+  font-weight: 700;
+  font-size: 15px;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.sub-text {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dorm-name-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+// === Badges & Buttons ===
+.detail-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e0f7fa;
+  color: #006064;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 1px solid #b2ebf2;
+
+  ion-icon { margin-right: 4px; font-size: 14px; }
+
+  &:hover {
+    background-color: #b2ebf2;
+    transform: scale(1.05);
+  }
+}
+
+.date-badge {
+  background: #f0f0f0;
+  color: #555;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.action-btn {
+  --border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  
+  ion-icon { font-size: 20px; }
+}
+
+.no-data {
+  text-align: center;
+  padding: 80px 20px;
+  color: #aaa;
+  
+  ion-icon { font-size: 56px; margin-bottom: 15px; opacity: 0.5; }
+  p { margin: 0; font-size: 18px; font-weight: 500; }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  color: #FFD700;
+  p { margin-top: 15px; font-size: 18px; }
+}

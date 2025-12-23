@@ -67,7 +67,19 @@ export class DormitoryService {
       throw new Error(JSON.stringify(error.error || error.message, null, 2));
     }
   }
-
+/**
+   * ✅ ดึงหอพักทั้งหมดสำหรับ Admin (รวมที่ปิดปรับปรุง + ชื่อเจ้าของ)
+   * API: GET /dorms/admin
+   */
+  public async getAllDormsAdmin(): Promise<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/dorms/admin`; // ยิงไป Route ใหม่ที่เราเพิ่งสร้าง
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
+  }
   /**
    * 2. ดึงรายละเอียดหอพักตาม ID
    */
@@ -197,6 +209,77 @@ export class DormitoryService {
 
     } catch (error: any) {
       throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
+  }
+
+  /**
+   * 6. ดึงรายการคำร้องขอหอพักที่รออนุมัติ (Pending Requests)
+   * API: GET /dorms/pendingReq
+   */
+  public async getPendingRequests(): Promise<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/dorms/pendingReq`;
+    try {
+      // Backend ส่งกลับมารูปแบบ { data: [...] } ตรงกับ ApiResponse
+      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
+      return res;
+    } catch (error: any) {
+      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    }
+  }
+
+  /**
+   * 7. อนุมัติหรือปฏิเสธคำร้องขอหอพัก
+   * API: POST /dorms/approve
+   * @param dormId รหัสหอพัก
+   * @param isApproved true = อนุมัติ (Accept), false = ปฏิเสธ (Reject)
+   * @param message ข้อความเหตุผล (จำเป็นต้องใส่ถ้าปฏิเสธ)
+   */
+  public async approveRequest(dormId: number, isApproved: boolean, message: string = ''): Promise<any> {
+    const url = `${this.apiUrl}/dorms/approve`;
+    
+    // จัดเตรียม Body ให้ตรงกับที่ Backend ต้องการ
+    // const { dorm_id, approve_status, msg } = req.body;
+    const body = {
+      dorm_id: dormId,
+      approve_status: isApproved, // ส่ง boolean ไปเลย Backend เช็ค true/false เอง
+      msg: message
+    };
+
+    try {
+      const res = await lastValueFrom(this.http.post<any>(url, body));
+      return res;
+    } catch (error: any) {
+      // โยน Error ออกไปให้หน้าบ้านจัดการ Alert
+      throw error;
+    }
+  }
+
+  /**
+   * 8. ลบหอพัก (ปิดปรับปรุง / Soft Delete)
+   * API: DELETE /spec/dorm/:id
+   */
+  public async removeDorm(dormId: number) {
+    const url = `${this.apiUrl}/spec/dorm/${dormId}`;
+    try {
+      const res = await lastValueFrom(this.http.delete<any>(url));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  /**
+   * 9. กู้คืนหอพัก (Restore)
+   * API: PUT /spec/restoreDorm/:id
+   */
+  public async restoreDorm(dormId: number) {
+    const url = `${this.apiUrl}/spec/restoreDorm/${dormId}`;
+    try {
+      // PUT method มักจะต้องส่ง body เสมอในบาง config, ถ้าไม่มีให้ส่ง {} ว่างๆ
+      const res = await lastValueFrom(this.http.put<any>(url, {})); 
+      return res;
+    } catch (error: any) {
+      throw error;
     }
   }
 }

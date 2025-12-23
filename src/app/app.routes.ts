@@ -95,6 +95,10 @@ export const routes: Routes = [
       import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
+    path: 'my-account',
+    loadComponent: () => import('./pages/my-account/my-account.page').then(m => m.MyAccountPage),
+  },
+  {
     path: 'my-account/:id',
     loadComponent: () =>
       import('./pages/my-account/my-account.page').then((m) => m.MyAccountPage),
