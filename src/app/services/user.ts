@@ -101,4 +101,30 @@ export class UserService {
       throw error;
     }
   }
+  /**
+   * ✅ ดึงข้อมูล User ที่ Login อยู่ (ID และ Role)
+   * ดึงจาก localStorage key: "loggedIn" (ตามหน้า Login ของคุณ)
+   */
+  public getCurrentUser(): any {
+    const userStr = localStorage.getItem('loggedIn');
+    if (userStr) {
+      return JSON.parse(userStr);
+    }
+    return null; // ยังไม่ล็อกอิน
+  }
+
+  // ✅ 1. เพิ่มฟังก์ชันนี้เข้าไป เพื่อดึง ID จาก LocalStorage
+  public getMyUserId(): number {
+    const userStr = localStorage.getItem('loggedIn'); // ชื่อ key ตามที่ใช้ใน LoginPage
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        // เช็คว่าใน object ที่เก็บไว้ใช้ชื่อ field ว่า id หรือ USER_ID
+        return user.id || user.USER_ID || 0; 
+      } catch (e) {
+        return 0;
+      }
+    }
+    return 0; // ถ้าไม่เจอ หรือยังไม่ล็อกอิน ให้คืนค่า 0
+  }
 }

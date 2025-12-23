@@ -1,0 +1,172 @@
+ion-content {
+  --background: #333;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  min-height: 100%;
+}
+
+.yellow-card {
+  background-color: #FFD700; // สีเหลืองธีม
+  width: 100%;
+  max-width: 800px;
+  border-radius: 25px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.header-section {
+  margin-bottom: 20px;
+  h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #222;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+  }
+}
+
+// === Review Card Style ===
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.review-card {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .avatar-icon {
+    font-size: 40px;
+    color: #ccc;
+  }
+
+  .user-text {
+    .username {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .date {
+      font-size: 12px;
+      color: #777;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
+
+.delete-btn {
+  color: #d32f2f;
+  background: #ffebee;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+
+  &:hover {
+    background: #d32f2f;
+    color: white;
+  }
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-left: 5px;
+
+  .score-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .stars {
+    display: flex;
+    gap: 2px;
+    
+    ion-icon {
+      font-size: 18px;
+      color: #ddd; // สีดาวว่าง
+      
+      &.filled {
+        color: #ffb300; // สีดาวเต็ม (เหลืองทอง)
+      }
+    }
+  }
+
+  .score-num {
+    font-size: 13px;
+    color: #888;
+  }
+}
+
+.comment-box {
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #444;
+  line-height: 1.5;
+  font-style: italic;
+  border-left: 4px solid #FFD700;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #555;
+  background: rgba(255,255,255,0.5);
+  border-radius: 15px;
+
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+  }
+  p { margin: 0; font-size: 16px; font-weight: 500; }
+}
+
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}

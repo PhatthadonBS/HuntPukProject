@@ -1,13 +1,78 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>manage-reviews</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: #222; color: white;">
+    <ion-buttons slot="start">
+      <ion-button color="warning" (click)="goBack()">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        กลับ
+      </ion-button>
+    </ion-buttons>
+    <ion-title>จัดการรีวิว {{ dormName ? ': ' + dormName : '' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">manage-reviews</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="main-container">
+
+    <div class="yellow-card">
+      
+      <div class="header-section">
+        <h2><ion-icon name="chatbubble-ellipses"></ion-icon> รายการรีวิวทั้งหมด ({{ reviews.length }})</h2>
+      </div>
+
+      <div class="loading-center" *ngIf="isLoading">
+        <ion-spinner name="crescent" color="dark"></ion-spinner>
+      </div>
+
+      <div class="review-list" *ngIf="!isLoading">
+        
+        <ng-container *ngIf="reviews.length > 0; else noData">
+          <div class="review-card" *ngFor="let item of reviews">
+            
+            <div class="card-header">
+              <div class="user-info">
+                <ion-icon name="person-circle" class="avatar-icon"></ion-icon>
+                <div class="user-text">
+                  <div class="username">{{ item.USERNAME || 'Unknown User' }}</div>
+                  <div class="date">
+                    <ion-icon name="time-outline"></ion-icon>
+                    {{ item.CREATE_AT | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="delete-btn" (click)="confirmDelete(item)" title="ลบรีวิวนี้">
+                <ion-icon name="trash"></ion-icon>
+              </div>
+            </div>
+
+            <div class="rating-row">
+              <span class="score-text">คะแนน: </span>
+              <div class="stars">
+                <ion-icon 
+                  *ngFor="let s of getStars(item.SCORE)" 
+                  [name]="s ? 'star' : 'star-outline'" 
+                  [class.filled]="s">
+                </ion-icon>
+              </div>
+              <span class="score-num">({{ item.SCORE }}/5)</span>
+            </div>
+
+            <div class="comment-box">
+              "{{ item.COMMENTS }}"
+            </div>
+
+          </div>
+        </ng-container>
+
+        <ng-template #noData>
+          <div class="no-data">
+            <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+            <p>ยังไม่มีรีวิวสำหรับหอพักนี้</p>
+          </div>
+        </ng-template>
+
+      </div>
+
+    </div>
+  </div>
 </ion-content>

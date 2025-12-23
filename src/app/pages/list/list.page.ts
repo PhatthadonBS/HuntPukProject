@@ -7,7 +7,7 @@ import { addIcons } from 'ionicons';
 import { bookmark, bookmarkOutline, locationSharp, home, search } from 'ionicons/icons';
 
 import { DormitoryService, Dormitory } from '../../services/dormitory'; 
-
+import { UserService } from '../../services/user'; 
 @Component({
   selector: 'app-list',
   templateUrl: './list.page.html',
@@ -18,9 +18,7 @@ import { DormitoryService, Dormitory } from '../../services/dormitory';
 export class ListPage implements OnInit {
 
   dorms: Dormitory[] = [];
-  
   keyword: string = '';
-
   currentUserId: number = 0;
 
   constructor(
@@ -28,38 +26,20 @@ export class ListPage implements OnInit {
     private navCtrl: NavController,
     private loadingCtrl: LoadingController, 
     private toastCtrl: ToastController,
-    private dormService: DormitoryService
+    private dormService: DormitoryService,
+    private userService: UserService // ✅ 2. Inject Service เข้ามา
   ) { 
     addIcons({ bookmark, bookmarkOutline, locationSharp, home, search });
   }
 
   ngOnInit() {
-    this.getUserInfo();
+    // ✅ 3. ใช้ Service ดึง ID (แทนการเขียนฟังก์ชันเอง)
+    this.currentUserId = this.userService.getMyUserId();
+    console.log('Current User ID:', this.currentUserId);
 
     this.loadDorms();
   }
 
-getUserInfo() {
-    // เปลี่ยนจาก sessionStorage.getItem('user') เป็น localStorage.getItem('loggedIn')
-    const userStr = localStorage.getItem('loggedIn'); 
-    
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        
-        // เช็คชื่อ field ให้ตรงกับที่บันทึกในหน้า Login
-        // หน้า Login บันทึก: id, email, username, role_id, accout_status
-        this.currentUserId = user.id || 0;
-        
-        console.log('Current User ID:', this.currentUserId);
-      } catch (e) {
-        console.error('Error parsing user data', e);
-      }
-    } else {
-      console.warn('User not logged in');
-      this.currentUserId = 0; // ตั้งค่าเป็น 0 ถ้าไม่มีข้อมูล
-    }
-  }
   async loadDorms() {
     const loading = await this.loadingCtrl.create({
       message: 'กำลังโหลดข้อมูล...',
@@ -72,7 +52,7 @@ getUserInfo() {
       
       if (res) { 
          this.dorms = res.data || []; 
-         console.log('API Response:', this.dorms);
+         // console.log('API Response:', this.dorms);
       }
 
     } catch (error) {
@@ -101,13 +81,13 @@ getUserInfo() {
   async toggleFavorite(event: Event, dorm: any) {
     event.stopPropagation(); // กันไม่ให้เด้งไปหน้า Detail
 
-    // ตรวจสอบว่าล็อกอินหรือยัง
-    if (!this.currentUserId) {
+    // ตรวจสอบว่าล็อกอินหรือยัง (เช็คจากตัวแปรที่ดึงมาจาก Service)
+    if (!this.currentUserId || this.currentUserId === 0) {
         this.showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
         return;
     }
 
-    // ถ้าเป็นรายการโปรดอยู่แล้ว
+    // ถ้าเป็นรายการโปรดอยู่แล้ว (เช็คจาก Frontend Flag ชั่วคราว)
     if (dorm.isChecked) {
       this.showToast('รายการนี้อยู่ในรายการโปรดแล้ว', 'medium');
       return;
@@ -117,12 +97,12 @@ getUserInfo() {
       // เรียก API Add Favorite โดยใช้ currentUserId
       await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID);
       
-      dorm.isChecked = true;
+      dorm.isChecked = true; // อัปเดต UI
       this.showToast('เพิ่มลงในรายการโปรดแล้ว', 'success');
 
     } catch (error: any) {
       // เช็คว่า Error เพราะซ้ำหรือเปล่า
-      if (error.status === 409) {
+      if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
          dorm.isChecked = true;
          this.showToast('หอพักนี้มีอยู่แล้ว', 'warning');
       } else {
@@ -132,7 +112,6 @@ getUserInfo() {
     }
   }
 
-  // Helper สำหรับแสดง Toast
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
       message: msg,
@@ -144,11 +123,9 @@ getUserInfo() {
   }
 
   // ไปหน้า Detail
-  goToDetail(dorm: Dormitory) {
-    this.router.navigate(['/dorm-detail'], { 
-      state: { dormData: dorm } 
-    });
-  }
+ goToDetail(dorm: any) {
+  this.router.navigate(['/dorm-detail', dorm.DORM_ID]); 
+}
 
   goBack() {
     this.navCtrl.back();
