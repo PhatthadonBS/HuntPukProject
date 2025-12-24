@@ -348,7 +348,38 @@ export class DormitoryService {
     }
   }
 
+  /**
+   * 14. ดึงหอพักของฉัน (สำหรับเจ้าของหอ)
+   * API: GET /spec/dorm/:id (ส่ง user_id ไป)
+   */
+  public async getMyDorms(ownerId: number): Promise<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/spec/dorm/${ownerId}`;
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+  
+  /**
+   * 15. อัปเดตข้อมูลหอพัก
+   * API: PUT /spec/dorm/:id
+   */
+  public async updateDorm(dormId: number, formData: FormData): Promise<any> {
+    const url = `${this.apiUrl}/spec/dorm/${dormId}`;
+    try {
+      const res = await lastValueFrom(this.http.put<any>(url, formData));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
 }
+
+
+
 
 
 

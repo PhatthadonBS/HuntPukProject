@@ -39,10 +39,10 @@
           </div>
 
           <ng-container *ngIf="userRole === 2 || userRole === 3">
-            <div class="menu-item" (click)="checkAuthAndNavigate('/owner/dorm-form')">
+            <div class="menu-item" (click)="checkAuthAndNavigate('/dorm-form')">
                <ion-icon name="create"></ion-icon> ลงทะเบียนหอพัก
             </div>
-            <div class="menu-item" (click)="checkAuthAndNavigate('/owner/my-dorms')">
+            <div class="menu-item" (click)="checkAuthAndNavigate('/my-dorms')">
                <ion-icon name="home"></ion-icon> หอพักของฉัน
             </div>
           </ng-container>
@@ -50,9 +50,6 @@
           <div class="menu-item" (click)="checkAuthAndNavigate('/favorites')">
             <ion-icon name="heart-outline" style="color:red;"></ion-icon> รายการโปรด
           </div>
-            <div class="menu-item" (click)="navigate('/dorm-popular')">
-          <ion-icon name="list-outline"></ion-icon> หอพักยอดนิยม
-        </div>
 
         </ng-container>
 

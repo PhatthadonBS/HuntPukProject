@@ -1,0 +1,215 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="warning">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/my-dorms" text="ย้อนกลับ" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">แก้ไขข้อมูลหอพัก</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onSubmit()" color="dark" style="font-weight: bold;">
+        <ion-icon name="save-outline" slot="start"></ion-icon>
+        บันทึก
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar color="light">
+    <ion-segment [value]="activeSegment" (ionChange)="segmentChanged($event)" mode="md" color="warning">
+      <ion-segment-button value="general">
+        <ion-label>ข้อมูลทั่วไป</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="facilities">
+        <ion-label>สิ่งอำนวยฯ</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="rooms">
+        <ion-label>ห้องพัก</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="images">
+        <ion-label>รูปภาพ</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding bg-light">
+
+  <div class="form-container">
+
+    <div *ngIf="activeSegment === 'general'" class="fade-in">
+      
+      <div class="section-card">
+        <h3><ion-icon name="home-outline"></ion-icon> ข้อมูลพื้นฐาน</h3>
+        
+        <ion-item class="custom-input">
+          <ion-label position="stacked">ชื่อหอพัก <span class="req">*</span></ion-label>
+          <ion-input [(ngModel)]="formData.name" placeholder="ระบุชื่อหอพัก"></ion-input>
+        </ion-item>
+
+        <ion-item class="custom-input">
+          <ion-label position="stacked">ประเภทหอพัก</ion-label>
+          <ion-select [(ngModel)]="formData.type_id" interface="popover">
+            <ion-select-option [value]="1">หอพักชาย</ion-select-option>
+            <ion-select-option [value]="2">หอพักหญิง</ion-select-option>
+            <ion-select-option [value]="3">หอพักรวม</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="custom-input">
+          <ion-label position="stacked">โซนที่ตั้ง</ion-label>
+          <ion-select [(ngModel)]="formData.zone_id" interface="popover">
+            <ion-select-option *ngFor="let z of zones" [value]="z.ZONE_ID">{{ z.ZONE_NAME }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="custom-input">
+          <ion-label position="stacked">รายละเอียด/คำเชิญชวน</ion-label>
+          <ion-textarea [(ngModel)]="formData.description" rows="4" placeholder="เช่น หอพักสะอาด ใกล้มอ..."></ion-textarea>
+        </ion-item>
+      </div>
+
+      <div class="section-card">
+        <h3><ion-icon name="location-outline"></ion-icon> ที่อยู่ & พิกัด</h3>
+        <ion-item class="custom-input">
+          <ion-label position="stacked">ที่อยู่</ion-label>
+          <ion-textarea [(ngModel)]="formData.address" rows="2" placeholder="บ้านเลขที่, ซอย, ถนน..."></ion-textarea>
+        </ion-item>
+        
+        <div class="row-2-col">
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Latitude</ion-label>
+            <ion-input type="number" [(ngModel)]="formData.lat"></ion-input>
+          </ion-item>
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Longitude</ion-label>
+            <ion-input type="number" [(ngModel)]="formData.lng"></ion-input>
+          </ion-item>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>💡 ค่าน้ำ & ค่าไฟ</h3>
+        <div class="row-2-col">
+          <ion-item class="custom-input">
+            <ion-label position="stacked">ค่าน้ำ (บาท/หน่วย)</ion-label>
+            <ion-input type="number" [(ngModel)]="formData.water_unit"></ion-input>
+          </ion-item>
+          <ion-item class="custom-input">
+            <ion-label position="stacked">ค่าไฟ (บาท/หน่วย)</ion-label>
+            <ion-input type="number" [(ngModel)]="formData.elect_unit"></ion-input>
+          </ion-item>
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="activeSegment === 'facilities'" class="fade-in">
+      <div class="section-card">
+        <h3><ion-icon name="wifi"></ion-icon> สิ่งอำนวยความสะดวก</h3>
+        <p class="hint-text">เลือกสิ่งที่หอพักของคุณมีให้บริการ</p>
+        
+        <ion-list lines="none">
+          <ion-item *ngFor="let fac of facilities" class="checkbox-item">
+            <ion-checkbox slot="start" [(ngModel)]="fac.checked"></ion-checkbox>
+            <ion-label>{{ fac.name }}</ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+
+    <div *ngIf="activeSegment === 'rooms'" class="fade-in">
+      <div class="section-card">
+        <div class="header-row">
+          <h3><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</h3>
+          <ion-button fill="outline" size="small" (click)="addRoomType()">
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon> เพิ่มห้อง
+          </ion-button>
+        </div>
+
+        <div class="room-card" *ngFor="let room of roomTypes; let i = index">
+          <div class="room-header">
+            <span>แบบห้องที่ {{ i + 1 }}</span>
+            <ion-button fill="clear" color="danger" (click)="removeRoomType(i)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+          
+          <ion-item class="custom-input">
+            <ion-label position="stacked">ชื่อประเภทห้อง (เช่น ห้องพัดลม)</ion-label>
+            <ion-input [(ngModel)]="room.roomType"></ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input">
+            <ion-label position="stacked">ประเภทเตียง</ion-label>
+            <ion-select [(ngModel)]="room.bedType">
+              <ion-select-option value="Single Bed">เตียงเดี่ยว (3.5 ฟุต)</ion-select-option>
+              <ion-select-option value="Double Bed">เตียงคู่ (5-6 ฟุต)</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <div class="row-2-col">
+            <ion-item class="custom-input">
+              <ion-label position="stacked">รายเดือน (บาท)</ion-label>
+              <ion-input type="number" [(ngModel)]="room.perMonth"></ion-input>
+            </ion-item>
+            <ion-item class="custom-input">
+              <ion-label position="stacked">รายเทอม (บาท)</ion-label>
+              <ion-input type="number" [(ngModel)]="room.perTerm"></ion-input>
+            </ion-item>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeSegment === 'images'" class="fade-in">
+      
+      <div class="section-card">
+        <h3><ion-icon name="image-outline"></ion-icon> รูปภาพหลัก (หน้าปก)</h3>
+        
+        <div class="img-upload-box" (click)="frontInput.click()">
+          <img [src]="previews.FRONT_DORM_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
+          <div class="overlay">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span>แตะเพื่อเปลี่ยนรูป</span>
+          </div>
+        </div>
+        <input #frontInput type="file" (change)="onFileSelect($event, 'FRONT_DORM_IMG')" accept="image/*" hidden>
+      </div>
+
+      <div class="section-card">
+        <h3>รูปภาพส่วนประกอบห้อง</h3>
+        <div class="grid-2-col">
+          
+          <div class="img-mini-box" (click)="bedInput.click()">
+            <label>รูปเตียงนอน</label>
+            <img [src]="previews.BED_IMG || 'assets/placeholder-square.png'">
+            <input #bedInput type="file" (change)="onFileSelect($event, 'BED_IMG')" accept="image/*" hidden>
+          </div>
+
+          <div class="img-mini-box" (click)="bathInput.click()">
+            <label>รูปห้องน้ำ</label>
+            <img [src]="previews.BATHROOM_IMG || 'assets/placeholder-square.png'">
+            <input #bathInput type="file" (change)="onFileSelect($event, 'BATHROOM_IMG')" accept="image/*" hidden>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>อัลบั้มรูปเพิ่มเติม (Gallery)</h3>
+        <input #galleryInput type="file" (change)="onGallerySelect($event)" accept="image/*" multiple hidden>
+        <ion-button expand="block" fill="outline" (click)="galleryInput.click()">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          เลือกรูปหลายรูป
+        </ion-button>
+
+        <div class="gallery-grid" *ngIf="previews.OTHER_IMG.length > 0">
+          <div class="gallery-item" *ngFor="let img of previews.OTHER_IMG">
+            <img [src]="img">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div style="height: 50px;"></div> </ion-content>

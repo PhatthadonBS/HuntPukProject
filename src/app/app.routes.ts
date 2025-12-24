@@ -139,4 +139,8 @@ export const routes: Routes = [
         (m) => m.DormPopularPage
       ),
   },
+  {
+    path: 'edit-dorm/:id',
+    loadComponent: () => import('./pages/edit-dorm/edit-dorm.page').then( m => m.EditDormPage)
+  },
 ];

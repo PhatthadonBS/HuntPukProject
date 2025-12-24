@@ -1,0 +1,111 @@
+/* --- Global --- */
+.bg-light { --background: #f4f5f8; }
+.form-container { max-width: 600px; margin: 0 auto; }
+.req { color: red; }
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Section Card --- */
+.section-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  h3 { 
+    margin-top: 0; font-size: 18px; font-weight: 700; color: #333; 
+    display: flex; align-items: center; gap: 8px;
+    ion-icon { color: #ffc107; }
+  }
+  .hint-text { font-size: 13px; color: #888; margin-top: -5px; margin-bottom: 15px; }
+}
+
+/* --- Custom Inputs --- */
+.custom-input {
+  --background: #fff;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 5px 15px;
+
+  ion-label { font-size: 13px !important; color: #666 !important; font-weight: 600; }
+  ion-input, ion-textarea, ion-select { --padding-top: 5px; font-size: 15px; }
+}
+
+.row-2-col {
+  display: flex; gap: 10px;
+  ion-item { flex: 1; }
+}
+
+/* --- Facilities List --- */
+.checkbox-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  font-size: 14px;
+  color: #444;
+  ion-checkbox { margin-right: 15px; --size: 20px; --checkbox-background-checked: #ffc107; --border-color-checked: #ffc107; }
+}
+
+/* --- Room Cards --- */
+.room-card {
+  background: #fcfcfc;
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+
+  .room-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: bold; font-size: 14px; color: #555; margin-bottom: 10px;
+  }
+}
+
+.header-row {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+}
+
+/* --- Image Upload --- */
+.img-upload-box {
+  position: relative; width: 100%; height: 200px;
+  background: #eee; border-radius: 12px; overflow: hidden;
+  cursor: pointer; border: 2px dashed #ddd;
+
+  .preview-img { width: 100%; height: 100%; object-fit: cover; }
+  
+  .overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3); color: white;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; transition: 0.3s;
+    ion-icon { font-size: 32px; }
+  }
+
+  &:hover .overlay { opacity: 1; }
+}
+
+.grid-2-col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+}
+
+.img-mini-box {
+  text-align: center; cursor: pointer;
+  label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
+  img { 
+    width: 100%; height: 100px; object-fit: cover; 
+    border-radius: 8px; border: 1px solid #ddd;
+  }
+}
+
+.gallery-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;
+  .gallery-item img {
+    width: 100%; height: 80px; object-fit: cover; border-radius: 8px;
+  }
+}

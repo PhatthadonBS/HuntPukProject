@@ -1,13 +1,112 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>my-dorms</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="custom-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" icon="arrow-back-outline" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>จัดการหอพักของฉัน</ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="goToAddDorm()" color="dark">
+        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">my-dorms</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="bg-light">
+  
+  <div class="main-container">
+
+    <div class="page-header">
+      <div>
+        <h2>รายการหอพัก</h2>
+        <p>ทั้งหมด {{ myDorms.length }} รายการ</p>
+      </div>
+      <div class="user-badge" *ngIf="myDorms.length > 0">
+        <ion-icon name="business-outline"></ion-icon>
+        <span>เจ้าของหอพัก</span>
+      </div>
+    </div>
+
+    <div class="loading-center" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+    </div>
+
+    <div class="empty-state fade-in" *ngIf="!isLoading && myDorms.length === 0">
+      <div class="empty-icon">
+        <ion-icon name="home-outline"></ion-icon>
+      </div>
+      <h3>คุณยังไม่มีหอพักในระบบ</h3>
+      <p>ลงทะเบียนหอพักของคุณเพื่อเริ่มใช้งาน</p>
+      
+      <ion-button expand="block" color="warning" class="btn-register" (click)="goToAddDorm()">
+        <ion-icon name="add-circle" slot="start"></ion-icon>
+        ลงทะเบียนหอพักใหม่
+      </ion-button>
+    </div>
+
+    <div class="dorm-list fade-in" *ngIf="!isLoading && myDorms.length > 0">
+      
+      <div class="dorm-card" *ngFor="let item of myDorms" (click)="goToEdit(item.DORM_ID)"> <div class="card-image">
+          <img [src]="item.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" 
+               onerror="this.src='https://placehold.co/400x250?text=No+Image'">
+          
+          <div class="status-chip" [class]="getStatusColor(item.DORM_STATUS_ID, item.REQ_STATUS)">
+            <ion-icon name="ellipse"></ion-icon>
+            {{ getStatusText(item.DORM_STATUS_ID, item.REQ_STATUS) }}
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-main">
+            <h3>{{ item.DORM_NAME }}</h3>
+            <p class="address">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ item.ADDRESS || 'ไม่ระบุที่อยู่' }}
+            </p>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-item">
+              <ion-icon name="eye" color="medium"></ion-icon>
+              <span>{{ item.VIEW_COUNT || 0 }}</span>
+            </div>
+            <div class="stat-item">
+              <ion-icon name="star" color="warning"></ion-icon>
+              <span>{{ item.SCORE | number:'1.1-1' }}</span>
+            </div>
+            <div class="price-tag">
+              เริ่ม {{ item.start_price | number }}.-
+            </div>
+          </div>
+        </div>
+
+        <div class="card-actions" (click)="$event.stopPropagation()">
+          <ion-button fill="clear" size="small" color="dark" (click)="goToReviews(item.DORM_ID)">
+            <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
+            รีวิว
+          </ion-button>
+          
+          <div class="right-btns">
+            <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)">
+              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-button fill="outline" size="small" color="danger" class="action-btn" (click)="confirmDelete(item.DORM_ID)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="myDorms.length > 0">
+    <ion-fab-button color="warning" (click)="goToAddDorm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

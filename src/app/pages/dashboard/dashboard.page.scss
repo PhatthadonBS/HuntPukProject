@@ -1,153 +1,133 @@
-/* --- Global --- */
-ion-content { --background: #333; }
-.dashboard-container { 
-  display: flex; 
-  height: 100vh; 
-  font-family: 'Kanit', sans-serif; /* แนะนำใช้ฟอนต์อ่านง่าย */
-  overflow: hidden; 
+/* --- Variables --- */
+$primary-yellow: #FFD600;
+$dark-bg: #333;
+$light-bg: #f4f5f8;
+
+/* --- Layout for Sidebar (Copy from Home) --- */
+.sidebar-content {
+  --background: #333;
+  --color: white;
 }
 
-/* --- Sidebar (ซ้าย) --- */
-.sidebar {
-  width: 250px; 
-  background-color: #333; 
-  display: flex; flex-direction: column; 
+.sidebar-wrapper {
   padding: 20px 15px;
-  flex-shrink: 0;
-
-  .logo-area { 
-    text-align: center; margin-bottom: 30px; 
-    img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FFD600; background: #fff; } 
-  }
-
-  .menu { display: flex; flex-direction: column; gap: 12px; }
-  .menu-item {
-    background: #FFD600; 
-    color: #222; /* สีตัวอักษรเข้ม */
-    font-weight: 700; 
-    font-size: 15px;
-    padding: 12px 15px; 
-    border-radius: 30px; 
-    text-align: center; 
-    cursor: pointer;
-    transition: 0.2s;
-    &:hover { filter: brightness(1.1); transform: scale(1.02); }
-    &.active-dashboard { 
-      background: #FFAB00; 
-      color: #000;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-    }
-  }
-}
-
-/* --- Main Content (ขวา) --- */
-.main-content {
-  flex: 1; 
-  background-color: #FFD600; 
-  border-radius: 25px 0 0 25px; 
-  padding: 20px 25px;
-  display: flex; flex-direction: column; 
-  overflow-y: auto;
-}
-
-/* --- Content Body --- */
-.content-body {
-  background: #F5F5F5; /* พื้นหลังสีเทาอ่อน สบายตา */
-  border-radius: 20px;
-  padding: 25px;
-  flex: 1;
-  display: flex; flex-direction: column; 
-  gap: 25px; /* ระยะห่างระหว่างกราฟกับการ์ด */
-}
-
-/* Common Shadow */
-.shadow-card {
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* เงาบางๆ ให้ดูลอย */
-  overflow: hidden;
-}
-
-/* Chart Section */
-.chart-section {
-  padding: 20px;
-  text-align: center;
-  
-  .section-title { 
-    margin: 0; 
-    font-size: 20px; 
-    font-weight: 800; 
-    color: #333; 
-  }
-  .subtitle { 
-    font-size: 16px; 
-    color: #555; 
-    margin-bottom: 20px; 
-    strong { color: #000; font-size: 18px; }
-  }
-  .canvas-wrapper { 
-    height: 300px; /* เพิ่มความสูงกราฟให้ชัด */
-    width: 100%;
-  }
-}
-
-/* Cards Container (Grid) */
-.cards-container {
   display: flex;
-  gap: 20px; /* ช่องว่างระหว่างการ์ด */
-  justify-content: space-between;
+  flex-direction: column;
+  height: 100%;
+}
 
-  .stat-card {
-    flex: 1; /* ให้การ์ดทุกใบกว้างเท่ากัน */
-    display: flex; flex-direction: column;
-    text-align: center;
-    transition: transform 0.2s;
-    
-    &:hover { transform: translateY(-5px); } /* เอฟเฟกต์ลอยเมื่อเอาเมาส์ชี้ */
+.logo-area {
+  text-align: center;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-    .card-header {
-      padding: 15px;
-      font-size: 16px;
-      font-weight: 800;
-      color: #333; /* ตัวหนังสือสีเข้ม */
-      border-bottom: 2px solid rgba(0,0,0,0.05);
+  img {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 3px solid $primary-yellow;
+    background: #fff;
+    padding: 2px;
+  }
 
-      /* สีพื้นหลังหัวข้อ */
-      &.header-green { background: #A5D6A7; } /* เขียวพาสเทล */
-      &.header-orange { background: #FFCC80; } /* ส้มพาสเทล */
-      &.header-blue { background: #90CAF9; }   /* ฟ้าพาสเทล */
-    }
-
-    .card-body {
-      padding: 20px;
-      background: #fff;
-      display: flex; flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .big-number {
-        font-size: 56px; /* ตัวเลขใหญ่สะใจ */
-        font-weight: 900;
-        color: #222;
-        line-height: 1;
-        margin-bottom: 5px;
-      }
-      .unit-text {
-        font-size: 16px;
-        color: #666;
-        font-weight: 600;
-      }
-    }
+  .user-avatar-circle {
+    width: 80px; height: 80px;
+    background: #555;
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    border: 3px solid $primary-yellow;
+    ion-icon { font-size: 40px; color: #ccc; }
   }
 }
 
-/* Footer */
-.footer {
-  background: #333; 
-  color: #ddd; 
-  font-size: 12px; 
-  padding: 15px 20px; 
-  margin-top: 15px; 
-  border-radius: 12px;
-  display: flex; justify-content: space-between;
+.menu-list {
+  display: flex; flex-direction: column; gap: 8px;
 }
+
+.menu-item {
+  color: #ddd;
+  font-size: 15px;
+  padding: 12px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: 0.2s;
+
+  ion-icon { font-size: 20px; color: $primary-yellow; }
+
+  &:hover { background: rgba(255, 255, 255, 0.1); }
+
+  &.active-home {
+    background: $primary-yellow;
+    color: #222;
+    font-weight: bold;
+    ion-icon { color: #222; }
+  }
+}
+
+/* --- Dashboard Main Content --- */
+.custom-toolbar {
+  --background: #{$primary-yellow};
+  ion-title { font-weight: 700; color: #222; }
+}
+
+.bg-light { --background: #f4f5f8; }
+
+.content-body {
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.stat-card {
+  background: white; border-radius: 16px; padding: 20px;
+  display: flex; align-items: center; gap: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+
+  .card-icon {
+    width: 60px; height: 60px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    &.bg-yellow { background: rgba(255, 214, 0, 0.2); color: #f57f17; }
+    &.bg-dark { background: #333; color: $primary-yellow; }
+    &.bg-light-gray { background: #f0f0f0; }
+  }
+
+  .card-info {
+    h3 { margin: 0 0 5px; font-size: 14px; color: #666; font-weight: 500; }
+    .big-number { font-size: 28px; font-weight: 800; color: #222; line-height: 1; }
+    .unit { font-size: 13px; color: #999; margin-left: 5px; }
+  }
+}
+
+/* Charts & Tables */
+.chart-card, .table-card {
+  background: white; border-radius: 16px; padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  
+  .card-header, .chart-header {
+    margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
+    h3 { margin: 0; font-size: 18px; font-weight: 700; color: #333; display: flex; align-items: center; gap: 8px; }
+  }
+}
+
+.canvas-wrapper { height: 300px; width: 100%; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  th { text-align: left; padding: 10px; font-size: 14px; color: #666; border-bottom: 2px solid #eee; }
+  td { padding: 12px 10px; font-size: 14px; color: #333; border-bottom: 1px solid #f9f9f9; }
+}
+
+.status-badge {
+  padding: 4px 10px; border-radius: 12px; font-size: 11px; background: #eee; color: #666;
+  &.active { background: #e8f5e9; color: #2e7d32; font-weight: bold; }
+}
+
+.loading-center { display: flex; justify-content: center; margin-top: 50px; }

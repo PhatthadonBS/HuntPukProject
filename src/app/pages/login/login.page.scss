@@ -134,3 +134,10 @@ ion-content {
     font-size: 24px;
   }
 }
+
+.back-arrow-btn {
+  position: absolute; // ลอยตัวเหนือ flow ปกติ
+  top: 20px;          // ห่างจากขอบบน 20px
+  left: 20px;         // ห่างจากขอบซ้าย 20px
+  z-index: 10;        // ให้อยู่ชั้นบนสุด
+}

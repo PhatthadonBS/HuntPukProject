@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ViewWillEnter, AlertController } from '@ionic/angular';
+import { IonicModule, ViewWillEnter, AlertController, LoadingController } from '@ionic/angular';
 import { addIcons } from 'ionicons'; 
 import { person, call, logoFacebook, chatbubbles, arrowForward, logoInstagram, logoTwitter, paperPlane, alertCircle, time, checkmarkCircle, image } from 'ionicons/icons'; 
-import { OwnerRequestService, UserDormOwnerReqPostReq } from '../../services/owner-request';
+import { OwnerRequestService, UserDormOwnerReqPostReq } from '../../services/owner-request'; // ตรวจสอบ Path ให้ถูก
 import { Router } from '@angular/router';
 
 @Component({
@@ -32,7 +32,7 @@ export class RequestsPage implements OnInit, ViewWillEnter {
   // ✅ ตัวแปรเก็บไฟล์รูปภาพที่จะส่งไป Backend
   selectedFile: File | null = null;
   
-  // ✅ ตัวแปรเก็บ URL รูปภาพสำหรับ Preview หน้าจอ (เพิ่มใหม่)
+  // ✅ ตัวแปรเก็บ URL รูปภาพสำหรับ Preview หน้าจอ
   previewImage: string | ArrayBuffer | null = null;
 
   errorMessage: string = '';
@@ -42,7 +42,8 @@ export class RequestsPage implements OnInit, ViewWillEnter {
   constructor(
     private ownerRequestService: OwnerRequestService,
     private router: Router,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private loadingCtrl: LoadingController
   ) {
     addIcons({ person, call, logoFacebook, chatbubbles, arrowForward, logoInstagram, logoTwitter, paperPlane, alertCircle, time, checkmarkCircle, image });
   }
@@ -63,7 +64,7 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     this.selectedFile = null; 
     this.previewImage = null; 
     
-    // รีเซ็ตค่าฟอร์ม
+    // รีเซ็ตค่าฟอร์ม (ยกเว้นข้อมูลส่วนตัวที่ดึงมาแล้ว)
     this.formData.first_name = '';
     this.formData.last_name = '';
     this.formData.facebook = '';
@@ -71,6 +72,9 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     this.formData.instagram = '';
     this.formData.x = '';
     this.formData.telegram = '';
+    
+    // รีโหลดข้อมูลส่วนตัวอีกรอบเพื่อความชัวร์
+    this.checkUserAccess();
   }
 
   async checkUserAccess() {
@@ -84,6 +88,7 @@ export class RequestsPage implements OnInit, ViewWillEnter {
         if (userId) {
              this.formData.user_id = userId; 
              
+             // ✅ ดึงเบอร์โทรมาใส่ให้อัตโนมัติ (ถ้ามี)
              if(user.phone_number || user.PHONE_NUMBER) {
                  this.formData.phone_number = user.phone_number || user.PHONE_NUMBER;
              }
@@ -128,7 +133,7 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     this.router.navigate(['/home']);
   }
 
-  onSubmit() {
+  async onSubmit() {
     this.isSubmitted = true;
     this.errorMessage = '';
 
@@ -149,13 +154,16 @@ export class RequestsPage implements OnInit, ViewWillEnter {
       return;
     }
     
+    const loading = await this.loadingCtrl.create({ message: 'กำลังส่งคำขอ...' });
+    await loading.present();
+    
     // ✅ สร้าง FormData เพื่อส่งไฟล์ + ข้อมูล text
     const formData = new FormData();
-    formData.append('file', this.selectedFile); 
+    formData.append('file', this.selectedFile); // ชื่อ field ต้องตรงกับ Backend (req.file)
     formData.append('user_id', this.formData.user_id.toString());
     formData.append('first_name', this.formData.first_name);
     formData.append('last_name', this.formData.last_name);
-    // formData.append('phone_number', this.formData.phone_number); 
+    formData.append('phone_number', this.formData.phone_number); // ✅ ส่งเบอร์โทรไปด้วย
     
     formData.append('facebook', this.formData.facebook || '');
     formData.append('line', this.formData.line || '');
@@ -166,13 +174,20 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     // ส่งข้อมูลไปที่ Service
     this.ownerRequestService.requestToBeOwner(formData).subscribe({
       next: (res) => {
+        loading.dismiss();
         console.log('Success:', res);
         this.isSuccess = true;
       },
       error: (err) => {
+        loading.dismiss();
         console.error('Error:', err);
-        const msg = err.error?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
-        this.errorMessage = msg;
+        
+        // จัดการ Error Message
+        if (err.status === 409) {
+             this.errorMessage = 'คุณได้ส่งคำขอไปแล้ว หรือเป็นเจ้าของหอพักอยู่แล้ว';
+        } else {
+             this.errorMessage = err.error?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+        }
       }
     });
   }
