@@ -8,7 +8,6 @@
 </ion-header>
 
 <ion-content>
-  
   <div class="main-container">
     
     <div class="form-card" *ngIf="!isSuccess">
@@ -22,8 +21,8 @@
           style="display: none;"
         >
 
-        <div class="img-wrapper" (click)="fileInput.click()" style="cursor: pointer;">
-          <img [src]="previewImage || 'assets/logo.png'" alt="Profile">
+        <div class="img-wrapper" (click)="fileInput.click()" 
+             [class.error-border]="isSubmitted && !selectedFile"> <img [src]="previewImage || placeholderImage" alt="Profile">
           
           <div class="edit-badge">
             <ion-icon name="image"></ion-icon>
@@ -31,7 +30,7 @@
         </div>
 
         <h3>ข้อมูลผู้ยื่นคำขอ</h3>
-        <p class="sub-text">แตะที่รูปเพื่ออัปโหลดโปรไฟล์ใหม่ (*)</p>
+        <p class="sub-text">แตะที่รูปเพื่ออัปโหลดโปรไฟล์ใหม่ (* จำเป็น)</p>
       </div>
 
       <div class="error-banner" *ngIf="errorMessage">

@@ -9,7 +9,8 @@ import {
 import { addIcons } from 'ionicons';
 import { arrowBack, create, trash, refresh, search, person, add } from 'ionicons/icons'; 
 import { Router } from '@angular/router';
-import { DormitoryService } from '../../services/dormitory'; // ตรวจสอบ path ให้ถูกต้อง
+import { DormitoryService } from '../../services/dormitory'; 
+import { chatbubbleEllipses } from 'ionicons/icons'; 
 
 @Component({
   selector: 'app-manage-dorm',
@@ -35,7 +36,7 @@ export class ManageDormPage implements OnInit {
     private loadingCtrl: LoadingController
   ) { 
     // ✅ ลงทะเบียน Icons ให้ครบ (รวมถึง add สำหรับปุ่มเพิ่ม)
-    addIcons({ arrowBack, create, trash, refresh, search, person, add });
+    addIcons({ arrowBack, create, trash, refresh, search, person, add, chatbubbleEllipses });
   }
 
   ngOnInit() {}
@@ -47,10 +48,13 @@ export class ManageDormPage implements OnInit {
   goBack() {
     this.router.navigate(['/home']);
   }
+  goToReviews(dormId: number) {
+    this.router.navigate(['/manage-reviews', dormId]);
+  }
 
   // ไปหน้าเพิ่มหอพัก
   goToAddDorm() {
-    this.router.navigate(['/create-dorm']); 
+    this.router.navigate(['/dorm-form']); 
   }
 
   async loadAllDorms() {

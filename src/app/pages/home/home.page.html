@@ -23,6 +23,9 @@
         <div class="menu-item" (click)="navigate('/list')">
           <ion-icon name="list-outline"></ion-icon> รายการ
         </div>
+          <div class="menu-item" (click)="navigate('/dorm-popular')">
+          <ion-icon name="list-outline"></ion-icon> หอพักยอดนิยม
+        </div>
 
         <ng-container *ngIf="userRole > 0">
           
@@ -39,7 +42,7 @@
             <div class="menu-item" (click)="checkAuthAndNavigate('/dorm-form')">
                <ion-icon name="create"></ion-icon> ลงทะเบียนหอพัก
             </div>
-            <div class="menu-item" (click)="checkAuthAndNavigate('/owner/my-dorms')">
+            <div class="menu-item" (click)="checkAuthAndNavigate('/my-dorms')">
                <ion-icon name="home"></ion-icon> หอพักของฉัน
             </div>
           </ng-container>
@@ -66,9 +69,6 @@
           </div>
           <div class="menu-item" (click)="checkAuthAndNavigate('/manage-requests-createdorm')">
              จัดการคำร้องขอหอพัก
-          </div>
-          <div class="menu-item" (click)="checkAuthAndNavigate('/manage-reviews')">
-             จัดการรีวิว
           </div>
           <div class="menu-item dashboard-btn" (click)="checkAuthAndNavigate('/dashboard')">
              Dashboard

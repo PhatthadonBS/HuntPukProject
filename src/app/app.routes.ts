@@ -30,7 +30,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'dorm-detail',
+    path: 'dorm-detail/:id',
     loadComponent: () =>
       import('./pages/dorm-detail/dorm-detail.page').then(
         (m) => m.DormDetailPage
@@ -96,7 +96,8 @@ export const routes: Routes = [
   },
   {
     path: 'my-account',
-    loadComponent: () => import('./pages/my-account/my-account.page').then(m => m.MyAccountPage),
+    loadComponent: () =>
+      import('./pages/my-account/my-account.page').then((m) => m.MyAccountPage),
   },
   {
     path: 'my-account/:id',
@@ -125,10 +126,21 @@ export const routes: Routes = [
       ).then((m) => m.ManageRequestsCreatedormPage),
   },
   {
-    path: 'manage-reviews',
+    path: 'manage-reviews/:id',
     loadComponent: () =>
       import('./pages/manage-reviews/manage-reviews.page').then(
         (m) => m.ManageReviewsPage
       ),
+  },
+  {
+    path: 'dorm-popular',
+    loadComponent: () =>
+      import('./pages/dorm-popular/dorm-popular.page').then(
+        (m) => m.DormPopularPage
+      ),
+  },
+  {
+    path: 'edit-dorm/:id',
+    loadComponent: () => import('./pages/edit-dorm/edit-dorm.page').then( m => m.EditDormPage)
   },
 ];

@@ -302,4 +302,104 @@ createDorm(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/dorms`, formData);
   }
 
+
+  /**
+   * 10. ดึงรีวิวของหอพัก (ตาม ID หอพัก)
+   * API: GET /dorms/review/:id
+   */
+  public async getReviewsByDormId(dormId: number): Promise<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/dorms/review/${dormId}`;
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  /**
+   * 11. ลบรีวิว
+   * API: DELETE /spec/review/:id
+   */
+  public async deleteReview(reviewId: number): Promise<any> {
+    const url = `${this.apiUrl}/spec/review/${reviewId}`;
+    try {
+      const res = await lastValueFrom(this.http.delete<any>(url));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  /**
+   * 12. เพิ่มรีวิวใหม่
+   * API: POST /user/review
+   */
+  public async addReview(userId: number, dormId: number, score: number, comment: string): Promise<any> {
+    const url = `${this.apiUrl}/user/review`;
+    const body = { 
+      user_id: userId, 
+      dorm_id: dormId, 
+      score: score, 
+      comment: comment 
+    };
+    
+    try {
+      const res = await lastValueFrom(this.http.post<any>(url, body));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  /**
+   * 13. ดึงหอพักยอดนิยม (Top Ranking)
+   * API: GET /dorms/popular?limit=10
+   */
+  public async getPopularDorms(limit: number = 6): Promise<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/dorms/popular`;
+    const params = new HttpParams().set('limit', limit.toString());
+    
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url, { params }));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  /**
+   * 14. ดึงหอพักของฉัน (สำหรับเจ้าของหอ)
+   * API: GET /spec/dorm/:id (ส่ง user_id ไป)
+   */
+  public async getMyDorms(ownerId: number): Promise<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/spec/dorm/${ownerId}`;
+    try {
+      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+  
+  /**
+   * 15. อัปเดตข้อมูลหอพัก
+   * API: PUT /spec/dorm/:id
+   */
+  public async updateDorm(dormId: number, formData: FormData): Promise<any> {
+    const url = `${this.apiUrl}/spec/dorm/${dormId}`;
+    try {
+      const res = await lastValueFrom(this.http.put<any>(url, formData));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
 }
+
+
+
+
+
+
