@@ -10,7 +10,7 @@
     "module": "commonjs",
     "target": "es2020",
     "esModuleInterop": true,
-     "moduleResolution": "bundler",
+    "moduleResolution": "bundler",
     // "types": [],
     // For nodejs:
     // "lib": ["esnext"],
