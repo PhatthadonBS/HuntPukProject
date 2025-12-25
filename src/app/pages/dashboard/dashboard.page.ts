@@ -1,52 +1,72 @@
-import { Component, OnInit, ViewChild } from '@angular/core'; // เพิ่ม ViewChild
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, IonMenu } from '@ionic/angular'; // เพิ่ม IonMenu
+import { IonicModule, AlertController, IonMenu } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { addIcons } from 'ionicons'; // เพิ่ม icons
+import { addIcons } from 'ionicons';
 import { 
-  menuOutline, home, listOutline, starOutline, logOutOutline, person,
-  gridOutline // เพิ่ม icon ที่ใช้
+  menuOutline, homeOutline, listOutline, starOutline, logOutOutline, person,
+  business, people, documentText, map, time, businessOutline, 
+  peopleOutline, personCircleOutline, documentTextOutline, statsChart, alertCircle
 } from 'ionicons/icons';
 
-// ... (Import Chart เหมือนเดิม) ...
+// Import Chart
 import { BaseChartDirective } from 'ng2-charts'; 
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
+
+// Services
 import { DormitoryService } from '../../services/dormitory'; 
+import { UserService } from '../../services/user';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, BaseChartDirective] // เอา HeaderComponent ออกเพราะเราเขียน Header เองในนี้
+  imports: [CommonModule, FormsModule, IonicModule, BaseChartDirective]
 })
 export class DashboardPage implements OnInit {
   
-  @ViewChild('dashboardMenu') menuRef: IonMenu | undefined; // อ้างอิงเมนู
+  @ViewChild('dashboardMenu') menuRef: IonMenu | undefined;
 
   currentUser: any = null;
+  isLoading = true;
   dashboardData: any = null;
 
-  // ... (ตัวแปร Chart เหมือนเดิม) ...
-  colorClasses = ['header-green', 'header-orange', 'header-blue'];
-  chartColors = ['#00E676', '#FFC107', '#29B6F6'];
+  // --- Chart Config ---
   public barChartOptions: ChartConfiguration['options'] = {
-    responsive: true, maintainAspectRatio: false, 
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
+    scales: { 
+      y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+      x: { grid: { display: false } }
+    }
   };
   public barChartType: ChartType = 'bar';
-  public barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+  public barChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [{ 
+      data: [], 
+      label: 'จำนวนหอพัก', 
+      backgroundColor: '#FFD600', 
+      hoverBackgroundColor: '#FFAB00',
+      borderRadius: 6
+    }]
+  };
 
   constructor(
     public router: Router, 
     private alertCtrl: AlertController,
-    private dormService: DormitoryService 
+    private dormService: DormitoryService,
+    private userService: UserService
   ) {
     Chart.register(...registerables);
-    // เพิ่ม Icon ให้ครบ
-    addIcons({ menuOutline, home, listOutline, starOutline, logOutOutline, person, gridOutline });
+    addIcons({ 
+      menuOutline, homeOutline, listOutline, starOutline, logOutOutline, person,
+      business, people, documentText, map, time, businessOutline, 
+      peopleOutline, personCircleOutline, documentTextOutline, statsChart, alertCircle
+    });
   }
 
   ngOnInit() {
@@ -54,59 +74,90 @@ export class DashboardPage implements OnInit {
   }
 
   ionViewWillEnter() {
+    // เช็คทุกครั้งที่เข้าหน้า (เผื่อ Session หลุด)
     this.checkAdminAccess();
   }
 
   async checkAdminAccess() {
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
-      const user = JSON.parse(storedData);
-      this.currentUser = user;
+      try {
+        const user = JSON.parse(storedData);
+        this.currentUser = user;
 
-      if (user.role_id !== 3) {
-        await this.showAlert('ไม่มีสิทธิ์เข้าถึง', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น');
-        this.router.navigate(['/home']);
-        return;
+        // เช็ค Role Admin (สมมติ Role 3 = Admin)
+        if (user.role_id !== 3) {
+          await this.showAlert('ไม่มีสิทธิ์เข้าถึง', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น');
+          this.router.navigate(['/home']);
+          return;
+        }
+        
+        this.loadDashboardData();
+
+      } catch (e) {
+        this.router.navigate(['/login']);
       }
-      this.loadData();
     } else {
       this.router.navigate(['/login']);
     }
   }
 
-  // ... (loadData ฟังก์ชันเดิม) ...
-  async loadData() {
-    // (ใส่โค้ด loadData เดิมของคุณที่นี่)
+  async loadDashboardData() {
+    this.isLoading = true;
     try {
-      const res = await this.dormService.getZones();
-      const realZones = res.data || []; 
-      const mockCounts: any = { 1: 30, 2: 13, 3: 34 };
+      // 1. ดึงข้อมูลหอพักทั้งหมด (Admin View)
+      const dormsRes = await this.dormService.getAllDormsAdmin();
+      const allDorms = dormsRes.success ? dormsRes.data : [];
 
-      const summaryData = realZones.map((zone: any, index: number) => {
-        const count = mockCounts[zone.ZONE_ID] || 0; 
-        return {
-          zoneName: zone.ZONE_NAME,
-          count: count,
-          colorClass: this.colorClasses[index % this.colorClasses.length]
-        };
-      });
+      // 2. ดึงข้อมูล User ทั้งหมด
+      const usersRes = await this.userService.getAllUsers(); // ต้องแน่ใจว่า UserService มีฟังก์ชันนี้
+      const totalUsers = Array.isArray(usersRes) ? usersRes.length : 0;
 
-      const totalDorms = summaryData.reduce((sum: number, item: any) => sum + item.count, 0);
-      this.dashboardData = { totalDorms: totalDorms, items: summaryData };
+      // 3. ดึงคำขอที่รออนุมัติ (ทั้งเจ้าของหอ และ ลงทะเบียนหอ)
+      const reqRes = await this.dormService.getPendingRequests();
+      const pendingReqs = reqRes.success ? reqRes.data.length : 0;
 
-      this.barChartData = {
-        labels: summaryData.map((s: any) => s.zoneName),
-        datasets: [{ 
-            data: summaryData.map((s: any) => s.count), 
-            label: 'จำนวนหอพัก',
-            backgroundColor: this.chartColors,
-            borderRadius: 5, borderWidth: 1, barThickness: 60
-        }]
+      // 4. จัดเตรียมข้อมูล
+      this.dashboardData = {
+        totalDorms: allDorms.length,
+        totalUsers: totalUsers,
+        pendingRequests: pendingReqs,
+        recentDorms: allDorms.slice(0, 5) // เอาแค่ 5 อันดับแรก
       };
-    } catch (error) { console.error('Load Dashboard Failed', error); }
+
+      // 5. สร้างกราฟแยกตามโซน
+      this.prepareChartData(allDorms);
+
+    } catch (error) {
+      console.error('Load Dashboard Failed', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  // --- Menu Functions (เพิ่มใหม่) ---
+  prepareChartData(dorms: any[]) {
+    const zoneCounts: { [key: string]: number } = {};
+    
+    dorms.forEach(d => {
+      // ใช้ชื่อโซน หรือถ้าไม่มีให้ใส่ 'ไม่ระบุ'
+      const zName = d.ZONE_NAME || d.zone || 'ไม่ระบุ';
+      zoneCounts[zName] = (zoneCounts[zName] || 0) + 1;
+    });
+
+   this.barChartData = {
+      labels: Object.keys(zoneCounts),
+      datasets: [
+        { 
+          data: Object.values(zoneCounts), 
+          label: 'จำนวนหอพัก', 
+          backgroundColor: '#FFD600', 
+          hoverBackgroundColor: '#FFAB00',
+          borderRadius: 6
+        }
+      ]
+    };
+  }
+  // --- Menu Logic ---
   async toggleMenu() {
     if (this.menuRef) await this.menuRef.toggle();
   }
@@ -123,9 +174,10 @@ export class DashboardPage implements OnInit {
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         { 
-          text: 'ตกลง', 
+          text: 'ออก', role: 'destructive',
           handler: () => {
             localStorage.removeItem('loggedIn');
+            if (this.menuRef) this.menuRef.close();
             this.router.navigate(['/login']);
           }
         }

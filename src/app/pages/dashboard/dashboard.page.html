@@ -7,8 +7,8 @@
           <div class="user-avatar-circle">
             <ion-icon name="person"></ion-icon>
           </div>
-          <h3 style="color: white; margin: 10px 0 0;">{{ currentUser.username || currentUser.USERNAME }}</h3>
-          <span style="color: #FFD600; font-size: 12px;">Admin Account</span>
+          <h3 class="user-name">{{ currentUser.username || currentUser.USERNAME }}</h3>
+          <span class="user-role">Administrator</span>
         </ng-container>
         <ng-template #showLogo>
           <img src="assets/logo.png" alt="Logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
@@ -18,36 +18,33 @@
       <div class="menu-list">
         
         <div class="menu-item" (click)="navigate('/home')">
-          <ion-icon name="home"></ion-icon> หน้าแรก
+          <ion-icon name="home-outline"></ion-icon> หน้าแรก
         </div>
         <div class="menu-item" (click)="navigate('/list')">
           <ion-icon name="list-outline"></ion-icon> รายการ
         </div>
-        <div class="menu-item" (click)="navigate('/dorm-popular')">
-          <ion-icon name="star-outline"></ion-icon> หอพักยอดนิยม
-        </div>
-
-        <div class="menu-divider" style="height: 1px; background: rgba(255,255,255,0.2); margin: 10px 0;"></div>
-        <div class="menu-title" style="color: #FFD600; font-size: 12px; margin-bottom: 5px;">ADMIN PANEL</div>
+        
+        <div class="menu-divider"></div>
+        <div class="menu-title">ADMIN MANAGEMENT</div>
 
         <div class="menu-item" (click)="navigate('/manage-requests-dorm-owner')">
-           จัดการคำร้องขอเจ้าของหอพัก
+           <ion-icon name="people-outline"></ion-icon> คำขอเป็นเจ้าของหอ
         </div>
         <div class="menu-item" (click)="navigate('/manage-users')">
-           จัดการบัญชีสมาชิก
+           <ion-icon name="person-circle-outline"></ion-icon> จัดการบัญชีสมาชิก
         </div>
         <div class="menu-item" (click)="navigate('/manage-dorm')">
-           จัดการหอพัก
+           <ion-icon name="business-outline"></ion-icon> จัดการข้อมูลหอพัก
         </div>
         <div class="menu-item" (click)="navigate('/manage-requests-createdorm')">
-           จัดการคำร้องขอหอพัก
+           <ion-icon name="document-text-outline"></ion-icon> คำขอลงทะเบียนหอ
         </div>
         
-        <div class="menu-item active-home" (click)="toggleMenu()">
-           Dashboard
+        <div class="menu-item active-dashboard" (click)="toggleMenu()">
+           <ion-icon name="stats-chart"></ion-icon> Dashboard
         </div>
 
-        <div class="menu-item" (click)="logout()" style="color: #ff6b6b; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="menu-item logout-item" (click)="logout()">
           <ion-icon name="log-out-outline"></ion-icon> ออกจากระบบ
         </div>
 
@@ -65,91 +62,104 @@
           <ion-icon name="menu-outline" style="font-size: 28px;"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>Dashboard ภาพรวม</ion-title>
+      <ion-title>Dashboard ภาพรวมระบบ</ion-title>
     </ion-toolbar>
   </ion-header>
 
   <ion-content class="bg-light">
-    <div class="content-body">
+    
+    <div class="loading-center" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+    </div>
+
+    <div class="content-body fade-in" *ngIf="!isLoading && dashboardData">
       
-      <div class="loading-center" *ngIf="isLoading">
-        <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <div class="cards-grid">
+        <div class="stat-card shadow-card">
+          <div class="card-icon bg-yellow"><ion-icon name="business"></ion-icon></div>
+          <div class="card-info">
+            <h3>หอพักทั้งหมด</h3>
+            <div class="number-row">
+              <span class="big-number">{{ dashboardData.totalDorms | number }}</span>
+              <span class="unit">แห่ง</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card shadow-card">
+          <div class="card-icon bg-dark"><ion-icon name="people" style="color: #FFD600;"></ion-icon></div>
+          <div class="card-info">
+            <h3>สมาชิกในระบบ</h3>
+            <div class="number-row">
+              <span class="big-number">{{ dashboardData.totalUsers | number }}</span>
+              <span class="unit">บัญชี</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card shadow-card">
+          <div class="card-icon bg-light-gray"><ion-icon name="alert-circle" color="danger"></ion-icon></div>
+          <div class="card-info">
+            <h3>คำขอรออนุมัติ</h3>
+            <div class="number-row">
+              <span class="big-number">{{ dashboardData.pendingRequests | number }}</span>
+              <span class="unit">รายการ</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <ng-container *ngIf="!isLoading && dashboardData">
-        
-        <div class="cards-grid">
-          <div class="stat-card shadow-card bg-white">
-            <div class="card-icon bg-yellow"><ion-icon name="business"></ion-icon></div>
-            <div class="card-info">
-              <h3>หอพักทั้งหมด</h3>
-              <span class="big-number">{{ dashboardData.totalDorms | number }}</span> <span class="unit">แห่ง</span>
-            </div>
-          </div>
-
-          <div class="stat-card shadow-card bg-white">
-            <div class="card-icon bg-dark"><ion-icon name="people" style="color: #FFD600;"></ion-icon></div>
-            <div class="card-info">
-              <h3>ผู้ใช้งาน</h3>
-              <span class="big-number">{{ dashboardData.totalUsers | number }}</span> <span class="unit">บัญชี</span>
-            </div>
-          </div>
-
-          <div class="stat-card shadow-card bg-white">
-            <div class="card-icon bg-light-gray"><ion-icon name="document-text" color="medium"></ion-icon></div>
-            <div class="card-info">
-              <h3>คำขอรออนุมัติ</h3>
-              <span class="big-number">{{ dashboardData.pendingRequests | number }}</span> <span class="unit">รายการ</span>
-            </div>
-          </div>
+      <div class="chart-card shadow-card">
+        <div class="chart-header">
+          <h3><ion-icon name="map"></ion-icon> สถิติจำนวนหอพักแยกตามโซน</h3>
         </div>
-
-        <div class="chart-card shadow-card">
-          <div class="chart-header">
-            <h3><ion-icon name="map"></ion-icon> จำนวนหอพักแยกตามโซน</h3>
-          </div>
-          <div class="canvas-wrapper">
-            <canvas baseChart
-              [data]="barChartData"
-              [options]="barChartOptions"
-              [type]="'bar'">
-            </canvas>
-          </div>
+        <div class="canvas-wrapper">
+          <canvas baseChart
+            [data]="barChartData"
+            [options]="barChartOptions"
+            [type]="'bar'">
+          </canvas>
         </div>
+      </div>
 
-        <div class="table-card shadow-card">
-          <div class="card-header">
-            <h3><ion-icon name="time"></ion-icon> หอพักมาใหม่ล่าสุด</h3>
-          </div>
-          <div class="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>ชื่อหอพัก</th>
-                  <th>โซน</th>
-                  <th>ราคาเริ่ม</th>
-                  <th>สถานะ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let dorm of dashboardData.recentDorms">
-                  <td>{{ dorm.DORM_NAME }}</td>
-                  <td>{{ dorm.ZONE_NAME || '-' }}</td>
-                  <td>{{ dorm.start_price | number }}</td>
-                  <td>
-                    <span class="status-badge" [class.active]="dorm.DORM_STATUS_ID === 1">
-                      {{ dorm.DORM_STATUS_ID === 1 ? 'ออนไลน์' : 'ปิด' }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="table-card shadow-card">
+        <div class="card-header">
+          <h3><ion-icon name="time"></ion-icon> หอพักมาใหม่ล่าสุด (5 รายการ)</h3>
         </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ชื่อหอพัก</th>
+                <th>โซน</th>
+                <th>ราคาเริ่มต้น</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dorm of dashboardData.recentDorms">
+                <td style="font-weight: bold;">{{ dorm.DORM_NAME }}</td>
+                <td>{{ dorm.ZONE_NAME || '-' }}</td>
+                <td class="price-text">{{ dorm.start_price | number }}.-</td>
+                <td>
+                  <span class="status-badge" [class.active]="dorm.DORM_STATUS_ID === 1">
+                    {{ dorm.DORM_STATUS_ID === 1 ? 'ออนไลน์' : 'ปิดปรับปรุง' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="dashboardData.recentDorms.length === 0">
+                <td colspan="4" style="text-align: center; color: #999;">ไม่พบข้อมูล</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-      </ng-container>
+      <footer class="footer">
+        <div class="copyright">© 2568 By Ammanat & Patthadon</div>
+        <div class="contact-info"><span>Admin Contact: 099-9999999</span></div>
+      </footer>
 
-      <div style="height: 50px;"></div>
     </div>
   </ion-content>
 </div>

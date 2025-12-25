@@ -2,74 +2,72 @@
 $primary-yellow: #FFD600;
 $dark-bg: #333;
 $light-bg: #f4f5f8;
+$text-dark: #222;
 
-/* --- Layout for Sidebar (Copy from Home) --- */
+/* --- Sidebar Menu Styles --- */
 .sidebar-content {
   --background: #333;
   --color: white;
 }
 
 .sidebar-wrapper {
-  padding: 20px 15px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  padding: 30px 20px;
+  display: flex; flex-direction: column; height: 100%;
 }
 
 .logo-area {
-  text-align: center;
-  margin-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center; margin-bottom: 30px;
+  display: flex; flex-direction: column; align-items: center;
 
   img {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    border: 3px solid $primary-yellow;
-    background: #fff;
-    padding: 2px;
+    width: 90px; height: 90px;
+    border-radius: 50%; border: 4px solid $primary-yellow;
+    background: #fff; padding: 2px;
   }
 
   .user-avatar-circle {
-    width: 80px; height: 80px;
-    background: #555;
-    border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    border: 3px solid $primary-yellow;
-    ion-icon { font-size: 40px; color: #ccc; }
+    width: 90px; height: 90px; background: #555;
+    border-radius: 50%; display: flex; justify-content: center; align-items: center;
+    border: 4px solid $primary-yellow;
+    ion-icon { font-size: 45px; color: #ccc; }
   }
+
+  .user-name { margin: 15px 0 5px; font-size: 18px; font-weight: bold; }
+  .user-role { color: $primary-yellow; font-size: 12px; letter-spacing: 1px; }
 }
 
-.menu-list {
-  display: flex; flex-direction: column; gap: 8px;
-}
+.menu-list { display: flex; flex-direction: column; gap: 8px; }
+
+.menu-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 15px 0 10px; }
+.menu-title { color: #888; font-size: 11px; margin-bottom: 5px; font-weight: 600; letter-spacing: 0.5px; }
 
 .menu-item {
-  color: #ddd;
-  font-size: 15px;
-  padding: 12px 15px;
-  border-radius: 10px;
-  cursor: pointer;
+  color: #ddd; font-size: 15px; padding: 12px 15px;
+  border-radius: 12px; cursor: pointer;
   display: flex; align-items: center; gap: 12px;
   transition: 0.2s;
-
-  ion-icon { font-size: 20px; color: $primary-yellow; }
+  ion-icon { font-size: 22px; color: $primary-yellow; }
 
   &:hover { background: rgba(255, 255, 255, 0.1); }
-
-  &.active-home {
-    background: $primary-yellow;
-    color: #222;
-    font-weight: bold;
+  
+  &.active-dashboard {
+    background: $primary-yellow; color: #222; font-weight: bold;
     ion-icon { color: #222; }
+    box-shadow: 0 4px 15px rgba(255, 214, 0, 0.2);
+  }
+
+  &.logout-item { 
+    margin-top: 20px; color: #ff6b6b; 
+    ion-icon { color: #ff6b6b; }
+    &:hover { background: rgba(255, 107, 107, 0.1); }
   }
 }
 
-/* --- Dashboard Main Content --- */
+/* --- Dashboard Content --- */
 .custom-toolbar {
   --background: #{$primary-yellow};
-  ion-title { font-weight: 700; color: #222; }
+  --color: #222;
+  ion-title { font-weight: 800; font-size: 20px; }
 }
 
 .bg-light { --background: #f4f5f8; }
@@ -79,55 +77,66 @@ $light-bg: #f4f5f8;
   display: flex; flex-direction: column; gap: 20px;
 }
 
-/* Cards Grid */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 15px;
 }
 
-.stat-card {
+/* Card Style */
+.shadow-card {
   background: white; border-radius: 16px; padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+}
+
+.stat-card {
   display: flex; align-items: center; gap: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  &:hover { transform: translateY(-3px); }
 
   .card-icon {
-    width: 60px; height: 60px; border-radius: 12px;
+    width: 60px; height: 60px; border-radius: 14px;
     display: flex; align-items: center; justify-content: center; font-size: 28px;
-    &.bg-yellow { background: rgba(255, 214, 0, 0.2); color: #f57f17; }
+    &.bg-yellow { background: rgba(255, 214, 0, 0.15); color: #f57f17; }
     &.bg-dark { background: #333; color: $primary-yellow; }
-    &.bg-light-gray { background: #f0f0f0; }
+    &.bg-light-gray { background: #f8f9fa; }
   }
 
   .card-info {
     h3 { margin: 0 0 5px; font-size: 14px; color: #666; font-weight: 500; }
-    .big-number { font-size: 28px; font-weight: 800; color: #222; line-height: 1; }
-    .unit { font-size: 13px; color: #999; margin-left: 5px; }
+    .number-row { display: flex; align-items: baseline; gap: 5px; }
+    .big-number { font-size: 32px; font-weight: 800; color: #222; line-height: 1; }
+    .unit { font-size: 13px; color: #999; }
   }
 }
 
-/* Charts & Tables */
-.chart-card, .table-card {
-  background: white; border-radius: 16px; padding: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  
-  .card-header, .chart-header {
-    margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
-    h3 { margin: 0; font-size: 18px; font-weight: 700; color: #333; display: flex; align-items: center; gap: 8px; }
-  }
+/* Chart & Table */
+.chart-header, .card-header {
+  margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
+  h3 { margin: 0; font-size: 18px; font-weight: 700; color: #333; display: flex; align-items: center; gap: 8px; }
 }
 
-.canvas-wrapper { height: 300px; width: 100%; }
+.canvas-wrapper { height: 350px; width: 100%; }
 
+.table-responsive { overflow-x: auto; }
 table {
-  width: 100%; border-collapse: collapse;
-  th { text-align: left; padding: 10px; font-size: 14px; color: #666; border-bottom: 2px solid #eee; }
-  td { padding: 12px 10px; font-size: 14px; color: #333; border-bottom: 1px solid #f9f9f9; }
+  width: 100%; border-collapse: collapse; min-width: 500px;
+  th { text-align: left; padding: 12px; font-size: 13px; color: #888; font-weight: 600; border-bottom: 2px solid #eee; }
+  td { padding: 14px 12px; font-size: 14px; color: #333; border-bottom: 1px solid #f9f9f9; }
+  .price-text { font-weight: bold; color: #d32f2f; }
 }
 
 .status-badge {
-  padding: 4px 10px; border-radius: 12px; font-size: 11px; background: #eee; color: #666;
-  &.active { background: #e8f5e9; color: #2e7d32; font-weight: bold; }
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; background: #eee; color: #666; font-weight: 600;
+  &.active { background: #e8f5e9; color: #2e7d32; }
 }
 
 .loading-center { display: flex; justify-content: center; margin-top: 50px; }
+.fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.footer {
+  text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+  color: #888; font-size: 12px;
+}
