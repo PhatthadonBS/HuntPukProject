@@ -1,11 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { GoogleMapsModule } from '@angular/google-maps';
-import { Router, RouterModule } from '@angular/router'; 
+import { Router, RouterModule } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
 import { environment } from '../../../../environments/environment';
+import { Observable, Subscription } from 'rxjs';
+import { DormFacGetRes } from '../../../model/res/dorm_fac_get_res';
 
 @Component({
   selector: 'app-dorm-form',
@@ -13,27 +21,27 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./dorm-form.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, 
-     GoogleMapsModule, 
+    CommonModule,
+    ReactiveFormsModule,
+    GoogleMapsModule,
     HttpClientModule,
-    RouterModule 
-  ]
+    RouterModule,
+  ],
 })
 export class DormFormPage implements OnInit {
   api = environment.GGMAPI;
-  // --- Form Variables ---
-  // --- UI Variables ---
-  isMenuOpen = false; // เริ่มต้นปิดเมนู (Hamburger Style)
-  currentUser: any = { username: 'Admin User' }; // Mock Data
-  userRole: number = 3; // Mock Role
+  facilities$ = this.dormService.getFacilities();
+  userLogin = {
+    id: 2,
+    name: 'asdjsa',
+    role: 1,
+  };
 
-  // --- Form Variables ---
   dormForm: FormGroup;
+
   selectedFiles: { [key: string]: File | File[] } = {};
 
-  // --- Map Settings ---
-  center: google.maps.LatLngLiteral = { lat: 13.7563, lng: 100.5018 };
+  center: google.maps.LatLngLiteral = { lat: 16.2455, lng: 103.25 };
   zoom = 15;
   markerPosition: google.maps.LatLngLiteral | null = null;
 
@@ -43,7 +51,7 @@ export class DormFormPage implements OnInit {
     private router: Router
   ) {
     this.dormForm = this.fb.group({
-      owner_id: [1, Validators.required],
+      owner_id: [this.userLogin.id, Validators.required],
       name: ['', Validators.required],
       address: ['', Validators.required],
       lat: [null, Validators.required],
@@ -54,7 +62,7 @@ export class DormFormPage implements OnInit {
       elect_unit: [0, Validators.required],
       water_lump: [0],
       detail: [''],
-      roomTypes: this.fb.array([])
+      roomTypes: this.fb.array([]),
     });
   }
 
@@ -62,32 +70,7 @@ export class DormFormPage implements OnInit {
     this.addRoomType();
   }
 
-  // --- Menu Logic ---
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
 
-  closeMenu() {
-    this.isMenuOpen = false;
-  }
-
-  navigate(path: string) {
-    this.closeMenu();
-    this.router.navigate([path]);
-  }
-
-  checkAuthAndNavigate(path: string) {
-    this.closeMenu();
-    this.router.navigate([path]);
-  }
-
-  logout() {
-    this.closeMenu();
-    console.log('Logging out...');
-    this.router.navigate(['/auth/login']);
-  }
-
-  // --- Form Logic ---
   get roomTypes(): FormArray {
     return this.dormForm.get('roomTypes') as FormArray;
   }
@@ -97,7 +80,7 @@ export class DormFormPage implements OnInit {
       roomType: ['', Validators.required],
       bedType: ['Single', Validators.required],
       perMonth: [0],
-      perTerm: [0]
+      perTerm: [0],
     });
     this.roomTypes.push(roomGroup);
   }
@@ -112,7 +95,9 @@ export class DormFormPage implements OnInit {
       this.dormForm.patchValue({
         lat: this.markerPosition.lat,
         lng: this.markerPosition.lng,
-        address: `พิกัด: ${this.markerPosition.lat.toFixed(5)}, ${this.markerPosition.lng.toFixed(5)}`
+        address: `พิกัด: ${this.markerPosition.lat.toFixed(
+          5
+        )}, ${this.markerPosition.lng.toFixed(5)}`,
       });
     }
   }
@@ -137,27 +122,41 @@ export class DormFormPage implements OnInit {
     const formData = new FormData();
     const formValue = this.dormForm.value;
 
-    Object.keys(formValue).forEach(key => {
+    Object.keys(formValue).forEach((key) => {
       if (key !== 'roomTypes') formData.append(key, formValue[key]);
     });
 
     formData.append('roomTypes', JSON.stringify(formValue.roomTypes));
 
-    const singleFileFields = ['FRONT_DORM_IMG', 'LICENSE_IMG', 'CEILING_IMG', 'WALL_IMG', 'FLOOR_IMG', 'BED_IMG', 'BATHROOM_IMG', 'BALCONY_IMG'];
-    singleFileFields.forEach(field => {
-      if (this.selectedFiles[field]) formData.append(field, this.selectedFiles[field] as File);
+    const singleFileFields = [
+      'FRONT_DORM_IMG',
+      'LICENSE_IMG',
+      'CEILING_IMG',
+      'WALL_IMG',
+      'FLOOR_IMG',
+      'BED_IMG',
+      'BATHROOM_IMG',
+      'BALCONY_IMG',
+    ];
+    singleFileFields.forEach((field) => {
+      if (this.selectedFiles[field])
+        formData.append(field, this.selectedFiles[field] as File);
     });
 
     if (this.selectedFiles['OTHER_IMG']) {
-      (this.selectedFiles['OTHER_IMG'] as File[]).forEach(file => formData.append('OTHER_IMG', file));
+      (this.selectedFiles['OTHER_IMG'] as File[]).forEach((file) =>
+        formData.append('OTHER_IMG', file)
+      );
     }
+    console.log(formData);
 
-    this.dormService.createDorm(formData).subscribe({
-      next: (res) => {
-        alert('บันทึกสำเร็จ!');
-        this.router.navigate(['/owner/my-dorms']);
-      },
-      error: (err) => alert('Error: ' + err.message)
-    });
+    // this.dormService.createDorm(formData).subscribe({
+    //   next: (res) => {
+    //     alert('บันทึกสำเร็จ!');
+    //     this.router.navigate(['/owner/my-dorms']);
+    //   },
+    //   error: (err) => alert('Error: ' + err.message)
+    // });
   }
+
 }

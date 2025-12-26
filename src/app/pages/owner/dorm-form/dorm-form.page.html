@@ -1,53 +1,6 @@
 <div class="layout-container">
 
-  <div class="sidebar-overlay" [class.open]="isMenuOpen">
-    <div class="sidebar-backdrop" (click)="closeMenu()"></div>
-    
-    <aside class="sidebar-content">
-      <div class="sidebar-header">
-        <div class="avatar">
-           <span class="material-symbols-outlined icon-lg">person</span>
-        </div>
-        <h3>{{ currentUser?.username }}</h3>
-      </div>
-
-      <nav class="sidebar-menu">
-        <div class="menu-item" (click)="navigate('/home')">
-           <span class="material-symbols-outlined">home</span> หน้าแรก
-        </div>
-        <div class="menu-item" (click)="navigate('/list')">
-           <span class="material-symbols-outlined">list</span> รายการ
-        </div>
-
-        <div class="menu-divider"></div>
-
-        <ng-container *ngIf="userRole > 0">
-           <div class="menu-item active" (click)="checkAuthAndNavigate('/dorm-form')">
-              <span class="material-symbols-outlined">edit_document</span> ลงทะเบียนหอพัก
-           </div>
-           <div class="menu-item" (click)="checkAuthAndNavigate('/owner/my-dorms')">
-              <span class="material-symbols-outlined">apartment</span> หอพักของฉัน
-           </div>
-        </ng-container>
-
-        <div class="spacer"></div>
-
-        <div class="menu-item logout" (click)="logout()">
-           <span class="material-symbols-outlined">logout</span> ออกจากระบบ
-        </div>
-      </nav>
-    </aside>
-  </div>
-
-
   <main class="main-body">
-    
-    <header class="top-header">
-      <button class="menu-btn" (click)="toggleMenu()">
-         <span class="material-symbols-outlined">menu</span>
-      </button>
-      <h2>ลงทะเบียนหอพักใหม่</h2>
-    </header>
 
     <div class="scroll-content">
       <form [formGroup]="dormForm" (ngSubmit)="onSubmit()" class="form-grid">
@@ -56,7 +9,7 @@
           
           <div class="card">
             <div class="card-head">
-               <span class="material-symbols-outlined">description</span> ข้อมูลทั่วไป
+               <span class="material-symbols-outlined">ข้อมูลทั่วไปของหอพัก</span>
             </div>
             <div class="form-group">
                <label>ชื่อหอพัก</label>
@@ -68,7 +21,7 @@
                   <input type="file" (change)="onFileSelect($event, 'FRONT_DORM_IMG')">
                </div>
                <div class="up-box">
-                  <label>ใบอนุญาต</label>
+                  <label>ใบอนุญาตประกอบกิจการหอพัก</label>
                   <input type="file" (change)="onFileSelect($event, 'LICENSE_IMG')">
                </div>
             </div>
@@ -76,7 +29,7 @@
 
           <div class="card">
              <div class="card-head">
-                <span class="material-symbols-outlined">location_on</span> ตำแหน่งที่ตั้ง
+                <span class="material-symbols-outlined">ตำแหน่งที่ตั้ง</span> 
              </div>
              <p class="hint">คลิกบนแผนที่เพื่อปักหมุด</p>
              <div class="map-box">
@@ -91,7 +44,7 @@
           </div>
 
           <div class="card">
-             <div class="card-head"><span class="material-symbols-outlined">bolt</span> สาธารณูปโภค</div>
+             <div class="card-head"><span class="material-symbols-outlined">สาธารณูปโภค</span> </div>
              <div class="row-group">
                 <div class="form-group">
                    <label>ค่าน้ำ (บาท/หน่วย)</label>
@@ -162,9 +115,7 @@
            <div class="actions">
               <button type="submit" class="save-btn">บันทึกข้อมูล</button>
            </div>
-
         </div>
-
       </form>
     </div>
   </main>

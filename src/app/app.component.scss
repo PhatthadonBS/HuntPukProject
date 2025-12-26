@@ -1,4 +1,6 @@
-/* ย้าย CSS เมนูมาที่นี่ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 ion-content.menu-content-custom {
   --background: #2a2a2a;
 }
@@ -37,3 +39,4 @@ ion-content.menu-content-custom {
 .menu-item:active {
   transform: scale(0.98);
 }
+

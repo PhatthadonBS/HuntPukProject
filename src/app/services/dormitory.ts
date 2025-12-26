@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
 import { Constants } from '../config/config';
+import { DormFacGetRes } from '../model/res/dorm_fac_get_res';
 
 // ============================================
 // 1. Interfaces
@@ -298,10 +299,9 @@ export class DormitoryService {
     }
   }
 
-createDorm(formData: FormData): Observable<any> {
+  createDorm(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/dorms`, formData);
   }
-
 
   /**
    * 10. ดึงรีวิวของหอพัก (ตาม ID หอพัก)
@@ -335,15 +335,20 @@ createDorm(formData: FormData): Observable<any> {
    * 12. เพิ่มรีวิวใหม่
    * API: POST /user/review
    */
-  public async addReview(userId: number, dormId: number, score: number, comment: string): Promise<any> {
+  public async addReview(
+    userId: number,
+    dormId: number,
+    score: number,
+    comment: string
+  ): Promise<any> {
     const url = `${this.apiUrl}/user/review`;
-    const body = { 
-      user_id: userId, 
-      dorm_id: dormId, 
-      score: score, 
-      comment: comment 
+    const body = {
+      user_id: userId,
+      dorm_id: dormId,
+      score: score,
+      comment: comment,
     };
-    
+
     try {
       const res = await lastValueFrom(this.http.post<any>(url, body));
       return res;
@@ -359,9 +364,11 @@ createDorm(formData: FormData): Observable<any> {
   public async getPopularDorms(limit: number = 6): Promise<ApiResponse<any[]>> {
     const url = `${this.apiUrl}/dorms/popular`;
     const params = new HttpParams().set('limit', limit.toString());
-    
+
     try {
-      const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url, { params }));
+      const res = await lastValueFrom(
+        this.http.get<ApiResponse<any[]>>(url, { params })
+      );
       return res;
     } catch (error: any) {
       throw error;
@@ -381,7 +388,7 @@ createDorm(formData: FormData): Observable<any> {
       throw error;
     }
   }
-  
+
   /**
    * 15. อัปเดตข้อมูลหอพัก
    * API: PUT /spec/dorm/:id
@@ -396,10 +403,18 @@ createDorm(formData: FormData): Observable<any> {
     }
   }
 
+  public addFacility(facData: FormData): Observable<any> {
+    const url = `${this.apiUrl}/dorms/facility`;
+    return this.http.post(url, facData);
+  }
+
+  public getFacilities(): Observable<DormFacGetRes> {
+    const url = `${this.apiUrl}/dorms/facilities`;
+    return this.http.get<DormFacGetRes>(url);
+  }
+
+  public updateFacility(facData: FormData, uid: number): Observable<any>{
+    const url = `${this.apiUrl}/dorms/facility/${uid}`;
+    return this.http.put(url, facData);
+  }
 }
-
-
-
-
-
-
