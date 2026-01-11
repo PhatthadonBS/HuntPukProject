@@ -5,7 +5,7 @@ import {
   IonicModule, 
   AlertController, 
   ModalController, 
-  LoadingController // 1. เพิ่ม LoadingController
+  LoadingController 
 } from '@ionic/angular'; 
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
@@ -17,6 +17,7 @@ import {
   arrowBack, person, key, call, mail, arrowForward, eye, eyeOff,
 } from 'ionicons/icons';
 
+// Import Modal Component
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
 
 @Component({
@@ -24,7 +25,8 @@ import { OtpModalComponent } from '../../components/otp-modal/otp-modal.componen
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  // 👇 จุดที่แก้ไข: ต้องเพิ่ม OtpModalComponent เข้าไปใน imports ด้วย
+  imports: [CommonModule, FormsModule, IonicModule, OtpModalComponent],
 })
 export class RegisterPage implements OnInit {
   username: string = '';
@@ -42,7 +44,7 @@ export class RegisterPage implements OnInit {
     private router: Router,
     private alertController: AlertController,
     private modalCtrl: ModalController,
-    private loadingCtrl: LoadingController, // 2. Inject LoadingController
+    private loadingCtrl: LoadingController,
     private authService: Auth
   ) {
     addIcons({ arrowBack, person, key, call, mail, arrowForward, eye, eyeOff });
@@ -63,7 +65,7 @@ export class RegisterPage implements OnInit {
   }
 
   async onNextStep() {
-    // 1. Validation (ตรวจสอบเบื้องต้น)
+    // 1. Validation
     if (!this.username || !this.email || !this.password || !this.phone) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
@@ -92,7 +94,7 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    // เตรียมข้อมูลส่ง
+    // เตรียมข้อมูล
     const userData: UserRegPostReq = {
       username: this.username,
       email: this.email,
@@ -100,7 +102,7 @@ export class RegisterPage implements OnInit {
       phone: this.phone,
     };
 
-    // 3. สร้าง Loading (เพื่อให้รู้ว่ากำลังทำงาน)
+    // 2. แสดง Loading
     const loading = await this.loadingCtrl.create({ 
       message: 'กำลังตรวจสอบข้อมูล...',
       spinner: 'crescent' 
@@ -108,16 +110,16 @@ export class RegisterPage implements OnInit {
     await loading.present();
 
     try {
-      // 4. ยิง API ตรวจสอบข้อมูลเบื้องต้น (Sec1)
+      // 3. ยิง API Register (Sec1)
       this.tempUserData = await this.authService.register(userData);
       
-      // 5. ยิง API ขอ OTP
+      // 4. ยิง API ขอ OTP
       await this.authService.reqOTP(this.email);
       
-      // ปิด Loading เมื่อเสร็จสิ้น API Call ก่อนเปิด Modal
+      // ✅ ปิด Loading ก่อนเปิด Modal
       await loading.dismiss();
 
-      // 6. เปิด Modal OTP
+      // 5. เปิด OTP Modal
       const modal = await this.modalCtrl.create({
         component: OtpModalComponent,
         componentProps: { email: this.email },
@@ -126,28 +128,23 @@ export class RegisterPage implements OnInit {
 
       await modal.present();
 
-      // 7. รอผลลัพธ์จาก Modal
+      // 6. รอรับค่ากลับจาก Modal
       const { data } = await modal.onWillDismiss();
 
       if (data && data.success) {
-        // ถ้า OTP ผ่าน ให้บันทึกข้อมูลทันที
         await this.finishRegister();
       }
 
     } catch (error: any) {
-      // ถ้า Error ให้ปิด Loading ก่อน แล้วค่อยโชว์ Alert
+      // ❌ ถ้า Error ให้ปิด Loading ก่อน
       await loading.dismiss();
       
       console.error("Register Error:", error);
       
-      // ดึงข้อความ Error จาก Server มาแสดง
-      // เช็คหลายชั้นเผื่อ Structure ของ Error ต่างกัน
-      const serverMsg = error.error?.message || error.message || JSON.stringify(error);
-      
+      const serverMsg = error.error?.message || error.message || 'เกิดข้อผิดพลาด';
       let displayMsg = 'ระบบขัดข้อง กรุณาลองใหม่ภายหลัง';
-      
-      // แปลง Error Message ให้ user เข้าใจง่าย (Optional)
-      if (serverMsg.includes('Duplicate entry') || serverMsg.includes('email')) {
+
+      if (serverMsg.includes('Duplicate') || serverMsg.includes('email')) {
         displayMsg = 'อีเมลนี้ถูกใช้งานแล้ว';
       } else if (serverMsg.includes('username')) {
         displayMsg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว';
@@ -158,7 +155,6 @@ export class RegisterPage implements OnInit {
   }
 
   async finishRegister() {
-    // สร้าง Loading อีกรอบตอนบันทึกจริง
     const loading = await this.loadingCtrl.create({ message: 'กำลังสร้างบัญชี...' });
     await loading.present();
 
@@ -168,23 +164,21 @@ export class RegisterPage implements OnInit {
       if (this.tempUserData) {
         await this.authService.registerSec2(this.tempUserData, isVerified);
       } else {
-        throw new Error('ไม่พบข้อมูลผู้ใช้ (Session Expired)');
+        throw new Error('Session Expired');
       }
 
-      await loading.dismiss(); // ปิด Loading
+      await loading.dismiss();
 
       const alert = await this.alertController.create({
         header: 'สมัครสมาชิกสำเร็จ',
         subHeader: '✅',
         message: 'บัญชีของคุณถูกสร้างเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
-        buttons: [
-          {
+        buttons: [{
             text: 'ตกลง',
             handler: () => {
               this.router.navigate(['/login']);
             },
-          },
-        ],
+        }],
         cssClass: 'custom-success-alert',
       });
       await alert.present();
@@ -192,7 +186,7 @@ export class RegisterPage implements OnInit {
     } catch (error: any) {
       await loading.dismiss();
       console.error(error);
-      this.showAlert('ผิดพลาด', 'การบันทึกข้อมูลล้มเหลว กรุณาลองใหม่อีกครั้ง');
+      this.showAlert('ผิดพลาด', 'การบันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง');
     }
   }
 
