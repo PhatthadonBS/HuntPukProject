@@ -8,9 +8,17 @@ import { UserRegPostReq } from '../../model/req/user_reg_post_req';
 
 // Import Icons
 import { addIcons } from 'ionicons';
-import { arrowBack, person, key, call, mail, arrowForward, eye, eyeOff } from 'ionicons/icons';
+import {
+  arrowBack,
+  person,
+  key,
+  call,
+  mail,
+  arrowForward,
+  eye,
+  eyeOff,
+} from 'ionicons/icons';
 
-// ✅ Import Modal
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
 
 @Component({
@@ -18,18 +26,15 @@ import { OtpModalComponent } from '../../components/otp-modal/otp-modal.componen
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule],
 })
 export class RegisterPage implements OnInit {
-
-  // ไม่ต้องมี step แล้ว เพราะ OTP เด้งเป็น Modal แทน
-  // Form Data
   username: string = '';
   email: string = '';
   password: string = '';
   confirmPassword: string = '';
   phone: string = '';
-  
+
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
 
@@ -38,16 +43,16 @@ export class RegisterPage implements OnInit {
   constructor(
     private router: Router,
     private alertController: AlertController,
-    private modalCtrl: ModalController, // ✅ เพิ่ม
+    private modalCtrl: ModalController,
     private authService: Auth
   ) {
-    addIcons({ arrowBack, person, key, call, mail, arrowForward, eye,eyeOff}); 
+    addIcons({ arrowBack, person, key, call, mail, arrowForward, eye, eyeOff });
   }
 
   ngOnInit() {}
 
   goBack() {
-    this.router.navigate(['/login']); 
+    this.router.navigate(['/login']);
   }
 
   togglePassword() {
@@ -58,17 +63,19 @@ export class RegisterPage implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  // ฟังก์ชันเดียวจบ: กรอกข้อมูล -> กดถัดไป -> เด้ง OTP -> จบงาน
   async onNextStep() {
     // 1. Validation
-    if(!this.username || !this.email || !this.password || !this.phone) {
+    if (!this.username || !this.email || !this.password || !this.phone) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
-    
+
     const passwordRegex = /^[a-zA-Z0-9]{8}$/;
     if (!passwordRegex.test(this.password)) {
-      this.showAlert('รหัสผ่านไม่ถูกต้อง', 'รหัสผ่านต้องเป็นภาษาอังกฤษหรือตัวเลข และมีความยาว 8 ตัวอักษรเท่านั้น');
+      this.showAlert(
+        'รหัสผ่านไม่ถูกต้อง',
+        'รหัสผ่านต้องเป็นภาษาอังกฤษหรือตัวเลข และมีความยาว 8 ตัวอักษรเท่านั้น'
+      );
       return;
     }
 
@@ -79,7 +86,10 @@ export class RegisterPage implements OnInit {
 
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(this.phone)) {
-      this.showAlert('เบอร์โทรศัพท์ไม่ถูกต้อง', 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก (เฉพาะตัวเลข)');
+      this.showAlert(
+        'เบอร์โทรศัพท์ไม่ถูกต้อง',
+        'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก (เฉพาะตัวเลข)'
+      );
       return;
     }
 
@@ -87,21 +97,16 @@ export class RegisterPage implements OnInit {
       username: this.username,
       email: this.email,
       password: this.password,
-      phone: this.phone
+      phone: this.phone,
     };
 
     try {
-      // 2. เรียก registerSec1 
       this.tempUserData = await this.authService.register(userData);
-      
-      // 3. เรียกขอ OTP
       await this.authService.reqOTP(this.email);
-
-      // 4. ✅ เปิด Modal OTP (แบบเดียวกับ Forgot Password)
       const modal = await this.modalCtrl.create({
         component: OtpModalComponent,
         componentProps: { email: this.email },
-        backdropDismiss: false
+        backdropDismiss: false,
       });
 
       await modal.present();
@@ -113,7 +118,6 @@ export class RegisterPage implements OnInit {
         // ✅ ถ้า OTP ผ่าน ให้บันทึกข้อมูลทันที
         await this.finishRegister();
       }
-      
     } catch (error: any) {
       console.error(error);
       const msg = error.error || error.message || 'เกิดข้อผิดพลาด';
@@ -121,32 +125,31 @@ export class RegisterPage implements OnInit {
     }
   }
 
-  // แยกฟังก์ชันบันทึกข้อมูลออกมา
   async finishRegister() {
     try {
-       const isVerified = true; 
+      const isVerified = true;
 
-       if (this.tempUserData) {
-          await this.authService.registerSec2(this.tempUserData, isVerified);
-       } else {
-          throw new Error("ไม่พบข้อมูลผู้ใช้");
-       }
+      if (this.tempUserData) {
+        await this.authService.registerSec2(this.tempUserData, isVerified);
+      } else {
+        throw new Error('ไม่พบข้อมูลผู้ใช้');
+      }
 
-       // Alert สำเร็จ -> ไป Login
-       const alert = await this.alertController.create({
+      const alert = await this.alertController.create({
         header: 'สมัครสมาชิกสำเร็จ',
         subHeader: '✅',
         message: 'บัญชีของคุณถูกสร้างเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
-        buttons: [{
-          text: 'ตกลง',
-          handler: () => {
-            this.router.navigate(['/login']);
-          }
-        }],
-        cssClass: 'custom-success-alert'
+        buttons: [
+          {
+            text: 'ตกลง',
+            handler: () => {
+              this.router.navigate(['/login']);
+            },
+          },
+        ],
+        cssClass: 'custom-success-alert',
       });
       await alert.present();
-
     } catch (error: any) {
       console.error(error);
       this.showAlert('ผิดพลาด', 'การบันทึกล้มเหลว');
@@ -157,7 +160,7 @@ export class RegisterPage implements OnInit {
     const alert = await this.alertController.create({
       header: header,
       message: msg,
-      buttons: ['ตกลง']
+      buttons: ['ตกลง'],
     });
     await alert.present();
   }
