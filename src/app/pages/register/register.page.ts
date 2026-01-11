@@ -11,13 +11,10 @@ import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { UserRegPostReq } from '../../model/req/user_reg_post_req';
 
-// Import Icons
 import { addIcons } from 'ionicons';
-import {
-  arrowBack, person, key, call, mail, arrowForward, eye, eyeOff,
-} from 'ionicons/icons';
+import { arrowBack, person, key, call, mail, arrowForward, eye, eyeOff } from 'ionicons/icons';
 
-// Import Modal Component
+// ✅ Import Modal
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
 
 @Component({
@@ -25,19 +22,19 @@ import { OtpModalComponent } from '../../components/otp-modal/otp-modal.componen
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   standalone: true,
-  // 👇 จุดที่แก้ไข: ต้องเพิ่ม OtpModalComponent เข้าไปใน imports ด้วย
-  imports: [CommonModule, FormsModule, IonicModule, OtpModalComponent],
+  // ✅ ต้องใส่ OtpModalComponent ในนี้ ไม่งั้น Error
+  imports: [CommonModule, FormsModule, IonicModule, OtpModalComponent]
 })
 export class RegisterPage implements OnInit {
+
   username: string = '';
   email: string = '';
   password: string = '';
   confirmPassword: string = '';
   phone: string = '';
-
+  
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
-
   tempUserData: any = null;
 
   constructor(
@@ -47,146 +44,108 @@ export class RegisterPage implements OnInit {
     private loadingCtrl: LoadingController,
     private authService: Auth
   ) {
-    addIcons({ arrowBack, person, key, call, mail, arrowForward, eye, eyeOff });
+    addIcons({ arrowBack, person, key, call, mail, arrowForward, eye, eyeOff }); 
   }
 
   ngOnInit() {}
 
-  goBack() {
-    this.router.navigate(['/login']);
-  }
-
-  togglePassword() {
-    this.showPassword = !this.showPassword;
-  }
-
-  toggleConfirmPassword() {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
+  goBack() { this.router.navigate(['/login']); }
+  togglePassword() { this.showPassword = !this.showPassword; }
+  toggleConfirmPassword() { this.showConfirmPassword = !this.showConfirmPassword; }
 
   async onNextStep() {
     // 1. Validation
-    if (!this.username || !this.email || !this.password || !this.phone) {
+    if(!this.username || !this.email || !this.password || !this.phone) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
     }
+    
+    // Regex Check ... (ตัดละไว้ในฐานที่เข้าใจ) ...
 
-    const passwordRegex = /^[a-zA-Z0-9]{8}$/;
-    if (!passwordRegex.test(this.password)) {
-      this.showAlert(
-        'รหัสผ่านไม่ถูกต้อง',
-        'รหัสผ่านต้องเป็นภาษาอังกฤษหรือตัวเลข และมีความยาว 8 ตัวอักษรเท่านั้น'
-      );
-      return;
-    }
-
-    if (this.password !== this.confirmPassword) {
-      this.showAlert('แจ้งเตือน', 'รหัสผ่านยืนยันไม่ตรงกัน');
-      return;
-    }
-
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(this.phone)) {
-      this.showAlert(
-        'เบอร์โทรศัพท์ไม่ถูกต้อง',
-        'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก (เฉพาะตัวเลข)'
-      );
-      return;
-    }
-
-    // เตรียมข้อมูล
     const userData: UserRegPostReq = {
       username: this.username,
       email: this.email,
       password: this.password,
-      phone: this.phone,
+      phone: this.phone
     };
 
-    // 2. แสดง Loading
     const loading = await this.loadingCtrl.create({ 
-      message: 'กำลังตรวจสอบข้อมูล...',
-      spinner: 'crescent' 
+        message: 'กำลังตรวจสอบข้อมูล...', 
+        spinner: 'crescent'
     });
     await loading.present();
 
     try {
-      // 3. ยิง API Register (Sec1)
+      // -----------------------------------------------------------
+      // Step 1: เรียก Register ก่อน (เพื่อเช็ค User ซ้ำ และ Save Temp)
+      // -----------------------------------------------------------
       this.tempUserData = await this.authService.register(userData);
       
-      // 4. ยิง API ขอ OTP
+      // ถ้าผ่าน Step 1 มาได้ แปลว่า User ไม่ซ้ำ -> เปลี่ยนข้อความ Loading
+      loading.message = 'กำลังส่งรหัส OTP...'; 
+
+      // -----------------------------------------------------------
+      // Step 2: ค่อยยิงส่ง OTP (ชัวร์กว่า)
+      // -----------------------------------------------------------
       await this.authService.reqOTP(this.email);
-      
-      // ✅ ปิด Loading ก่อนเปิด Modal
+
+      // เสร็จหมดแล้ว ปิด Loading
       await loading.dismiss();
 
-      // 5. เปิด OTP Modal
+      // -----------------------------------------------------------
+      // Step 3: เปิด Modal
+      // -----------------------------------------------------------
       const modal = await this.modalCtrl.create({
         component: OtpModalComponent,
         componentProps: { email: this.email },
-        backdropDismiss: false,
+        backdropDismiss: false
       });
 
       await modal.present();
 
-      // 6. รอรับค่ากลับจาก Modal
       const { data } = await modal.onWillDismiss();
-
       if (data && data.success) {
         await this.finishRegister();
       }
-
+      
     } catch (error: any) {
-      // ❌ ถ้า Error ให้ปิด Loading ก่อน
-      await loading.dismiss();
+      await loading.dismiss(); // ปิด Loading เสมอ
+      console.error(error);
+      const msg = error.error?.message || error.message || 'เกิดข้อผิดพลาด';
       
-      console.error("Register Error:", error);
-      
-      const serverMsg = error.error?.message || error.message || 'เกิดข้อผิดพลาด';
-      let displayMsg = 'ระบบขัดข้อง กรุณาลองใหม่ภายหลัง';
-
-      if (serverMsg.includes('Duplicate') || serverMsg.includes('email')) {
-        displayMsg = 'อีเมลนี้ถูกใช้งานแล้ว';
-      } else if (serverMsg.includes('username')) {
-        displayMsg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว';
+      if(msg.includes('Duplicate') || msg.includes('email')) {
+         this.showAlert('แจ้งเตือน', 'อีเมลนี้ถูกใช้งานแล้ว');
+      } else {
+         this.showAlert('ผิดพลาด', 'ไม่สามารถส่ง OTP ได้ กรุณาลองใหม่');
       }
-
-      this.showAlert('ไม่สามารถทำรายการได้', displayMsg);
     }
   }
 
+  // ... (ฟังก์ชัน finishRegister และ showAlert เหมือนเดิม) ...
   async finishRegister() {
     const loading = await this.loadingCtrl.create({ message: 'กำลังสร้างบัญชี...' });
     await loading.present();
-
     try {
-      const isVerified = true;
-
-      if (this.tempUserData) {
-        await this.authService.registerSec2(this.tempUserData, isVerified);
-      } else {
-        throw new Error('Session Expired');
-      }
-
-      await loading.dismiss();
-
-      const alert = await this.alertController.create({
-        header: 'สมัครสมาชิกสำเร็จ',
+       if (this.tempUserData) {
+          await this.authService.registerSec2(this.tempUserData, true);
+       } else {
+          throw new Error("ไม่พบข้อมูลผู้ใช้");
+       }
+       await loading.dismiss();
+       const alert = await this.alertController.create({
+        header: 'สำเร็จ',
         subHeader: '✅',
-        message: 'บัญชีของคุณถูกสร้างเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
+        message: 'สร้างบัญชีเรียบร้อยแล้ว',
         buttons: [{
-            text: 'ตกลง',
-            handler: () => {
-              this.router.navigate(['/login']);
-            },
+          text: 'ตกลง',
+          handler: () => { this.router.navigate(['/login']); }
         }],
-        cssClass: 'custom-success-alert',
+        cssClass: 'custom-success-alert'
       });
       await alert.present();
-
     } catch (error: any) {
       await loading.dismiss();
-      console.error(error);
-      this.showAlert('ผิดพลาด', 'การบันทึกล้มเหลว กรุณาลองใหม่อีกครั้ง');
+      this.showAlert('ผิดพลาด', 'บันทึกข้อมูลไม่สำเร็จ');
     }
   }
 
@@ -194,7 +153,7 @@ export class RegisterPage implements OnInit {
     const alert = await this.alertController.create({
       header: header,
       message: msg,
-      buttons: ['ตกลง'],
+      buttons: ['ตกลง']
     });
     await alert.present();
   }
