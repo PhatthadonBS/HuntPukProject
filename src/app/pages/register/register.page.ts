@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, ModalController } from '@ionic/angular'; // ✅ เพิ่ม ModalController
+import { 
+  IonicModule, 
+  AlertController, 
+  ModalController, 
+  LoadingController // 1. เพิ่ม LoadingController
+} from '@ionic/angular'; 
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { UserRegPostReq } from '../../model/req/user_reg_post_req';
@@ -9,14 +14,7 @@ import { UserRegPostReq } from '../../model/req/user_reg_post_req';
 // Import Icons
 import { addIcons } from 'ionicons';
 import {
-  arrowBack,
-  person,
-  key,
-  call,
-  mail,
-  arrowForward,
-  eye,
-  eyeOff,
+  arrowBack, person, key, call, mail, arrowForward, eye, eyeOff,
 } from 'ionicons/icons';
 
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
@@ -44,6 +42,7 @@ export class RegisterPage implements OnInit {
     private router: Router,
     private alertController: AlertController,
     private modalCtrl: ModalController,
+    private loadingCtrl: LoadingController, // 2. Inject LoadingController
     private authService: Auth
   ) {
     addIcons({ arrowBack, person, key, call, mail, arrowForward, eye, eyeOff });
@@ -64,7 +63,7 @@ export class RegisterPage implements OnInit {
   }
 
   async onNextStep() {
-    // 1. Validation
+    // 1. Validation (ตรวจสอบเบื้องต้น)
     if (!this.username || !this.email || !this.password || !this.phone) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
@@ -80,7 +79,7 @@ export class RegisterPage implements OnInit {
     }
 
     if (this.password !== this.confirmPassword) {
-      this.showAlert('แจ้งเตือน', 'รหัสผ่านไม่ตรงกัน');
+      this.showAlert('แจ้งเตือน', 'รหัสผ่านยืนยันไม่ตรงกัน');
       return;
     }
 
@@ -93,6 +92,7 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    // เตรียมข้อมูลส่ง
     const userData: UserRegPostReq = {
       username: this.username,
       email: this.email,
@@ -100,9 +100,24 @@ export class RegisterPage implements OnInit {
       phone: this.phone,
     };
 
+    // 3. สร้าง Loading (เพื่อให้รู้ว่ากำลังทำงาน)
+    const loading = await this.loadingCtrl.create({ 
+      message: 'กำลังตรวจสอบข้อมูล...',
+      spinner: 'crescent' 
+    });
+    await loading.present();
+
     try {
+      // 4. ยิง API ตรวจสอบข้อมูลเบื้องต้น (Sec1)
       this.tempUserData = await this.authService.register(userData);
+      
+      // 5. ยิง API ขอ OTP
       await this.authService.reqOTP(this.email);
+      
+      // ปิด Loading เมื่อเสร็จสิ้น API Call ก่อนเปิด Modal
+      await loading.dismiss();
+
+      // 6. เปิด Modal OTP
       const modal = await this.modalCtrl.create({
         component: OtpModalComponent,
         componentProps: { email: this.email },
@@ -111,29 +126,52 @@ export class RegisterPage implements OnInit {
 
       await modal.present();
 
-      // 5. รอผลลัพธ์จาก Modal
+      // 7. รอผลลัพธ์จาก Modal
       const { data } = await modal.onWillDismiss();
 
       if (data && data.success) {
-        // ✅ ถ้า OTP ผ่าน ให้บันทึกข้อมูลทันที
+        // ถ้า OTP ผ่าน ให้บันทึกข้อมูลทันที
         await this.finishRegister();
       }
+
     } catch (error: any) {
-      console.error(error);
-      const msg = error.error || error.message || 'เกิดข้อผิดพลาด';
-      this.showAlert('ผิดพลาด', 'อีเมลนี้อาจถูกใช้งานแล้ว หรือระบบขัดข้อง');
+      // ถ้า Error ให้ปิด Loading ก่อน แล้วค่อยโชว์ Alert
+      await loading.dismiss();
+      
+      console.error("Register Error:", error);
+      
+      // ดึงข้อความ Error จาก Server มาแสดง
+      // เช็คหลายชั้นเผื่อ Structure ของ Error ต่างกัน
+      const serverMsg = error.error?.message || error.message || JSON.stringify(error);
+      
+      let displayMsg = 'ระบบขัดข้อง กรุณาลองใหม่ภายหลัง';
+      
+      // แปลง Error Message ให้ user เข้าใจง่าย (Optional)
+      if (serverMsg.includes('Duplicate entry') || serverMsg.includes('email')) {
+        displayMsg = 'อีเมลนี้ถูกใช้งานแล้ว';
+      } else if (serverMsg.includes('username')) {
+        displayMsg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว';
+      }
+
+      this.showAlert('ไม่สามารถทำรายการได้', displayMsg);
     }
   }
 
   async finishRegister() {
+    // สร้าง Loading อีกรอบตอนบันทึกจริง
+    const loading = await this.loadingCtrl.create({ message: 'กำลังสร้างบัญชี...' });
+    await loading.present();
+
     try {
       const isVerified = true;
 
       if (this.tempUserData) {
         await this.authService.registerSec2(this.tempUserData, isVerified);
       } else {
-        throw new Error('ไม่พบข้อมูลผู้ใช้');
+        throw new Error('ไม่พบข้อมูลผู้ใช้ (Session Expired)');
       }
+
+      await loading.dismiss(); // ปิด Loading
 
       const alert = await this.alertController.create({
         header: 'สมัครสมาชิกสำเร็จ',
@@ -150,9 +188,11 @@ export class RegisterPage implements OnInit {
         cssClass: 'custom-success-alert',
       });
       await alert.present();
+
     } catch (error: any) {
+      await loading.dismiss();
       console.error(error);
-      this.showAlert('ผิดพลาด', 'การบันทึกล้มเหลว');
+      this.showAlert('ผิดพลาด', 'การบันทึกข้อมูลล้มเหลว กรุณาลองใหม่อีกครั้ง');
     }
   }
 
