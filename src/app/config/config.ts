@@ -4,6 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class Constants {
-  // public readonly API_ENDPOINT: string = 'https://gameshop-api-xgfd.onrender.com';
+  // public readonly API_ENDPOINT: string = 'http://192.168.6.1:3008';
   public readonly API_ENDPOINT: string = 'https://huntpukapi-production.up.railway.app';
 }
