@@ -6,11 +6,11 @@
   "scripts": {
     "ng": "ng",
     "config": "node scripts/set-env.js",
-    "start": "npm run config && ng serve",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "build": "npm run config && ng build app --configuration production"
+    "build": "npm run config && ng build app --configuration production",
+    "start": "npx serve -s www -l $PORT"
   },
   "private": true,
   "dependencies": {
