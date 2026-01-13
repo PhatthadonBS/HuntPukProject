@@ -7,10 +7,10 @@
     "ng": "ng",
     "config": "node scripts/set-env.js",
     "start": "npm run config && ng serve",
-    "build": "npm run config && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "build": "npm run config && ng build app --configuration production"
   },
   "private": true,
   "dependencies": {
