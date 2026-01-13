@@ -10,7 +10,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "build": "npm run config && ng build app --configuration production",
-    "start": "npx serve -s www -l $PORT"
+    "start": "npx serve -s www --single -l $PORT"
+
   },
   "private": true,
   "dependencies": {
