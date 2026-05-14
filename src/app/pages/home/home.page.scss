@@ -111,28 +111,71 @@ google-map { display: block; width: 100%; height: 100%; }
   z-index: 100;
 }
 
+/* =========================================
+   UI Overlay & Buttons (โทนเหลือง-เทา)
+   ========================================= */
+
 .top-left-buttons {
-  display: flex; gap: 10px; margin-top: 60px;
-  pointer-events: auto;
+  display: flex; align-items: center; gap: 10px; margin-top: 60px;
+  pointer-events: auto; /* ทำให้ปุ่มในแถวนี้กดได้ 100% */
 }
 
-.chip-button {
-  background: #fff; color: #333; padding: 8px 16px; border-radius: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 5px;
-  font-weight: bold; font-size: 14px; cursor: pointer; pointer-events: auto;
-  
-  &:active { transform: scale(0.95); background: #f0f0f0; }
-}
-
+/* ปรับปุ่มเมนู (Hamberger) ให้ใหญ่ขึ้นและโดดเด่นด้วยสีเหลือง */
 .menu-toggle-btn {
-  width: 50px; height: 50px; background: rgba(0, 0, 0, 0.75);
-  color: #FFD600; border-radius: 14px;
+  width: 44px; height: 44px; 
+  background: #FFD600; 
+  color: #1a1a1a; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(8px); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  margin-bottom: 20px; cursor: pointer; z-index: 101;
-  border: 1px solid rgba(255, 255, 255, 0.1); pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25); 
+  cursor: pointer; transition: all 0.2s ease;
+  
+  ion-icon { font-size: 28px; } /* ไอคอนใหญ่ขึ้น */
+  
+  &:active { transform: scale(0.92); background: #e6c200; }
+}
 
-  &:active { transform: scale(0.92); background: #000; }
+/* ปรับปุ่มกรอง/เปรียบเทียบ ให้เป็นสีเทาตัดเหลือง */
+.chip-button {
+  background: #2d2d2d; color: #FFD600; 
+  padding: 10px 18px; border-radius: 12px;
+  border: 1px solid rgba(255, 214, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+  display: flex; align-items: center; gap: 5px;
+  font-weight: 700; font-size: 14px; cursor: pointer; pointer-events: auto;
+  
+  &:active { transform: scale(0.95); background: #1a1a1a; }
+}
+
+/* =========================================
+   Map Info Window Styling
+   ========================================= */
+.custom-info-window {
+  text-align: center; color: #1a1a1a; padding: 8px; min-width: 220px; font-family: sans-serif;
+  
+  h3 { margin: 0 0 12px 0; font-size: 16px; font-weight: 800; color: #1a1a1a; }
+  
+  .fac-tags {
+    display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px;
+    span { font-size: 11px; background: #e0e0e0; padding: 4px 8px; border-radius: 12px; color: #333; font-weight: 600;}
+  }
+
+  .contact-box {
+    background: #f5f5f5; padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: left;
+    .contact-item { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; font-weight: 600; color: #444;}
+    .contact-item:last-child { margin-bottom: 0; }
+  }
+
+  .price-text {
+    margin: 0 0 12px 0; font-size: 13px; color: #666;
+    span { color: #d32f2f; font-weight: 900; font-size: 18px; }
+  }
+
+  .btn-detail {
+    width: 100%; background: #FFD600; color: #1a1a1a; font-weight: 800; font-size: 14px;
+    border: none; padding: 10px; border-radius: 10px; cursor: pointer; 
+    box-shadow: 0 2px 6px rgba(255, 214, 0, 0.4); transition: 0.2s;
+    &:active { transform: scale(0.95); }
+  }
 }
 
 /* =========================================
@@ -147,11 +190,10 @@ ion-modal.filter-modal-custom {
 .filter-wrapper { 
   background: #f5f5f5; padding: 25px; border-radius: 20px; font-family: sans-serif; width: 100%; 
   
-  /* ✅ เพิ่ม: ปรับหัวข้อ h3 ทั้งหมดใน Modal ให้ชัดเจน */
   h3 {
-    color: #111; /* สีดำเกือบสนิท */
+    color: #111; 
     font-size: 16px;
-    font-weight: 800; /* ตัวหนามาก */
+    font-weight: 800; 
     margin-bottom: 12px;
     letter-spacing: 0.3px;
   }
@@ -166,7 +208,7 @@ ion-modal.filter-modal-custom {
 .input-capsule { 
   background: #fff; width: 100%; padding: 5px 10px; border-radius: 12px; 
   border: 1px solid #ddd; display: flex; align-items: center; overflow: hidden; 
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03); /* เพิ่มเงานิดๆ ให้ input ลอยขึ้นมา */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
   
   input { 
     background: transparent; border: none; width: 100%; outline: none; 
@@ -183,7 +225,7 @@ ion-modal.filter-modal-custom {
     padding-left: 15px;
     
     ion-icon { 
-        font-size: 22px; color: #FFD600; /* เปลี่ยนไอคอนเป็นสีเหลืองธีม */
+        font-size: 22px; color: #FFD600; 
         margin-right: 8px; flex-shrink: 0;
         text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
@@ -207,7 +249,6 @@ ion-modal.filter-modal-custom {
 .price-col { 
   display: flex; flex-direction: column; align-items: center; width: 45%; 
   
-  /* ✅ ปรับคำว่า ต่ำสุด/สูงสุด ให้ชัดขึ้น */
   .label {
     font-size: 13px; font-weight: 700; color: #555; margin-bottom: 6px; display: block;
   }
