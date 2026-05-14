@@ -2,14 +2,13 @@
 ion-header {
   position: relative;
   z-index: 5000 !important; /* ต้องสูงกว่า Map (0) */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .custom-toolbar {
-  --background: #ffc409; /* สีเหลือง */
+  --background: #FFD600; /* สีเหลืองธีมหลัก */
   padding: 5px 0;
-  
-  /* [แก้ไข] บังคับให้พื้นที่ Toolbar รับการกด */
+  /* บังคับให้พื้นที่ Toolbar รับการกด */
   pointer-events: auto !important; 
 }
 
@@ -18,137 +17,198 @@ ion-header {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 10px;
-  gap: 10px; 
+  padding: 0 15px;
+  gap: 15px; 
 }
 
-/* Logo */
-.header-logo {
-  height: 40px;
-  width: auto;
+/* ==================
+   1. โซนโลโก้
+   ================== */
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 150px;
+  cursor: pointer;
+
+  .header-logo {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  .header-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+  }
 }
 
-/* โซนค้นหา */
+/* ==================
+   2. โซนค้นหา
+   ================== */
 .search-section {
   flex: 1; 
   display: flex;
   align-items: center;
-  gap: 5px; 
+  justify-content: center;
+  gap: 0; /* เปลี่ยนเป็น 0 เพื่อให้ปุ่มและช่องกรอกติดกัน */
   max-width: 600px; 
   
   .search-box {
     flex: 1; 
     background: white;
-    border-radius: 20px;
+    border-radius: 25px 0 0 25px; /* โค้งเฉพาะฝั่งซ้าย */
     display: flex;
     align-items: center;
-    padding: 0 15px;
-    height: 35px;
-    border: 1px solid #333;
+    padding: 0 20px;
+    height: 42px;
+    border: 2px solid #1a1a1a;
+    border-right: none;
 
     input {
       border: none;
       background: transparent;
       outline: none;
       width: 100%;
-      font-size: 14px;
+      font-size: 15px;
       color: #333;
-      font-weight: bold;
+      font-weight: 700;
 
       &::placeholder {
-        color: #777;
-        font-weight: normal;
+        color: #888;
+        font-weight: 500;
       }
     }
   }
 
   .btn-search-action {
-    background: #222; /* สีดำ */
-    color: white;
-    border: none;
-    border-radius: 20px;
-    height: 35px;
-    padding: 0 15px;
+    background: #1a1a1a; /* สีดำ */
+    color: #FFD600;
+    border: 2px solid #1a1a1a;
+    border-radius: 0 25px 25px 0; /* โค้งเฉพาะฝั่งขวา */
+    height: 42px;
+    padding: 0 25px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 800;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     white-space: nowrap; 
+    transition: 0.2s;
 
-    &:hover {
-      background: #444;
-    }
+    ion-icon { font-size: 18px; }
 
-    &:active {
-      transform: scale(0.95);
-    }
+    &:hover { background: #333; }
+    &:active { background: #000; }
   }
 }
 
-/* ปุ่มขวา (Login/Register) */
+/* ==================
+   3. ปุ่มขวา (Auth & User)
+   ================== */
 .auth-buttons {
   display: flex;
-  gap: 5px;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0; 
+  min-width: 150px;
+  justify-content: flex-end;
 
+/* ปุ่มสมัคร */
   .btn-register {
-    --background: transparent;
-    --color: black;
-    --box-shadow: none;
-    --padding-start: 10px;
-    --padding-end: 10px;
-    border: 1px solid black;
-    border-radius: 15px;
-    height: 30px;
-    font-size: 12px;
-    font-weight: bold;
+    background: transparent;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    border-radius: 25px;
+    height: 36px;
+    padding: 0 15px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+    
+    &:hover { background: rgba(0,0,0,0.05); }
+    &:active { transform: scale(0.95); }
   }
 
+  /* ปุ่มเข้าสู่ระบบ */
   .btn-login {
-    --background: #504a4a;
-    --color: white;
-    --border-radius: 15px;
-    --padding-start: 12px;
-    --padding-end: 12px;
-    height: 30px;
-    font-size: 12px;
-    font-weight: bold;
+    background: #1a1a1a;
+    color: #FFD600;
+    border: 2px solid #1a1a1a;
+    border-radius: 25px;
+    height: 36px;
+    padding: 0 15px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+    &:hover { background: #333; }
+    &:active { transform: scale(0.95); }
+  }
+
+  /* ปุ่มแสดงชื่อ User */
+  .user-badge {
+    background: #fff;
+    color: #1a1a1a;
+    padding: 4px 12px 4px 4px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 900;
+    font-size: 14px;
+    cursor: pointer;
+    border: 2px solid #1a1a1a;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: 0.2s;
+
+    ion-icon {
+      font-size: 28px;
+      color: #1a1a1a;
+    }
+
+    &:active { transform: scale(0.95); background: #f0f0f0; }
+  }
+
+  /* ปุ่ม Logout */
+  .logout-btn {
+    background: #ff4d4d;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid #cc0000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.2s;
+
+    ion-icon { font-size: 20px; }
+
+    &:hover { background: #e60000; }
+    &:active { transform: scale(0.95); }
   }
 }
-/* ... CSS เดิม ... */
 
-/* ปุ่มแสดงชื่อ User */
-.user-badge {
-  background: #00b0ff;
-  color: white;
-  padding: 8px 15px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: bold;
-  margin-right: 10px;
-  border: 1px solid black;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* ปุ่ม Logout */
-.logout-btn {
-  background: #ff3d00;
-  color: white;
-  padding: 8px 15px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  border: 1px solid black;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-
-  &:hover {
-    background: #d50000;
-  }
+/* ==================
+   Responsive (หน้าจอมือถือ)
+   ================== */
+@media (max-width: 768px) {
+  .logo-section .header-title { display: none; } /* ซ่อนชื่อเว็บ เหลือแต่โลโก้ */
+  .auth-buttons ion-button.btn-register { display: none; } /* ซ่อนปุ่มสมัคร */
+  
+  .search-section .btn-search-action span { display: none; } /* ซ่อนข้อความปุ่มค้นหา */
+  .search-section .btn-search-action { padding: 0 15px; }
+  
+  .auth-buttons .user-badge span { display: none; } /* ซ่อนชื่อผู้ใช้เหลือแต่ไอคอน */
 }

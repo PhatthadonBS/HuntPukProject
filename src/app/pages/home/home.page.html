@@ -4,6 +4,10 @@
     <div class="sidebar-wrapper">
       
       <div class="logo-area">
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #FFD600; font-weight: 900; margin: 0; font-size: 28px; letter-spacing: 1.5px;">HuntPuk</h2>
+        </div>
+
         <ng-container *ngIf="currentUser; else showLogo">
           <div class="user-avatar-circle">
             <ion-icon name="person"></ion-icon>
@@ -23,21 +27,18 @@
         <div class="menu-item" (click)="navigate('/list')">
           <ion-icon name="list-outline"></ion-icon> รายการ
         </div>
-          <div class="menu-item" (click)="navigate('/dorm-popular')">
+        <div class="menu-item" (click)="navigate('/dorm-popular')">
           <ion-icon name="list-outline"></ion-icon> หอพักยอดนิยม
         </div>
 
         <ng-container *ngIf="userRole > 0">
-          
           <div class="menu-item" (click)="checkAuthAndNavigate('/my-account')">
             <ion-icon name="person-circle-outline"></ion-icon> บัญชีของฉัน
           </div>
-
           <div class="menu-item" *ngIf="userRole === 1 || userRole === 3" 
                (click)="checkAuthAndNavigate('/requests')">
              <ion-icon name="key"></ion-icon> ร้องขอเป็นเจ้าของหอพัก
           </div>
-
           <ng-container *ngIf="userRole === 2 || userRole === 3">
             <div class="menu-item" (click)="checkAuthAndNavigate('/dorm-form')">
                <ion-icon name="create"></ion-icon> ลงทะเบียนหอพัก
@@ -46,18 +47,14 @@
                <ion-icon name="home"></ion-icon> หอพักของฉัน
             </div>
           </ng-container>
-
           <div class="menu-item" (click)="checkAuthAndNavigate('/favorites')">
             <ion-icon name="heart-outline" style="color:red;"></ion-icon> รายการโปรด
           </div>
-
         </ng-container>
 
         <ng-container *ngIf="userRole === 3">
           <div class="menu-divider" style="height: 1px; background: rgba(255,255,255,0.2); margin: 10px 0;"></div>
-          
           <div class="menu-title" style="color: #FFD600; font-size: 12px; margin-bottom: 5px;">ADMIN PANEL</div>
-          
           <div class="menu-item" (click)="checkAuthAndNavigate('/manage-requests-dorm-owner')">
              จัดการคำร้องขอเจ้าของหอพัก
           </div>
@@ -106,32 +103,61 @@
         </map-marker>
 
         <map-info-window>
-          <div *ngIf="selectedDorm" style="text-align: center; color: black; padding: 5px; min-width: 150px;">
-            <h3 style="margin: 0; font-size: 16px; font-weight: bold;">{{ selectedDorm?.DORM_NAME }}</h3>
-            <p style="margin: 5px 0; font-size: 14px; color: #555;">
-              เริ่ม <span style="color: #d32f2f; font-weight: bold;">{{ selectedDorm?.start_price | number }}</span> บาท
+          <div *ngIf="selectedDorm" class="custom-info-window">
+            <h3>{{ selectedDorm?.DORM_NAME }}</h3>
+
+            <div class="fac-tags" *ngIf="selectedDorm?.facilities?.length">
+               <span *ngFor="let fac of selectedDorm.facilities | slice:0:3">{{ fac }}</span>
+               <span *ngIf="selectedDorm.facilities.length > 3">+{{selectedDorm.facilities.length - 3}}</span>
+            </div>
+
+            <div class="contact-box">
+                <div class="contact-item" *ngIf="selectedDorm?.phone && selectedDorm?.phone !== '-'">
+                   <ion-icon name="call-outline" style="color: #28a745;"></ion-icon> <span>{{selectedDorm?.phone}}</span>
+                </div>
+                <div class="contact-item" *ngIf="selectedDorm?.line && selectedDorm?.line !== '-'">
+                   <ion-icon name="chatbubble-ellipses-outline" style="color: #00c300;"></ion-icon> <span>{{selectedDorm?.line}}</span>
+                </div>
+                <div class="contact-item" *ngIf="selectedDorm?.facebook && selectedDorm?.facebook !== '-'">
+                   <ion-icon name="logo-facebook" style="color: #1877F2;"></ion-icon> <span>{{selectedDorm?.facebook}}</span>
+                </div>
+                <div class="contact-item" *ngIf="selectedDorm?.instagram && selectedDorm?.instagram !== '-'">
+                   <ion-icon name="logo-instagram" style="color: #E4405F;"></ion-icon> <span>{{selectedDorm?.instagram}}</span>
+                </div>
+                <div class="contact-item" *ngIf="selectedDorm?.telegram && selectedDorm?.telegram !== '-'">
+                   <ion-icon name="paper-plane-outline" style="color: #0088cc;"></ion-icon> <span>{{selectedDorm?.telegram}}</span>
+                </div>
+                <div class="contact-item" *ngIf="selectedDorm?.x && selectedDorm?.x !== '-'">
+                   <strong style="color: #000; font-family: sans-serif; font-size: 14px; margin-left: 2px;">X</strong> <span style="margin-left: 4px;">{{selectedDorm?.x}}</span>
+                </div>
+            </div>
+
+            <p class="price-text">
+              เริ่มต้น <span>{{ selectedDorm?.start_price | number }}</span> บาท/เดือน
             </p>
-            <button (click)="goToDetail()"
-              style="background: #3880ff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 5px;">
-              ดูรายละเอียด
+            <button class="btn-detail" (click)="goToDetail()">
+              ดูรายละเอียดหอพัก
             </button>
           </div>
         </map-info-window>
       </google-map>
     </div>
 
-    <div slot="fixed" class="ui-overlay">
-      <div class="top-left-buttons">
+   <div slot="fixed" class="ui-overlay" style="z-index: 99999; pointer-events: none;">
+      <div class="top-left-buttons" style="pointer-events: auto; display: flex; align-items: center; gap: 10px;">
+        
+        <ion-menu-toggle menu="home-menu" auto-hide="false" style="display: block; cursor: pointer; pointer-events: auto;">
+          <div class="menu-toggle-btn">
+            <ion-icon name="menu-outline"></ion-icon>
+          </div>
+        </ion-menu-toggle>
+
         <div class="chip-button" (click)="openFilter()">
           กรอง <ion-icon name="caret-down-outline"></ion-icon>
         </div>
         <div class="chip-button" (click)="goToCompare()">
           เปรียบเทียบ <ion-icon name="layers-outline"></ion-icon>
         </div>
-      </div>
-
-      <div class="menu-toggle-btn" (click)="toggleMenu()">
-        <ion-icon name="menu-outline" style="font-size: 24px; color: white;"></ion-icon>
       </div>
     </div>
 
@@ -181,6 +207,7 @@
               </div>
             </div>
           </div>
+
           <div class="zone-section">
             <h3>บริเวณหอพัก</h3>
             <div class="zone-options">
@@ -197,6 +224,7 @@
               </div>
             </div>
           </div>
+
           <div class="action-section">
             <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
             <button class="btn-clear"
