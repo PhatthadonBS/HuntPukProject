@@ -6,17 +6,34 @@
   <ion-content [fullscreen]="true" [scrollY]="false">
     <div class="map-wrapper">
       <google-map *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
-        [options]="mapOptions">
+        [options]="mapOptions" (mapClick)="onMapClick($event)">
 
         <map-circle *ngIf="circleCenter" [center]="circleCenter" [radius]="circleRadius" [options]="circleOptions"></map-circle>
+
+        <map-marker [position]="referencePoint" title="จุดอ้างอิงของคุณ" 
+          [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }">
+        </map-marker>
 
         <map-marker *ngFor="let dorm of dorms" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
 
+        <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="{ suppressMarkers: true }"></map-directions-renderer>
+
         <map-info-window>
           <div *ngIf="selectedDorm" class="custom-info-window">
             <h3>{{ selectedDorm?.DORM_NAME }}</h3>
+
+            <div class="travel-badge" *ngIf="travelInfo[selectedDorm.DORM_ID]">
+              <div class="info-item">
+                <ion-icon name="navigate-circle-outline"></ion-icon>
+                {{ travelInfo[selectedDorm.DORM_ID].distance }}
+              </div>
+              <div class="info-item">
+                <ion-icon name="time-outline"></ion-icon>
+                ~ {{ travelInfo[selectedDorm.DORM_ID].duration }}
+              </div>
+            </div>
 
             <div class="fac-tags" *ngIf="selectedDorm?.facilities?.length">
                <span *ngFor="let fac of selectedDorm.facilities | slice:0:3">{{ fac }}</span>
@@ -38,9 +55,9 @@
     </div>
   </ion-content>
 
-  <ion-menu-toggle menu="main-menu" auto-hide="false" class="menu-fab-btn">
-    <ion-icon name="menu-outline"></ion-icon>
-  </ion-menu-toggle>
+  <div class="menu-fab-btn">
+    <ion-menu-button menu="main-menu" auto-hide="false"></ion-menu-button>
+  </div>
 
   <div class="filter-compare-group">
     <div class="chip-button" (click)="openFilter()">
@@ -50,7 +67,7 @@
       <ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ
     </div>
   </div>
-
+    
   <div class="dorm-side-panel" *ngIf="selectedDormDetail">
     <div class="btn-close-panel" (click)="closeDetailPanel()">
       <ion-icon name="close"></ion-icon>
@@ -69,7 +86,7 @@
         <div class="distance-section">
            <div class="section-title">
               <h3>ระยะทาง (กม.)</h3>
-              <span>จากจุดกึ่งกลาง</span>
+              <span>จากจุดอ้างอิง(หมุดสีน้ำเงิน)</span>
            </div>
            <div class="input-capsule">
               <ion-icon name="location" class="icon-yellow"></ion-icon>
@@ -100,18 +117,13 @@
         <div class="zone-section">
           <h3>บริเวณหอพัก</h3>
           <div class="zone-options">
-            
             <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME"
               (click)="selectZone(zone.ZONE_NAME)">
               <span>{{ zone.ZONE_NAME }}</span>
-              
               <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle"></ion-icon>
               <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>
             </div>
-
-            <div *ngIf="zoneOptions.length === 0" class="loading-zone">
-              กำลังโหลดข้อมูลโซน...
-            </div>
+            <div *ngIf="zoneOptions.length === 0" class="loading-zone">กำลังโหลดข้อมูลโซน...</div>
           </div>
         </div>
 

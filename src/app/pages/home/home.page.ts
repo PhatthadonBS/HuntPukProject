@@ -1,24 +1,47 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
-import { GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle } from '@angular/google-maps';
+import {
+  HttpClientModule,
+  HttpClient,
+  HttpClientJsonpModule,
+} from '@angular/common/http';
+
+// ✅ เพิ่ม MapDirectionsRenderer สำหรับวาดเส้นทาง
+import {
+  GoogleMapsModule,
+  MapInfoWindow,
+  MapMarker,
+  MapCircle,
+  MapDirectionsRenderer,
+} from '@angular/google-maps';
+
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { HeaderComponent } from '../../components/header/header.component';
-import { DormitoryService, Dormitory } from '../../services/dormitory'; 
+import { DormitoryService, Dormitory } from '../../services/dormitory';
 import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 
-// 🛑 ไม่ต้อง Import ไอคอนเมนูเยอะๆ แล้ว เพราะเราย้ายไปไฟล์ MenuComponent แล้ว
-import { 
-  menuOutline, caretDownOutline, layersOutline, close, 
-  locationOutline, checkmarkCircle, chevronDownCircleOutline,
-  callOutline, chatbubbleEllipsesOutline, logoFacebook, 
-  logoInstagram, paperPlaneOutline, optionsOutline
+import {
+  menuOutline,
+  caretDownOutline,
+  layersOutline,
+  close,
+  locationOutline,
+  checkmarkCircle,
+  chevronDownCircleOutline,
+  callOutline,
+  chatbubbleEllipsesOutline,
+  logoFacebook,
+  logoInstagram,
+  paperPlaneOutline,
+  optionsOutline,
+  navigateCircleOutline,
+  timeOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -27,45 +50,63 @@ import {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, IonicModule, RouterModule, 
-    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, 
-    HeaderComponent, DormDetailPage
-  ]
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    RouterModule,
+    HttpClientModule,
+    HttpClientJsonpModule,
+    GoogleMapsModule,
+    HeaderComponent,
+    DormDetailPage,
+    MapDirectionsRenderer, // ✅ นำเข้าใช้งานที่นี่
+  ],
 })
 export class HomePage implements OnInit, ViewDidEnter {
-  
-  apiLoaded: Observable<boolean>; 
+  apiLoaded: Observable<boolean>;
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
-  zoom = 14;
+  zoom = 15; // ✅ ตั้งค่าซูมเริ่มต้นให้พอดี
   mapOptions: google.maps.MapOptions = {
-    disableDefaultUI: false, zoomControl: false, mapTypeControl: false, 
-    streetViewControl: false, fullscreenControl: false
+    disableDefaultUI: false,
+    zoomControl: false,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
   };
 
   searchText: string = '';
-  dorms: Dormitory[] = []; 
-  allDorms: Dormitory[] = []; 
+  dorms: Dormitory[] = [];
+  allDorms: Dormitory[] = [];
   isModalOpen = false;
 
-  // ตัวแปรสำหรับตัวกรอง
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
   maxDistance: number | null = null;
-  zoneOptions: any[] = []; 
+  zoneOptions: any[] = [];
 
   selectedDormDetail: Dormitory | null = null;
   selectedDorm: Dormitory | undefined;
-  
-  // เก็บข้อมูล User ส่งไปให้ Header
+
   currentUser: any = null;
 
   circleCenter: google.maps.LatLngLiteral | undefined;
-  circleRadius: number = 0; 
+  circleRadius: number = 0;
   circleOptions: google.maps.CircleOptions = {
-    fillColor: '#FFD600', fillOpacity: 0.2, strokeColor: '#FFD600',
-    strokeOpacity: 0.8, strokeWeight: 2, clickable: false, 
+    fillColor: '#FFD600',
+    fillOpacity: 0.2,
+    strokeColor: '#FFD600',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    clickable: false,
   };
+
+  referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
+  travelInfo: { [key: number]: { distance: string; duration: string } } = {};
+
+  // ✅ ตัวแปรสำหรับจัดการเส้นทาง (Directions)
+  directionsService: google.maps.DirectionsService | undefined;
+  directionsResult: google.maps.DirectionsResult | undefined;
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
 
@@ -73,52 +114,64 @@ export class HomePage implements OnInit, ViewDidEnter {
     private router: Router,
     private dormService: DormitoryService,
     private httpClient: HttpClient,
-    private menuCtrl: MenuController // ใช้สำหรับเปิดเมนู
+    private menuCtrl: MenuController,
+    private cdr: ChangeDetectorRef,
   ) {
     addIcons({
-      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline,
-      'layers-outline': layersOutline, 'close': close, 'location-outline': locationOutline,
-      'checkmark-circle': checkmarkCircle, 'chevron-down-circle-outline': chevronDownCircleOutline,
-      'call-outline': callOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
-      'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline
+      'menu-outline': menuOutline,
+      'caret-down-outline': caretDownOutline,
+      'layers-outline': layersOutline,
+      close: close,
+      'location-outline': locationOutline,
+      'checkmark-circle': checkmarkCircle,
+      'chevron-down-circle-outline': chevronDownCircleOutline,
+      'call-outline': callOutline,
+      'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
+      'logo-facebook': logoFacebook,
+      'logo-instagram': logoInstagram,
+      'paper-plane-outline': paperPlaneOutline,
+      'options-outline': optionsOutline,
+      'navigate-circle-outline': navigateCircleOutline,
+      'time-outline': timeOutline,
     });
 
-    // โหลด Google Maps API
     if (typeof google === 'object' && typeof google.maps === 'object') {
-        this.apiLoaded = of(true); 
+      this.apiLoaded = of(true);
     } else {
-        this.apiLoaded = this.httpClient.jsonp(
-          `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 'callback'
-        ).pipe(
-            map(() => true), 
-            catchError((err) => { 
-                console.error('Map Load Error:', err); 
-                return of(false); 
-            })
+      this.apiLoaded = this.httpClient
+        .jsonp(
+          `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`,
+          'callback',
+        )
+        .pipe(
+          map(() => true),
+          catchError((err) => {
+            console.error('Map Load Error:', err);
+            return of(false);
+          }),
         );
     }
   }
 
   ngOnInit() {
     this.fetchDorms();
-    this.fetchZones(); 
-    this.checkLoginStatus(); 
+    this.fetchZones();
+    this.checkLoginStatus();
   }
 
   ionViewDidEnter() {
     this.checkLoginStatus();
   }
 
-  // ดึงข้อมูล User มาแสดงใน Header ของหน้า Home
   checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
         if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
-           this.currentUser = userObj;
+          this.currentUser = userObj;
         } else {
-           this.currentUser = null;
+          this.currentUser = null;
         }
       } catch (e) {
         this.currentUser = null;
@@ -128,81 +181,192 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
+  // ✅ ใช้ toggle() ให้เปิด/ปิดอัตโนมัติ (เสถียรกว่า)
+ // ✅ ใช้ท่าไม้ตายก้นหีบ บังคับเปิดเมนู 100%
+  async openMenu() {
+    try {
+      // วิธีที่ 1: ให้ Ionic เปิดให้
+      await this.menuCtrl.enable(true, 'main-menu');
+      await this.menuCtrl.open('main-menu');
+    } catch (error) {
+      console.log('MenuCtrl error, ใช้ท่าไม้ตายแทน...');
+      // วิธีที่ 2: ถ้า Ionic เอ๋อ ให้ใช้ DOM บังคับเปิดตรงๆ
+      const menu: any = document.querySelector('ion-menu');
+      if (menu) {
+        menu.open();
+      }
+    }
+  }
+
+  // ✅ ฟังก์ชันให้ผู้ใช้คลิกบนแผนที่เพื่อสร้างจุดอ้างอิงใหม่
+  onMapClick(event: google.maps.MapMouseEvent) {
+    if (event.latLng) {
+      this.referencePoint = event.latLng.toJSON();
+      this.circleCenter = this.referencePoint;
+      this.directionsResult = undefined; // ล้างเส้นทางเก่าทิ้ง
+      if (this.infoWindow) this.infoWindow.close();
+      this.cdr.detectChanges();
+    }
+  }
+
+  // ✅ ฟังก์ชันคำนวณระยะทาง + วาดเส้นทาง
+  async getTravelData(destLat: number, destLng: number, dormId: number) {
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined')
+      return;
+
+    // 1. คำนวณเวลาและระยะทางแบบข้อความ
+    const service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [this.referencePoint],
+        destinations: [{ lat: destLat, lng: destLng }],
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (response, status) => {
+        if (status === 'OK' && response) {
+          const result = response.rows?.[0]?.elements?.[0];
+          if (
+            result &&
+            result.status === 'OK' &&
+            result.distance &&
+            result.duration
+          ) {
+            this.travelInfo[dormId] = {
+              distance: result.distance.text,
+              duration: result.duration.text,
+            };
+            this.cdr.detectChanges();
+          }
+        }
+      },
+    );
+
+    // 2. วาดเส้นทางสีฟ้าบนแผนที่
+    if (!this.directionsService) {
+      this.directionsService = new google.maps.DirectionsService();
+    }
+
+    this.directionsService.route(
+      {
+        origin: this.referencePoint,
+        destination: { lat: destLat, lng: destLng },
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        // ✅ แก้ไขตรงนี้: เพิ่ม result || undefined เข้าไปครับ
+        if (status === 'OK') {
+          this.directionsResult = result || undefined;
+        } else {
+          this.directionsResult = undefined;
+        }
+        this.cdr.detectChanges();
+      },
+    );
+  }
+
   async fetchZones() {
     try {
       const res = await this.dormService.getZones();
       if (res.success) this.zoneOptions = res.data;
-    } catch (error) { console.error('Fetch Zones Error:', error); }
+    } catch (error) {
+      console.error('Fetch Zones Error:', error);
+    }
   }
 
   async fetchDorms() {
     try {
       const res = await this.dormService.getAllDorms();
       if (res.success && res.data) {
-          this.allDorms = res.data.map(d => ({...d, lat: Number(d.lat), lng: Number(d.lng)}));
-          this.dorms = [...this.allDorms];
+        this.allDorms = res.data.map((d) => ({
+          ...d,
+          lat: Number(d.lat),
+          lng: Number(d.lng),
+        }));
+        this.dorms = [...this.allDorms];
       }
-    } catch (err) { console.error('Fetch Dorms Error:', err); }
+    } catch (err) {
+      console.error('Fetch Dorms Error:', err);
+    }
   }
 
   onSearch(text: any) {
-    const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
+    const searchValue = (
+      typeof text === 'string' ? text : text?.target?.value || ''
+    ).trim();
     this.searchText = searchValue;
     this.performSearch();
   }
 
   applyFilter() {
-      this.setOpen(false);
-      this.performSearch(); 
+    this.setOpen(false);
+    this.performSearch();
   }
 
   async performSearch() {
-      try {
-          const res = await this.dormService.searchDorms(
-              this.searchText, this.selectedZone, 
-              this.minPrice || undefined, this.maxPrice || undefined
-          );
-          
-          if (res.success && res.data) {
-              let tempDorms = res.data.map(d => ({...d, lat: Number(d.lat), lng: Number(d.lng)}));
+    try {
+      const res = await this.dormService.searchDorms(
+        this.searchText,
+        this.selectedZone,
+        this.minPrice || undefined,
+        this.maxPrice || undefined,
+      );
 
-              if (this.maxDistance) {
-                 tempDorms = tempDorms.filter(dorm => {
-                    const distKm = this.calculateDistance(
-                        this.center.lat, this.center.lng, 
-                        dorm.lat, dorm.lng
-                    );
-                    return distKm <= this.maxDistance!;
-                 });
-              }
+      if (res.success && res.data) {
+        let tempDorms = res.data.map((d) => ({
+          ...d,
+          lat: Number(d.lat),
+          lng: Number(d.lng),
+        }));
 
-              this.dorms = tempDorms;
+        if (this.maxDistance) {
+          tempDorms = tempDorms.filter((dorm) => {
+            const distKm = this.calculateDistance(
+              this.referencePoint.lat,
+              this.referencePoint.lng, // ✅ อิงระยะจากหมุดน้ำเงินเสมอ
+              dorm.lat,
+              dorm.lng,
+            );
+            return distKm <= this.maxDistance!;
+          });
+        }
 
-              if (this.dorms.length > 0) {
-                  if (!this.maxDistance) {
-                     const target = this.dorms[0];
-                     if (target) {
-                        this.center = { lat: target.lat, lng: target.lng };
-                     }
-                  }
-                  this.zoom = this.maxDistance ? 12 : 16; 
-              }
-          } else {
-              this.dorms = [];
+        this.dorms = tempDorms;
+
+        if (this.dorms.length > 0) {
+          if (!this.maxDistance) {
+            const firstDorm = this.dorms[0];
+            if (firstDorm) {
+              this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
+            }
+            // 🛑 เลิกตั้งค่า referencePoint ...
           }
-      } catch (err) { console.error('Search Error:', err); }
+          this.zoom = 15; // ✅ ยึดระยะซูมไว้ที่ 15 จะได้ไม่ซูมออกไปไกล
+        }
+      } else {
+        this.dorms = [];
+      }
+    } catch (err) {
+      console.error('Search Error:', err);
+    }
   }
 
-  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; 
+  calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    const R = 6371;
     const dLat = this.deg2rad(lat2 - lat1);
     const dLon = this.deg2rad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(this.deg2rad(lat1)) *
+        Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; 
+    return R * c;
   }
 
   deg2rad(deg: number): number {
@@ -212,49 +376,60 @@ export class HomePage implements OnInit, ViewDidEnter {
   async openInfoWindow(marker: MapMarker, dorm: Dormitory) {
     this.selectedDorm = dorm;
     this.center = { lat: dorm.lat, lng: dorm.lng };
-    this.zoom = 16; 
-    
+    this.zoom = 16;
+
+    // ย้ายวงกลมไปที่หอพักเพื่อให้รู้ว่าเลือกหอพักนี้อยู่
     this.circleCenter = { lat: dorm.lat, lng: dorm.lng };
-    this.circleRadius = 400; 
+    this.circleRadius = 400;
 
     if (this.infoWindow) this.infoWindow.open(marker);
+
+    // คำนวณเส้นทางทันทีที่คลิกหมุด
+    this.getTravelData(dorm.lat, dorm.lng, dorm.DORM_ID);
 
     try {
       const res = await this.dormService.getDormById(dorm.DORM_ID);
       if (res.success && res.data) {
-         this.selectedDorm = { ...this.selectedDorm, ...res.data }; 
+        this.selectedDorm = { ...this.selectedDorm, ...res.data };
       }
     } catch (e) {
-      console.error("Fetch pop-up detail error: ", e);
+      console.error('Fetch pop-up detail error: ', e);
     }
   }
 
-  async goToDetail() { 
+  async goToDetail() {
     if (this.selectedDorm) {
       const targetDorm = this.selectedDorm;
-      this.selectedDormDetail = null; 
+      this.selectedDormDetail = null;
 
       try {
         const res = await this.dormService.getDormById(targetDorm.DORM_ID);
         setTimeout(() => {
-           this.selectedDormDetail = res.success ? res.data : targetDorm;
+          this.selectedDormDetail = res.success ? res.data : targetDorm;
         }, 50);
-
-      } catch (e) { 
+      } catch (e) {
         setTimeout(() => {
-           this.selectedDormDetail = targetDorm;
+          this.selectedDormDetail = targetDorm;
         }, 50);
       }
-      
+
       if (this.infoWindow) this.infoWindow.close();
     }
   }
 
-  closeDetailPanel() { this.selectedDormDetail = null; }
-  goToCompare() { this.router.navigate(['/compare']); }
-  setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
-  openFilter() { this.setOpen(true); }
-  selectZone(zoneName: string) { 
-      this.selectedZone = this.selectedZone === zoneName ? '' : zoneName; 
+  closeDetailPanel() {
+    this.selectedDormDetail = null;
+  }
+  goToCompare() {
+    this.router.navigate(['/compare']);
+  }
+  setOpen(isOpen: boolean) {
+    this.isModalOpen = isOpen;
+  }
+  openFilter() {
+    this.setOpen(true);
+  }
+  selectZone(zoneName: string) {
+    this.selectedZone = this.selectedZone === zoneName ? '' : zoneName;
   }
 }
