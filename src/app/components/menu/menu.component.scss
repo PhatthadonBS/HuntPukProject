@@ -1,0 +1,140 @@
+/* =========================================
+   Sidebar Decoration (แถบเมนูด้านซ้าย)
+   ========================================= */
+
+ion-menu {
+  --width: 280px;
+  z-index: 99999 !important; 
+}
+
+.sidebar-content {
+  --background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+.sidebar-wrapper {
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* =========================================
+   โซนโลโก้และโปรไฟล์
+   ========================================= */
+.logo-area {
+  text-align: center;
+  margin-bottom: 40px;
+  
+  .user-avatar-circle {
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%;
+    background: #333; 
+    border: 3px solid #FFD600;
+    box-shadow: 0 0 15px rgba(255, 214, 0, 0.4);
+    margin: 0 auto 10px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+
+    ion-icon { 
+      font-size: 40px; 
+      color: #FFD600; 
+    }
+  }
+
+  img {
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%;
+    border: 3px solid #FFD600; 
+    background: #fff;
+    object-fit: cover; 
+    box-shadow: 0 0 15px rgba(255, 214, 0, 0.4);
+  }
+
+  h3 { 
+    color: #fff; 
+    font-size: 18px; 
+    font-weight: 700; 
+    margin: 0; 
+    letter-spacing: 0.5px; 
+  }
+}
+
+/* =========================================
+   รายการเมนู (Menu Items)
+   ========================================= */
+.menu-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+}
+
+.menu-item {
+  background: rgba(255, 255, 255, 0.05); 
+  color: #ccc;
+  font-weight: 500; 
+  font-size: 15px; 
+  padding: 14px 20px;
+  border-radius: 12px; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 12px;
+  transition: all 0.3s ease;
+  position: relative; 
+  overflow: hidden; 
+  border-left: 4px solid transparent;
+
+  ion-icon { 
+    font-size: 20px; 
+  }
+
+  /* ลูกเล่นตอนเอาเมาส์ชี้ (Hover Effect) */
+  &:hover {
+    background: rgba(255, 214, 0, 0.15); 
+    color: #FFD600;
+    transform: translateX(5px); 
+    border-left: 4px solid #FFD600;
+  }
+
+  /* ลูกเล่นตอนกด (Active Effect) */
+  &:active { 
+    transform: scale(0.98); 
+    background: rgba(255, 214, 0, 0.25); 
+  }
+
+  /* Admin Dashboard Button (ให้ดูโดดเด่น) */
+  &.dashboard-btn {
+    margin-top: 10px; 
+    border: 1px solid #FFD600; 
+    color: #FFD600;
+    background: transparent; 
+    justify-content: center;
+    
+    &:hover { 
+      background: #FFD600; 
+      color: #000; 
+      box-shadow: 0 0 10px rgba(255, 214, 0, 0.4);
+      transform: none; /* ไม่ต้องขยับแกน X */
+      border-left: 1px solid #FFD600;
+    }
+  }
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 15px 0 10px;
+}
+
+.menu-title {
+  color: #FFD600;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  opacity: 0.8;
+  padding-left: 10px;
+}

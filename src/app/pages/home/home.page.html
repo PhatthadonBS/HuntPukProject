@@ -1,102 +1,14 @@
-<ion-menu #homeMenu contentId="home-content" menuId="home-menu" side="start" type="overlay" swipeGesture="false"
-  style="z-index: 99999 !important;">
-  <ion-content class="sidebar-content">
-    <div class="sidebar-wrapper">
-      
-      <div class="logo-area">
-        <div style="margin-bottom: 20px;">
-          <h2 style="color: #FFD600; font-weight: 900; margin: 0; font-size: 28px; letter-spacing: 1.5px;">HuntPuk</h2>
-        </div>
-
-        <ng-container *ngIf="currentUser; else showLogo">
-          <div class="user-avatar-circle">
-            <ion-icon name="person"></ion-icon>
-          </div>
-          <h3 style="color: white; margin: 10px 0 0;">{{ currentUser.username || currentUser.USERNAME }}</h3>
-        </ng-container>
-        <ng-template #showLogo>
-          <img src="assets/logo.png" alt="Logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
-        </ng-template>
-      </div>
-
-      <div class="menu-list">
-        
-        <div class="menu-item active-home" (click)="navigate('/home')">
-          <ion-icon name="home"></ion-icon> หน้าแรก
-        </div>
-        <div class="menu-item" (click)="navigate('/list')">
-          <ion-icon name="list-outline"></ion-icon> รายการ
-        </div>
-        <div class="menu-item" (click)="navigate('/dorm-popular')">
-          <ion-icon name="list-outline"></ion-icon> หอพักยอดนิยม
-        </div>
-
-        <ng-container *ngIf="userRole > 0">
-          <div class="menu-item" (click)="checkAuthAndNavigate('/my-account')">
-            <ion-icon name="person-circle-outline"></ion-icon> บัญชีของฉัน
-          </div>
-          <div class="menu-item" *ngIf="userRole === 1 || userRole === 3" 
-               (click)="checkAuthAndNavigate('/requests')">
-             <ion-icon name="key"></ion-icon> ร้องขอเป็นเจ้าของหอพัก
-          </div>
-          <ng-container *ngIf="userRole === 2 || userRole === 3">
-            <div class="menu-item" (click)="checkAuthAndNavigate('/dorm-form')">
-               <ion-icon name="create"></ion-icon> ลงทะเบียนหอพัก
-            </div>
-            <div class="menu-item" (click)="checkAuthAndNavigate('/my-dorms')">
-               <ion-icon name="home"></ion-icon> หอพักของฉัน
-            </div>
-          </ng-container>
-          <div class="menu-item" (click)="checkAuthAndNavigate('/favorites')">
-            <ion-icon name="heart-outline" style="color:red;"></ion-icon> รายการโปรด
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="userRole === 3">
-          <div class="menu-divider" style="height: 1px; background: rgba(255,255,255,0.2); margin: 10px 0;"></div>
-          <div class="menu-title" style="color: #FFD600; font-size: 12px; margin-bottom: 5px;">ADMIN PANEL</div>
-          <div class="menu-item" (click)="checkAuthAndNavigate('/manage-requests-dorm-owner')">
-             จัดการคำร้องขอเจ้าของหอพัก
-          </div>
-          <div class="menu-item" (click)="checkAuthAndNavigate('/manage-users')">
-             จัดการบัญชีสมาชิก
-          </div>
-          <div class="menu-item" (click)="checkAuthAndNavigate('/manage-dorm')">
-             จัดการหอพัก
-          </div>
-          <div class="menu-item" (click)="checkAuthAndNavigate('/manage-requests-createdorm')">
-             จัดการคำร้องขอหอพัก
-          </div>
-          <div class="menu-item dashboard-btn" (click)="checkAuthAndNavigate('/dashboard')">
-             Dashboard
-          </div>
-        </ng-container>
-
-        <div class="menu-item" *ngIf="userRole > 0" (click)="logout()" style="color: #ff6b6b; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-          <ion-icon name="log-out-outline"></ion-icon> ออกจากระบบ
-        </div>
-
-      </div>
-    </div>
-  </ion-content>
-</ion-menu>
-
-<div class="ion-page" id="home-content" style="height: 100vh; width: 100%; position: relative;">
+<div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
 
   <app-header title="หน้าหลัก" [userData]="currentUser" (searchChange)="onSearch($event)">
   </app-header>
 
   <ion-content [fullscreen]="true" [scrollY]="false">
-
     <div class="map-wrapper">
       <google-map *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
         [options]="mapOptions">
 
-        <map-circle *ngIf="circleCenter" 
-            [center]="circleCenter" 
-            [radius]="circleRadius" 
-            [options]="circleOptions">
-        </map-circle>
+        <map-circle *ngIf="circleCenter" [center]="circleCenter" [radius]="circleRadius" [options]="circleOptions"></map-circle>
 
         <map-marker *ngFor="let dorm of dorms" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
@@ -112,127 +24,103 @@
             </div>
 
             <div class="contact-box">
-                <div class="contact-item" *ngIf="selectedDorm?.phone && selectedDorm?.phone !== '-'">
-                   <ion-icon name="call-outline" style="color: #28a745;"></ion-icon> <span>{{selectedDorm?.phone}}</span>
-                </div>
-                <div class="contact-item" *ngIf="selectedDorm?.line && selectedDorm?.line !== '-'">
-                   <ion-icon name="chatbubble-ellipses-outline" style="color: #00c300;"></ion-icon> <span>{{selectedDorm?.line}}</span>
-                </div>
-                <div class="contact-item" *ngIf="selectedDorm?.facebook && selectedDorm?.facebook !== '-'">
-                   <ion-icon name="logo-facebook" style="color: #1877F2;"></ion-icon> <span>{{selectedDorm?.facebook}}</span>
-                </div>
-                <div class="contact-item" *ngIf="selectedDorm?.instagram && selectedDorm?.instagram !== '-'">
-                   <ion-icon name="logo-instagram" style="color: #E4405F;"></ion-icon> <span>{{selectedDorm?.instagram}}</span>
-                </div>
-                <div class="contact-item" *ngIf="selectedDorm?.telegram && selectedDorm?.telegram !== '-'">
-                   <ion-icon name="paper-plane-outline" style="color: #0088cc;"></ion-icon> <span>{{selectedDorm?.telegram}}</span>
-                </div>
-                <div class="contact-item" *ngIf="selectedDorm?.x && selectedDorm?.x !== '-'">
-                   <strong style="color: #000; font-family: sans-serif; font-size: 14px; margin-left: 2px;">X</strong> <span style="margin-left: 4px;">{{selectedDorm?.x}}</span>
-                </div>
+                <div class="contact-item" *ngIf="selectedDorm?.phone && selectedDorm?.phone !== '-'"><ion-icon name="call-outline" style="color: #28a745;"></ion-icon> <span>{{selectedDorm?.phone}}</span></div>
+                <div class="contact-item" *ngIf="selectedDorm?.line && selectedDorm?.line !== '-'"><ion-icon name="chatbubble-ellipses-outline" style="color: #00c300;"></ion-icon> <span>{{selectedDorm?.line}}</span></div>
+                <div class="contact-item" *ngIf="selectedDorm?.facebook && selectedDorm?.facebook !== '-'"><ion-icon name="logo-facebook" style="color: #1877F2;"></ion-icon> <span>{{selectedDorm?.facebook}}</span></div>
             </div>
 
-            <p class="price-text">
-              เริ่มต้น <span>{{ selectedDorm?.start_price | number }}</span> บาท/เดือน
-            </p>
-            <button class="btn-detail" (click)="goToDetail()">
-              ดูรายละเอียดหอพัก
-            </button>
+            <p class="price-text">เริ่มต้น <span>{{ selectedDorm?.start_price | number }}</span> บาท/เดือน</p>
+            <button class="btn-detail" (click)="goToDetail()">ดูรายละเอียดหอพัก</button>
           </div>
         </map-info-window>
+
       </google-map>
     </div>
-
-   <div slot="fixed" class="ui-overlay" style="z-index: 99999; pointer-events: none;">
-      <div class="top-left-buttons" style="pointer-events: auto; display: flex; align-items: center; gap: 10px;">
-        
-        <ion-menu-toggle menu="home-menu" auto-hide="false" style="display: block; cursor: pointer; pointer-events: auto;">
-          <div class="menu-toggle-btn">
-            <ion-icon name="menu-outline"></ion-icon>
-          </div>
-        </ion-menu-toggle>
-
-        <div class="chip-button" (click)="openFilter()">
-          กรอง <ion-icon name="caret-down-outline"></ion-icon>
-        </div>
-        <div class="chip-button" (click)="goToCompare()">
-          เปรียบเทียบ <ion-icon name="layers-outline"></ion-icon>
-        </div>
-      </div>
-    </div>
-
-    <div class="dorm-side-panel" *ngIf="selectedDormDetail">
-      <div class="btn-close-panel" (click)="closeDetailPanel()">
-        <ion-icon name="close"></ion-icon>
-      </div>
-      <app-dorm-detail [dormData]="selectedDormDetail" [isPopup]="true" style="height: 100%; display: block;">
-      </app-dorm-detail>
-    </div>
-
-    <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
-      <ng-template>
-        <div class="filter-wrapper">
-          <div class="filter-head">
-            <h2>ตัวกรองค้นหา</h2>
-            <ion-icon name="close" (click)="setOpen(false)" size="large"></ion-icon>
-          </div>
-
-          <div class="distance-section" style="margin-bottom: 20px;">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <h3 style="margin:0;">ระยะทาง (กม.)</h3>
-                <span style="font-size: 12px; color: #888;">จากจุดกึ่งกลาง</span>
-             </div>
-             <div class="input-capsule">
-                <ion-icon name="location-outline" style="color: #666; font-size: 20px; margin-left:10px; margin-right: 5px;"></ion-icon>
-                <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20">
-             </div>
-             <p style="font-size: 11px; color: #999; margin-top: 5px;">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
-          </div>
-
-          <div class="price-section">
-            <h3>ช่วงราคา</h3>
-            <div class="price-inputs">
-              <div class="price-col">
-                <span class="label">ต่ำสุด</span>
-                <div class="input-capsule">
-                  <input type="number" [(ngModel)]="minPrice" placeholder="0">
-                </div>
-              </div>
-              <div class="dash">-</div>
-              <div class="price-col">
-                <span class="label">สูงสุด</span>
-                <div class="input-capsule">
-                  <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="zone-section">
-            <h3>บริเวณหอพัก</h3>
-            <div class="zone-options">
-              <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME"
-                (click)="selectZone(zone.ZONE_NAME)">
-                <span>{{ zone.ZONE_NAME }}</span>
-                <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle" color="primary"></ion-icon>
-                <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline"
-                  style="opacity: 0.3;"></ion-icon>
-              </div>
-              <div *ngIf="zoneOptions.length === 0"
-                style="width: 100%; text-align: center; color: #999; padding: 10px;">
-                กำลังโหลดข้อมูลโซน...
-              </div>
-            </div>
-          </div>
-
-          <div class="action-section">
-            <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
-            <button class="btn-clear"
-              (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; applyFilter()">ล้างตัวกรอง</button>
-          </div>
-        </div>
-      </ng-template>
-    </ion-modal>
-
   </ion-content>
+
+  <ion-menu-toggle menu="main-menu" auto-hide="false" class="menu-fab-btn">
+    <ion-icon name="menu-outline"></ion-icon>
+  </ion-menu-toggle>
+
+  <div class="filter-compare-group">
+    <div class="chip-button" (click)="openFilter()">
+      <ion-icon name="options-outline"></ion-icon> กรอง
+    </div>
+    <div class="chip-button compare-btn" (click)="goToCompare()">
+      <ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ
+    </div>
+  </div>
+
+  <div class="dorm-side-panel" *ngIf="selectedDormDetail">
+    <div class="btn-close-panel" (click)="closeDetailPanel()">
+      <ion-icon name="close"></ion-icon>
+    </div>
+    <app-dorm-detail [dormData]="selectedDormDetail" [isPopup]="true" style="height: 100%; display: block;"></app-dorm-detail>
+  </div>
+
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
+    <ng-template>
+      <div class="filter-wrapper">
+        <div class="filter-head">
+          <h2>ตัวกรองค้นหา</h2>
+          <ion-icon name="close-circle" (click)="setOpen(false)" class="close-modal-btn"></ion-icon>
+        </div>
+
+        <div class="distance-section">
+           <div class="section-title">
+              <h3>ระยะทาง (กม.)</h3>
+              <span>จากจุดกึ่งกลาง</span>
+           </div>
+           <div class="input-capsule">
+              <ion-icon name="location" class="icon-yellow"></ion-icon>
+              <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20">
+           </div>
+           <p class="hint-text">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
+        </div>
+
+        <div class="price-section">
+          <h3>ช่วงราคา</h3>
+          <div class="price-inputs">
+            <div class="price-col">
+              <span class="label">ต่ำสุด</span>
+              <div class="input-capsule">
+                <input type="number" [(ngModel)]="minPrice" placeholder="0">
+              </div>
+            </div>
+            <div class="dash">-</div>
+            <div class="price-col">
+              <span class="label">สูงสุด</span>
+              <div class="input-capsule">
+                <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="zone-section">
+          <h3>บริเวณหอพัก</h3>
+          <div class="zone-options">
+            
+            <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME"
+              (click)="selectZone(zone.ZONE_NAME)">
+              <span>{{ zone.ZONE_NAME }}</span>
+              
+              <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle"></ion-icon>
+              <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>
+            </div>
+
+            <div *ngIf="zoneOptions.length === 0" class="loading-zone">
+              กำลังโหลดข้อมูลโซน...
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
+          <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; applyFilter()">ล้างตัวกรองทั้งหมด</button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
 </div>

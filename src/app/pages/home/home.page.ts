@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, MenuController, ViewDidEnter, AlertController, IonMenu } from '@ionic/angular';
+import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 import { GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle } from '@angular/google-maps';
@@ -13,13 +13,12 @@ import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 
+// 🛑 ไม่ต้อง Import ไอคอนเมนูเยอะๆ แล้ว เพราะเราย้ายไปไฟล์ MenuComponent แล้ว
 import { 
-  menuOutline, home, listOutline, personCircleOutline, search, 
-  funnelOutline, layersOutline, close, caretDown, caretDownOutline, 
-  chevronDown, chevronDownCircleOutline, checkmarkCircle,
-  person, create, personOutline, callOutline, key, mail, shieldCheckmark,
-  logOutOutline, locationOutline, chatbubbleEllipsesOutline,
-  logoFacebook, logoInstagram, paperPlaneOutline // ✅ เพิ่มไอคอน Social Media
+  menuOutline, caretDownOutline, layersOutline, close, 
+  locationOutline, checkmarkCircle, chevronDownCircleOutline,
+  callOutline, chatbubbleEllipsesOutline, logoFacebook, 
+  logoInstagram, paperPlaneOutline, optionsOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -29,7 +28,8 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule, IonicModule, RouterModule, 
-    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, HeaderComponent, DormDetailPage
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, 
+    HeaderComponent, DormDetailPage
   ]
 })
 export class HomePage implements OnInit, ViewDidEnter {
@@ -47,7 +47,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   allDorms: Dormitory[] = []; 
   isModalOpen = false;
 
-  // Filter Variables
+  // ตัวแปรสำหรับตัวกรอง
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
@@ -56,45 +56,34 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   selectedDormDetail: Dormitory | null = null;
   selectedDorm: Dormitory | undefined;
+  
+  // เก็บข้อมูล User ส่งไปให้ Header
   currentUser: any = null;
 
   circleCenter: google.maps.LatLngLiteral | undefined;
   circleRadius: number = 0; 
   circleOptions: google.maps.CircleOptions = {
-    fillColor: '#FFD600',
-    fillOpacity: 0.2,
-    strokeColor: '#FFD600',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    clickable: false, 
+    fillColor: '#FFD600', fillOpacity: 0.2, strokeColor: '#FFD600',
+    strokeOpacity: 0.8, strokeWeight: 2, clickable: false, 
   };
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
-  @ViewChild('homeMenu') menuRef: IonMenu | undefined;
 
   constructor(
     private router: Router,
     private dormService: DormitoryService,
     private httpClient: HttpClient,
-    private menuCtrl: MenuController,
-    private alertCtrl: AlertController
+    private menuCtrl: MenuController // ใช้สำหรับเปิดเมนู
   ) {
     addIcons({
-      'menu-outline': menuOutline, home, 'list-outline': listOutline,
-      'person-circle-outline': personCircleOutline, search,
-      'funnel-outline': funnelOutline, 'layers-outline': layersOutline,
-      'close': close, 'caret-down': caretDown, 'caret-down-outline': caretDownOutline,
-      'chevron-down': chevronDown, 'chevron-down-circle-outline': chevronDownCircleOutline,
-      'checkmark-circle': checkmarkCircle,
-      'person': person, 'create': create, 'person-outline': personOutline,
-      'call-outline': callOutline, 'key': key, 'mail': mail, 'shield-checkmark': shieldCheckmark,
-      'log-out-outline': logOutOutline, 'location-outline': locationOutline,
-      'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
-      'logo-facebook': logoFacebook,
-      'logo-instagram': logoInstagram,
-      'paper-plane-outline': paperPlaneOutline
+      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline,
+      'layers-outline': layersOutline, 'close': close, 'location-outline': locationOutline,
+      'checkmark-circle': checkmarkCircle, 'chevron-down-circle-outline': chevronDownCircleOutline,
+      'call-outline': callOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
+      'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline
     });
 
+    // โหลด Google Maps API
     if (typeof google === 'object' && typeof google.maps === 'object') {
         this.apiLoaded = of(true); 
     } else {
@@ -110,23 +99,17 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  get userRole(): number {
-    if (!this.currentUser) return 0;
-    return this.currentUser.role_id || this.currentUser.ROLE_TYPE_ID || this.currentUser.role_type_id || 1;
-  }
-
   ngOnInit() {
     this.fetchDorms();
     this.fetchZones(); 
     this.checkLoginStatus(); 
   }
 
-  async ionViewDidEnter() {
-    const backdrops = document.querySelectorAll('ion-backdrop');
-    backdrops.forEach(element => element.remove());
+  ionViewDidEnter() {
     this.checkLoginStatus();
   }
 
+  // ดึงข้อมูล User มาแสดงใน Header ของหน้า Home
   checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
@@ -143,58 +126,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     } else {
       this.currentUser = null;
     }
-  }
-
-  async toggleMenu() {
-    const isOpen = await this.menuCtrl.isOpen('home-menu');
-    if (isOpen) {
-      await this.menuCtrl.close('home-menu');
-    } else {
-      await this.menuCtrl.open('home-menu');
-    }
-  }
-
-  async navigate(path: string) {
-    await this.menuCtrl.close('home-menu');
-    this.router.navigate([path]);
-  }
-
-  async checkAuthAndNavigate(path: string) {
-    await this.menuCtrl.close('home-menu');
-    if (this.currentUser) {
-      this.router.navigate([path]);
-    } else {
-      const alert = await this.alertCtrl.create({
-        header: 'แจ้งเตือน',
-        message: 'กรุณาเข้าสู่ระบบเพื่อใช้งานฟังก์ชันนี้',
-        buttons: [
-          { text: 'ยกเลิก', role: 'cancel' },
-          { text: 'เข้าสู่ระบบ', handler: () => { this.router.navigate(['/login']); } }
-        ]
-      });
-      await alert.present();
-    }
-  }
-
-  async logout() {
-    const alert = await this.alertCtrl.create({
-        header: 'ยืนยัน',
-        message: 'ต้องการออกจากระบบใช่หรือไม่?',
-        buttons: [
-            { text: 'ยกเลิก', role: 'cancel' },
-            {
-                text: 'ออกจากระบบ',
-                role: 'destructive',
-                handler: async () => {
-                    localStorage.removeItem('loggedIn');
-                    this.currentUser = null;
-                    await this.menuCtrl.close('home-menu');
-                    this.router.navigate(['/login']);
-                }
-            }
-        ]
-    });
-    await alert.present();
   }
 
   async fetchZones() {
@@ -214,7 +145,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     } catch (err) { console.error('Fetch Dorms Error:', err); }
   }
 
-  async onSearch(text: any) {
+  onSearch(text: any) {
     const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
     this.performSearch();
@@ -254,7 +185,7 @@ export class HomePage implements OnInit, ViewDidEnter {
                         this.center = { lat: target.lat, lng: target.lng };
                      }
                   }
-                  this.zoom = this.maxDistance ? 12 : 14; 
+                  this.zoom = this.maxDistance ? 12 : 16; 
               }
           } else {
               this.dorms = [];
@@ -298,16 +229,13 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-async goToDetail() { 
+  async goToDetail() { 
     if (this.selectedDorm) {
-      // ✅ 1. บังคับเคลียร์ข้อมูลเก่าทิ้งก่อน (ตั้งเป็น null) เพื่อให้ Component โดนทำลายและวาดใหม่
       const targetDorm = this.selectedDorm;
       this.selectedDormDetail = null; 
 
       try {
         const res = await this.dormService.getDormById(targetDorm.DORM_ID);
-        
-        // ✅ 2. ใช้ setTimeout หน่วงเวลาไว้ 50 มิลลิวินาที ค่อยยัดข้อมูลหอใหม่เข้าไป
         setTimeout(() => {
            this.selectedDormDetail = res.success ? res.data : targetDorm;
         }, 50);
