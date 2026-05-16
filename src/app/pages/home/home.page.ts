@@ -1,15 +1,11 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular';
+import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular'; // ✅ นำ MenuController กลับมา
 import { Router, RouterModule } from '@angular/router';
-import {
-  HttpClientModule,
-  HttpClient,
-  HttpClientJsonpModule,
-} from '@angular/common/http';
+import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 
-// ✅ เพิ่ม MapDirectionsRenderer สำหรับวาดเส้นทาง
+// นำเข้าระบบแผนที่
 import {
   GoogleMapsModule,
   MapInfoWindow,
@@ -27,21 +23,11 @@ import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 
 import {
-  menuOutline,
-  caretDownOutline,
-  layersOutline,
-  close,
-  locationOutline,
-  checkmarkCircle,
-  chevronDownCircleOutline,
-  callOutline,
-  chatbubbleEllipsesOutline,
-  logoFacebook,
-  logoInstagram,
-  paperPlaneOutline,
-  optionsOutline,
-  navigateCircleOutline,
-  timeOutline,
+  menuOutline, caretDownOutline, layersOutline, close,
+  locationOutline, checkmarkCircle, chevronDownCircleOutline,
+  callOutline, chatbubbleEllipsesOutline, logoFacebook,
+  logoInstagram, paperPlaneOutline, optionsOutline,
+  navigateCircleOutline, timeOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -50,28 +36,18 @@ import {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RouterModule,
-    HttpClientModule,
-    HttpClientJsonpModule,
-    GoogleMapsModule,
-    HeaderComponent,
-    DormDetailPage,
-    MapDirectionsRenderer, // ✅ นำเข้าใช้งานที่นี่
+    CommonModule, FormsModule, IonicModule, RouterModule,
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
+    HeaderComponent, DormDetailPage, MapDirectionsRenderer,
   ],
 })
 export class HomePage implements OnInit, ViewDidEnter {
   apiLoaded: Observable<boolean>;
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
-  zoom = 15; // ✅ ตั้งค่าซูมเริ่มต้นให้พอดี
+  zoom = 15; 
   mapOptions: google.maps.MapOptions = {
-    disableDefaultUI: false,
-    zoomControl: false,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
+    disableDefaultUI: false, zoomControl: false, mapTypeControl: false,
+    streetViewControl: false, fullscreenControl: false,
   };
 
   searchText: string = '';
@@ -93,18 +69,13 @@ export class HomePage implements OnInit, ViewDidEnter {
   circleCenter: google.maps.LatLngLiteral | undefined;
   circleRadius: number = 0;
   circleOptions: google.maps.CircleOptions = {
-    fillColor: '#FFD600',
-    fillOpacity: 0.2,
-    strokeColor: '#FFD600',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    clickable: false,
+    fillColor: '#FFD600', fillOpacity: 0.2, strokeColor: '#FFD600',
+    strokeOpacity: 0.8, strokeWeight: 2, clickable: false,
   };
 
   referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   travelInfo: { [key: number]: { distance: string; duration: string } } = {};
 
-  // ✅ ตัวแปรสำหรับจัดการเส้นทาง (Directions)
   directionsService: google.maps.DirectionsService | undefined;
   directionsResult: google.maps.DirectionsResult | undefined;
 
@@ -114,24 +85,16 @@ export class HomePage implements OnInit, ViewDidEnter {
     private router: Router,
     private dormService: DormitoryService,
     private httpClient: HttpClient,
-    private menuCtrl: MenuController,
+    private menuCtrl: MenuController, // ✅ ต้องประกาศใช้งานที่นี่
     private cdr: ChangeDetectorRef,
   ) {
     addIcons({
-      'menu-outline': menuOutline,
-      'caret-down-outline': caretDownOutline,
-      'layers-outline': layersOutline,
-      close: close,
-      'location-outline': locationOutline,
-      'checkmark-circle': checkmarkCircle,
-      'chevron-down-circle-outline': chevronDownCircleOutline,
-      'call-outline': callOutline,
-      'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
-      'logo-facebook': logoFacebook,
-      'logo-instagram': logoInstagram,
-      'paper-plane-outline': paperPlaneOutline,
-      'options-outline': optionsOutline,
-      'navigate-circle-outline': navigateCircleOutline,
+      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline,
+      'close': close, 'location-outline': locationOutline, 'checkmark-circle': checkmarkCircle,
+      'chevron-down-circle-outline': chevronDownCircleOutline, 'call-outline': callOutline,
+      'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook,
+      'logo-instagram': logoInstagram, 'paper-plane-outline': paperPlaneOutline,
+      'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline,
       'time-outline': timeOutline,
     });
 
@@ -139,10 +102,7 @@ export class HomePage implements OnInit, ViewDidEnter {
       this.apiLoaded = of(true);
     } else {
       this.apiLoaded = this.httpClient
-        .jsonp(
-          `https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`,
-          'callback',
-        )
+        .jsonp(`https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 'callback')
         .pipe(
           map(() => true),
           catchError((err) => {
@@ -181,21 +141,10 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  // ✅ ใช้ toggle() ให้เปิด/ปิดอัตโนมัติ (เสถียรกว่า)
- // ✅ ใช้ท่าไม้ตายก้นหีบ บังคับเปิดเมนู 100%
-  async openMenu() {
-    try {
-      // วิธีที่ 1: ให้ Ionic เปิดให้
-      await this.menuCtrl.enable(true, 'main-menu');
-      await this.menuCtrl.open('main-menu');
-    } catch (error) {
-      console.log('MenuCtrl error, ใช้ท่าไม้ตายแทน...');
-      // วิธีที่ 2: ถ้า Ionic เอ๋อ ให้ใช้ DOM บังคับเปิดตรงๆ
-      const menu: any = document.querySelector('ion-menu');
-      if (menu) {
-        menu.open();
-      }
-    }
+// ✅ ท่าไม้ตายใหม่: โยน Event ไปบอกให้ Sidebar เปิด (ไม่ต้องง้อ Ionic)
+openMenu() {
+    // ยิง Event ไปบอกเมนูให้เปิด
+    window.dispatchEvent(new CustomEvent('toggle-sidebar'));
   }
 
   // ✅ ฟังก์ชันให้ผู้ใช้คลิกบนแผนที่เพื่อสร้างจุดอ้างอิงใหม่
@@ -214,7 +163,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (typeof google === 'undefined' || typeof google.maps === 'undefined')
       return;
 
-    // 1. คำนวณเวลาและระยะทางแบบข้อความ
     const service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
@@ -225,12 +173,7 @@ export class HomePage implements OnInit, ViewDidEnter {
       (response, status) => {
         if (status === 'OK' && response) {
           const result = response.rows?.[0]?.elements?.[0];
-          if (
-            result &&
-            result.status === 'OK' &&
-            result.distance &&
-            result.duration
-          ) {
+          if (result && result.status === 'OK' && result.distance && result.duration) {
             this.travelInfo[dormId] = {
               distance: result.distance.text,
               duration: result.duration.text,
@@ -241,7 +184,6 @@ export class HomePage implements OnInit, ViewDidEnter {
       },
     );
 
-    // 2. วาดเส้นทางสีฟ้าบนแผนที่
     if (!this.directionsService) {
       this.directionsService = new google.maps.DirectionsService();
     }
@@ -253,7 +195,6 @@ export class HomePage implements OnInit, ViewDidEnter {
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
-        // ✅ แก้ไขตรงนี้: เพิ่ม result || undefined เข้าไปครับ
         if (status === 'OK') {
           this.directionsResult = result || undefined;
         } else {
@@ -277,11 +218,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     try {
       const res = await this.dormService.getAllDorms();
       if (res.success && res.data) {
-        this.allDorms = res.data.map((d) => ({
-          ...d,
-          lat: Number(d.lat),
-          lng: Number(d.lng),
-        }));
+        this.allDorms = res.data.map((d) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) }));
         this.dorms = [...this.allDorms];
       }
     } catch (err) {
@@ -290,9 +227,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   onSearch(text: any) {
-    const searchValue = (
-      typeof text === 'string' ? text : text?.target?.value || ''
-    ).trim();
+    const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
     this.performSearch();
   }
@@ -305,27 +240,15 @@ export class HomePage implements OnInit, ViewDidEnter {
   async performSearch() {
     try {
       const res = await this.dormService.searchDorms(
-        this.searchText,
-        this.selectedZone,
-        this.minPrice || undefined,
-        this.maxPrice || undefined,
+        this.searchText, this.selectedZone, this.minPrice || undefined, this.maxPrice || undefined
       );
 
       if (res.success && res.data) {
-        let tempDorms = res.data.map((d) => ({
-          ...d,
-          lat: Number(d.lat),
-          lng: Number(d.lng),
-        }));
+        let tempDorms = res.data.map((d) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) }));
 
         if (this.maxDistance) {
           tempDorms = tempDorms.filter((dorm) => {
-            const distKm = this.calculateDistance(
-              this.referencePoint.lat,
-              this.referencePoint.lng, // ✅ อิงระยะจากหมุดน้ำเงินเสมอ
-              dorm.lat,
-              dorm.lng,
-            );
+            const distKm = this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng);
             return distKm <= this.maxDistance!;
           });
         }
@@ -338,9 +261,8 @@ export class HomePage implements OnInit, ViewDidEnter {
             if (firstDorm) {
               this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
             }
-            // 🛑 เลิกตั้งค่า referencePoint ...
           }
-          this.zoom = 15; // ✅ ยึดระยะซูมไว้ที่ 15 จะได้ไม่ซูมออกไปไกล
+          this.zoom = 15; 
         }
       } else {
         this.dorms = [];
@@ -350,21 +272,13 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  calculateDistance(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
-  ): number {
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371;
     const dLat = this.deg2rad(lat2 - lat1);
     const dLon = this.deg2rad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(lat1)) *
-        Math.cos(this.deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
@@ -377,14 +291,10 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.selectedDorm = dorm;
     this.center = { lat: dorm.lat, lng: dorm.lng };
     this.zoom = 16;
-
-    // ย้ายวงกลมไปที่หอพักเพื่อให้รู้ว่าเลือกหอพักนี้อยู่
     this.circleCenter = { lat: dorm.lat, lng: dorm.lng };
     this.circleRadius = 400;
 
     if (this.infoWindow) this.infoWindow.open(marker);
-
-    // คำนวณเส้นทางทันทีที่คลิกหมุด
     this.getTravelData(dorm.lat, dorm.lng, dorm.DORM_ID);
 
     try {
@@ -417,19 +327,9 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  closeDetailPanel() {
-    this.selectedDormDetail = null;
-  }
-  goToCompare() {
-    this.router.navigate(['/compare']);
-  }
-  setOpen(isOpen: boolean) {
-    this.isModalOpen = isOpen;
-  }
-  openFilter() {
-    this.setOpen(true);
-  }
-  selectZone(zoneName: string) {
-    this.selectedZone = this.selectedZone === zoneName ? '' : zoneName;
-  }
+  closeDetailPanel() { this.selectedDormDetail = null; }
+  goToCompare() { this.router.navigate(['/compare']); }
+  setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
+  openFilter() { this.setOpen(true); }
+  selectZone(zoneName: string) { this.selectedZone = this.selectedZone === zoneName ? '' : zoneName; }
 }

@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, MenuController, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-menu', // นี่คือชื่อ Tag ที่เราจะเอาไปเรียกใช้
+  selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
   standalone: true,
@@ -12,15 +12,23 @@ import { Router } from '@angular/router';
 })
 export class MenuComponent implements OnInit {
   currentUser: any = null;
+  isOpen = false; // ตัวแปรเปิด/ปิดเมนู
 
   constructor(
     private router: Router, 
-    private menuCtrl: MenuController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private cdr: ChangeDetectorRef // ✅ อาวุธลับสำหรับโหมด --prod
   ) {}
 
   ngOnInit() {
     this.checkLoginStatus();
+  }
+
+  // ✅ รับคำสั่งจากหน้า Home และบังคับหน้าจอให้อัปเดตทันที
+  @HostListener('window:toggle-sidebar')
+  toggleSidebar() {
+    this.isOpen = !this.isOpen;
+    this.cdr.detectChanges(); 
   }
 
   get userRole(): number {
@@ -43,7 +51,7 @@ export class MenuComponent implements OnInit {
   }
 
   async navigate(path: string) {
-    await this.menuCtrl.close('main-menu');
+    this.isOpen = false;
     this.router.navigate([path]);
   }
 
@@ -59,7 +67,7 @@ export class MenuComponent implements OnInit {
                 handler: async () => {
                     localStorage.removeItem('loggedIn');
                     this.currentUser = null;
-                    await this.menuCtrl.close('main-menu');
+                    this.isOpen = false;
                     this.router.navigate(['/login']);
                 }
             }

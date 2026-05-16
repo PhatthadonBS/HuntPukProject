@@ -5,13 +5,20 @@ $msu-yellow: #FFD600;
 $msu-dark: #1a1a1a;
 $bg-light: #f5f5f5;
 
-.map-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #e0e0e0; }
+/* =========================================
+   🗺️ 2. Map & Layout
+   ========================================= */
+.map-wrapper { 
+  position: absolute; top: 0; left: 0; 
+  width: 100%; height: 100%; 
+  z-index: 0; background: #e0e0e0; 
+}
 
 /* =========================================
-   🚀 2. Floating UI (ปุ่มลอยแยกอิสระ 100%)
+   🚀 3. Floating UI (ปุ่มลอยแยกอิสระ)
    ========================================= */
 
-/* ✅ ปุ่มเมนู (ใช้ ion-menu-button ของ Ionic) */
+/* ✅ ปุ่มเมนู (กลับมาใช้ ion-icon จัดระเบียบสวยงาม) */
 .menu-fab-btn {
   position: absolute; top: 85px; left: 15px; z-index: 9999;
   width: 56px; height: 56px; background: $msu-yellow; color: $msu-dark;
@@ -19,18 +26,13 @@ $bg-light: #f5f5f5;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer; transition: all 0.2s ease;
   border: 3px solid #fff; margin: 0; overflow: hidden;
   
-  /* ปิดคลุมดำไฮไลต์ */
+  /* ปิดคลุมดำไฮไลต์เวลาคลิกรัวๆ */
   user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
 
-  /* บังคับปุ่ม Ionic ให้กลมกลืนกับดีไซน์ของเรา */
-  ion-menu-button {
-    --color: #1a1a1a; width: 100%; height: 100%; margin: 0;
-    --padding-start: 0; --padding-end: 0;
-  }
+  ion-icon { font-size: 32px; font-weight: bold; pointer-events: none; }
   &:active { transform: scale(0.9); background: #e6c200; }
 }
 
-/* กลุ่มปุ่มกรองและเปรียบเทียบ */
 .filter-compare-group {
   position: absolute; top: 85px; left: 85px; z-index: 9999;
   display: flex; gap: 12px; pointer-events: none; 
@@ -42,7 +44,7 @@ $bg-light: #f5f5f5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); cursor: pointer; pointer-events: auto;
   transition: all 0.2s; border: 2px solid transparent; 
   
-  /* ปิดคลุมดำไฮไลต์ */
+  /* ปิดคลุมดำไฮไลต์เวลาคลิกรัวๆ */
   user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
 
   ion-icon { font-size: 20px; pointer-events: none; color: $msu-dark; }
@@ -51,7 +53,7 @@ $bg-light: #f5f5f5;
 }
 
 /* =========================================
-   📍 3. Info Window (ป๊อปอัปบนหมุดแผนที่)
+   📍 4. Info Window (ป๊อปอัปบนหมุดแผนที่)
    ========================================= */
 .custom-info-window {
   padding: 12px; min-width: 240px; text-align: center; font-family: inherit;
@@ -72,7 +74,7 @@ $bg-light: #f5f5f5;
 }
 
 /* =========================================
-   🏠 4. แผงรายละเอียดหอพัก (Side Panel)
+   🏠 5. แผงรายละเอียดหอพัก (Side Panel)
    ========================================= */
 .dorm-side-panel {
   position: absolute; top: 80px; right: 20px; width: 400px; height: calc(100% - 100px);
@@ -83,7 +85,7 @@ $bg-light: #f5f5f5;
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 /* =========================================
-   🛠️ 5. Filter Modal
+   🛠️ 6. Filter Modal (ตัวกรองค้นหา)
    ========================================= */
 ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px; --border-radius: 24px; --backdrop-opacity: 0.5; }
 .filter-wrapper { padding: 25px; background: #ffffff;
@@ -97,7 +99,7 @@ ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px
 }
 
 /* =========================================
-   📱 6. Responsive (หน้าจอมือถือ)
+   📱 7. Responsive (หน้าจอมือถือ)
    ========================================= */
 @media (max-width: 768px) {
   .dorm-side-panel { width: 100%; height: 65%; top: auto; bottom: 0; right: 0; border-radius: 24px 24px 0 0; animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
