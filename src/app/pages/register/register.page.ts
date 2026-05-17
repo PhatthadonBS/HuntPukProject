@@ -99,58 +99,56 @@ export class RegisterPage implements OnInit {
     });
     await loading.present();
 
-    try {
+try {
       // -----------------------------------------------------------
-      // Step 1: เรียก API Register Sec1 (เพื่อเช็ค User ซ้ำ)
+      // Step 1: เรียก API Register Sec1 (เพื่อเช็ค User ซ้ำและเข้ารหัสรหัสผ่าน)
       // -----------------------------------------------------------
-      // ต้อง await ตรงนี้ เพราะถ้า User ซ้ำ เราจะไม่ส่ง OTP
-      await this.authService.register(userData);
+      // ✅ นำตัวแปรมารับผลลัพธ์จาก Backend 
+      const sec1Response: any = await this.authService.register(userData);
       
-      // ✅ แก้ไข: ให้เก็บ Object ข้อมูลที่ user กรอกไว้ (userData) 
-      // เพื่อป้องกันกรณี Server คืนค่ามาไม่ครบ แล้วข้อมูลหายตอนบันทึกจริง
-      this.tempUserData = userData;
+      // ✅ เก็บ Object ที่มีรหัสผ่านแบบ Hash แล้ว (ที่ Backend ส่งกลับมา) ไปใช้ต่อใน Sec 2
+      // (เผื่อกรณี Service คืนค่ามาเป็น .data หรือตัวข้อมูลตรงๆ)
+      this.tempUserData = sec1Response.data ? sec1Response.data : sec1Response;
 
       // -----------------------------------------------------------
       // Step 2: สั่งส่ง OTP แบบ Fire & Forget (ไม่รอ) 🔥
       // -----------------------------------------------------------
-      // เอา await ออก เพื่อให้มันทำงาน Background (Modal จะได้เด้งทันที)
       this.authService.reqOTP(this.email).catch(err => {
          console.warn('Background OTP send error:', err);
-         // ถ้าส่งไม่ผ่าน User สามารถกด Resend ใน Modal ได้อยู่แล้ว ไม่ต้องซีเรียส
       });
 
       // -----------------------------------------------------------
-      // Step 3: ปิด Loading แล้วเปิด Modal ทันที!
+      // Step 3: ปิด Loading แล้วเปิด Modal กรอก OTP ทันที!
       // -----------------------------------------------------------
       await loading.dismiss();
 
       const modal = await this.modalCtrl.create({
         component: OtpModalComponent,
-        componentProps: { email: this.email }, // ส่งอีเมลไปโชว์
-        backdropDismiss: false // ห้ามกดข้างนอกปิด
+        componentProps: { email: this.email },
+        backdropDismiss: false
       });
 
       await modal.present();
 
-      // รอผลลัพธ์ตอนปิด Modal (User กรอก OTP เสร็จแล้ว)
       const { data } = await modal.onWillDismiss();
 
-      // ถ้า Modal ส่งกลับมาว่า success: true
       if (data && data.success) {
         await this.finishRegister();
       }
       
-    } catch (error: any) {
-      await loading.dismiss(); // อย่าลืมปิด Loading ถ้า Error
+   } catch (error: any) {
+      await loading.dismiss(); // ปิดโหลดก่อน
+      console.error("🔥 Register Error:", error);
       
-      console.error(error);
-      const msg = error.error?.message || error.message || 'เกิดข้อผิดพลาด';
+      // ✅ ล้วงเอาข้อความ Error จาก Backend ออกมา
+      const errorMsg = error.error?.message || error.error || error.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+      const displayMsg = typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg);
       
-      // เช็ค Error Message จาก Server
-      if(msg.includes('Duplicate') || msg.includes('email')) {
-         this.showAlert('ข้อมูลซ้ำ', 'อีเมลนี้ถูกใช้งานแล้ว');
+      // เช็คคำว่า Duplicate หรือ Email เพื่อแปลงเป็นภาษาไทยให้ผู้ใช้อ่านง่ายๆ
+      if(displayMsg.includes('Duplicate') || displayMsg.includes('email') || displayMsg.includes('ถูกใช้งานแล้ว')) {
+         this.showAlert('ข้อมูลซ้ำ', 'อีเมลหรือเบอร์โทรศัพท์นี้ถูกใช้งานแล้ว กรุณาใช้ข้อมูลอื่น');
       } else {
-         this.showAlert('ผิดพลาด', 'ไม่สามารถทำรายการได้ กรุณาลองใหม่');
+         this.showAlert('สมัครสมาชิกไม่สำเร็จ', displayMsg);
       }
     }
   }

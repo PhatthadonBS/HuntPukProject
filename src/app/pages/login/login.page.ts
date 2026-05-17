@@ -9,7 +9,7 @@ import {
 } from '../../model/res/user_loggedIn_post_res';
 import { Auth } from '../../services/auth';
 import { addIcons } from 'ionicons';
-import { arrowBack, key, person ,eye,eyeOff} from 'ionicons/icons';
+import { arrowBack, key, person, eye, eyeOff } from 'ionicons/icons'; 
 
 @Component({
   selector: 'app-login',
@@ -19,9 +19,8 @@ import { arrowBack, key, person ,eye,eyeOff} from 'ionicons/icons';
   imports: [CommonModule, FormsModule, IonicModule, RouterModule],
 })
 export class LoginPage implements OnInit {
-  email: string = '';
+  email: string = ''; // ✅ กลับมาใช้ email
   password: string = '';
-
   showPassword: boolean = false;
 
   constructor(
@@ -30,8 +29,7 @@ export class LoginPage implements OnInit {
     private loadingCtrl: LoadingController,
     private authService: Auth
   ) {
-    // ✅ ลงทะเบียน Icon
-    addIcons({ arrowBack, person, key, eye, eyeOff });
+    addIcons({ arrowBack, person, key, eye, eyeOff }); 
   }
 
   ngOnInit() {}
@@ -40,17 +38,16 @@ export class LoginPage implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
-  // ✅ ฟังก์ชันกลับหน้า Home
   goHome() {
     this.router.navigate(['/home']);
   }
+
   async login() {
     if (!this.email || !this.password) {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกอีเมลและรหัสผ่าน');
       return;
     }
 
-    // ✅ แสดง Loading
     const loading = await this.loadingCtrl.create({
       message: 'กำลังเข้าสู่ระบบ...',
       spinner: 'crescent'
@@ -58,33 +55,33 @@ export class LoginPage implements OnInit {
     await loading.present();
 
     try {
+      // ✅ ส่งค่า email ในการ Login ตามเดิม
       const res = (await this.authService.login(
         this.email,
         this.password
-      )) as UserLoggedInPostRes;
+      )) as UserLoggedInPostRes & { token?: string }; 
 
       if (res.logged_in) {
         
-        // ✅ [เพิ่ม] เช็คเงื่อนไข Role และ Status ตรงนี้เลย
         const roleId = res.user.role_id;
-        const status = res.user.accout_status; // (ตามชื่อตัวแปรใน model คุณ)
+        const status = res.user.accout_status; 
 
         if ((roleId === 1 || roleId === 2 || roleId === 3) && status === 0) {
           
           const userData = {
             loggedIn: true,
             id: res.user.id,
-            email: res.user.email,
+            email: this.email,
             username: res.user.username,
             role_id: res.user.role_id,
             accout_status: res.user.accout_status,
+            token: res.token // ✅ เก็บ Token ไว้เพื่อให้ Interceptor นำไปใช้ส่งแนบกับ Request
           };
 
           localStorage.setItem("loggedIn", JSON.stringify(userData));
 
           await loading.dismiss();
 
-          // ✅ แยกทางเดิน: ถ้าเป็น Admin (3) ไป dashboard, คนอื่นไป home
           if (roleId === 3) {
             this.router.navigate(['/dashboard']);
           } else {
@@ -101,12 +98,23 @@ export class LoginPage implements OnInit {
         this.showAlert('แจ้งเตือน', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       }
 
-    } catch (error) {
+} catch (error: any) {
       await loading.dismiss();
-      console.error(error);
-      this.showAlert('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      console.error("🔥 Login Error:", error);
+
+      // ✅ เปลี่ยนจากข้อความตายตัว มาดึงข้อความจากเซิร์ฟเวอร์ตรง ๆ
+      const errorMsg = error.error?.message || error.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์';
+      
+      // ตรวจสอบชนิดข้อมูลเผื่อเซิร์ฟเวอร์ส่งกลับมาเป็นวัตถุ (Object)
+      const displayMsg = typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg);
+
+      // ตรวจจับคำว่า User not fount เพื่อแปลเป็นข้อความภาษาไทยที่อ่านง่าย
+      if (displayMsg === "User not fount") {
+        this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'ไม่พบบัญชีผู้ใช้นี้ในระบบ');
+      } else {
+        this.showAlert('เข้าสู่ระบบไม่สำเร็จ', displayMsg);
+      }
     }
-  }
 
   skip() {
     this.router.navigate(['/home']);

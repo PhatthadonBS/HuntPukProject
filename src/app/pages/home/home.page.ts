@@ -312,9 +312,10 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   deg2rad(deg: number): number { return deg * (Math.PI / 180); }
 
-  // ✅ เมื่อคลิกหมุดหอพักบนแผนที่ (เปิด Side Panel)
-  async openInfoWindow(marker: MapMarker, dorm: Dormitory) {
-    this.selectedDorm = dorm;
+// ✅ เมื่อคลิกหมุดหอพักบนแผนที่ (เปิด Side Panel) ปรับให้ลื่นไหล ไม่ค้าง
+  openInfoWindow(marker: MapMarker, dorm: Dormitory) {
+    // 1. โชว์ข้อมูลเบื้องต้นทันที (แผงจะสไลด์ขึ้นมาแบบไม่กระตุก)
+    this.selectedDorm = { ...dorm };
     this.center = { lat: dorm.lat, lng: dorm.lng };
     this.zoom = 16;
     this.circleCenter = { lat: dorm.lat, lng: dorm.lng };
@@ -324,18 +325,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.reviews = [];
     this.nearbyDorms = [];
 
-    // คำนวณเส้นทาง
-    this.calculateAllTravelModes(dorm.lat, dorm.lng);
-
-    // ดึงข้อมูลเชิงลึก (ห้อง / สิ่งอำนวยความสะดวก / ข้อมูลเจ้าของ)
-    try {
-      const res = await this.dormService.getDormById(dorm.DORM_ID);
-      if (res.success && res.data) {
-        this.selectedDorm = { ...this.selectedDorm, ...res.data };
-      }
-    } catch (e) { console.error('Fetch pop-up detail error: ', e); }
-
-    // คำนวณหอพักใกล้เคียงภายใน 1 กม.
+    // คำนวณหอพักใกล้เคียงภายใน 1 กม. (คำนวณเร็ว ทำก่อนได้เลย)
     this.nearbyDorms = this.allDorms
       .filter(d => {
         if (d.DORM_ID === dorm.DORM_ID) return false;
@@ -344,8 +334,27 @@ export class HomePage implements OnInit, ViewDidEnter {
       })
       .slice(0, 5); // แสดงสูงสุด 5 รายการ
 
-    // ดึงรีวิว
-    this.loadReviews(dorm.DORM_ID);
+    this.cdr.detectChanges(); // สั่งให้อัปเดต UI ทันที แผงจะเด้งขึ้นมาทันที
+
+    // 2. หน่วงเวลา 350ms รอให้ Animation แผงสไลด์เด้งเสร็จก่อน ค่อยดึงข้อมูลหนักๆ
+    setTimeout(async () => {
+      // ดึงข้อมูลเชิงลึก (ห้อง / สิ่งอำนวยความสะดวก / ข้อมูลเจ้าของ)
+      try {
+        const res = await this.dormService.getDormById(dorm.DORM_ID);
+        if (res.success && res.data) {
+          this.selectedDorm = { ...this.selectedDorm, ...res.data };
+          this.cdr.detectChanges(); // อัปเดตข้อมูลอีกรอบเมื่อโหลดเสร็จ (เช่น โชว์เบอร์โทร)
+        }
+      } catch (e) { 
+        console.error('Fetch pop-up detail error: ', e); 
+      }
+
+      // คำนวณเส้นทาง (Google Maps API)
+      this.calculateAllTravelModes(dorm.lat, dorm.lng);
+      
+      // ดึงรีวิว
+      this.loadReviews(dorm.DORM_ID);
+    }, 350);
   }
 
   // เลือกหอพักใกล้เคียง

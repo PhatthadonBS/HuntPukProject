@@ -204,11 +204,25 @@ ion-header {
    Responsive (หน้าจอมือถือ)
    ================== */
 @media (max-width: 768px) {
-  .logo-section .header-title { display: none; } /* ซ่อนชื่อเว็บ เหลือแต่โลโก้ */
-  .auth-buttons ion-button.btn-register { display: none; } /* ซ่อนปุ่มสมัคร */
+  /* บังคับให้ช่องค้นหาปัดลงมาอยู่บรรทัดใหม่ และกว้าง 100% บนมือถือ */
+  .header-container {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    padding: 10px !important;
+  }
   
-  .search-section .btn-search-action span { display: none; } /* ซ่อนข้อความปุ่มค้นหา */
-  .search-section .btn-search-action { padding: 0 15px; }
+  .search-wrapper {
+    order: 3; /* ย้ายช่องค้นหาไปลำดับสุดท้าย */
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 10px;
+  }
   
-  .auth-buttons .user-badge span { display: none; } /* ซ่อนชื่อผู้ใช้เหลือแต่ไอคอน */
+  /* ดันปุ่มแผงซ้ายมือลงมาหลบช่องค้นหาที่ขยายใหญ่ขึ้น */
+  :host-context(.ion-page) .menu-fab-btn {
+    top: 135px !important;
+  }
+  :host-context(.ion-page) .filter-compare-group {
+    top: 135px !important;
+  }
 }

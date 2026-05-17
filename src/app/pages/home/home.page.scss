@@ -151,15 +151,17 @@ $text-muted: #6c757d;
     .reviews { font-size: 12px; color: #888; margin-left: 2px; &.link { text-decoration: underline; color: #3880ff; cursor: pointer; font-weight: 600; } }
   }
 
-  .contact-box {
-    display: flex; gap: 8px;
+.contact-box {
+    display: flex; gap: 8px; flex-wrap: wrap; /* เผื่อจอมือถือเล็กให้มันปัดตกบรรทัด */
     .btn-contact {
-      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      color: #ffffff; font-size: 18px; text-decoration: none; box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: 0.2s;
+      padding: 6px 12px; border-radius: 20px; /* เปลี่ยนจากวงกลมเป็นทรงแคปซูล */
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: 0.2s;
       &.phone { background: #28a745; }
       &.line { background: #00c300; }
       &.fb { background: #1877F2; }
-      &:active { transform: scale(0.9); }
+      ion-icon { font-size: 16px; }
+      &:active { transform: scale(0.95); }
     }
   }
 }
@@ -317,13 +319,16 @@ ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px
 @media (max-width: 768px) {
   .dorm-side-panel { 
     width: 100%; 
-    height: 65vh; 
+    height: 55vh; /* ✅ ลดความสูงลงเหลือแค่ 55% ของจอ จะได้เห็นแผนที่ข้างบนด้วย */
     right: 0;
     top: auto; 
     bottom: -800px; 
-    border-radius: 30px 30px 0 0; 
+    border-radius: 24px 24px 0 0; 
     transition: bottom 0.4s;
     
     &.open { bottom: 0; right: 0; } 
   }
+  
+  /* ย่อรูปภาพให้เตี้ยลงหน่อยบนมือถือ */
+  .panel-header-img { flex: 0 0 130px; }
 }

@@ -16,7 +16,7 @@
     <div class="form-section">
       
       <div class="custom-input">
-        <input type="email" placeholder="อีเมล" [(ngModel)]="email">
+        <input type="email" placeholder="อีเมล" [(ngModel)]="email" (keyup.enter)="login()">
         <ion-icon name="person" color="medium"></ion-icon>
       </div>
 
@@ -25,6 +25,7 @@
           [type]="showPassword ? 'text' : 'password'" 
           placeholder="รหัสผ่าน" 
           [(ngModel)]="password"
+          (keyup.enter)="login()"
         >
         
         <ion-icon 
@@ -52,7 +53,6 @@
       </div>
 
     </div>
-
   </div>
 
 </ion-content>

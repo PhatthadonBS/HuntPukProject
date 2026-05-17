@@ -62,10 +62,16 @@
               <span class="score">{{ selectedDorm.SCORE | number:'1.1-1' }}</span>
               <span class="reviews link" (click)="sidePanelTab = 'reviews'">(อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)</span>
             </div>
-            <div class="contact-box">
-              <a *ngIf="selectedDorm.phone && selectedDorm.phone !== '-'" [href]="'tel:' + selectedDorm.phone" class="btn-contact phone"><ion-icon name="call"></ion-icon></a>
-              <a *ngIf="selectedDorm.line && selectedDorm.line !== '-'" [href]="selectedDorm.line" target="_blank" class="btn-contact line"><ion-icon name="chatbubble-ellipses-outline"></ion-icon></a>
-              <a *ngIf="selectedDorm.facebook && selectedDorm.facebook !== '-'" [href]="selectedDorm.facebook" target="_blank" class="btn-contact fb"><ion-icon name="logo-facebook"></ion-icon></a>
+         <div class="contact-box">
+              <a *ngIf="selectedDorm.phone && selectedDorm.phone !== '-'" [href]="'tel:' + selectedDorm.phone" class="btn-contact phone">
+                <ion-icon name="call"></ion-icon> <span>{{ selectedDorm.phone }}</span>
+              </a>
+              <a *ngIf="selectedDorm.line && selectedDorm.line !== '-'" [href]="selectedDorm.line" target="_blank" class="btn-contact line">
+                <ion-icon name="chatbubble-ellipses-outline"></ion-icon> <span>LINE</span>
+              </a>
+              <a *ngIf="selectedDorm.facebook && selectedDorm.facebook !== '-'" [href]="selectedDorm.facebook" target="_blank" class="btn-contact fb">
+                <ion-icon name="logo-facebook"></ion-icon> <span>Facebook</span>
+              </a>
             </div>
           </div>
 
