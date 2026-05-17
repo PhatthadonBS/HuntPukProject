@@ -115,6 +115,7 @@ export class LoginPage implements OnInit {
         this.showAlert('เข้าสู่ระบบไม่สำเร็จ', displayMsg);
       }
     }
+  }
 
   skip() {
     this.router.navigate(['/home']);
