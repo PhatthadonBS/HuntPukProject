@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, LoadingController } from '@ionic/angular'; // ✅ เพิ่ม LoadingController
+import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory'; 
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, cashOutline, layersOutline, callOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { 
+  checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
+  cashOutline, layersOutline, callOutline, checkmarkCircleOutline,
+  logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-compare',
@@ -17,7 +21,7 @@ import { checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, cashOutli
 export class ComparePage implements OnInit {
 
   allDorms: any[] = []; 
-  selectedDorms: any[] = []; // จะเก็บข้อมูล Detail ตัวเต็ม
+  selectedDorms: any[] = []; 
   isComparing: boolean = false;
 
   maxSelection: number = 3; 
@@ -27,9 +31,13 @@ export class ComparePage implements OnInit {
     private dormService: DormitoryService,
     private router: Router,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController // ✅ Inject Loading
+    private loadingCtrl: LoadingController 
   ) { 
-    addIcons({ checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, cashOutline, layersOutline, callOutline, checkmarkCircleOutline });
+    addIcons({ 
+      checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
+      cashOutline, layersOutline, callOutline, checkmarkCircleOutline,
+      logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle
+    });
   }
 
   ngOnInit() {
@@ -83,8 +91,7 @@ export class ComparePage implements OnInit {
     }
   }
 
-  // ✅ ปรับปรุง: ดึงข้อมูล Detail ของทุกหอที่เลือกมาแสดง
-  async startCompare() {
+async startCompare() {
     const selectedBasic = this.allDorms.filter((d: any) => d.isChecked);
 
     if (selectedBasic.length < 2) {
@@ -92,24 +99,28 @@ export class ComparePage implements OnInit {
       return;
     }
 
-    // แสดง Loading
     const loading = await this.loadingCtrl.create({
-      message: 'กำลังดึงข้อมูลเปรียบเทียบ...',
+      message: 'กำลังวิเคราะห์และดึงข้อมูล...',
       spinner: 'crescent'
     });
     await loading.present();
 
     try {
-      // ใช้ Promise.all เพื่อดึงข้อมูลพร้อมกันทุกหอ
-      const requests = selectedBasic.map(d => this.dormService.getDormById(d.DORM_ID));
-      const results = await Promise.all(requests);
+      // ✅ เปลี่ยนจาก Promise.all เป็น for loop 
+      // เพื่อค่อยๆ ทยอยดึงทีละหอพัก ป้องกันฐานข้อมูลทำงานหนักจนล่ม!
+      const results = [];
+      for (const d of selectedBasic) {
+         const res = await this.dormService.getDormById(d.DORM_ID);
+         if (res && res.success) {
+            results.push(res.data);
+         }
+      }
 
-      // กรองเอาเฉพาะอันที่สำเร็จและเก็บลง selectedDorms
-      this.selectedDorms = results
-        .filter(res => res.success)
-        .map(res => res.data);
+      this.selectedDorms = results;
 
-      this.isComparing = true;
+      if (this.selectedDorms.length > 0) {
+        this.isComparing = true;
+      }
 
     } catch (error) {
       console.error('Compare Error:', error);
@@ -118,16 +129,12 @@ export class ComparePage implements OnInit {
       loading.dismiss();
     }
   }
-
   cancelCompare() {
     this.isComparing = false;
     this.selectedDorms = [];
-    // ไม่ต้องเคลียร์ isChecked ของ allDorms ก็ได้ เผื่อ user อยากเลือกเพิ่ม/ลด จากของเดิม
-    // this.allDorms.forEach(d => d.isChecked = false); 
   }
 
   goBack() {
-    // ถ้ากำลัง Compare อยู่ ให้กลับไปหน้าเลือก
     if (this.isComparing) {
       this.cancelCompare();
     } else {

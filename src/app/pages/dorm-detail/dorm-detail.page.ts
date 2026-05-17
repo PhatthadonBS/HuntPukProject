@@ -1,16 +1,15 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
+import { IonicModule, ToastController, LoadingController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
-  star, starHalf, starOutline, locationOutline, callOutline, 
+  star, starHalf, starOutline, locationOutline, callOutline, arrowBack,
   wifi, car, snow, checkmarkCircleOutline, personCircle, timeOutline, send,
-  person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline
+  person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp
 } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
-import { UserService } from '../../services/user'; 
 
 @Component({
   selector: 'app-dorm-detail',
@@ -29,27 +28,23 @@ export class DormDetailPage implements OnInit {
   reviews: any[] = [];
   isLoadingReviews: boolean = false;
   
-  newReview = {
-    score: 0,
-    comment: ''
-  };
+  newReview = { score: 0, comment: '' };
 
   currentUserId: number = 0;
   currentUserRole: number = 0; 
-  
   hasReviewed: boolean = false;
   ownerInfo: any = null;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private navCtrl: NavController,
     private dormService: DormitoryService, 
-    private userService: UserService, 
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController
   ) { 
     addIcons({ 
-      star, 'star-half': starHalf, 'star-outline': starOutline,
+      star, 'star-half': starHalf, 'star-outline': starOutline, arrowBack, 'location-sharp': locationSharp,
       'location-outline': locationOutline, 'call-outline': callOutline, 
       wifi, car, snow, 'checkmark-circle-outline': checkmarkCircleOutline,
       'person-circle': personCircle, 'time-outline': timeOutline, send,
@@ -60,20 +55,24 @@ export class DormDetailPage implements OnInit {
   }
 
   ngOnInit() {
-    // 1. ดึง User
-    const user = this.userService.getCurrentUser();
-    if (user) {
-      this.currentUserId = user.id;
-      this.currentUserRole = user.role_id;
+    // ✅ แก้บั๊กจอดำ: เช็คข้อมูล User ตรงๆ จาก LocalStorage เพื่อความชัวร์ 100%
+    const storedData = localStorage.getItem('loggedIn');
+    if (storedData) {
+      try {
+        const userObj = JSON.parse(storedData);
+        if (userObj) {
+          this.currentUserId = userObj.id || userObj.USER_ID || 0;
+          this.currentUserRole = userObj.role_id || userObj.ROLE_TYPE_ID || userObj.role_type_id || 0;
+        }
+      } catch (e) { console.error('Error parsing user data'); }
     }
 
-    // 2. ดึง ID จาก URL
+    // ดึง ID หอพักจาก URL
     const idParam = this.route.snapshot.paramMap.get('id');
     
     if (idParam) {
       this.loadDormDetail(Number(idParam));
     } else if (this.dormData) {
-      // กรณีรับ Input มา
       this.prepareOwnerInfo();
       this.loadReviews();
     }
@@ -90,17 +89,16 @@ export class DormDetailPage implements OnInit {
       const res = await this.dormService.getDormById(id);
       if (res && res.success) {
         this.dormData = res.data; 
-        
-        // เตรียมข้อมูลย่อย
         this.prepareOwnerInfo();
         this.loadReviews();
       } else {
         this.showToast('ไม่พบข้อมูลหอพัก', 'danger');
-        this.router.navigate(['/home']);
+        this.navCtrl.back();
       }
     } catch (error) {
       console.error('Error loading dorm detail:', error);
-      this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
+      this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล (API Error)', 'danger');
+      this.navCtrl.back();
     } finally {
       loading.dismiss();
     }
@@ -121,9 +119,7 @@ export class DormDetailPage implements OnInit {
     }
   }
 
-  switchTab(tab: string) {
-    this.activeTab = tab;
-  }
+  switchTab(tab: string) { this.activeTab = tab; }
 
   get facilitiesList(): string[] {
     if (!this.dormData) return [];
@@ -136,65 +132,43 @@ export class DormDetailPage implements OnInit {
 
   async loadReviews() {
     if (!this.dormData || !this.dormData.DORM_ID) return;
-
     this.isLoadingReviews = true;
     try {
       const res = await this.dormService.getReviewsByDormId(this.dormData.DORM_ID);
       if (res && res.data) {
         this.reviews = res.data;
-        
-        // เช็คว่า User นี้รีวิวไปหรือยัง
         if (this.currentUserId > 0) {
           const myReview = this.reviews.find((r: any) => r.USER_ID === this.currentUserId);
           this.hasReviewed = !!myReview; 
         }
       }
-    } catch (error) {
-      console.error('Load reviews failed', error);
-    } finally {
-      this.isLoadingReviews = false;
-    }
+    } catch (error) { console.error('Load reviews failed', error); } 
+    finally { this.isLoadingReviews = false; }
   }
 
-  setRating(score: number) {
-    this.newReview.score = score;
-  }
+  setRating(score: number) { this.newReview.score = score; }
 
   async submitReview() {
     if (this.newReview.score === 0) {
-      this.showToast('กรุณาให้คะแนนดาวก่อนส่งรีวิว', 'warning');
-      return;
+      this.showToast('กรุณาให้คะแนนดาวก่อนส่งรีวิว', 'warning'); return;
     }
-
     const loading = await this.loadingCtrl.create({ message: 'กำลังส่งรีวิว...' });
     await loading.present();
-
     try {
-      await this.dormService.addReview(
-        this.currentUserId, 
-        this.dormData.DORM_ID, 
-        this.newReview.score, 
-        this.newReview.comment 
-      );
-
+      await this.dormService.addReview(this.currentUserId, this.dormData.DORM_ID, this.newReview.score, this.newReview.comment);
       this.showToast('ขอบคุณสำหรับการรีวิว!', 'success');
       this.newReview = { score: 0, comment: '' };
       this.loadReviews(); 
-
     } catch (error: any) {
       const msg = error.error?.message || 'ส่งรีวิวไม่สำเร็จ';
       this.showToast(msg, 'danger');
-    } finally {
-      loading.dismiss();
-    }
+    } finally { loading.dismiss(); }
   }
 
-  viewImage(imgUrl: string) {
-    console.log('View full image:', imgUrl);
-  }
+  viewImage(imgUrl: string) { console.log('View full image:', imgUrl); }
 
   getStarsArray(score: number): number[] {
-    return Array(5).fill(0).map((_, i) => i < score ? 1 : 0);
+    return Array(5).fill(0).map((_, i) => i < Math.round(score) ? 1 : 0);
   }
 
   get averageScore(): number {
@@ -203,10 +177,10 @@ export class DormDetailPage implements OnInit {
     return sum / this.reviews.length;
   }
 
+  goBack() { this.navCtrl.back(); }
+
   async showToast(msg: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message: msg, duration: 2000, color: color, position: 'bottom'
-    });
+    const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });
     toast.present();
   }
 }

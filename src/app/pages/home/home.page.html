@@ -1,79 +1,164 @@
 <div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
 
-  <app-header title="หน้าหลัก" [userData]="currentUser" (searchChange)="onSearch($event)">
-  </app-header>
+  <app-header title="หน้าหลัก" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
 
   <ion-content [fullscreen]="true" [scrollY]="false">
     <div class="map-wrapper">
-      <google-map *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
-        [options]="mapOptions" (mapClick)="onMapClick($event)">
+      
+      <google-map #mapRef *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
+        [options]="mapOptions">
 
         <map-circle *ngIf="circleCenter" [center]="circleCenter" [radius]="circleRadius" [options]="circleOptions"></map-circle>
 
-        <map-marker [position]="referencePoint" title="จุดอ้างอิงของคุณ" 
-          [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }">
+        <map-marker [position]="referencePoint" title="ตำแหน่งของคุณ" 
+          [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 999 }">
         </map-marker>
 
         <map-marker *ngFor="let dorm of dorms" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
 
-        <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="{ suppressMarkers: true }"></map-directions-renderer>
-
-        <map-info-window>
-          <div *ngIf="selectedDorm" class="custom-info-window">
-            <h3>{{ selectedDorm?.DORM_NAME }}</h3>
-
-            <div class="travel-badge" *ngIf="travelInfo[selectedDorm.DORM_ID]">
-              <div class="info-item">
-                <ion-icon name="navigate-circle-outline"></ion-icon>
-                {{ travelInfo[selectedDorm.DORM_ID].distance }}
-              </div>
-              <div class="info-item">
-                <ion-icon name="time-outline"></ion-icon>
-                ~ {{ travelInfo[selectedDorm.DORM_ID].duration }}
-              </div>
-            </div>
-
-            <div class="fac-tags" *ngIf="selectedDorm?.facilities?.length">
-               <span *ngFor="let fac of selectedDorm.facilities | slice:0:3">{{ fac }}</span>
-               <span *ngIf="selectedDorm.facilities.length > 3">+{{selectedDorm.facilities.length - 3}}</span>
-            </div>
-
-            <div class="contact-box">
-                <div class="contact-item" *ngIf="selectedDorm?.phone && selectedDorm?.phone !== '-'"><ion-icon name="call-outline" style="color: #28a745;"></ion-icon> <span>{{selectedDorm?.phone}}</span></div>
-                <div class="contact-item" *ngIf="selectedDorm?.line && selectedDorm?.line !== '-'"><ion-icon name="chatbubble-ellipses-outline" style="color: #00c300;"></ion-icon> <span>{{selectedDorm?.line}}</span></div>
-                <div class="contact-item" *ngIf="selectedDorm?.facebook && selectedDorm?.facebook !== '-'"><ion-icon name="logo-facebook" style="color: #1877F2;"></ion-icon> <span>{{selectedDorm?.facebook}}</span></div>
-            </div>
-
-            <p class="price-text">เริ่มต้น <span>{{ selectedDorm?.start_price | number }}</span> บาท/เดือน</p>
-            <button class="btn-detail" (click)="goToDetail()">ดูรายละเอียดหอพัก</button>
-          </div>
-        </map-info-window>
+        <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="mainRouteOptions"></map-directions-renderer>
+        <map-directions-renderer *ngFor="let altRoute of altRouteRenderers" [directions]="altRoute" [options]="getAltRouteOptions()"></map-directions-renderer>
 
       </google-map>
+
+      <div class="gps-fab-btn" (click)="getCurrentLocation()">
+        <ion-icon name="locate"></ion-icon>
+      </div>
     </div>
   </ion-content>
 
-  <div class="menu-fab-btn" (click)="openMenu()">
-    <ion-icon name="menu-outline"></ion-icon>
-  </div>
-
+  <div class="menu-fab-btn" (click)="openMenu()"><ion-icon name="menu-outline"></ion-icon></div>
   <div class="filter-compare-group">
-    <div class="chip-button" (click)="openFilter()">
-      <ion-icon name="options-outline"></ion-icon> กรอง
-    </div>
-    <div class="chip-button compare-btn" (click)="goToCompare()">
-      <ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ
-    </div>
+    <div class="chip-button" (click)="openFilter()"><ion-icon name="options-outline"></ion-icon> กรอง</div>
+    <div class="chip-button compare-btn" (click)="goToCompare()"><ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ</div>
   </div>
     
-  <div class="dorm-side-panel" *ngIf="selectedDormDetail">
-    <div class="btn-close-panel" (click)="closeDetailPanel()">
-      <ion-icon name="close"></ion-icon>
+  <div class="dorm-side-panel" [class.open]="selectedDorm != null">
+    <div class="panel-content" *ngIf="selectedDorm">
+      
+      <div class="btn-close-panel" (click)="closeDetailPanel()"><ion-icon name="close"></ion-icon></div>
+
+      <div class="panel-header-img">
+        <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
+        <div class="price-badge">฿ {{ selectedDorm.start_price | number }} / เดือน</div>
+      </div>
+
+      <div class="panel-tabs">
+        <div class="p-tab" [class.active]="sidePanelTab === 'info'" (click)="sidePanelTab = 'info'">ข้อมูลที่พัก</div>
+        <div class="p-tab" [class.active]="sidePanelTab === 'reviews'" (click)="sidePanelTab = 'reviews'">รีวิวผู้เช่า</div>
+      </div>
+
+      <div class="panel-body scrollable-body">
+        
+        <div *ngIf="sidePanelTab === 'info'" class="fade-in">
+          <h2 class="dorm-title">{{ selectedDorm.DORM_NAME }}</h2>
+          <p class="dorm-zone"><ion-icon name="location-sharp"></ion-icon> {{ selectedDorm.zone || selectedDorm.ZONE_NAME || 'ไม่ระบุโซน' }}</p>
+
+          <div class="rating-contact-row">
+            <div class="rating-box">
+              <ion-icon name="star"></ion-icon>
+              <span class="score">{{ selectedDorm.SCORE | number:'1.1-1' }}</span>
+              <span class="reviews link" (click)="sidePanelTab = 'reviews'">(อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)</span>
+            </div>
+            <div class="contact-box">
+              <a *ngIf="selectedDorm.phone && selectedDorm.phone !== '-'" [href]="'tel:' + selectedDorm.phone" class="btn-contact phone"><ion-icon name="call"></ion-icon></a>
+              <a *ngIf="selectedDorm.line && selectedDorm.line !== '-'" [href]="selectedDorm.line" target="_blank" class="btn-contact line"><ion-icon name="chatbubble-ellipses-outline"></ion-icon></a>
+              <a *ngIf="selectedDorm.facebook && selectedDorm.facebook !== '-'" [href]="selectedDorm.facebook" target="_blank" class="btn-contact fb"><ion-icon name="logo-facebook"></ion-icon></a>
+            </div>
+          </div>
+
+          <!-- ระยะทาง -->
+          <div class="travel-section">
+            <div class="travel-tabs">
+              <div class="tab" [class.active]="activeTravelMode === 'DRIVING'" (click)="changeTravelMode('DRIVING')">
+                <ion-icon name="car-outline"></ion-icon> ขับรถ
+              </div>
+              <div class="tab" [class.active]="activeTravelMode === 'WALKING'" (click)="changeTravelMode('WALKING')">
+                <ion-icon name="walk-outline"></ion-icon> เดินเท้า
+              </div>
+            </div>
+            <div class="travel-info-container">
+              <div class="travel-stats">
+                <div class="info-pill"><ion-icon name="time-outline"></ion-icon> {{ activeTravelMode === 'DRIVING' ? drivingTime : walkingTime }}</div>
+                <div class="info-pill"><ion-icon name="navigate-circle-outline"></ion-icon> {{ activeTravelMode === 'DRIVING' ? drivingDistance : walkingDistance }}</div>
+              </div>
+            </div>
+            <div class="alt-route-notice" *ngIf="activeTravelMode === 'DRIVING' && possibleRoutesCount > 1">
+              <ion-icon name="git-branch-outline"></ion-icon> ค้นพบ {{ possibleRoutesCount }} เส้นทาง
+            </div>
+          </div>
+
+          <!-- ราคาห้องพัก -->
+          <div class="inline-rooms-box" *ngIf="selectedDorm.rooms && selectedDorm.rooms.length > 0">
+            <div class="inline-box-title"><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</div>
+            <div class="inline-room-item" *ngFor="let room of selectedDorm.rooms">
+              <span class="r-name">{{ room.ROOM_TYPE_NAME }}</span>
+              <span class="r-price">฿ {{ room.PRICE | number }}.-</span>
+            </div>
+          </div>
+
+          <!-- สิ่งอำนวยความสะดวก -->
+          <div class="inline-fac-box" *ngIf="selectedDorm.facilities && selectedDorm.facilities.length > 0">
+            <div class="inline-box-title"><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</div>
+            <div class="inline-fac-grid">
+              <div class="fac-chip" *ngFor="let fac of selectedDorm.facilities">
+                <ion-icon name="checkmark-circle-outline"></ion-icon> {{ fac }}
+              </div>
+            </div>
+          </div>
+
+          <!-- หอพักใกล้เคียง -->
+          <div class="nearby-section" *ngIf="nearbyDorms.length > 0">
+            <div class="inline-box-title"><ion-icon name="location-outline"></ion-icon> หอพักใกล้เคียง (ภายใน 1 กม.)</div>
+            <div class="nearby-list">
+              <div class="nearby-item" *ngFor="let nb of nearbyDorms" (click)="selectNearbyDorm(nb)">
+                <img [src]="nb.image || nb.FRONT_DORM_IMAGE" onerror="this.src='https://placehold.co/80x60?text=No+Image'" />
+                <div class="nb-info">
+                  <span class="nb-name">{{ nb.DORM_NAME }}</span>
+                  <span class="nb-price">฿ {{ nb.start_price | number }} / เดือน</span>
+                  <span class="nb-dist"><ion-icon name="walk-outline"></ion-icon> {{ getDistanceText(nb) }}</span>
+                </div>
+                <ion-icon name="chevron-forward-outline" class="nb-arrow"></ion-icon>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div *ngIf="sidePanelTab === 'reviews'" class="fade-in">
+          <div class="review-list-container">
+            <div *ngIf="isLoadingReviews" class="loading-state"><ion-spinner></ion-spinner><p>กำลังโหลดรีวิว...</p></div>
+            <div *ngIf="!isLoadingReviews && reviews.length === 0" class="empty-state"><p>ยังไม่มีผู้เช่ารีวิวหอพักนี้</p></div>
+            
+            <div class="mini-review-card" *ngFor="let rev of reviews">
+              <div class="rev-header">
+                <div class="rev-avatar">{{ (rev.USERNAME || 'U').substring(0,1).toUpperCase() }}</div>
+                <div class="rev-meta">
+                  <span class="rev-name">{{ rev.USERNAME || 'ผู้ใช้งานไม่ระบุชื่อ' }}</span>
+                  <span class="rev-date">{{ rev.CREATE_AT | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="rev-score"><ion-icon name="star"></ion-icon> {{ rev.SCORE }}</div>
+              </div>
+              <p class="rev-comment">"{{ rev.COMMENTS }}"</p>
+            </div>
+          </div>
+
+          <button class="btn-full-detail outline" *ngIf="currentUser" (click)="goToDetail()">
+            เขียนรีวิวของคุณ <ion-icon name="create-outline"></ion-icon>
+          </button>
+          <div class="login-required-notice" *ngIf="!currentUser">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <span>กรุณา <strong (click)="goToLogin()" class="link-login">เข้าสู่ระบบ</strong> เพื่อเขียนรีวิว</span>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <app-dorm-detail [dormData]="selectedDormDetail" [isPopup]="true" style="height: 100%; display: block;"></app-dorm-detail>
   </div>
+
+ 
 
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
     <ng-template>
@@ -98,27 +183,16 @@
         <div class="price-section">
           <h3>ช่วงราคา</h3>
           <div class="price-inputs">
-            <div class="price-col">
-              <span class="label">ต่ำสุด</span>
-              <div class="input-capsule">
-                <input type="number" [(ngModel)]="minPrice" placeholder="0">
-              </div>
-            </div>
+            <div class="price-col"><span class="label">ต่ำสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="minPrice" placeholder="0"></div></div>
             <div class="dash">-</div>
-            <div class="price-col">
-              <span class="label">สูงสุด</span>
-              <div class="input-capsule">
-                <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด">
-              </div>
-            </div>
+            <div class="price-col"><span class="label">สูงสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด"></div></div>
           </div>
         </div>
 
         <div class="zone-section">
           <h3>บริเวณหอพัก</h3>
           <div class="zone-options">
-            <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME"
-              (click)="selectZone(zone.ZONE_NAME)">
+            <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME" (click)="selectZone(zone.ZONE_NAME)">
               <span>{{ zone.ZONE_NAME }}</span>
               <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle"></ion-icon>
               <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>

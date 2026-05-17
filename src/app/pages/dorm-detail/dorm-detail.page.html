@@ -1,57 +1,71 @@
-<ion-header *ngIf="!isPopup" class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>รายละเอียดหอพัก</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true" class="dorm-detail-content">
+<ion-content [fullscreen]="true" class="custom-content">
   
   <div *ngIf="dormData" class="detail-wrapper">
     
-    <div class="image-header">
-      <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'" 
-           alt="Dorm Image"
-           onerror="this.src='https://placehold.co/600x400?text=No+Image'">
-      <div class="price-badge">
-        เริ่ม {{ dormData.start_price | number }}.-
+    <div class="hero-header">
+      <div class="floating-back-btn" (click)="goBack()" *ngIf="!isPopup">
+        <ion-icon name="arrow-back"></ion-icon>
       </div>
+
+      <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+      <div class="hero-overlay"></div>
     </div>
 
-    <div class="info-section">
+    <div class="main-info-card">
+      <div class="price-chip">เริ่มต้น <span>฿ {{ dormData.start_price | number }}</span> / เดือน</div>
+      
       <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
       
-      <div class="rating-row">
-        <span class="score">{{ averageScore | number:'1.1-1' }}</span>
-        <div class="stars">
-           <ion-icon name="star"></ion-icon>
-        </div>
-        <span class="reviews">(จาก {{ reviews.length }} รีวิว)</span>
+      <div class="location-row">
+        <ion-icon name="location-sharp"></ion-icon>
+        <p>{{ dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone">({{ dormData.zone }})</span></p>
       </div>
 
-      <div class="address-row">
-        <ion-icon name="location-outline"></ion-icon>
-        <span>{{ dormData.address || 'ไม่ระบุที่อยู่' }}</span>
+      <div class="rating-row">
+        <div class="stars-box">
+          <ion-icon name="star"></ion-icon>
+          <span class="score">{{ averageScore | number:'1.1-1' }}</span>
+        </div>
+        <span class="reviews-count">จากผู้ใช้งาน {{ reviews.length }} รีวิว</span>
       </div>
     </div>
 
-    <div class="custom-segment">
-      <div class="segment-btn" [class.active]="activeTab === 'info'" (click)="switchTab('info')">
-        รายละเอียด
-      </div>
-      <div class="segment-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">
-        รีวิว ({{ reviews.length }})
-      </div>
+    <div class="custom-tabs">
+      <div class="tab-btn" [class.active]="activeTab === 'info'" (click)="switchTab('info')">รายละเอียด</div>
+      <div class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">รีวิวที่พัก ({{ reviews.length }})</div>
     </div>
 
     <div class="tab-content">
       
       <div *ngIf="activeTab === 'info'" class="info-tab fade-in">
         
-        <div class="section-box" *ngIf="dormData.gallery && dormData.gallery.length > 0">
-          <h3><ion-icon name="image-outline"></ion-icon> รูปภาพห้องพัก</h3>
+        <div class="premium-box" *ngIf="dormData.rooms && dormData.rooms.length > 0">
+          <h3><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</h3>
+          <div class="room-list">
+            <div class="room-item" *ngFor="let room of dormData.rooms">
+              <span class="room-name">{{ room.ROOM_TYPE_NAME }}</span>
+              <span class="room-price">฿ {{ room.PRICE | number }}.-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="premium-box">
+          <h3><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</h3>
+          <div class="amenities-grid" *ngIf="facilitiesList.length > 0">
+            <div class="amenity-item" *ngFor="let fac of facilitiesList">
+              <ion-icon name="checkmark-circle-outline"></ion-icon> {{ fac }}
+            </div>
+          </div>
+          <p class="empty-text" *ngIf="facilitiesList.length === 0">- ไม่ระบุสิ่งอำนวยความสะดวก -</p>
+        </div>
+
+        <div class="premium-box">
+           <h3><ion-icon name="document-text-outline"></ion-icon> รายละเอียดเพิ่มเติม</h3>
+           <p class="desc-text">{{ dormData.description || (dormData.ADD_DORM_DATA || 'ไม่มีข้อมูลรายละเอียด') }}</p>
+        </div>
+
+        <div class="premium-box" *ngIf="dormData.gallery && dormData.gallery.length > 0">
+          <h3><ion-icon name="image-outline"></ion-icon> รูปภาพเพิ่มเติม</h3>
           <div class="gallery-scroll">
             <div class="gallery-item" *ngFor="let img of dormData.gallery" (click)="viewImage(img)">
               <img [src]="img" onerror="this.src='https://placehold.co/300x200?text=No+Image'">
@@ -59,133 +73,53 @@
           </div>
         </div>
 
-        <div class="section-box" *ngIf="dormData.rooms && dormData.rooms.length > 0">
-          <h3><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</h3>
-          <div class="room-list">
-            <div class="room-item" *ngFor="let room of dormData.rooms">
-              <div class="room-info">
-                <span>{{ room.ROOM_TYPE_NAME }}</span>
-              </div>
-              <div class="room-price">
-                {{ room.PRICE | number }}.- / เดือน
-              </div>
+        <div class="owner-premium-card" *ngIf="ownerInfo">
+          <div class="owner-header">
+            <div class="owner-avatar"><ion-icon name="person"></ion-icon></div>
+            <div class="owner-title">
+              <h4>คุณ {{ ownerInfo.firstName }} {{ ownerInfo.lastName }}</h4>
+              <span>ผู้ดูแลหอพัก</span>
             </div>
+          </div>
+          <div class="contact-grid">
+            <a *ngIf="ownerInfo.phone !== '-'" [href]="'tel:' + ownerInfo.phone" class="contact-btn phone"><ion-icon name="call"></ion-icon> โทรติดต่อ</a>
+            <a *ngIf="ownerInfo.line !== '-'" [href]="ownerInfo.line" target="_blank" class="contact-btn line"><ion-icon name="chatbubble-ellipses"></ion-icon> LINE</a>
+            <a *ngIf="ownerInfo.facebook !== '-'" [href]="ownerInfo.facebook" target="_blank" class="contact-btn fb"><ion-icon name="logo-facebook"></ion-icon> Facebook</a>
           </div>
         </div>
 
-        <div class="section-box">
-          <h3><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</h3>
-          <div class="amenities-grid" *ngIf="facilitiesList.length > 0">
-            <div class="amenity-item" *ngFor="let fac of facilitiesList">
-              <ion-icon name="checkmark-circle-outline" color="primary"></ion-icon> 
-              {{ fac }}
-            </div>
-          </div>
-          <p *ngIf="facilitiesList.length === 0" style="color: #999; font-size: 14px;">
-            - ไม่ระบุสิ่งอำนวยความสะดวก -
-          </p>
-        </div>
-
-        <div class="section-box" *ngIf="ownerInfo">
-          <h3><ion-icon name="person-circle-outline"></ion-icon> ข้อมูลติดต่อเจ้าของหอพัก</h3>
-          <div class="owner-card">
-            <div class="owner-header">
-              <div class="avatar-circle">
-                <ion-icon name="person"></ion-icon>
-              </div>
-              <div class="owner-name">
-                <h4>คุณ {{ ownerInfo.firstName }} {{ ownerInfo.lastName }}</h4>
-                <span class="status">เจ้าของหอพัก</span>
-              </div>
-            </div>
-            <div class="contact-list">
-              <div class="contact-item">
-                <ion-icon name="call-outline" color="success"></ion-icon>
-                <span>{{ ownerInfo.phone }}</span>
-              </div>
-              <div class="contact-item" *ngIf="ownerInfo.line !== '-'">
-                <ion-icon name="chatbubble-ellipses" color="success"></ion-icon>
-                <span>Line: {{ ownerInfo.line }}</span>
-              </div>
-              <div class="contact-item" *ngIf="ownerInfo.facebook !== '-'">
-                <ion-icon name="logo-facebook" color="primary"></ion-icon>
-                <span>Facebook: {{ ownerInfo.facebook }}</span>
-              </div>
-              <div class="contact-item" *ngIf="ownerInfo.instagram !== '-'">
-                <ion-icon name="logo-instagram" color="danger"></ion-icon>
-                <span>Instagram: {{ ownerInfo.instagram }}</span>
-              </div>
-              <div class="contact-item" *ngIf="ownerInfo.x !== '-'">
-                <ion-icon name="logo-twitter" color="primary"></ion-icon>
-                <span>X: {{ ownerInfo.x }}</span>
-              </div>
-              <div class="contact-item" *ngIf="ownerInfo.telegram !== '-'">
-                <ion-icon name="paper-plane-outline" color="primary"></ion-icon>
-                <span>Telegram: {{ ownerInfo.telegram }}</span>
-              </div>
-              
-            </div>
-          </div>
-        </div>
-
-        <div class="section-box">
-           <h3>รายละเอียดเพิ่มเติม</h3>
-           <p class="desc-text">
-             {{ dormData.description || (dormData.ADD_DORM_DATA || 'ไม่มีรายละเอียดเพิ่มเติม') }}
-           </p>
-        </div>
       </div>
 
       <div *ngIf="activeTab === 'reviews'" class="reviews-tab fade-in">
         
-        <div class="write-review-box" *ngIf="currentUserId > 0 && currentUserRole !== 2 && !hasReviewed">
-          <h3>เขียนรีวิวของคุณ</h3>
+        <div class="write-review-card" *ngIf="currentUserId > 0 && currentUserRole !== 2 && !hasReviewed">
+          <h3>ให้คะแนนหอพักนี้</h3>
           <div class="rating-input">
-            <ion-icon *ngFor="let s of [1,2,3,4,5]" 
-              [name]="s <= newReview.score ? 'star' : 'star-outline'" 
-              class="star-btn"
-              [class.active]="s <= newReview.score"
-              (click)="setRating(s)">
-            </ion-icon>
+            <ion-icon *ngFor="let s of [1,2,3,4,5]" [name]="s <= newReview.score ? 'star' : 'star-outline'" [class.active]="s <= newReview.score" (click)="setRating(s)"></ion-icon>
           </div>
-          <div class="comment-input-wrapper">
-            <ion-textarea [(ngModel)]="newReview.comment" placeholder="เขียนความคิดเห็น (ไม่บังคับ)..." rows="3" autoGrow="true"></ion-textarea>
-            <ion-button size="small" (click)="submitReview()">
-              <ion-icon name="send" slot="start"></ion-icon> ส่ง
-            </ion-button>
-          </div>
+          <ion-textarea [(ngModel)]="newReview.comment" placeholder="บอกเล่าประสบการณ์ของคุณ..." rows="3"></ion-textarea>
+          <button class="submit-btn" (click)="submitReview()">ส่งรีวิว</button>
         </div>
 
-        <div *ngIf="hasReviewed" class="notice-box reviewed"><p>✅ คุณได้รีวิวหอพักนี้ไปแล้ว</p></div>
-        <div *ngIf="currentUserId > 0 && currentUserRole === 2" class="notice-box owner"><p>⚠️ เจ้าของหอพักไม่สามารถรีวิวหอพักได้</p></div>
-        <div *ngIf="currentUserId === 0" class="notice-box login"><p>🔒 กรุณาเข้าสู่ระบบเพื่อเขียนรีวิว</p></div>
-
-        <div class="divider"></div>
+        <div *ngIf="hasReviewed" class="status-box success">✅ คุณได้รีวิวหอพักนี้ไปแล้ว</div>
+        <div *ngIf="currentUserId > 0 && currentUserRole === 2" class="status-box warning">⚠️ เจ้าของหอพักไม่สามารถรีวิวได้</div>
+        <div *ngIf="currentUserId === 0" class="status-box normal">🔒 กรุณาเข้าสู่ระบบเพื่อเขียนรีวิว</div>
 
         <div class="review-list">
-          <div *ngIf="isLoadingReviews" class="ion-text-center ion-padding"><ion-spinner></ion-spinner></div>
-
+          <div *ngIf="isLoadingReviews" class="loading-spinner"><ion-spinner></ion-spinner></div>
           <ng-container *ngIf="!isLoadingReviews">
-            <div *ngIf="reviews.length === 0" class="no-reviews"><p>ยังไม่มีรีวิว เป็นคนแรกที่รีวิวเลย!</p></div>
+            <div *ngIf="reviews.length === 0" class="empty-text">ยังไม่มีรีวิว เป็นคนแรกที่รีวิวเลย!</div>
 
-            <div class="review-card" *ngFor="let item of reviews">
-              <div class="reviewer-info">
-                <div class="avatar">
-                  {{ (item.USERNAME || 'U').substring(0,1).toUpperCase() }}
-                </div>
-                <div class="user-meta">
+            <div class="user-review-card" *ngFor="let item of reviews">
+              <div class="reviewer-top">
+                <div class="avatar">{{ (item.USERNAME || 'U').substring(0,1).toUpperCase() }}</div>
+                <div class="meta">
                   <div class="name">{{ item.USERNAME || 'Unknown User' }}</div>
                   <div class="date">{{ item.CREATE_AT | date:'dd/MM/yyyy' }}</div>
                 </div>
+                <div class="review-score"><ion-icon name="star"></ion-icon> {{ item.SCORE }}</div>
               </div>
-              
-              <div class="stars-mini">
-                 <ion-icon *ngFor="let s of getStarsArray(item.SCORE)" [name]="s ? 'star' : 'star-outline'" [class.filled]="s"></ion-icon>
-              </div>
-              
-              <div class="review-content">
-                <p>"{{ item.COMMENTS }}"</p>
-              </div>
+              <p class="comment-text">"{{ item.COMMENTS }}"</p>
             </div>
           </ng-container>
         </div>
@@ -195,6 +129,9 @@
     </div>
   </div>
 
-  <div *ngIf="!dormData" class="no-data"><p>กำลังโหลดข้อมูล...</p></div>
+  <div *ngIf="!dormData" class="loading-fullscreen">
+     <ion-spinner name="crescent"></ion-spinner>
+     <p>กำลังรวบรวมข้อมูล...</p>
+  </div>
 
 </ion-content>

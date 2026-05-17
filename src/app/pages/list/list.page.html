@@ -1,65 +1,64 @@
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="custom-content">
   
   <div class="main-bg">
     
     <div class="top-bar">
-      <div class="menu-btn" (click)="goBack()">
+      <div class="back-btn-wrapper" (click)="goBack()">
         <ion-icon name="arrow-back"></ion-icon>
       </div>
-      <div class="search-bar-mock">
-        <input type="text" placeholder="ค้นหาหอพัก..." [(ngModel)]="keyword" (keyup.enter)="onSearch()" style="border:none; background:transparent; width:100%; outline:none;">
-        <ion-icon name="search" (click)="onSearch()"></ion-icon>
+      <div class="search-bar-modern">
+        <ion-icon name="search" class="search-icon"></ion-icon>
+        <input type="text" placeholder="ค้นหาหอพักที่คุณต้องการ..." [(ngModel)]="keyword" (keyup.enter)="onSearch()">
+        <div class="search-btn" (click)="onSearch()">ค้นหา</div>
       </div>
     </div>
 
     <div class="yellow-container">
       
-      <div class="dorm-grid" *ngIf="dorms.length > 0; else noData">
+      <div class="dorm-grid" *ngIf="isLoading">
+        <div class="dorm-card skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="card-image skeleton-img">
+             <ion-skeleton-text animated style="width: 100%; height: 100%;"></ion-skeleton-text>
+          </div>
+          <div class="card-content">
+            <h3><ion-skeleton-text animated style="width: 80%; height: 20px;"></ion-skeleton-text></h3>
+            <p class="zone"><ion-skeleton-text animated style="width: 50%; height: 15px; margin-top: 5px;"></ion-skeleton-text></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dorm-grid" *ngIf="!isLoading && dorms.length > 0">
         
-        <div class="dorm-card" *ngFor="let dorm of dorms" (click)="goToDetail(dorm)">
+        <div class="dorm-card ion-activatable ripple-parent" *ngFor="let dorm of dorms" (click)="goToDetail(dorm)">
+          <ion-ripple-effect></ion-ripple-effect>
           
-          <div class="bookmark-ribbon" (click)="toggleFavorite($event, dorm)">
-             <ion-icon [name]="dorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
-             <span>สนใจ</span>
+          <div class="card-image">
+             <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" 
+                  onerror="this.src='https://placehold.co/600x400?text=No+Image'" loading="lazy" />
+             
+             <div class="bookmark-ribbon" [class.active]="dorm.isChecked" (click)="toggleFavorite($event, dorm)">
+                <ion-icon [name]="dorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+                <span>สนใจ</span>
+             </div>
+
+             <div class="price-tag">฿ {{ dorm.start_price | number }}</div>
           </div>
 
           <div class="card-content">
-            <div class="img-box">
-              <ion-icon name="home" class="placeholder-icon" *ngIf="!dorm.image"></ion-icon>
-              <img [src]="dorm.image" *ngIf="dorm.image" />
-            </div>
-
-            <div class="info-box">
-              <h3>{{ dorm.DORM_NAME }}</h3> 
-              
-              <p class="desc">{{ dorm.ADDRESS }}</p>
-              
-              <p class="location" *ngIf="dorm.zone">
-                <ion-icon name="location-sharp"></ion-icon> 
-                {{ dorm.zone }}
-              </p>
-
-              <p class="price">เริ่มต้น {{ dorm.start_price | number }} บาท/เดือน</p>
-              
-              </div>
-          </div>
-
-          <div class="action-row">
-             <span>กดเพื่อดูรายละเอียด >>></span>
+             <h3>{{ dorm.DORM_NAME }}</h3>
+             <p class="zone"><ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}</p>
           </div>
 
         </div>
 
       </div>
 
-      <ng-template #noData>
-        <div style="text-align: center; margin-top: 50px; color: #333;">
-          <p>ไม่พบรายการหอพัก</p>
-        </div>
-      </ng-template>
+      <div class="no-data-state" *ngIf="!isLoading && dorms.length === 0">
+        <img src="assets/icon/favicon.png" alt="No data" class="empty-img" onerror="this.style.display='none'">
+        <h3>ไม่พบหอพักที่ค้นหา</h3>
+        <p>ลองเปลี่ยนคำค้นหาใหม่อีกครั้ง</p>
+      </div>
 
     </div>
-
   </div>
-
 </ion-content>

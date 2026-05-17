@@ -1,12 +1,12 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="custom-toolbar">
     <ion-buttons slot="start">
-      <ion-button (click)="isComparing ? cancelCompare() : goBack()" class="btn-back">
+      <ion-button (click)="goBack()" class="btn-back">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>
-      {{ isComparing ? 'ผลการเปรียบเทียบ' : 'เลือกหอพัก' }}
+      {{ isComparing ? 'ตารางเปรียบเทียบหอพัก' : 'เลือกหอพักที่ต้องการเปรียบเทียบ' }}
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -16,10 +16,9 @@
   <div class="bg-curve"></div>
 
   <div *ngIf="!isComparing" class="selection-container fade-in">
-    
     <div class="instruction-header">
-      <h2>เปรียบเทียบหอพัก</h2>
-      <p>เลือกได้สูงสุด {{ maxSelection }} แห่ง <span class="badge">{{ getSelectedCount() }}/{{ maxSelection }}</span></p>
+      <h2>เปรียบเทียบข้อมูล</h2>
+      <p>เลือกหอพักเพื่อเทียบข้อมูลเชิงลึก <span class="badge">{{ getSelectedCount() }}/{{ maxSelection }}</span></p>
     </div>
 
     <div class="dorm-grid">
@@ -28,15 +27,13 @@
            (click)="dorm.isChecked = !dorm.isChecked; onSelectDorm(dorm)">
         
         <div class="card-image">
-          <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" 
-               onerror="this.src='https://placehold.co/600x400?text=No+Image'"/>
+          <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'"/>
           
           <div class="checkbox-wrapper">
              <div class="custom-checkbox" [class.checked]="dorm.isChecked">
                <ion-icon name="checkmark-circle" *ngIf="dorm.isChecked"></ion-icon>
              </div>
           </div>
-          
           <div class="price-tag">฿ {{ dorm.start_price | number }}</div>
         </div>
 
@@ -45,12 +42,9 @@
           <p class="zone"><ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}</p>
         </div>
         
-        <div class="selected-overlay" *ngIf="dorm.isChecked">
-           <span>เลือกแล้ว</span>
-        </div>
+        <div class="selected-overlay" *ngIf="dorm.isChecked"><span>เลือกแล้ว</span></div>
       </div>
     </div>
-    
     <div style="height: 100px;"></div>
   </div>
 
@@ -59,14 +53,14 @@
      <div class="compare-table">
         
         <div class="column-labels">
-             <div class="row-header dorm-header">หัวข้อเปรียบเทียบ</div> <div class="row-cell img-row">รูปตัวอย่าง</div>
+             <div class="row-header dorm-header">หัวข้อ</div> 
+             <div class="row-cell img-row">ภาพรวม</div>
              <div class="row-cell">ราคาเริ่มต้น</div>
              <div class="row-cell">โซน/ที่ตั้ง</div>
              <div class="row-cell room-row">ประเภทห้องพัก</div>
              <div class="row-cell fac-row">สิ่งอำนวยความสะดวก</div>
-             <div class="row-cell desc-row">รายละเอียด</div>
-             <div class="row-cell">ข้อมูลติดต่อ</div>
-             <div class="row-cell">Line ID</div>
+             <div class="row-cell desc-row">รายละเอียด/ข้อมูล</div>
+             <div class="row-cell contact-row">ช่องทางติดต่อ</div>
         </div>
 
         <div class="scroll-container">
@@ -78,8 +72,7 @@
 
               <div class="row-cell img-row">
                 <div class="img-box">
-                  <img [src]="item.image || 'assets/dorm-placeholder.jpg'"
-                       onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                  <img [src]="item.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                 </div>
               </div>
 
@@ -88,7 +81,7 @@
               </div>
 
               <div class="row-cell">
-                 {{ item.zone || item.address || '-' }}
+                 {{ item.ZONE_NAME || item.address || '-' }}
               </div>
 
               <div class="row-cell room-row">
@@ -112,35 +105,38 @@
 
               <div class="row-cell desc-row">
                 <div class="desc-box">
-                  {{ item.description || 'ไม่มีรายละเอียดเพิ่มเติม' }}
+                  {{ item.ADD_DORM_DATA || 'ไม่มีรายละเอียดเพิ่มเติม' }}
                 </div>
               </div>
 
-              <div class="row-cell">
-                 <a [href]="'tel:' + (item.phone || item.OWNER_PHONE)" class="btn-call">
-                   <ion-icon name="call"></ion-icon> {{ item.phone || item.OWNER_PHONE || '-' }}
-                 </a>
-              </div>
-
-              <div class="row-cell">
-                 <span class="line-id">{{ item.LINE || item.line || '-' }}</span>
+              <div class="row-cell contact-row">
+                 <div class="social-links">
+                    <a *ngIf="item.phone && item.phone !== '-'" [href]="'tel:' + item.phone" class="social-btn phone">
+                      <ion-icon name="call"></ion-icon> โทรศัพท์
+                    </a>
+                    <a *ngIf="item.line && item.line !== '-'" [href]="item.line" target="_blank" class="social-btn line">
+                      <ion-icon name="chatbubble-ellipses-outline"></ion-icon> LINE
+                    </a>
+                    <a *ngIf="item.facebook && item.facebook !== '-'" [href]="item.facebook" target="_blank" class="social-btn fb">
+                      <ion-icon name="logo-facebook"></ion-icon> Facebook
+                    </a>
+                 </div>
               </div>
 
            </div>
         </div>
      </div>
   </div>
-
-</ion-content>
-
-<ion-footer *ngIf="!isComparing" class="ion-no-border footer-transparent">
-  <div class="floating-btn-container">
+  <div *ngIf="!isComparing" class="fixed-bottom-btn">
     <button class="btn-premium-compare" (click)="startCompare()" [disabled]="getSelectedCount() < 2">
       <div class="btn-content">
-        <span>เปรียบเทียบข้อมูล</span>
+        <span>เริ่มเปรียบเทียบข้อมูล</span>
         <span class="count-badge" *ngIf="getSelectedCount() > 0">{{ getSelectedCount() }}</span>
       </div>
       <ion-icon name="arrow-forward-circle"></ion-icon>
     </button>
   </div>
-</ion-footer>
+
+</ion-content>
+
+

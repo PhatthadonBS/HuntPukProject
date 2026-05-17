@@ -1,166 +1,161 @@
-/* --- Core Layout --- */
-.dorm-detail-content { --background: #f8f9fa; }
-.detail-wrapper { padding-bottom: 80px; }
+/* =========================================
+   🎨 Theme & Base (Luxury Yellow/Dark Theme)
+   ========================================= */
+$msu-yellow: #FFD600;
+$msu-dark: #1a1a1a;
+$bg-light: #f4f6f9; 
+$card-bg: #ffffff;  
+$text-dark: #222222;
 
-/* Image Header */
-.image-header {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  background: #ddd;
+.custom-content { --background: #{$bg-light}; }
+
+/* =========================================
+   🏞️ 1. Hero Image (ภาพหัวเว็บ)
+   ========================================= */
+.hero-header {
+  position: relative; width: 100%; height: 320px; background: #ddd;
+  
   img { width: 100%; height: 100%; object-fit: cover; }
-  .price-badge {
-    position: absolute; bottom: 15px; right: 15px;
-    background: rgba(0, 0, 0, 0.8); color: #ffc409;
-    padding: 6px 12px; border-radius: 20px;
-    font-weight: bold; font-size: 14px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  
+  /* ไล่สีดำกันตัวหนังสือจม */
+  .hero-overlay {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 60%;
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); pointer-events: none;
+  }
+
+  /* ปุ่ม Back ย้อนกลับ */
+  .floating-back-btn {
+    position: absolute; top: 20px; left: 20px; z-index: 10;
+    width: 45px; height: 45px; background: rgba(0,0,0,0.5); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: white;
+    font-size: 24px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s;
+    &:active { transform: scale(0.9); }
   }
 }
 
-/* Info Section */
-.info-section {
-  padding: 15px; background: white; margin-bottom: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  .dorm-name { margin: 0 0 5px 0; font-size: 20px; font-weight: 700; color: #222; }
+/* =========================================
+   🏠 2. Main Info Card (การ์ดชื่อหอพักยกตัวลอย)
+   ========================================= */
+.main-info-card {
+  background: $card-bg; border-radius: 35px 35px 0 0; 
+  padding: 30px 25px 25px 25px; margin-top: -40px; /* ดึงการ์ดขึ้นมาทับรูปภาพ */
+  position: relative; z-index: 5; box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+
+  .price-chip {
+    display: inline-block; background: rgba(255, 214, 0, 0.2); color: #997d00;
+    padding: 6px 15px; border-radius: 12px; font-size: 13px; font-weight: 700;
+    border: 1px solid rgba(255, 214, 0, 0.3); margin-bottom: 15px;
+    span { font-size: 18px; font-weight: 900; color: $msu-dark; }
+  }
+
+  .dorm-name { margin: 0 0 10px 0; font-size: 24px; font-weight: 900; color: $text-dark; line-height: 1.3;}
+  
+  .location-row {
+    display: flex; align-items: flex-start; gap: 8px; color: #555; font-size: 14px; margin-bottom: 15px;
+    ion-icon { font-size: 18px; color: #e74c3c; margin-top: 2px; }
+    p { margin: 0; line-height: 1.5; font-weight: 500; span { color: #888; } }
+  }
+
   .rating-row {
-    display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
-    .score { font-weight: bold; font-size: 16px; color: #333; }
-    .stars ion-icon { color: #ffc409; font-size: 14px; }
-    .reviews { color: #777; font-size: 12px; }
-  }
-  .address-row {
-    display: flex; align-items: flex-start; gap: 5px; color: #555; font-size: 13px;
-    ion-icon { margin-top: 2px; color: #888; }
+    display: flex; align-items: center; gap: 15px;
+    .stars-box { display: flex; align-items: center; gap: 6px; background: $msu-dark; padding: 6px 12px; border-radius: 10px; color: $msu-yellow; font-weight: 900; font-size: 16px; ion-icon { font-size: 18px; } }
+    .reviews-count { font-size: 13px; color: #777; font-weight: 600; text-decoration: underline; cursor: pointer; }
   }
 }
 
-/* Tabs */
-.custom-segment {
-  display: flex; background: white; border-bottom: 1px solid #eee;
-  .segment-btn {
-    flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: #888; cursor: pointer; position: relative;
-    &.active { color: #3880ff; }
-    &.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: #3880ff; }
+/* =========================================
+   🗂️ 3. Tabs & Content
+   ========================================= */
+.custom-tabs {
+  display: flex; background: $card-bg; border-bottom: 2px solid #eee; padding: 0 20px;
+  .tab-btn {
+    flex: 1; text-align: center; padding: 15px 0; font-size: 15px; font-weight: 700; color: #888; cursor: pointer; position: relative; transition: 0.2s;
+    &.active { color: $msu-dark; }
+    &.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 4px; background: $msu-yellow; border-radius: 4px 4px 0 0; }
   }
 }
 
-.tab-content { padding: 15px; background: white; min-height: 200px; }
+.tab-content { padding: 20px; }
 
-/* Sections */
-.section-box {
-  margin-bottom: 25px;
-  h3 {
-    font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #333;
-    display: flex; align-items: center; gap: 8px;
-    ion-icon { color: #3880ff; font-size: 18px; }
-  }
-  p { margin: 5px 0; font-size: 14px; color: #555; }
-  .desc-text { line-height: 1.6; color: #666; }
+/* =========================================
+   📦 4. Content Boxes (กล่องข้อมูลย่อย)
+   ========================================= */
+.premium-box {
+  background: $card-bg; border-radius: 20px; padding: 20px; margin-bottom: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.03);
+  
+  h3 { font-size: 16px; font-weight: 900; color: $text-dark; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px; ion-icon { color: $msu-yellow; font-size: 22px; background: $msu-dark; padding: 4px; border-radius: 8px;} }
+  .desc-text { font-size: 14px; color: #555; line-height: 1.6; margin: 0; }
+  .empty-text { font-size: 13px; color: #aaa; text-align: center; font-style: italic; }
 }
 
-/* Gallery Scroll */
-.gallery-scroll {
-  display: flex; overflow-x: auto; gap: 10px; padding-bottom: 5px;
-  &::-webkit-scrollbar { display: none; }
-  .gallery-item {
-    flex: 0 0 140px; height: 100px; border-radius: 10px; overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    img { width: 100%; height: 100%; object-fit: cover; }
-  }
-}
-
-/* Room List */
+/* ประเภทห้องพัก */
 .room-list {
   display: flex; flex-direction: column; gap: 10px;
-  .room-item {
-    display: flex; justify-content: space-between; align-items: center;
-    background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #eee;
-    .room-info { font-size: 14px; color: #333; font-weight: 500; }
-    .room-price { font-size: 14px; font-weight: bold; color: #d32f2f; }
+  .room-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #eee; 
+    .room-name { font-size: 14px; font-weight: 700; color: $text-dark; }
+    .room-price { font-size: 15px; font-weight: 900; color: #d32f2f; background: #ffebee; padding: 4px 10px; border-radius: 8px; }
   }
 }
 
-/* Amenities Grid */
+/* สิ่งอำนวยความสะดวก */
 .amenities-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  .amenity-item {
-    display: flex; align-items: center; gap: 8px; font-size: 13px; color: #444;
-    background: #f5f5f5; padding: 8px; border-radius: 8px;
-    ion-icon { font-size: 16px; color: #3880ff; }
-  }
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  .amenity-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #444; ion-icon { font-size: 20px; color: $msu-yellow; } }
 }
 
-/* Owner Card */
-.owner-card {
-  background: #ffffff; border-radius: 12px; padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee;
-  display: flex; flex-direction: column; gap: 12px;
-  .owner-header {
-    display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
-    .avatar-circle {
-      width: 45px; height: 45px; background: #e3f2fd; color: #1976d2;
-      border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px;
-    }
-    .owner-name {
-      h4 { margin: 0; font-size: 15px; font-weight: bold; color: #333; }
-      .status { font-size: 12px; color: #666; background: #eee; padding: 2px 6px; border-radius: 4px; }
-    }
+/* รูดดูรูปภาพ */
+.gallery-scroll {
+  display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px;
+  &::-webkit-scrollbar { height: 6px; } &::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+  .gallery-item { flex: 0 0 160px; height: 110px; border-radius: 15px; overflow: hidden; img { width: 100%; height: 100%; object-fit: cover; } }
+}
+
+/* =========================================
+   👤 5. Owner Card (เหมือน Host Airbnb)
+   ========================================= */
+.owner-premium-card {
+  background: linear-gradient(135deg, $msu-dark 0%, #333 100%); border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); color: white;
+  .owner-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+    .owner-avatar { width: 60px; height: 60px; background: $msu-yellow; color: $msu-dark; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid #fff; }
+    .owner-title h4 { margin: 0 0 5px 0; font-size: 18px; font-weight: 900; }
+    .owner-title span { font-size: 13px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; font-weight: 600; }
   }
-  .contact-list {
-    display: flex; flex-direction: column; gap: 8px;
-    .contact-item {
-      display: flex; align-items: center; gap: 10px; font-size: 14px; color: #444;
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
+    .contact-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 800; color: white; text-decoration: none; transition: 0.2s;
+      &.phone { background: #28a745; grid-column: span 2; }
+      &.line { background: #00c300; }
+      &.fb { background: #1877F2; }
+      &:active { transform: scale(0.95); }
       ion-icon { font-size: 18px; }
     }
   }
 }
 
-/* Reviews */
-.write-review-box {
-  background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03); margin-bottom: 20px;
-  h3 { margin-top: 0; font-size: 15px; color: #333; }
-  .rating-input {
-    display: flex; gap: 8px; margin-bottom: 10px;
-    .star-btn { font-size: 28px; color: #ddd; &.active { color: #ffc409; } }
-  }
-  .comment-input-wrapper ion-textarea {
-    background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;
-    color: #333; --placeholder-color: #888;
-  }
-  ion-button { float: right; --border-radius: 20px; height: 32px; font-size: 13px; }
+/* =========================================
+   ⭐ 6. Reviews Section
+   ========================================= */
+.write-review-card {
+  background: $card-bg; border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.03); border: 1px solid #eee;
+  h3 { margin: 0 0 15px 0; font-size: 16px; font-weight: 900; color: $text-dark; }
+  .rating-input { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; ion-icon { font-size: 35px; color: #ddd; transition: 0.2s; cursor: pointer; &.active { color: $msu-yellow; transform: scale(1.1); } } }
+  ion-textarea { background: #f8f9fa; border-radius: 15px; padding: 10px; font-size: 14px; margin-bottom: 15px; --padding-start: 15px; }
+  .submit-btn { width: 100%; background: $msu-dark; color: $msu-yellow; padding: 15px; border-radius: 15px; font-size: 16px; font-weight: 900; border: none; cursor: pointer; &:active { transform: scale(0.98); } }
 }
 
-.review-card {
-  background-color: #ffffff; border-radius: 12px; padding: 15px; margin-bottom: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid #f0f0f0;
-  .reviewer-info {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-    .avatar {
-      width: 40px; height: 40px; background: #eee; color: #555;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 16px;
-    }
-    .user-meta {
-      .name { font-weight: bold; font-size: 14px; color: #333; }
-      .date { font-size: 11px; color: #888; }
-    }
+.user-review-card {
+  background: $card-bg; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f0f0f0;
+  .reviewer-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+    .avatar { width: 45px; height: 45px; background: #e0e0e0; color: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; }
+    .meta { flex: 1; .name { font-weight: 800; font-size: 14px; color: $text-dark; } .date { font-size: 11px; color: #888; margin-top: 2px; } }
+    .review-score { display: flex; align-items: center; gap: 4px; background: rgba(255, 214, 0, 0.2); color: #997d00; padding: 4px 10px; border-radius: 10px; font-weight: 900; font-size: 13px; ion-icon { color: $msu-yellow; } }
   }
-  .stars-mini { margin-bottom: 8px; display: flex; gap: 2px; ion-icon { color: #ddd; font-size: 14px; &.filled { color: #ffc409; } } }
-  .review-content {
-    background: #fcfcfc; padding: 10px; border-radius: 8px; border-left: 3px solid #ffc409;
-    p { margin: 0; font-size: 14px; color: #333; line-height: 1.5; }
-  }
+  .comment-text { margin: 0; font-size: 14px; color: #444; line-height: 1.6; background: #f8f9fa; padding: 15px; border-radius: 12px; font-style: italic; }
 }
 
-.notice-box { text-align: center; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; 
-  &.owner { background: #fff3e0; color: #e65100; }
-  &.login { background: #f3f3f3; color: #666; }
-  &.reviewed { background: #e8f5e9; color: #2e7d32; }
-}
-.no-reviews { text-align: center; padding: 30px; color: #999; }
-.divider { height: 1px; background: #eee; margin: 20px 0; clear: both; }
-.fade-in { animation: fadeIn 0.3s ease-in; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-.no-data { text-align: center; margin-top: 50px; color: #888; }
+.status-box { text-align: center; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 700; &.success { background: #e8f5e9; color: #2e7d32; } &.warning { background: #fff3e0; color: #e65100; } &.normal { background: #eee; color: #555; } }
+.loading-fullscreen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; font-weight: 700; ion-spinner { margin-bottom: 15px; transform: scale(1.5); } }
+
+/* Animations */
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
