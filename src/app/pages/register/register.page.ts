@@ -54,7 +54,7 @@ export class RegisterPage implements OnInit {
 
   ngOnInit() {}
 
-  goBack() { this.router.navigate(['/login']); }
+  goBack() { this.router.navigate(['/home']); }
   togglePassword() { this.showPassword = !this.showPassword; }
   toggleConfirmPassword() { this.showConfirmPassword = !this.showConfirmPassword; }
 

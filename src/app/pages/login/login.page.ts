@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
 import {
   User,
   UserLoggedInPostRes,
@@ -27,6 +27,7 @@ export class LoginPage implements OnInit {
   constructor(
     private router: Router,
     private alertController: AlertController,
+    private loadingCtrl: LoadingController,
     private authService: Auth
   ) {
     // ✅ ลงทะเบียน Icon
@@ -48,6 +49,13 @@ export class LoginPage implements OnInit {
       this.showAlert('แจ้งเตือน', 'กรุณากรอกอีเมลและรหัสผ่าน');
       return;
     }
+
+    // ✅ แสดง Loading
+    const loading = await this.loadingCtrl.create({
+      message: 'กำลังเข้าสู่ระบบ...',
+      spinner: 'crescent'
+    });
+    await loading.present();
 
     try {
       const res = (await this.authService.login(
@@ -74,6 +82,8 @@ export class LoginPage implements OnInit {
 
           localStorage.setItem("loggedIn", JSON.stringify(userData));
 
+          await loading.dismiss();
+
           // ✅ แยกทางเดิน: ถ้าเป็น Admin (3) ไป dashboard, คนอื่นไป home
           if (roleId === 3) {
             this.router.navigate(['/dashboard']);
@@ -82,14 +92,17 @@ export class LoginPage implements OnInit {
           }
 
         } else {
+          await loading.dismiss();
           this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'สิทธิ์การใช้งานของคุณไม่ถูกต้อง');
           localStorage.removeItem("loggedIn");
         }
       } else {
+        await loading.dismiss();
         this.showAlert('แจ้งเตือน', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       }
 
     } catch (error) {
+      await loading.dismiss();
       console.error(error);
       this.showAlert('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
     }

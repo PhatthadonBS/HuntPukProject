@@ -5,5 +5,6 @@ import { Injectable } from '@angular/core';
 })
 export class Constants {
   // public readonly API_ENDPOINT: string = 'http://192.168.6.1:3008';
-  public readonly API_ENDPOINT: string = 'https://huntpuk-api.onrender.com';
+  // public readonly API_ENDPOINT: string = 'https://huntpuk-api.onrender.com';
+  public readonly API_ENDPOINT: string = 'https://huntpuk.space/api';
 }
