@@ -29,7 +29,7 @@ import {
   logoInstagram, paperPlaneOutline, optionsOutline,
   navigateCircleOutline, timeOutline, walkOutline, carOutline,
   locate, navigate, createOutline, star, lockClosedOutline,
-  bedOutline, checkmarkCircleOutline, locationSharp, chevronForwardOutline
+  bedOutline, checkmarkCircleOutline, locationSharp, chevronForwardOutline,listOutline,starOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -123,7 +123,7 @@ export class HomePage implements OnInit, ViewDidEnter {
       'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star,
       'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline,
       'checkmark-circle-outline': checkmarkCircleOutline, 'location-sharp': locationSharp,
-      'chevron-forward-outline': chevronForwardOutline
+      'chevron-forward-outline': chevronForwardOutline,'list-outline': listOutline,'star-outline': starOutline
     });
 
     if (typeof google === 'object' && typeof google.maps === 'object') {

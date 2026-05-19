@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { search, personCircleOutline, logOutOutline } from 'ionicons/icons'; // ✅ เพิ่ม icon
+import { search, personCircle, personCircleOutline, logOutOutline } from 'ionicons/icons'; // ✅ นำเข้าทั้งแบบทึบและแบบเส้น
 
 @Component({
   selector: 'app-header',
@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit {
 
   @Input() title: string = '';
   
-  // ✅ 1. เพิ่มตัวแปรรับข้อมูล User จากหน้า Home
+  // ✅ ตัวแปรรับข้อมูล User จากหน้า Home
   @Input() userData: any = null; 
   
   @Output() searchChange = new EventEmitter<string>();
@@ -25,8 +25,14 @@ export class HeaderComponent implements OnInit {
   searchText: string = '';
 
   constructor(private router: Router) {
-    // ✅ เพิ่ม icon user และ logout
-    addIcons({ search, 'person-circle-outline': personCircleOutline, 'log-out-outline': logOutOutline });
+    // ✅ ลงทะเบียนไอคอนแบบ shorthand (ลบเครื่องหมายคำพูดและคอลอนออกทั้งหมด)
+    // การเขียนแบบนี้ทำให้ Ionic เข้าใจและจับคู่ไอคอนให้กับ HTML ได้สมบูรณ์ที่สุดทั้งแบบ person-circle และ person-circle-outline ครับ
+    addIcons({ 
+      search, 
+      personCircle, 
+      personCircleOutline, 
+      logOutOutline 
+    });
   }
 
   ngOnInit() {}
@@ -38,14 +44,15 @@ export class HeaderComponent implements OnInit {
   goToLogin() { this.router.navigate(['/login']); }
   goToRegister() { this.router.navigate(['/register']); }
 
-  // ✅ 2. ฟังก์ชัน Logout
+  // ✅ ฟังก์ชัน Logout
   logout() {
     // ลบข้อมูลการล็อกอิน
     localStorage.removeItem('loggedIn');
     // รีโหลดหน้าจอเพื่อให้กลับสู่สถานะยังไม่ล็อกอิน
     window.location.reload(); 
   }
-  // ✅ [เพิ่ม] ฟังก์ชันไปหน้าบัญชีของฉัน
+
+  // ✅ ฟังก์ชันไปหน้าบัญชีของฉัน
   goToMyAccount() {
     this.router.navigate(['/my-account']);
   }

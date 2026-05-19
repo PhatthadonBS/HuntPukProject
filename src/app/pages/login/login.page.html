@@ -6,53 +6,71 @@
       <ion-icon name="arrow-back"></ion-icon>
       <span>กลับ</span>
     </div>
-    
-    <div class="logo-section">
-      <div class="logo-circle" (click)="goHome()" style="cursor: pointer;">
-        <img src="assets/logo.png" alt="MSU Dormitory">
-      </div>
-    </div>
 
-    <div class="form-section">
+    <div class="glass-card fade-in-up">
       
-      <div class="custom-input">
-        <input type="email" placeholder="อีเมล" [(ngModel)]="email" (keyup.enter)="login()">
-        <ion-icon name="person" color="medium"></ion-icon>
+      <div class="logo-section">
+        <div class="logo-circle" (click)="goHome()">
+          <img src="assets/logo.png" alt="HuntPuk Logo" onerror="this.src='https://placehold.co/150x150?text=Logo'">
+        </div>
       </div>
 
-      <div class="custom-input">
-        <input 
-          [type]="showPassword ? 'text' : 'password'" 
-          placeholder="รหัสผ่าน" 
-          [(ngModel)]="password"
-          (keyup.enter)="login()"
-        >
+      <div class="form-section">
         
-        <ion-icon 
-          [name]="showPassword ? 'eye' : 'eye-off'" 
-          (click)="togglePasswordVisibility()" 
-          color="medium"
-          style="cursor: pointer; z-index: 10;">
-        </ion-icon>
+        <div class="custom-input">
+          <input 
+            type="email" 
+            placeholder="อีเมล" 
+            [(ngModel)]="email" 
+            (keyup.enter)="login()"
+            [disabled]="isLoading">
+          <ion-icon name="person" color="medium"></ion-icon>
+        </div>
+
+        <div class="custom-input">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            placeholder="รหัสผ่าน" 
+            [(ngModel)]="password"
+            (keyup.enter)="login()"
+            [disabled]="isLoading">
+          
+          <ion-icon 
+            [name]="showPassword ? 'eye' : 'eye-off'" 
+            (click)="togglePasswordVisibility()" 
+            color="medium"
+            class="eye-icon">
+          </ion-icon>
+        </div>
+
+        <div class="forgot-pass">
+          <a class="link-forgot-password" routerLink="/forgot-password">ลืมรหัสผ่าน?</a>     
+        </div>
+
+        <ion-button expand="block" shape="round" class="btn-login" (click)="login()" [disabled]="isLoading">
+          
+          <ng-container *ngIf="isLoading">
+            <ion-spinner name="crescent" class="custom-spinner"></ion-spinner>
+            <span>กำลังเข้าสู่ระบบ...</span>
+          </ng-container>
+
+          <ng-container *ngIf="!isLoading">
+            <span>เข้าสู่ระบบ</span>
+            <ion-icon name="log-in-outline" slot="end" style="margin-left: 8px;"></ion-icon>
+          </ng-container>
+
+        </ion-button>
+
+        <div class="register-text">
+          <span>ยังไม่มีบัญชี? </span>
+          <a class="link-register" routerLink="/register">สมัครสมาชิก</a>
+          <span class="divider"> | </span>
+          <a class="link-register" routerLink="/recover-account">กู้คืนบัญชี</a>
+        </div>
+
       </div>
-
-      <div class="forgot-pass text-end">
-        <a class="link-forgot-password" routerLink="/forgot-password">ลืมรหัสผ่าน</a>     
-      </div>
-
-      <ion-button expand="block" shape="round" color="dark" class="btn-login" (click)="login()">
-        เข้าสู่ระบบ
-      </ion-button>
-
-      <div class="register-text">
-        <span>ยังไม่มีบัญชี? </span>
-        <a class="link-register" routerLink="/register">สมัครสมาชิก</a>
-        
-        <span class="divider"> | </span>
-        <a class="link-register" routerLink="/recover-account">กู้คืนบัญชี</a>
-      </div>
-
     </div>
+
   </div>
 
 </ion-content>

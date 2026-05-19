@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 
+// 👇 เพิ่ม 2 บรรทัดนี้เข้าไปครับ 👇
+import { addIcons } from 'ionicons';
+import { 
+  home, listOutline, starOutline, person, personCircleOutline, 
+  key, create, business, heartOutline, logOutOutline 
+} from 'ionicons/icons';
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
@@ -18,7 +24,21 @@ export class MenuComponent implements OnInit {
     private router: Router, 
     private alertCtrl: AlertController,
     private cdr: ChangeDetectorRef // ✅ อาวุธลับสำหรับโหมด --prod
-  ) {}
+  ) {
+    // ✅ ลงทะเบียนไอคอนใหม่ทั้งหมด
+   addIcons({
+      home, 
+      listOutline, 
+      starOutline, 
+      person, 
+      personCircleOutline,
+      key, 
+      create, 
+      business, 
+      heartOutline, 
+      logOutOutline
+    });
+  }
 
   ngOnInit() {
     this.checkLoginStatus();
