@@ -44,9 +44,10 @@ export class MenuComponent implements OnInit {
     this.checkLoginStatus();
   }
 
-  // ✅ รับคำสั่งจากหน้า Home และบังคับหน้าจอให้อัปเดตทันที
+// ✅ รับคำสั่งจากหน้า Home และบังคับหน้าจอให้อัปเดตทันที
   @HostListener('window:toggle-sidebar')
   toggleSidebar() {
+    this.checkLoginStatus(); // 👈 เพิ่มบรรทัดนี้: สั่งให้อ่านสิทธิ์ใหม่ทุกครั้งที่กดเปิดเมนู!
     this.isOpen = !this.isOpen;
     this.cdr.detectChanges(); 
   }

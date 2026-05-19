@@ -314,21 +314,68 @@ ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px
 }
 
 /* =========================================
-   📱 9. Responsive (หน้าจอมือถือ)
+   📱 9. Responsive (รองรับ มือถือ และ Tablet)
    ========================================= */
+
+/* สำหรับ Tablet (เช่น iPad แนวตั้ง) และมือถือแนวนอน */
+@media (max-width: 1024px) {
+  .dorm-side-panel {
+    width: 380px; /* ลดขนาดแผงด้านข้างลงนิดนึง */
+  }
+  .filter-compare-group {
+    left: 80px; 
+    .chip-button { padding: 10px 16px; font-size: 14px; }
+  }
+}
+
+/* สำหรับโทรศัพท์มือถือ (Mobile) */
 @media (max-width: 768px) {
+  .menu-fab-btn {
+    top: 65px; left: 10px; width: 48px; height: 48px;
+    ion-icon { font-size: 26px; }
+  }
+
+  .filter-compare-group {
+    top: 65px; left: 70px; gap: 8px;
+    .chip-button { 
+      padding: 8px 14px; font-size: 13px; 
+      ion-icon { font-size: 16px; }
+    }
+  }
+
+  .gps-fab-btn {
+    bottom: 20px; right: 15px; width: 45px; height: 45px;
+  }
+
+  /* 👉 ปรับ Side Panel ให้โผล่จากด้านล่าง */
   .dorm-side-panel { 
     width: 100%; 
-    height: 55vh; /* ✅ ลดความสูงลงเหลือแค่ 55% ของจอ จะได้เห็นแผนที่ข้างบนด้วย */
+    height: 60vh; /* สูง 60% ของจอ เพื่อให้ยังเห็นแผนที่ */
     right: 0;
     top: auto; 
-    bottom: -800px; 
-    border-radius: 24px 24px 0 0; 
-    transition: bottom 0.4s;
+    bottom: -100vh; /* ซ่อนไว้ล่างสุด */
+    border-radius: 24px 24px 0 0; /* โค้งเฉพาะด้านบน */
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+    transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     
     &.open { bottom: 0; right: 0; } 
   }
+
+  /* จัดเรียงเนื้อหาภายในแผงสำหรับมือถือ */
+  .panel-content { border-radius: 24px 24px 0 0; }
+  .panel-header-img { flex: 0 0 140px; } /* ลดความสูงรูปลง */
+  .btn-close-panel { top: 10px; right: 10px; background: rgba(0,0,0,0.6); }
   
-  /* ย่อรูปภาพให้เตี้ยลงหน่อยบนมือถือ */
-  .panel-header-img { flex: 0 0 130px; }
+  .contact-box .btn-contact { padding: 8px; span { display: none; } /* ซ่อนตัวหนังสือ โชว์แต่ไอคอน */ }
+  .travel-info-container { flex-direction: column; align-items: stretch; }
+  .btn-navigate { justify-content: center; margin-top: 10px; }
+}
+
+/* สำหรับมือถือจอเล็กมาก (เช่น iPhone SE) */
+@media (max-width: 380px) {
+  .filter-compare-group {
+    flex-direction: column; /* เรียงปุ่มบน-ล่าง กันล้นจอ */
+    top: 65px; left: 70px;
+    .chip-button { padding: 6px 10px; font-size: 12px; }
+  }
 }

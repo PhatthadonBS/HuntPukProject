@@ -1,5 +1,5 @@
 // --- Variables ---
-$msu-dark: #222222;
+$msu-dark: #1a1a1a;
 $msu-yellow: #FFD700;
 
 ion-content {
@@ -10,14 +10,14 @@ ion-content {
 .main-container {
   min-height: 100vh;
   width: 100%;
-  // สร้างพื้นหลังตัดเฉียง
-  background: linear-gradient(155deg, $msu-dark 45%, $msu-yellow 45%);
+  // พื้นหลังตัดเฉียง คงเอกลักษณ์ไว้
+  background: linear-gradient(145deg, $msu-dark 50%, $msu-yellow 50%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 20px; // เผื่อขอบไว้เวลาหน้าจอเล็กมากๆ
+  padding: 20px;
   overflow: hidden;
 }
 
@@ -28,40 +28,46 @@ ion-content {
   left: 20px;
   z-index: 100;
   
-  background: rgba(255, 255, 255, 0.15); 
+  background: rgba(255, 255, 255, 0.1); 
   backdrop-filter: blur(10px); 
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 30px;
-  padding: 8px 15px 8px 10px;
+  padding: 8px 16px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   color: white;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.3s ease;
 
-  ion-icon { font-size: 20px; }
+  ion-icon { font-size: 18px; }
 
-  &:active {
-    transform: scale(0.95);
-    background: rgba(255, 255, 255, 0.3);
-  }
+  &:hover { background: rgba(255, 255, 255, 0.25); }
+  &:active { transform: scale(0.95); }
 }
 
-// --- 🔮 Glass Card (กรอบใส) & Responsive ---
+// --- 💎 Premium White Glass Card ---
+// --- 💎 Premium Glass Card (การ์ดกระจกใส) ---
 .glass-card {
   width: 100%;
-  max-width: 400px; // บังคับไม่ให้กว้างเกินไปบนจอคอม
-  background: rgba(255, 255, 255, 0.15); // พื้นหลังโปร่งแสง
-  backdrop-filter: blur(25px) saturate(150%); // เอฟเฟกต์เบลอทะลุหลัง
-  -webkit-backdrop-filter: blur(25px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.4); // ขอบการ์ดเงาๆ
+  max-width: 400px;
+  
+  // 👉 จุดสำคัญ: เปลี่ยนความทึบเหลือแค่ 0.25 (25%) ให้มองทะลุพื้นหลังได้
+  background: rgba(255, 255, 255, 0.25); 
+  
+  // เพิ่มความเบลอและดึงสีพื้นหลังให้ชัดขึ้น
+  backdrop-filter: blur(25px) saturate(120%);
+  -webkit-backdrop-filter: blur(25px) saturate(120%);
+  
+  // ขอบการ์ดสีขาวโปร่งแสงบางๆ
+  border: 1px solid rgba(255, 255, 255, 0.5); 
+  
   border-radius: 32px;
-  padding: 40px 25px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+  padding: 40px 30px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2); // ลดเงาดำลงนิดนึงให้กลืนกับพื้นหลัง
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,26 +76,28 @@ ion-content {
 
 // --- ส่วนโลโก้ ---
 .logo-section {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
   
   .logo-circle {
-    width: 120px;
-    height: 120px;
+    width: 110px;
+    height: 110px;
     background-color: #ffffff;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    border: 3px solid rgba(255, 255, 255, 0.6); // เพิ่มขอบขาวให้ดูพรีเมียม
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 4px solid $msu-yellow; // ขอบเหลืองให้ดูมีเอกลักษณ์
     overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-    &:hover { transform: scale(1.05); }
+    &:hover { 
+      transform: scale(1.08); 
+      box-shadow: 0 12px 30px rgba(255, 215, 0, 0.4); 
+    }
 
     img {
-      width: 75%;
+      width: 70%;
       height: auto;
       object-fit: contain;
     }
@@ -103,14 +111,13 @@ ion-content {
 
 // --- Input Styles ---
 .custom-input {
-  background: rgba(255, 255, 255, 0.95); // ขาวเกือบทึบเพื่อให้อ่านง่าย
-  border-radius: 16px; // มนขึ้น
-  height: 55px; // สูงขึ้นนิดนึง
+  background: #f4f6f8; // สีเทาอ่อนๆ ให้กลืนไปกับการ์ด
+  border-radius: 18px;
+  height: 55px;
   display: flex;
   align-items: center;
   padding: 0 20px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   border: 2px solid transparent;
   transition: all 0.3s ease;
 
@@ -118,96 +125,126 @@ ion-content {
     flex: 1;
     border: none;
     outline: none;
-    font-size: 16px;
+    font-size: 15px;
     background: transparent;
-    color: #333;
-    font-weight: 600;
+    color: #222;
+    font-weight: 700;
     
     &::placeholder {
-      color: #aaa;
+      color: #999;
       font-weight: 500;
     }
-
     &:disabled { opacity: 0.6; }
   }
 
   ion-icon {
-    font-size: 22px;
+    font-size: 20px;
     color: #888;
     transition: 0.3s;
   }
 
   .eye-icon {
     padding: 5px;
-    margin-right: -5px; // ดึงมาชิดขวาอีกนิด
+    margin-right: -5px;
+    cursor: pointer;
   }
 
   // Effect ลูกเล่นตอนคลิกพิมพ์
   &:focus-within {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    background: #ffffff;
     border-color: $msu-yellow;
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.15);
     
-    ion-icon:not(.eye-icon) { color: $msu-yellow; }
+    ion-icon:not(.eye-icon) { color: $msu-dark; }
   }
 }
 
 // --- ลืมรหัสผ่าน ---
 .forgot-pass {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   text-align: right;
+  padding-right: 4px;
 
   a {
-    color: #111; // เปลี่ยนเป็นสีดำเข้ม
-    background: rgba(255, 255, 255, 0.7); // รองพื้นด้วยสีขาวขุ่น
-    padding: 6px 14px;
-    border-radius: 12px;
+    color: #777;
     text-decoration: none;
     font-size: 13px;
-    font-weight: 800;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-weight: 600;
     transition: all 0.2s;
 
     &:hover { 
-      background: #ffffff; 
-      transform: translateY(-2px);
+      color: $msu-dark; 
+      text-decoration: underline;
+      text-decoration-color: $msu-yellow;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
     }
   }
 }
 
-// --- สมัครสมาชิก / กู้คืนบัญชี ---
+// --- ปุ่มหลัก (Login) ---
+.btn-login {
+  margin-bottom: 30px;
+  height: 55px;
+  width: 100%;
+  
+  --background: #1a1a1a; 
+  --color: #FFD700; 
+  --border-radius: 18px;
+  --box-shadow: 0 10px 25px rgba(26, 26, 26, 0.3);
+  
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+
+  &:active {
+    transform: scale(0.96);
+    --box-shadow: 0 4px 10px rgba(26, 26, 26, 0.2);
+  }
+
+  .custom-spinner {
+    margin-right: 10px;
+    --color: #FFD700;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+// --- สมัครสมาชิก / กู้คืนบัญชี (Modern Clean UI) ---
 .register-text {
   text-align: center;
   font-size: 14px;
-  color: #333; // เปลี่ยนข้อความปกติเป็นสีเข้ม
-  font-weight: 700;
-  
-  // สร้างกรอบขาวขุ่นรองรับข้อความทั้งหมด
-  background: rgba(255, 255, 255, 0.6); 
-  padding: 12px 10px;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  color: #888; 
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
 
   .link-register {
-    color: $msu-yellow; // ตัวหนังสือเหลือง
-    background: #111; // พื้นหลังดำเข้ม ตัดกัน 100%
-    padding: 8px 14px;
-    border-radius: 12px;
+    color: $msu-dark; 
     text-decoration: none;
     font-weight: 800;
-    margin: 0 4px;
-    display: inline-block; // ทำให้เป็นก้อนปุ่ม
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    position: relative;
+    padding: 4px 6px;
+    border-radius: 6px;
     transition: all 0.2s;
 
+    // ลูกเล่นเน้นคำ (Highlight Marker Style)
+    background: linear-gradient(180deg, transparent 60%, rgba(255, 214, 0, 0.5) 60%);
+
     &:hover { 
-      transform: translateY(-2px); 
-      box-shadow: 0 6px 12px rgba(0,0,0,0.25); 
+      background: rgba(255, 214, 0, 0.2);
+      color: #000;
     }
   }
 
   .divider {
-    display: none; // ซ่อนขีดคั่นกลาง เพราะเราทำเป็นปุ่มแยกกันแล้ว
+    color: #e0e0e0;
+    font-weight: 300;
   }
 }
 
@@ -217,12 +254,6 @@ ion-content {
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }

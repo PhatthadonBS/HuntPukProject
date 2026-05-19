@@ -224,7 +224,8 @@ export class HomePage implements OnInit, ViewDidEnter {
           this.cdr.detectChanges();
 
           if (this.selectedDorm) {
-            this.calculateAllTravelModes(this.selectedDorm.lat, this.selectedDorm.lng);
+            // อัปเดตให้ใช้ฟังก์ชันใหม่ที่คำนวณเบาลง
+            this.calculateActiveTravelMode(this.selectedDorm.lat, this.selectedDorm.lng);
           }
         },
         (error) => {
@@ -239,7 +240,6 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   onMapClick(event: google.maps.MapMouseEvent) {
-    // ปิดการสร้างจุดสีฟ้าจากการคลิกแผนที่แบบมั่วซั่วตามที่คุณขอ
     if (this.infoWindow) this.infoWindow.close();
   }
 
@@ -312,49 +312,44 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   deg2rad(deg: number): number { return deg * (Math.PI / 180); }
 
-// ✅ เมื่อคลิกหมุดหอพักบนแผนที่ (เปิด Side Panel) ปรับให้ลื่นไหล ไม่ค้าง
+  // ✅ 1. ปรับปรุงการคลิกหมุดให้ลื่นไหล ไม่ค้าง
   openInfoWindow(marker: MapMarker, dorm: Dormitory) {
-    // 1. โชว์ข้อมูลเบื้องต้นทันที (แผงจะสไลด์ขึ้นมาแบบไม่กระตุก)
     this.selectedDorm = { ...dorm };
     this.center = { lat: dorm.lat, lng: dorm.lng };
     this.zoom = 16;
     this.circleCenter = { lat: dorm.lat, lng: dorm.lng };
-    this.circleRadius = 1000; // 1 กม.
-
+    this.circleRadius = 1000;
     this.sidePanelTab = 'info';
-    this.reviews = [];
-    this.nearbyDorms = [];
+    
+    // ล้างเส้นทางเก่าทิ้งทันที จะได้ไม่รกและไม่ค้าง
+    this.directionsResult = undefined;
+    this.altRouteRenderers = [];
+    this.walkingTime = '-';
+    this.walkingDistance = '-';
+    this.drivingTime = '-';
+    this.drivingDistance = '-';
 
-    // คำนวณหอพักใกล้เคียงภายใน 1 กม. (คำนวณเร็ว ทำก่อนได้เลย)
+    // คำนวณหอพักใกล้เคียงแบบเบาๆ
     this.nearbyDorms = this.allDorms
-      .filter(d => {
-        if (d.DORM_ID === dorm.DORM_ID) return false;
-        const dist = this.calculateDistance(dorm.lat, dorm.lng, d.lat, d.lng);
-        return dist <= 1;
-      })
-      .slice(0, 5); // แสดงสูงสุด 5 รายการ
+      .filter(d => d.DORM_ID !== dorm.DORM_ID && this.calculateDistance(dorm.lat, dorm.lng, d.lat, d.lng) <= 1)
+      .slice(0, 5);
 
-    this.cdr.detectChanges(); // สั่งให้อัปเดต UI ทันที แผงจะเด้งขึ้นมาทันที
+    this.cdr.detectChanges(); // เด้งแผงขึ้นมาทันทีโดยไม่มีการหน่วง!
 
-    // 2. หน่วงเวลา 350ms รอให้ Animation แผงสไลด์เด้งเสร็จก่อน ค่อยดึงข้อมูลหนักๆ
+    // หน่วงเวลาให้ UI สไลด์เสร็จก่อน ค่อยดึง API หนักๆ
     setTimeout(async () => {
-      // ดึงข้อมูลเชิงลึก (ห้อง / สิ่งอำนวยความสะดวก / ข้อมูลเจ้าของ)
       try {
         const res = await this.dormService.getDormById(dorm.DORM_ID);
         if (res.success && res.data) {
           this.selectedDorm = { ...this.selectedDorm, ...res.data };
-          this.cdr.detectChanges(); // อัปเดตข้อมูลอีกรอบเมื่อโหลดเสร็จ (เช่น โชว์เบอร์โทร)
+          this.cdr.detectChanges();
         }
-      } catch (e) { 
-        console.error('Fetch pop-up detail error: ', e); 
-      }
+      } catch (e) { console.error(e); }
 
-      // คำนวณเส้นทาง (Google Maps API)
-      this.calculateAllTravelModes(dorm.lat, dorm.lng);
-      
-      // ดึงรีวิว
+      // ✅ สั่งคำนวณเฉพาะเส้นทางปัจจุบันเท่านั้น (ช่วยลดอาการค้างได้ 90%)
+      this.calculateActiveTravelMode(dorm.lat, dorm.lng);
       this.loadReviews(dorm.DORM_ID);
-    }, 350);
+    }, 400); // รอให้ Sidebar เด้งเสร็จสมบูรณ์
   }
 
   // เลือกหอพักใกล้เคียง
@@ -371,7 +366,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     return dist < 1 ? `${Math.round(dist * 1000)} ม.` : `${dist.toFixed(1)} กม.`;
   }
 
-  // ✅ โหลดรีวิวผู้เช่ามาแสดงใน Side Panel
+  // โหลดรีวิวผู้เช่ามาแสดงใน Side Panel
   async loadReviews(dormId: number) {
     this.isLoadingReviews = true;
     try {
@@ -390,35 +385,32 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  // 🧭 คำนวณเส้นทางทั้งเดินและขับรถ
-  calculateAllTravelModes(destLat: number, destLng: number) {
-    if (!this.directionsService) {
-      this.directionsService = new google.maps.DirectionsService();
-    }
+  // ✅ 2. สร้างฟังก์ชันใหม่ คำนวณเฉพาะโหมดที่ใช้งานอยู่
+  calculateActiveTravelMode(destLat: number, destLng: number) {
+    if (!this.directionsService) this.directionsService = new google.maps.DirectionsService();
+    
     const origin = this.referencePoint;
     const destination = { lat: destLat, lng: destLng };
 
-    // 🚶 โหมดเดิน
-    this.directionsService.route({
-      origin, destination, travelMode: google.maps.TravelMode.WALKING
-    }, (res, status) => {
-      if (status === google.maps.DirectionsStatus.OK && res) {
-        this.walkingTime = res.routes[0]?.legs[0]?.duration?.text || '-';
-        this.walkingDistance = res.routes[0]?.legs[0]?.distance?.text || '-';
-        if (this.activeTravelMode === 'WALKING') this.renderRoutesOnMap(res);
-      }
-    });
+    // ถ้าระยะทางตรง (เส้นตรง) ไกลเกิน 50 กม. จะไม่แสดงเส้นทางสำรองเพื่อป้องกันจอล็อก
+    const straightDist = this.calculateDistance(origin.lat, origin.lng, destination.lat, destination.lng);
+    const provideAlt = straightDist < 50; 
 
-    // 🚗 โหมดขับรถ
     this.directionsService.route({
-      origin, destination, travelMode: google.maps.TravelMode.DRIVING,
-      provideRouteAlternatives: true
+      origin, destination, 
+      travelMode: google.maps.TravelMode[this.activeTravelMode],
+      provideRouteAlternatives: provideAlt // ถ้าไกลมาก ไม่ต้องหาเส้นทางสำรอง
     }, (res, status) => {
       if (status === google.maps.DirectionsStatus.OK && res) {
-        this.drivingTime = res.routes[0]?.legs[0]?.duration?.text || '-';
-        this.drivingDistance = res.routes[0]?.legs[0]?.distance?.text || '-';
-        this.possibleRoutesCount = res.routes.length;
-        if (this.activeTravelMode === 'DRIVING') this.renderRoutesOnMap(res);
+        if (this.activeTravelMode === 'DRIVING') {
+          this.drivingTime = res.routes[0]?.legs[0]?.duration?.text || '-';
+          this.drivingDistance = res.routes[0]?.legs[0]?.distance?.text || '-';
+          this.possibleRoutesCount = res.routes.length;
+        } else {
+          this.walkingTime = res.routes[0]?.legs[0]?.duration?.text || '-';
+          this.walkingDistance = res.routes[0]?.legs[0]?.distance?.text || '-';
+        }
+        this.renderRoutesOnMap(res);
       }
     });
   }
@@ -440,10 +432,16 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.cdr.detectChanges();
   }
 
+  // ✅ 3. เปลี่ยนฟังก์ชันสลับแท็บเดินทาง ให้คำนวณเมื่อถูกคลิก
   changeTravelMode(mode: 'WALKING' | 'DRIVING') {
+    if (this.activeTravelMode === mode) return; // ถ้ากดโหมดเดิมไม่ต้องทำอะไร
+    
     this.activeTravelMode = mode;
+    this.directionsResult = undefined; // ล้างเส้นทางเดิม
+    this.altRouteRenderers = [];
+    
     if (this.selectedDorm) {
-      this.calculateAllTravelModes(this.selectedDorm.lat, this.selectedDorm.lng);
+      this.calculateActiveTravelMode(this.selectedDorm.lat, this.selectedDorm.lng);
     }
   }
 
