@@ -156,46 +156,22 @@ ion-content {
 .forgot-pass {
   margin-bottom: 25px;
   text-align: right;
-  padding-right: 5px;
 
   a {
-    color: #ffffff; // เปลี่ยนสีให้ตัดกับพื้นหลังการ์ด
+    color: #111; // เปลี่ยนเป็นสีดำเข้ม
+    background: rgba(255, 255, 255, 0.7); // รองพื้นด้วยสีขาวขุ่น
+    padding: 6px 14px;
+    border-radius: 12px;
     text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    transition: 0.2s;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
 
-    &:hover { color: $msu-yellow; }
-  }
-}
-
-// --- ปุ่มหลัก (Login) ---
-.btn-login {
-  margin-bottom: 25px;
-  height: 55px;
-  width: 100%;
-  
-  --background: #111111; // ดำเข้ม
-  --color: #FFD700; // เหลืองทอง
-  --border-radius: 16px;
-  --box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-  
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  transition: transform 0.2s;
-
-  &:active {
-    transform: scale(0.98);
-    --box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
-
-  .custom-spinner {
-    margin-right: 10px;
-    --color: #FFD700;
-    width: 24px;
-    height: 24px;
+    &:hover { 
+      background: #ffffff; 
+      transform: translateY(-2px);
+    }
   }
 }
 
@@ -203,23 +179,35 @@ ion-content {
 .register-text {
   text-align: center;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9); // ตัวหนังสือสีขาว
-  font-weight: 500;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  color: #333; // เปลี่ยนข้อความปกติเป็นสีเข้ม
+  font-weight: 700;
+  
+  // สร้างกรอบขาวขุ่นรองรับข้อความทั้งหมด
+  background: rgba(255, 255, 255, 0.6); 
+  padding: 12px 10px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 
   .link-register {
-    color: $msu-yellow; // เน้นสีเหลือง
+    color: $msu-yellow; // ตัวหนังสือเหลือง
+    background: #111; // พื้นหลังดำเข้ม ตัดกัน 100%
+    padding: 8px 14px;
+    border-radius: 12px;
     text-decoration: none;
     font-weight: 800;
     margin: 0 4px;
-    transition: 0.2s;
+    display: inline-block; // ทำให้เป็นก้อนปุ่ม
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s;
 
-    &:hover { text-decoration: underline; opacity: 0.8; }
+    &:hover { 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25); 
+    }
   }
 
   .divider {
-    color: rgba(255, 255, 255, 0.4);
-    margin: 0 2px;
+    display: none; // ซ่อนขีดคั่นกลาง เพราะเราทำเป็นปุ่มแยกกันแล้ว
   }
 }
 
