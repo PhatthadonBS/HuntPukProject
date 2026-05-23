@@ -86,6 +86,7 @@ export class LoginPage implements OnInit {
             username: res.user.username,
             role_id: res.user.role_id, 
             accout_status: res.user.accout_status, 
+            phone: res.user.phone,
             token: res.token
           };
           

@@ -4,7 +4,7 @@
 :host {
   --primary-color: #1a1a1a; 
   --secondary-color: #FFD600; 
-  --bg-color: #f4f6f9; /* สีพื้นหลังเทาอมฟ้าอ่อนๆ ให้ดูคลีน */
+  --bg-color: #f4f6f9; 
   --card-bg: #ffffff;
   --text-main: #2b2b2b;
   --text-light: #6c757d;
@@ -13,74 +13,81 @@
 }
 
 .custom-toolbar {
-  --background: transparent;
-  --color: var(--text-main);
-  ion-title { font-weight: 900; font-size: 20px; letter-spacing: 0.5px;}
+  --background: transparent; --color: var(--text-main);
+  ion-title { font-weight: 900; font-size: 20px;}
   .btn-back ion-icon { font-size: 28px; color: var(--text-main); transition: 0.2s;}
-  .btn-back:active ion-icon { transform: translateX(-5px); }
 }
 
-.main-content {
-  --background: var(--bg-color);
-}
+.main-content { --background: var(--bg-color); }
 
 .bg-curve {
   position: absolute; top: 0; left: 0; right: 0; height: 220px;
   background: linear-gradient(180deg, var(--secondary-color) 0%, rgba(255, 214, 0, 0.8) 100%);
-  border-radius: 0 0 50px 50px;
-  box-shadow: 0 10px 30px rgba(255, 214, 0, 0.2);
-  z-index: 0;
+  border-radius: 0 0 50px 50px; z-index: 0;
 }
 
 /* =========================================
-   📌 โหมดเลือกหอพัก (Selection Mode)
+   📌 โหมดเลือกหอพัก
    ========================================= */
 .selection-container {
   position: relative; z-index: 1; padding: 15px 20px;
   
   .instruction-header {
     margin-bottom: 30px; text-align: center;
-    background: rgba(255,255,255,0.9);
-    padding: 20px; border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-    backdrop-filter: blur(10px);
-    
+    background: rgba(255,255,255,0.9); padding: 20px; border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05); backdrop-filter: blur(10px);
     h2 { font-size: 24px; font-weight: 900; color: var(--text-main); margin: 0; }
-    p { color: var(--text-light); margin: 8px 0 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;}
-    .badge { background: var(--primary-color); color: var(--secondary-color); padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 900;}
+    
+    .header-actions {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px;
+      p { color: var(--text-light); margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 600;}
+      .badge { background: var(--primary-color); color: var(--secondary-color); padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 900;}
+      
+      /* ปุ่มล้างข้อมูล */
+      .btn-clear {
+        background: #ffe3e3; color: #d32f2f; border: none; padding: 6px 14px; border-radius: 12px;
+        font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s;
+        &:active { transform: scale(0.95); }
+      }
+    }
+
+    .compare-error-box {
+      margin: 0 auto 20px; max-width: 560px; background: rgba(255, 235, 205, 0.95);
+      border: 1px solid #f5c26b; border-radius: 18px; padding: 16px 18px; display: flex;
+      align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      color: #8a4b00; font-weight: 700;
+
+      p { margin: 0; flex: 1 1 100%; }
+      .btn-retry {
+        background: var(--primary-color); color: var(--secondary-color); border: none; padding: 10px 18px;
+        border-radius: 999px; cursor: pointer; font-weight: 800; transition: 0.2s;
+        &:hover { opacity: 0.92; }
+      }
+    }
   }
 }
 
 .dorm-grid {
-  display: grid;
-  /* ✅ หัวใจสำคัญ: บังคับให้การ์ดกว้าง 280px จะเรียง 3-4 อันบนจอคอมได้เป๊ะมาก! */
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-  gap: 20px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
 }
 
 .dorm-card {
   background: var(--card-bg); border-radius: 20px; overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-  position: relative; cursor: pointer; border: 2px solid transparent;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: all 0.3s; position: relative; cursor: pointer;
+  border: 3px solid transparent; /* เตรียมพื้นที่ให้ขอบ */
 
-  /* เอฟเฟกต์เวลาเมาส์ชี้ */
-  &:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-
-  /* เอฟเฟกต์เมื่อถูกเลือก */
+  /* ✅ เอาเบลอออก แล้วใช้ขอบสีเหลืองทองแบบพรีเมียมแทน */
   &.selected {
     transform: translateY(-5px); 
-    box-shadow: 0 15px 35px rgba(255, 214, 0, 0.4);
-    border-color: var(--primary-color);
+    box-shadow: 0 15px 35px rgba(255, 214, 0, 0.3);
+    border-color: var(--secondary-color);
   }
 
   .card-image {
     height: 160px; position: relative;
     img { width: 100%; height: 100%; object-fit: cover; }
-    
-    /* ไล่สีดำกันตัวหนังสือกลืนกับรูป */
     &::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 100%); pointer-events: none;}
-    
-    .price-tag { position: absolute; bottom: 12px; right: 12px; background: var(--secondary-color); color: var(--primary-color); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 900; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
+    .price-tag { position: absolute; bottom: 12px; right: 12px; background: var(--secondary-color); color: var(--primary-color); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 900; z-index: 2; }
     
     .checkbox-wrapper { position: absolute; top: 12px; right: 12px; z-index: 2; }
     .custom-checkbox { width: 32px; height: 32px; background: rgba(255,255,255,0.9); border-radius: 50%; border: 3px solid #eee; display: flex; align-items: center; justify-content: center; transition: 0.2s;
@@ -94,146 +101,144 @@
     .zone { font-size: 13px; color: var(--text-light); margin: 0; display: flex; align-items: center; gap: 4px; font-weight: 500; }
   }
 
-  /* ม่านบังสีดำตอนเลือกแล้ว */
-  .selected-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(1.5px); z-index: 5;
-    span { background: var(--primary-color); color: var(--secondary-color); padding: 8px 20px; border-radius: 25px; font-size: 15px; font-weight: 900; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* ป้ายเล็กๆ แทนหน้าจอมืดๆ */
+  .selected-badge {
+    position: absolute; top: 18px; left: -30px; background: var(--secondary-color); color: var(--primary-color);
+    padding: 4px 30px; font-size: 11px; font-weight: 900; transform: rotate(-45deg); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 3;
   }
 }
 
-@keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-
 /* =========================================
-   📊 โหมดตารางเปรียบเทียบ (Premium Table)
+   📊 โหมดตารางเปรียบเทียบ (จัดระเบียบ 100%)
    ========================================= */
-.comparison-wrapper {
-  padding: 15px; min-height: calc(100vh - 60px);
-}
+.comparison-wrapper { padding: 15px; min-height: calc(100vh - 60px); }
+.compare-table { display: flex; width: 100%; position: relative; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid var(--border-color); overflow: hidden; }
 
-.compare-table {
-  display: flex; width: 100%; position: relative;
-  background: #ffffff; border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-  border: 1px solid var(--border-color);
-  overflow: hidden; /* ตัดขอบให้มน */
-}
-
-/* แถบหัวข้อด้านซ้าย (Sticky) */
 .column-labels {
-  flex: 0 0 130px; 
-  background: #f8fafc; z-index: 10; 
-  box-shadow: 4px 0 15px rgba(0,0,0,0.05); /* เงาขอบขวา */
-  position: sticky; left: 0;
-  
+  flex: 0 0 130px; background: #f8fafc; z-index: 10; box-shadow: 4px 0 15px rgba(0,0,0,0.05); position: sticky; left: 0;
   .row-header { background: var(--primary-color); color: var(--secondary-color); font-size: 15px; border-bottom: none; border-right: none;}
   .row-cell { justify-content: flex-start; padding-left: 15px; font-weight: 800; color: #495057; font-size: 13px; border-right: 2px solid var(--border-color); background: #f8fafc; }
 }
 
-/* พื้นที่ข้อมูลแนวนอน (Scroll) */
 .scroll-container {
   display: flex; overflow-x: auto; flex: 1; scroll-behavior: smooth;
-  &::-webkit-scrollbar { height: 8px; }
-  &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+  &::-webkit-scrollbar { height: 8px; } &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
 }
 
-.column-data {
-  flex: 0 0 240px; /* ความกว้างต่อ 1 หอพัก */
-  text-align: center; border-right: 1px solid var(--border-color); background: #fff; transition: background 0.2s;
-  &:hover { background: #fcfcfc; }
-}
+.column-data { flex: 0 0 240px; text-align: center; border-right: 1px solid var(--border-color); background: #fff; transition: 0.2s; &:hover { background: #fcfcfc; } }
 
-/* --- การจัดการความสูงของ Cell ให้เท่ากันเป๊ะ --- */
-.row-header {
-  height: 70px; display: flex; align-items: center; justify-content: center; padding: 0 15px;
-  position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 4px solid var(--secondary-color);
-  h3 { font-size: 16px; font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.3; }
-}
+/* ✅ จัดการความสูงให้เป๊ะทุกช่อง ไม่สะเปะสะปะ */
+.row-header { height: 70px; display: flex; align-items: center; justify-content: center; padding: 0 15px; position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 4px solid var(--secondary-color); h3 { font-size: 16px; font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.3; } }
 
 .row-cell {
   display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-color);
-  padding: 12px; font-size: 13px; color: #555; font-weight: 600;
+  padding: 12px; font-size: 13px; color: #555; font-weight: 600; overflow: hidden; /* ไม่ให้กล่องยืดทะลุ */
 
-  /* บังคับความสูงแต่ละบรรทัด */
   &.img-row { height: 160px; padding: 15px; }
   &.room-row { height: 140px; align-items: flex-start; }
-  &.fac-row { height: 180px; align-items: flex-start; }
-  &.desc-row { height: 150px; align-items: flex-start; }
-  &.contact-row { height: 130px; align-items: flex-start;}
-  &:not(.img-row):not(.room-row):not(.fac-row):not(.desc-row):not(.contact-row) { height: 65px; }
+  &.fac-row { height: 160px; align-items: flex-start; }
+  &.desc-row { height: 140px; align-items: flex-start; }
+  &.contact-row { height: 140px; align-items: flex-start;}
+  &:not(.img-row):not(.room-row):not(.fac-row):not(.desc-row):not(.contact-row) { height: 60px; }
 }
 
-/* ส่วนตกแต่งภายใน Cell ของตาราง */
-.img-box { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); img { width: 100%; height: 100%; object-fit: cover; } }
+/* ✅ กล่องภายในช่อง ถ้าข้อมูลยาวเกิน ให้เลื่อนดูได้ (Scroll) ไม่ทำตารางแหก */
+.inner-scroll-box {
+  width: 100%; max-height: 100%; overflow-y: auto; padding-right: 5px;
+  &::-webkit-scrollbar { width: 4px; } &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  
+  &.tags-box { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-content: flex-start;}
+  &.text-box { font-size: 12px; text-align: left; line-height: 1.6; padding: 8px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color); }
+}
+
+.img-box { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); img { width: 100%; height: 100%; object-fit: cover; } }
 .price-text { color: var(--primary-color); font-weight: 900; font-size: 18px; background: rgba(255, 214, 0, 0.15); border-radius: 8px;}
+.zone-text { font-size: 12px; line-height: 1.3;}
 
-.list-wrapper {
-  width: 100%;
-  .list-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 6px;
-    .label { font-weight: 800; color: var(--text-main); text-align: left; line-height: 1.2;}
-    .value { font-weight: 900; color: #e63946; background: #ffe3e3; padding: 2px 6px; border-radius: 6px;}
-  }
+.list-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 6px;
+  .label { font-weight: 800; color: var(--text-main); text-align: left; line-height: 1.2;}
+  .value { font-weight: 900; color: #e63946; background: #ffe3e3; padding: 2px 6px; border-radius: 6px;}
 }
 
-.tags-wrapper {
-  display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
-  .tag { font-size: 11px; background: #f8f9fa; color: #333; padding: 5px 10px; border-radius: 8px; display: flex; align-items: center; gap: 4px; font-weight: 700; border: 1px solid var(--border-color);
-    ion-icon { font-size: 14px; color: var(--success-color); }
-  }
-}
+.tag { font-size: 11px; background: #f8f9fa; color: #333; padding: 5px 10px; border-radius: 8px; display: flex; align-items: center; gap: 4px; font-weight: 700; border: 1px solid var(--border-color); ion-icon { font-size: 14px; color: var(--success-color); } }
 
-.desc-box { font-size: 12px; color: #555; text-align: left; overflow-y: auto; height: 100%; line-height: 1.6; padding: 10px; background: #f8fafc; border-radius: 10px; width: 100%; border: 1px solid var(--border-color);}
-
-/* ปุ่มโซเชียล */
 .social-links {
-  display: flex; flex-direction: column; gap: 10px; width: 100%;
-  .social-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 800; color: white; text-decoration: none; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    &.phone { background: var(--success-color); }
-    &.line { background: #00c300; }
-    &.fb { background: #1877F2; }
-    &:hover { filter: brightness(1.1); transform: translateY(-2px); }
-    ion-icon { font-size: 18px; }
+  display: flex; flex-direction: column; gap: 8px; width: 100%;
+  .social-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 800; color: white; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    &.phone { background: var(--success-color); } &.line { background: #00c300; } &.fb { background: #1877F2; }
+    ion-icon { font-size: 16px; }
   }
 }
-
 .no-data { color: #adb5bd; font-style: italic; font-weight: 500;}
 
-/* =========================================
-   🖱️ ปุ่มกดลอยด้านล่าง (Floating Button)
-   ========================================= */
-.fixed-bottom-btn {
-  position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 9999; width: max-content; 
-}
-
-.btn-premium-compare {
-  background: var(--primary-color); color: var(--secondary-color);
-  border: 3px solid var(--secondary-color);
-  padding: 16px 32px; border-radius: 40px;
-  font-size: 18px; font-weight: 900;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  display: flex; align-items: center; gap: 12px;
-  transition: all 0.2s; cursor: pointer;
-
-  /* เอฟเฟกต์ไฟกระพริบตอนเลือกครบ */
-  animation: pulseGlow 2s infinite;
-
+/* Floating Button */
+.fixed-bottom-btn { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 9999;}
+.btn-premium-compare { background: var(--primary-color); color: var(--secondary-color); border: 3px solid var(--secondary-color); padding: 14px 28px; border-radius: 40px; font-size: 16px; font-weight: 900; box-shadow: 0 10px 30px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; animation: pulseGlow 2s infinite;
   &:active { transform: scale(0.95); }
-  
-  &:disabled { 
-    opacity: 0.5; box-shadow: none; border-color: transparent; color: #fff; cursor: not-allowed; 
-    animation: none; /* ปิดกระพริบตอนยังเลือกไม่ครบ */
-  }
-
+  &:disabled { opacity: 0.5; box-shadow: none; border-color: transparent; color: #fff; cursor: not-allowed; animation: none; }
   .btn-content { display: flex; align-items: center; gap: 8px; }
   .count-badge { background: var(--secondary-color); color: var(--primary-color); padding: 4px 10px; border-radius: 15px; font-size: 14px; font-weight: 900;}
-  ion-icon { font-size: 26px; }
+  ion-icon { font-size: 24px; }
+}
+@keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(255, 214, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0); } }
+.fade-in { animation: fadeIn 0.4s ease-out; } @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   📱 Responsive (ปรับย่อขนาดตารางบนมือถือ)
+   ========================================= */
+@media (max-width: 768px) {
+  .compare-table { border-radius: 12px; }
+  
+  /* บีบหัวข้อซ้ายให้แคบลง */
+  .column-labels {
+    flex: 0 0 90px; 
+    .row-header { font-size: 13px; }
+    .row-cell { padding-left: 8px; font-size: 11px; }
+  }
+
+  /* บีบความกว้างแต่ละหอพักให้พอดีกับการเลื่อนนิ้ว */
+  .column-data { flex: 0 0 180px; }
+
+  /* ลดความสูงของช่องต่างๆ ให้พอดีจอมือถือ */
+  .row-header { height: 60px; h3 { font-size: 14px; } }
+  .row-cell {
+    padding: 8px; font-size: 12px;
+    &.img-row { height: 120px; }
+    &.room-row { height: 130px; }
+    &.fac-row { height: 140px; }
+    &.desc-row { height: 130px; }
+    &.contact-row { height: 120px; }
+    &:not(.img-row):not(.room-row):not(.fac-row):not(.desc-row):not(.contact-row) { height: 55px; }
+  }
+
+  /* ย่อปุ่มโซเชียลเหลือแค่ไอคอนและตัวหนังสือเล็กๆ */
+  .social-links .social-btn { padding: 6px; font-size: 11px; gap: 4px; ion-icon { font-size: 14px;} }
+  
+  .btn-premium-compare { padding: 12px 20px; font-size: 14px; }
+}
+/* =========================================
+   ⏳ Native Loading Overlay 
+   ========================================= */
+.custom-loading-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.6); 
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: flex; justify-content: center; align-items: center; 
+  z-index: 999999; /* ให้อยู่บนสุดทับทุกสิ่ง */
+  
+  .loader-box {
+    background: var(--primary-color); color: var(--secondary-color); 
+    padding: 30px 40px; border-radius: 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    animation: popIn 0.3s ease-out forwards;
+
+    ion-spinner { transform: scale(1.5); --color: var(--secondary-color); }
+    p { margin: 0; font-weight: 800; font-size: 16px; letter-spacing: 0.5px;}
+  }
 }
 
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0.4); }
-  70% { box-shadow: 0 0 0 15px rgba(255, 214, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0); }
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
 }
-
-/* Animations */
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }

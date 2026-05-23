@@ -33,19 +33,14 @@ export class EditProfilePage implements OnInit {
     addIcons({ closeOutline, personOutline, callOutline, mailOutline, trashOutline });
   }
 
-ngOnInit() {
-    // ลอง Log ดูว่าข้อมูลใน LocalStorage หน้าตาเป็นยังไง
-    console.log('LocalStorage Data:', localStorage.getItem('loggedIn'));
-    
+  ngOnInit() {
     this.loadUserData();
   }
 
   loadUserData() {
-    // 1. ลองดึงข้อมูลที่ส่งมาจากหน้า MyAccount (ถ้ามี) ** ข้อมูลนี้จะสดใหม่กว่า **
     const navState = this.router.getCurrentNavigation()?.extras.state;
     let userData = navState ? navState['user'] : null;
 
-    // 2. ถ้าไม่มีข้อมูลส่งมา ค่อยไปดึงจาก LocalStorage (ข้อมูลเก่า)
     if (!userData) {
       const stored = localStorage.getItem('loggedIn');
       if (stored) {
@@ -53,28 +48,17 @@ ngOnInit() {
       }
     }
 
-    // 3. ถ้ามีข้อมูล ให้เอามาใส่ฟอร์ม
     if (userData) {
       this.fullUserData = userData;
       this.userId = userData.id || userData.user_id || userData.USER_ID;
 
-      // ✅ Map ข้อมูลชื่อ (ดักจับทุกแบบ)
-      this.editData.username = userData.username || userData.USERNAME || userData.first_name || '';
-
-      // ✅ Map เบอร์โทร (เพิ่ม phone และ PHONE เผื่อไว้)
-      this.editData.phone_number = 
-        userData.phone_number || 
-        userData.PHONE_NUMBER || 
-        userData.phone || 
-        userData.PHONE || 
-        '';
-
-      console.log('Loaded Edit Data:', this.editData); // เช็คดูว่าค่ามาไหม
+      this.editData.username = userData.username || userData.USERNAME || '';
+      this.fullUserData.email = userData.email || userData.EMAIL || '';
+      this.editData.phone_number = userData.phone || userData.phone_number || userData.PHONE_NUMBER || '';
     }
   }
 
-  // ✅ แก้ไขฟังก์ชันบันทึกข้อมูล (ใช้ await แทน subscribe)
-  async saveProfile() {
+  async confirmSave() {
     if (!this.editData.username || !this.editData.phone_number) {
       this.showToast('กรุณากรอกชื่อและเบอร์โทรศัพท์', 'danger');
       return;
@@ -86,26 +70,51 @@ ngOnInit() {
       return;
     }
 
+    const alert = await this.alertController.create({
+      header: 'ยืนยันการแก้ไข',
+      message: 'คุณต้องการบันทึกการเปลี่ยนแปลงข้อมูลใช่หรือไม่?',
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'บันทึก',
+          handler: () => {
+            this.saveProfile(); 
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+async saveProfile() {
     try {
-      // ✅ ใช้ await รอผลลัพธ์
-      const res = await this.authService.updateProfile(this.userId, this.editData.username, this.editData.phone_number);
-      
-      console.log('Update Success:', res);
+      await this.authService.updateProfile(this.userId, this.editData.username, this.editData.phone_number);
 
-      // อัปเดต LocalStorage
-      this.fullUserData.username = this.editData.username;
-      this.fullUserData.phone_number = this.editData.phone_number;
-      if(this.fullUserData.USERNAME) this.fullUserData.USERNAME = this.editData.username;
-      if(this.fullUserData.PHONE_NUMBER) this.fullUserData.PHONE_NUMBER = this.editData.phone_number;
+      const storedData = localStorage.getItem('loggedIn');
+      if (storedData) {
+        let parsed = JSON.parse(storedData);
+        
+        // 🔥 อัปเดตข้อมูลเข้าไปในกล่อง .user (ถ้ามี)
+        if (parsed.user) {
+          parsed.user.username = this.editData.username;
+          parsed.user.USERNAME = this.editData.username;
+          parsed.user.phone = this.editData.phone_number;
+          parsed.user.PHONE_NUMBER = this.editData.phone_number;
+        } else {
+          parsed.username = this.editData.username;
+          parsed.USERNAME = this.editData.username;
+          parsed.phone = this.editData.phone_number;
+          parsed.PHONE_NUMBER = this.editData.phone_number;
+        }
 
-      localStorage.setItem('loggedIn', JSON.stringify(this.fullUserData));
+        // เซฟกลับเข้า LocalStorage (Token จะปลอดภัยอยู่ใน parsed)
+        localStorage.setItem('loggedIn', JSON.stringify(parsed));
+      }
 
       await this.showToast('บันทึกข้อมูลเรียบร้อย', 'success');
-      this.router.navigate(['/my-account']);
+      this.router.navigate(['/my-account']); 
 
-    } catch (error: any) { // ❌ ดักจับ Error ตรงนี้
+    } catch (error: any) { 
       console.error('Update Error:', error);
-      // ต้องแปลง error string กลับเป็น object หรือดึง message ออกมา
       let msg = 'บันทึกไม่สำเร็จ';
       try {
          const errObj = JSON.parse(error.message);
@@ -136,25 +145,13 @@ ngOnInit() {
     await alert.present();
   }
 
-  // ✅ แก้ไขฟังก์ชันปิดบัญชี (ใช้ await แทน subscribe)
   async performDeactivation() {
     try {
-      // ✅ ใช้ await
       await this.authService.deactivateUser(this.userId);
-      
-      // ล้างข้อมูล Login
       localStorage.clear(); 
-      
-      const toast = await this.toastController.create({
-        message: 'ปิดบัญชีเรียบร้อยแล้ว',
-        duration: 2000,
-        color: 'dark'
-      });
+      const toast = await this.toastController.create({ message: 'ปิดบัญชีเรียบร้อยแล้ว', duration: 2000, color: 'dark' });
       await toast.present();
-
-      // เด้งไปหน้า Login
       this.router.navigate(['/login']);
-
     } catch (error: any) {
       console.error(error);
       await this.showToast('เกิดข้อผิดพลาด ไม่สามารถปิดบัญชีได้', 'danger');
@@ -162,12 +159,7 @@ ngOnInit() {
   }
 
   async showToast(msg: string, color: string) {
-    const toast = await this.toastController.create({
-      message: msg,
-      duration: 2000,
-      color: color,
-      position: 'top'
-    });
+    const toast = await this.toastController.create({ message: msg, duration: 2000, color: color, position: 'top' });
     await toast.present();
   }
 

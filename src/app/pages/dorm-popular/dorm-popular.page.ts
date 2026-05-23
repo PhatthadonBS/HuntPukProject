@@ -1,113 +1,151 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, 
-  IonButtons, IonButton, IonIcon, IonSpinner, 
-  ToastController 
-} from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { arrowBack, heart } from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { IonicModule, ToastController } from '@ionic/angular'; 
+import { Router } from '@angular/router'; 
 import { DormitoryService } from '../../services/dormitory'; 
-import { UserService } from '../../services/user'; // ✅ Import UserService
+import { addIcons } from 'ionicons';
+import { 
+  arrowBack, star, trophy, bookmark, bookmarkOutline,
+  call, callOutline, documentTextOutline, chatbubbleEllipsesOutline, 
+  logoFacebook, locationOutline, checkmarkCircleOutline // ✅ นำเข้าไอคอนที่ทำให้เกิด Error ทั้งหมดมาไว้ที่นี่
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-dorm-popular',
   templateUrl: './dorm-popular.page.html',
   styleUrls: ['./dorm-popular.page.scss'],
   standalone: true,
-  imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, 
-    IonButtons, IonButton, IonIcon, IonSpinner, 
-    CommonModule, FormsModule
-  ]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
 export class DormPopularPage implements OnInit {
 
-  topDorm: any = null;       // อันดับ 1
-  otherDorms: any[] = [];    // อันดับ 2-6
-  isLoading = false;
+  topDorm: any = null;
+  otherDorms: any[] = [];
+  compareError: string = '';
   currentUserId: number = 0;
-
+  
   constructor(
     private dormService: DormitoryService,
-    private userService: UserService, // ✅ Inject Service
-    private router: Router,
+    private router: Router,  
+    private cdr: ChangeDetectorRef,
     private toastCtrl: ToastController
   ) { 
-    addIcons({ arrowBack, heart });
+    // ✅ ลงทะเบียนไอคอนทั้งหมดเพื่อป้องกันระบบ UI ช็อก (TypeError)
+    addIcons({ 
+      arrowBack, star, trophy,
+      bookmark, 'bookmark-outline': bookmarkOutline,
+      call, 'call-outline': callOutline, 'document-text-outline': documentTextOutline,
+      'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook,
+      'location-outline': locationOutline, 'checkmark-circle-outline': checkmarkCircleOutline
+    });
   }
 
   ngOnInit() {
-    // 1. ดึง User ID จาก Service
-    this.currentUserId = this.userService.getMyUserId();
-    console.log('Current User ID:', this.currentUserId);
-    
-    // 2. โหลดข้อมูลหอพัก
-    this.loadPopularDorms();
+    this.checkLoginStatus();
+    this.fetchPopularDorms();
+  }
+
+  checkLoginStatus() {
+    const storedData = localStorage.getItem('loggedIn');
+    if (storedData) {
+      try {
+        const userObj = JSON.parse(storedData);
+        this.currentUserId = userObj.id || userObj.USER_ID || 0;
+      } catch (e) { console.error(e); }
+    }
+  }
+
+  async fetchPopularDorms() {
+    this.compareError = '';
+    try {
+      const res = await this.dormService.getPopularDorms();
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        
+        let processedDorms = res.data.map((dorm: any) => {
+          const rawScore = dorm.SCORE || dorm.score || 0;
+          const parsedScore = parseFloat(rawScore);
+          return { 
+            ...dorm, 
+            scoreDisplay: (!isNaN(parsedScore)) ? parsedScore.toFixed(1) : '-',
+            isChecked: false 
+          };
+        });
+        
+        processedDorms = processedDorms
+          .filter((d: any) => parseFloat(d.SCORE || d.score || 0) > 0)
+          .sort((a: any, b: any) => parseFloat(b.SCORE || b.score || 0) - parseFloat(a.SCORE || a.score || 0));
+
+        if(processedDorms.length > 0) {
+           this.topDorm = processedDorms[0];
+           this.otherDorms = processedDorms.slice(1);
+        }
+
+      } else {
+        this.compareError = 'ยังไม่มีข้อมูลหอพักยอดนิยมในขณะนี้';
+      }
+    } catch (err) {
+      this.compareError = 'เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาลองใหม่อีกครั้ง';
+    } finally {
+      this.cdr.detectChanges(); 
+    }
   }
 
   goBack() {
     this.router.navigate(['/home']);
   }
 
-  async loadPopularDorms() {
-    this.isLoading = true;
-    try {
-      // ดึงมา 6 อันดับ (1 อันดับแรก + 5 อันดับรอง)
-      const res = await this.dormService.getPopularDorms(6); 
-      if (res && res.data && res.data.length > 0) {
-        this.topDorm = res.data[0];
-        this.otherDorms = res.data.slice(1);
-      }
-    } catch (error) {
-      console.error('Load Popular Error:', error);
-    } finally {
-      this.isLoading = false;
+  goToDetail(dorm: any, event?: any) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation(); 
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    if (dorm && (dorm.DORM_ID || dorm.id)) {
+      this.router.navigate(['/dorm-detail', dorm.DORM_ID || dorm.id]);
     }
   }
 
- goToDetail(dorm: any) {
-  this.router.navigate(['/dorm-detail', dorm.DORM_ID]); 
-}
+  // ✅ ระบบกดสนใจ (Bookmark) 
+  async toggleFavorite(event: Event, dorm: any) {
+    event.preventDefault(); // บล็อกไม่ให้มันเด้งไปหน้าอื่น
+    event.stopPropagation(); // บล็อกการคลิกทะลุ 
 
-  // ✅ ฟังก์ชันกด "สนใจ" (เพิ่มรายการโปรด)
-  async addToFavorite(event: Event, dorm: any) {
-    event.stopPropagation(); // ⚠️ หยุดไม่ให้คลิกทะลุไปโดนตัวการ์ด
+    if (!this.currentUserId || this.currentUserId === 0) {
+        this.showToast('กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนบันทึกรายการโปรด', 'warning');
+        return;
+    }
 
-    // เช็คว่าล็อกอินหรือยัง
-    if (this.currentUserId === 0) {
-      this.showToast('กรุณาเข้าสู่ระบบเพื่อกดถูกใจ', 'warning');
+    if (dorm.isChecked) {
+      this.showToast('หอพักนี้อยู่ในรายการโปรดของคุณแล้ว', 'medium');
       return;
     }
 
     try {
-      await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID);
-      this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ในรายการโปรดแล้ว`, 'success');
+      await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID || dorm.id);
+      dorm.isChecked = true; 
+      this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการโปรดเรียบร้อย!`, 'success');
     } catch (error: any) {
-      // ✅ เช็ค Error ให้ละเอียดขึ้น (เผื่อกดซ้ำ)
       if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
-        this.showToast('คุณกดถูกใจหอพักนี้ไปแล้ว', 'medium');
+         dorm.isChecked = true;
+         this.showToast('หอพักนี้มีในรายการโปรดแล้วครับ', 'warning');
       } else {
-        console.error(error);
-        this.showToast('เกิดข้อผิดพลาด ไม่สามารถเพิ่มรายการได้', 'danger');
+         this.showToast('เกิดข้อผิดพลาดในการบันทึกรายการโปรด', 'danger');
       }
     }
+    this.cdr.detectChanges(); // สั่งให้หน้าจอรีเฟรชปุ่มเปลี่ยนสีทันที!
   }
 
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
-      message: msg, duration: 2000, color: color, position: 'bottom'
+      message: msg,
+      duration: 2500,
+      color: color,
+      position: 'top', // ✅ แจ้งเตือนลอยอยู่ด้านบนตามที่ขอ
+      buttons: [{ text: 'ปิด', role: 'cancel' }]
     });
     toast.present();
-  }
-
-  // Helper: สีป้ายอันดับ
-  getRankColor(index: number): string {
-    if (index === 0) return '#FFD700'; // ทอง
-    if (index === 1) return '#C0C0C0'; // เงิน
-    if (index === 2) return '#CD7F32'; // ทองแดง
-    return '#8ecae6'; // ฟ้า (อันดับอื่นๆ)
   }
 }

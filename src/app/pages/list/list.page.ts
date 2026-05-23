@@ -71,40 +71,42 @@ export class ListPage implements OnInit {
     }
   }
 
-  async toggleFavorite(event: Event, dorm: any) {
+async toggleFavorite(event: Event, dorm: any) {
     event.stopPropagation(); 
 
+    // ✅ ปรับปรุงการแจ้งเตือน: แยกกรณีผู้ใช้ทั่วไป vs สมาชิก
     if (!this.currentUserId || this.currentUserId === 0) {
-        this.showToast('กรุณาเข้าสู่ระบบก่อน', 'warning');
+        this.showToast('กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนบันทึกรายการโปรด', 'warning');
         return;
     }
 
     if (dorm.isChecked) {
-      this.showToast('รายการนี้อยู่ในรายการโปรดแล้ว', 'medium');
+      this.showToast('หอพักนี้อยู่ในรายการโปรดของคุณแล้ว', 'medium');
       return;
     }
 
     try {
       await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID);
       dorm.isChecked = true; 
-      this.showToast('เพิ่มลงในรายการโปรดแล้ว', 'success');
+      this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการโปรดเรียบร้อย!`, 'success');
     } catch (error: any) {
       if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
          dorm.isChecked = true;
-         this.showToast('หอพักนี้มีอยู่แล้ว', 'warning');
+         this.showToast('หอพักนี้มีในรายการโปรดแล้วครับ', 'warning');
       } else {
-         this.showToast('ไม่สามารถเพิ่มรายการโปรดได้', 'danger');
+         this.showToast('เกิดข้อผิดพลาดในการบันทึกรายการโปรด', 'danger');
       }
     }
   }
 
+  // ✅ ปรับปรุง Toast ให้ดูพรีเมียมขึ้น
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
       message: msg,
-      duration: 2000,
+      duration: 2500, // เพิ่มเวลาแสดงนิดนึงให้อ่านทัน
       color: color,
       position: 'bottom',
-      cssClass: 'custom-toast'
+      buttons: [{ text: 'ปิด', role: 'cancel' }] // เพิ่มปุ่มปิด
     });
     toast.present();
   }

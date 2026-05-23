@@ -18,7 +18,16 @@
   <div *ngIf="!isComparing" class="selection-container fade-in">
     <div class="instruction-header">
       <h2>เปรียบเทียบข้อมูล</h2>
-      <p>เลือกหอพักเพื่อเทียบข้อมูลเชิงลึก <span class="badge">{{ getSelectedCount() }}/{{ maxSelection }}</span></p>
+      <div class="header-actions">
+        <p>เลือกหอพักเปรียบเทียบ <span class="badge">{{ getSelectedCount() }}/{{ maxSelection }}</span></p>
+        <button class="btn-clear" *ngIf="getSelectedCount() > 0" (click)="clearSelection()">
+          <ion-icon name="trash-outline"></ion-icon> ล้างทั้งหมด
+        </button>
+      </div>
+    </div>
+    <div *ngIf="compareError" class="compare-error-box">
+      <p>{{ compareError }}</p>
+      <button class="btn-retry" (click)="fetchDorms()">ลองโหลดใหม่</button>
     </div>
 
     <div class="dorm-grid">
@@ -42,7 +51,7 @@
           <p class="zone"><ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}</p>
         </div>
         
-        <div class="selected-overlay" *ngIf="dorm.isChecked"><span>เลือกแล้ว</span></div>
+        <div class="selected-badge" *ngIf="dorm.isChecked">ถูกเลือกแล้ว</div>
       </div>
     </div>
     <div style="height: 100px;"></div>
@@ -59,7 +68,7 @@
              <div class="row-cell">โซน/ที่ตั้ง</div>
              <div class="row-cell room-row">ประเภทห้องพัก</div>
              <div class="row-cell fac-row">สิ่งอำนวยความสะดวก</div>
-             <div class="row-cell desc-row">รายละเอียด/ข้อมูล</div>
+             <div class="row-cell desc-row">รายละเอียด</div>
              <div class="row-cell contact-row">ช่องทางติดต่อ</div>
         </div>
 
@@ -80,12 +89,12 @@
                  ฿ {{ item.start_price | number }}
               </div>
 
-              <div class="row-cell">
+              <div class="row-cell zone-text">
                  {{ item.ZONE_NAME || item.address || '-' }}
               </div>
 
               <div class="row-cell room-row">
-                 <div class="list-wrapper" *ngIf="item.rooms && item.rooms.length > 0">
+                 <div class="inner-scroll-box" *ngIf="item.rooms && item.rooms.length > 0">
                     <div class="list-item" *ngFor="let room of item.rooms">
                        <span class="label">{{ room.ROOM_TYPE_NAME }}</span>
                        <span class="value">฿{{ room.PRICE | number }}</span>
@@ -95,7 +104,7 @@
               </div>
 
               <div class="row-cell fac-row">
-                 <div class="tags-wrapper" *ngIf="item.facilities && item.facilities.length > 0">
+                 <div class="inner-scroll-box tags-box" *ngIf="item.facilities && item.facilities.length > 0">
                     <span class="tag" *ngFor="let fac of item.facilities">
                        <ion-icon name="checkmark-circle"></ion-icon> {{ fac }}
                     </span>
@@ -104,7 +113,7 @@
               </div>
 
               <div class="row-cell desc-row">
-                <div class="desc-box">
+                <div class="inner-scroll-box text-box">
                   {{ item.ADD_DORM_DATA || 'ไม่มีรายละเอียดเพิ่มเติม' }}
                 </div>
               </div>
@@ -112,13 +121,13 @@
               <div class="row-cell contact-row">
                  <div class="social-links">
                     <a *ngIf="item.phone && item.phone !== '-'" [href]="'tel:' + item.phone" class="social-btn phone">
-                      <ion-icon name="call"></ion-icon> โทรศัพท์
+                      <ion-icon name="call"></ion-icon> <span>โทรศัพท์</span>
                     </a>
                     <a *ngIf="item.line && item.line !== '-'" [href]="item.line" target="_blank" class="social-btn line">
-                      <ion-icon name="chatbubble-ellipses-outline"></ion-icon> LINE
+                      <ion-icon name="chatbubble-ellipses-outline"></ion-icon> <span>LINE</span>
                     </a>
                     <a *ngIf="item.facebook && item.facebook !== '-'" [href]="item.facebook" target="_blank" class="social-btn fb">
-                      <ion-icon name="logo-facebook"></ion-icon> Facebook
+                      <ion-icon name="logo-facebook"></ion-icon> <span>Facebook</span>
                     </a>
                  </div>
               </div>
@@ -127,8 +136,9 @@
         </div>
      </div>
   </div>
-  <div *ngIf="!isComparing" class="fixed-bottom-btn">
-    <button class="btn-premium-compare" (click)="startCompare()" [disabled]="getSelectedCount() < 2">
+
+<div slot="fixed" *ngIf="!isComparing" class="fixed-bottom-btn">
+    <button class="btn-premium-compare" (click)="startCompare()" [disabled]="getSelectedCount() < 2 || isLoading">
       <div class="btn-content">
         <span>เริ่มเปรียบเทียบข้อมูล</span>
         <span class="count-badge" *ngIf="getSelectedCount() > 0">{{ getSelectedCount() }}</span>
@@ -137,6 +147,13 @@
     </button>
   </div>
 
+  <div class="custom-loading-overlay" *ngIf="isLoading">
+    <div class="loader-box">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>กำลังเตรียมข้อมูลตาราง...</p>
+    </div>
+  </div>
+
 </ion-content>
 
-
+ 

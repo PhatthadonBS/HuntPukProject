@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Constants } from '../config/config';
 
@@ -43,11 +43,26 @@ export class UserService {
     }
   }
 
-  // 2. ค้นหาผู้ใช้ตาม ID (API เดิม)
+// 2. ค้นหาผู้ใช้ตาม ID (พร้อมแนบ Token แก้บั๊ก 401/403)
   async getUserProfile(userId: number): Promise<any> {
     const url = `${this.apiUrl}/spec/user/${userId}`;
     try {
-      const res = await lastValueFrom(this.http.get<any[]>(url));
+      // 🌟 1. ไปงัดเอา Token ออกมาจาก LocalStorage
+      const stored = localStorage.getItem('loggedIn');
+      let token = '';
+      if (stored) {
+         const parsed = JSON.parse(stored);
+         token = parsed.token || ''; // ดึงกุญแจ token ออกมา
+      }
+
+      // 🌟 2. เอา Token มาใส่เป็น Header (บัตรผ่านทาง)
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}` 
+      });
+
+      // 🌟 3. แนบ { headers } ส่งไปด้วยตอน get 
+      const res = await lastValueFrom(this.http.get<any[]>(url, { headers }));
+      
       if (res && res.length > 0) {
         const u = res[0];
         return {
@@ -65,6 +80,7 @@ export class UserService {
       return null;
     }
   }
+
 
   // 3. แบนบัญชีผู้ใช้ (API เดิม)
   async banUser(userId: number): Promise<boolean> {

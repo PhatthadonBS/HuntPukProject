@@ -1,225 +1,148 @@
-ion-content {
-  --background: #2c2c2c; // พื้นหลังเทาเข้มสวยกว่าดำสนิท
+/* =========================================
+   🎨 สีและธีม 
+   ========================================= */
+.dark-toolbar {
+  --background: #222222; 
+  color: #ffffff;
+  .btn-back { color: #FFD600; font-weight: bold; font-size: 14px;}
+  ion-title { font-weight: 800; }
+}
+
+.dark-content {
+  --background: #333333;
 }
 
 .main-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
+  padding: 30px 20px; 
+  display: flex; 
+  justify-content: center; 
   min-height: 100%;
 }
 
+.error-box { background: #fff; padding: 15px; border-radius: 10px; text-align: center; color: #d32f2f; margin-bottom: 20px;}
+
+/* =========================================
+   กล่องสีเหลือง (ปรับให้กระชับขึ้น)
+   ========================================= */
 .yellow-card {
-  background-color: #FFD700;
-  width: 100%;
-  max-width: 900px;
+  background: #FFD600; 
+  width: 100%; 
+  max-width: 900px; 
   border-radius: 30px;
-  padding: 40px 30px; // เพิ่ม padding บนล่าง
-  display: flex;
-  flex-direction: column;
-  gap: 40px; // เพิ่มระยะห่างระหว่าง Rank 1 กับ Grid
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  padding: 35px 25px; /* ลด padding ลงให้พอดี */
+  display: flex; 
+  flex-direction: column; 
+  gap: 25px; /* ลดช่องว่างระหว่างการ์ด */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-// Wrapper เพื่อจัดการ Position ของ Badge และ Card
+/* =========================================
+   🔖 Badge และ Card Base (ที่หายไปเอากลับมาแล้ว!)
+   ========================================= */
 .rank-wrapper {
-  position: relative;
-  margin-top: 15px; // เว้นที่ให้ Badge ลอยขึ้นไปข้างบน
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: translateY(-5px); // ลอยขึ้นทั้งก้อนเมื่อ Hover
-    z-index: 10; // ให้ลอยมาอยู่บนสุด
-  }
+  position: relative; margin-top: 25px; transition: transform 0.2s;
+  &:hover { transform: translateY(-5px); z-index: 10; }
 }
 
-// === Badge (ป้ายอันดับแบบลอย) ===
 .rank-badge {
-  position: absolute;
-  top: -12px; // ลอยขึ้นไปเกาะขอบบน
-  left: 20px;
-  background-color: #0288d1;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 14px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-  z-index: 5; // อยู่เหนือการ์ดเสมอ
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border: 2px solid #FFD700; // ขอบสีเหลืองเพื่อให้กลืนกับพื้นหลังหลัก
-
-  &.rank-1 {
-    background-color: #008f5d;
-    font-size: 16px;
-    padding: 8px 20px;
-    top: -15px;
-  }
+  position: absolute; top: -18px; left: 25px; z-index: 5;
+  color: #fff; font-weight: 900; border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  
+  &.rank-1 { background: #009688; font-size: 15px; padding: 8px 24px; border: 2px solid #fff;}
+  &.normal-rank { background: #b0bec5; font-size: 14px; padding: 6px 18px; left: 20px; border: 2px solid #fff;}
 }
 
-// === Card Base ===
+/* 🌟 พื้นหลังสีขาวของการ์ดกลับมาแล้ว */
 .dorm-card {
-  background: #f5f5f5; // พื้นหลังขาวควันบุหรี่ อ่านง่ายกว่าเทาเข้ม
-  border-radius: 20px;
-  padding: 15px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  cursor: pointer;
-  border: 1px solid rgba(0,0,0,0.05);
+  background: #fff; border-radius: 24px; padding: 25px 20px 20px 20px; position: relative;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08); cursor: pointer;
+  display: flex; flex-direction: column;
 
-  // ✅ ปุ่มสนใจแบบใหม่ (Capsule Button)
+  /* ดีไซน์ปุ่ม Bookmark */
   .interest-tag {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: white;
-    color: #333;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 4;
-    transition: all 0.2s;
-
-    ion-icon {
-      color: #ccc; // สีหัวใจตอนยังไม่กด
-      font-size: 16px;
-      transition: color 0.2s;
-    }
-
-    &:hover {
-      background: #ffebee;
-      ion-icon { color: #d32f2f; }
-    }
-
-    &:active {
-      transform: scale(0.9);
+    position: absolute; top: 15px; right: 15px; 
+    background: #f8f9fa; color: #888;
+    padding: 6px 12px; border-radius: 20px; 
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 800; border: 1px solid #eee; 
+    z-index: 10; transition: all 0.2s ease;
+    
+    ion-icon { font-size: 16px; }
+    
+    &.active { 
+      background: #1a1a1a; color: #FFD600; border-color: #1a1a1a;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      ion-icon { animation: bookmarkPop 0.3s ease-in-out; } 
     }
   }
 }
 
-// === Rank 1 Specific ===
-.rank-one-section {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+@keyframes bookmarkPop { 
+  0% { transform: scale(1); } 
+  50% { transform: scale(1.25); } 
+  100% { transform: scale(1); } 
 }
 
-.dorm-card.highlight {
-  width: 100%;
-  min-width: 350px; // กันเล็กเกิน
-  max-width: 600px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  padding: 25px;
-  border: 2px solid white; // ขอบขาวให้ดูเด่น
-
-  .card-body {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-
-    .img-wrapper {
-      flex: 0 0 140px;
-      height: 110px;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+/* =========================================
+   🏆 อันดับ 1 (ปรับให้เพรียวและสมส่วนขึ้น)
+   ========================================= */
+.highlight {
+  padding-top: 25px; 
+  padding-bottom: 15px;
+  
+  .card-body-row {
+    display: flex; gap: 20px; margin-bottom: 10px;
+    align-items: center; 
+    @media(max-width: 600px) { flex-direction: column; align-items: flex-start; }
+    
+    .img-wrapper-main {
+      width: 120px; height: 120px; /* ย่อรูปไม่ให้การ์ดยาวเกินไป */
+      border-radius: 15px; overflow: hidden; background: #eee; flex-shrink: 0;
       img { width: 100%; height: 100%; object-fit: cover; }
+      @media(max-width: 600px) { width: 100%; height: 200px; }
     }
-
-    .info-wrapper {
-      flex: 1;
-      h3 { margin: 0 0 8px 0; font-size: 20px; font-weight: 800; color: #222; }
-      .address { 
-        font-size: 13px; color: #555; margin-bottom: 10px; 
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      }
-      
-      .stats-row {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        .price { font-weight: bold; color: #d32f2f; font-size: 16px; margin: 0; }
-        .score { font-size: 14px; color: #444; margin: 0; background: #fff8e1; padding: 2px 8px; border-radius: 10px;}
+    
+    .info-main {
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+      h2 { margin: 0 0 6px 0; font-size: 20px; font-weight: 900; color: #222; }
+      .address { color: #666; font-size: 13px; margin: 0 0 10px 0; }
+      .price-score-row {
+        display: flex; gap: 15px; align-items: center;
+        .price { color: #d32f2f; font-weight: 900; font-size: 18px; }
+        .score { display: flex; align-items: center; gap: 4px; color: #f39c12; font-weight: 900; font-size: 16px; ion-icon { font-size: 18px; } }
       }
     }
   }
-
-  .click-more {
-    text-align: center;
-    margin-top: 15px;
-    font-weight: 600;
-    color: #0277bd;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-  }
+  .click-more { text-align: center; color: #1976d2; font-weight: 800; font-size: 13px; margin-top: 5px; }
 }
 
-// === Rank 2+ Grid ===
+/* =========================================
+   🥈 อันดับอื่นๆ (Grid 2 คอลัมน์)
+   ========================================= */
 .rank-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px; // เพิ่มระยะห่าง
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
 }
 
 .rank-item {
   .dorm-card {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
+    height: 100%; padding-top: 35px; justify-content: space-between;
+    
     .card-body-column {
-      display: flex;
-      flex-direction: row;
-      gap: 12px;
-      margin-bottom: 12px;
-
+      display: flex; flex-direction: row; gap: 15px; margin-bottom: 15px;
       .img-wrapper-mini {
-        width: 80px;
-        height: 80px;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        width: 90px; height: 90px; border-radius: 12px; overflow: hidden; background: #eee; flex-shrink: 0;
         img { width: 100%; height: 100%; object-fit: cover; }
       }
-
       .info-mini {
-        flex: 1;
-        h4 { margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #222; }
-        .address-mini { font-size: 12px; color: #666; margin: 0 0 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .price-mini { font-size: 13px; font-weight: bold; color: #d32f2f; margin: 0; }
+        flex: 1; display: flex; flex-direction: column; justify-content: center;
+        h4 { margin: 0 0 6px 0; font-size: 15px; font-weight: 900; color: #222; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .address-mini { color: #888; font-size: 12px; margin: 0 0 8px 0; }
+        .price-mini { color: #d32f2f; font-weight: 900; font-size: 14px; margin: 0; }
       }
     }
-
-    .click-more-mini {
-      text-align: right;
-      font-size: 12px;
-      font-weight: bold;
-      color: #666;
-      border-top: 1px solid #e0e0e0;
-      padding-top: 8px;
-    }
+    .click-more-mini { text-align: right; color: #888; font-size: 12px; font-weight: 700; }
   }
-}
-
-.loading-center {
-  display: flex;
-  justify-content: center;
-  margin-top: 50px;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core'; // ✅ 1. Import ChangeDetectorRef
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, LoadingController, NavController } from '@ionic/angular';
@@ -41,7 +41,8 @@ export class DormDetailPage implements OnInit {
     private navCtrl: NavController,
     private dormService: DormitoryService, 
     private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private cdr: ChangeDetectorRef // ✅ 2. Inject เข้ามาใช้งาน
   ) { 
     addIcons({ 
       star, 'star-half': starHalf, 'star-outline': starOutline, arrowBack, 'location-sharp': locationSharp,
@@ -55,7 +56,6 @@ export class DormDetailPage implements OnInit {
   }
 
   ngOnInit() {
-    // ✅ แก้บั๊กจอดำ: เช็คข้อมูล User ตรงๆ จาก LocalStorage เพื่อความชัวร์ 100%
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
       try {
@@ -79,18 +79,18 @@ export class DormDetailPage implements OnInit {
   }
 
   async loadDormDetail(id: number) {
-    const loading = await this.loadingCtrl.create({ 
-      message: 'กำลังโหลดข้อมูล...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
     try {
       const res = await this.dormService.getDormById(id);
-      if (res && res.success) {
-        this.dormData = res.data; 
+      if (res && res.success && res.data) {
+        
+        // ✅ 3. กันเหนียวกรณี API คืนค่ามาเป็น Array [ { ... } ]
+        this.dormData = Array.isArray(res.data) ? res.data[0] : res.data; 
+        
         this.prepareOwnerInfo();
         this.loadReviews();
+        
+        // ✅ 4. ตบหน้า Angular ให้ตื่นมาวาดข้อมูลลงจอ!
+        this.cdr.detectChanges(); 
       } else {
         this.showToast('ไม่พบข้อมูลหอพัก', 'danger');
         this.navCtrl.back();
@@ -99,8 +99,6 @@ export class DormDetailPage implements OnInit {
       console.error('Error loading dorm detail:', error);
       this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล (API Error)', 'danger');
       this.navCtrl.back();
-    } finally {
-      loading.dismiss();
     }
   }
 
@@ -119,12 +117,15 @@ export class DormDetailPage implements OnInit {
     }
   }
 
-  switchTab(tab: string) { this.activeTab = tab; }
+  switchTab(tab: string) { 
+    this.activeTab = tab; 
+    this.cdr.detectChanges(); // ✅ อัปเดตตอนสลับแท็บด้วย
+  }
 
   get facilitiesList(): string[] {
     if (!this.dormData) return [];
-    const facData = this.dormData.facilities || this.dormData.FACILITIES; 
-    if (!facData) return [];
+    const facData = this.dormData.facilities || this.dormData.FACILITIES || this.dormData.facility; 
+    if (!facData || facData === 'null') return [];
     if (Array.isArray(facData)) return facData;
     if (typeof facData === 'string') return facData.split(',').map((item: string) => item.trim());
     return [];
@@ -133,6 +134,8 @@ export class DormDetailPage implements OnInit {
   async loadReviews() {
     if (!this.dormData || !this.dormData.DORM_ID) return;
     this.isLoadingReviews = true;
+    this.cdr.detectChanges();
+
     try {
       const res = await this.dormService.getReviewsByDormId(this.dormData.DORM_ID);
       if (res && res.data) {
@@ -143,10 +146,16 @@ export class DormDetailPage implements OnInit {
         }
       }
     } catch (error) { console.error('Load reviews failed', error); } 
-    finally { this.isLoadingReviews = false; }
+    finally { 
+      this.isLoadingReviews = false; 
+      this.cdr.detectChanges(); // ✅ โหลดเสร็จต้องปลุกจออีกรอบ
+    }
   }
 
-  setRating(score: number) { this.newReview.score = score; }
+  setRating(score: number) { 
+    this.newReview.score = score; 
+    this.cdr.detectChanges();
+  }
 
   async submitReview() {
     if (this.newReview.score === 0) {
@@ -171,10 +180,10 @@ export class DormDetailPage implements OnInit {
     return Array(5).fill(0).map((_, i) => i < Math.round(score) ? 1 : 0);
   }
 
+// เปลี่ยนฟังก์ชันนี้ให้ดึงคะแนนจาก Database โดยตรง
   get averageScore(): number {
-    if (this.reviews.length === 0) return this.dormData?.SCORE || 0;
-    const sum = this.reviews.reduce((a, b) => a + b.SCORE, 0);
-    return sum / this.reviews.length;
+    const rawScore = this.dormData?.SCORE || this.dormData?.score || 0;
+    return parseFloat(rawScore);
   }
 
   goBack() { this.navCtrl.back(); }

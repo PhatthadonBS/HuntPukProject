@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular'; // ❌ เอา LoadingController ออก
 import { Router, RouterModule } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory'; 
 import { addIcons } from 'ionicons';
 import { 
   checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
   cashOutline, layersOutline, callOutline, checkmarkCircleOutline,
-  logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle
+  logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle, 
+  location, closeCircle, call, chatbubbleEllipsesOutline, trashOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -23,6 +24,10 @@ export class ComparePage implements OnInit {
   allDorms: any[] = []; 
   selectedDorms: any[] = []; 
   isComparing: boolean = false;
+  compareError: string = '';
+  
+  // ✅ 1. เพิ่ม State ควบคุม Loading แบบ Native ไม่มีทางค้าง!
+  isLoading: boolean = false; 
 
   maxSelection: number = 3; 
   isLoggedIn: boolean = false;
@@ -31,12 +36,13 @@ export class ComparePage implements OnInit {
     private dormService: DormitoryService,
     private router: Router,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController 
+    private cdr: ChangeDetectorRef
   ) { 
     addIcons({ 
       checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
       cashOutline, layersOutline, callOutline, checkmarkCircleOutline,
-      logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle
+      logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle, 
+      location, closeCircle, call, chatbubbleEllipsesOutline, trashOutline
     });
   }
 
@@ -57,13 +63,21 @@ export class ComparePage implements OnInit {
   }
 
   async fetchDorms() {
+    this.compareError = '';
     try {
       const res = await this.dormService.getAllDorms();
-      if (res.success) {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         this.allDorms = res.data.map((d: any) => ({ ...d, isChecked: false }));
+      } else {
+        this.allDorms = [];
+        this.compareError = 'ไม่สามารถโหลดข้อมูลหอพักได้ กรุณาลองใหม่อีกครั้ง';
       }
     } catch (err) {
       console.error(err);
+      this.allDorms = [];
+      this.compareError = 'เกิดข้อผิดพลาดขณะดึงข้อมูลหอพัก กรุณาลองใหม่อีกครั้ง';
+    } finally {
+      this.cdr.detectChanges();
     }
   }
 
@@ -71,11 +85,19 @@ export class ComparePage implements OnInit {
     return this.allDorms.filter(d => d.isChecked).length;
   }
 
+  clearSelection() {
+    this.allDorms.forEach(d => d.isChecked = false);
+    this.cdr.detectChanges();
+  }
+
   async onSelectDorm(dorm: any) {
     const selectedCount = this.getSelectedCount();
 
     if (dorm.isChecked && selectedCount > this.maxSelection) {
-      setTimeout(() => { dorm.isChecked = false; }, 50); 
+      setTimeout(() => { 
+        dorm.isChecked = false;
+        this.cdr.detectChanges();
+      }, 50); 
 
       let header = 'เกินจำนวนที่กำหนด';
       let msg = this.isLoggedIn 
@@ -91,7 +113,7 @@ export class ComparePage implements OnInit {
     }
   }
 
-async startCompare() {
+  async startCompare() {
     const selectedBasic = this.allDorms.filter((d: any) => d.isChecked);
 
     if (selectedBasic.length < 2) {
@@ -99,39 +121,43 @@ async startCompare() {
       return;
     }
 
-    const loading = await this.loadingCtrl.create({
-      message: 'กำลังวิเคราะห์และดึงข้อมูล...',
-      spinner: 'crescent'
-    });
-    await loading.present();
+    // ✅ 2. เปิดหน้ากาก Loading แท้
+    this.isLoading = true;
+    this.cdr.detectChanges();
 
     try {
-      // ✅ เปลี่ยนจาก Promise.all เป็น for loop 
-      // เพื่อค่อยๆ ทยอยดึงทีละหอพัก ป้องกันฐานข้อมูลทำงานหนักจนล่ม!
-      const results = [];
+      const results: any[] = [];
       for (const d of selectedBasic) {
-         const res = await this.dormService.getDormById(d.DORM_ID);
-         if (res && res.success) {
-            results.push(res.data);
+         try {
+           const res = await this.dormService.getDormById(d.DORM_ID || d.id);
+           if (res && res.success && res.data) {
+              results.push({ ...d, ...res.data });
+           } else {
+              results.push(d); 
+           }
+         } catch (apiErr) {
+           results.push(d); 
          }
       }
 
+      // ✅ 3. สลับหน้าเป็นตารางตอนที่หน้ากาก Loading ยังปิดจออยู่ (ลดอาการค้าง 100%)
       this.selectedDorms = results;
-
-      if (this.selectedDorms.length > 0) {
-        this.isComparing = true;
-      }
+      this.isComparing = true;
 
     } catch (error) {
       console.error('Compare Error:', error);
       this.showAlert('ข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลเปรียบเทียบได้');
     } finally {
-      loading.dismiss();
+      // ✅ 4. พอดึงข้อมูลเสร็จค่อยดึงหน้ากาก Loading ออก
+      this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
+
   cancelCompare() {
     this.isComparing = false;
     this.selectedDorms = [];
+    this.cdr.detectChanges();
   }
 
   goBack() {
@@ -146,7 +172,8 @@ async startCompare() {
     const alert = await this.alertCtrl.create({
       header: header,
       message: msg,
-      buttons: ['ตกลง']
+      buttons: ['ตกลง'],
+      cssClass: 'custom-alert'
     });
     await alert.present();
   }

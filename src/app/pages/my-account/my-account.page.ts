@@ -4,38 +4,26 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; 
 import { addIcons } from 'ionicons';
 import { person, mail, create, arrowBack, call, shieldCheckmark } from 'ionicons/icons';
-
 import { UserService } from '../../services/user'; 
-
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, 
-  IonButton, IonIcon, IonSpinner, 
-  LoadingController, ToastController 
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, LoadingController, ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-my-account',
   templateUrl: './my-account.page.html',
   styleUrls: ['./my-account.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule, FormsModule, IonContent, IonHeader, 
-    IonTitle, IonToolbar, IonButtons, IonButton, 
-    IonIcon, IonSpinner
-  ]
+  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner]
 })
 export class MyAccountPage implements OnInit {
-
   user: any = {};
   isLoading: boolean = false;
   isOwnProfile: boolean = true; 
-  canEdit: boolean = false; // ✅ เพิ่มตัวแปรนี้เพื่อคุมปุ่มแก้ไข
+  canEdit: boolean = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute, 
     private userService: UserService,
-    private loadingCtrl: LoadingController,
     private toastCtrl: ToastController
   ) { 
     addIcons({ person, mail, create, arrowBack, call, shieldCheckmark });
@@ -47,87 +35,155 @@ export class MyAccountPage implements OnInit {
     this.loadUserData();
   }
 
+  extractPhone(data: any): string {
+    if (!data) return '-';
+    
+    // ✅ ครอบคลุมทุก case ที่เป็นไปได้จาก Backend
+    const phoneFields = [
+      data.PHONE_NUMBER,
+      data.phone_number, 
+      data.phone,
+      data.PHONE,
+      data.phoneNumber,
+      data.tel,
+      data.TEL
+    ];
+
+    for (const field of phoneFields) {
+      if (field && field !== '-' && field !== 'null' && field.toString().trim() !== '') {
+        const cleaned = field.toString().trim();
+        console.log('✅ Found phone:', cleaned); // Debug
+        return cleaned;
+      }
+    }
+
+    console.warn('⚠️ No phone found in data:', data); // Debug
+    return '-';
+  }
+
   async loadUserData() {
     this.isLoading = true;
 
+    // 1. ดึงข้อมูลจาก LocalStorage ไว้เป็นหลักสำรอง
+    const stored = localStorage.getItem('loggedIn');
+    let localPhone = '-'; // ✅ เบอร์โทรจาก localStorage (แหล่งที่เชื่อถือได้ 100%)
+    let currentUser: any = null;
+    let myRole: number = 1;
+    let myId: number = 0;
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        currentUser = parsed.user ? parsed.user : parsed;
+        myRole = currentUser.role_id || currentUser.role_type_id || currentUser.ROLE_TYPE_ID || 1; 
+        myId = currentUser.id || currentUser.user_id || currentUser.USER_ID;
+
+        // ✅ ดึงเบอร์โทรจาก localStorage และเก็บไว้ (ไม่ให้ API ทับ!)
+        localPhone = this.extractPhone(currentUser);
+        console.log('📱 Phone from localStorage:', localPhone);
+
+        // นำขึ้นจอทันที
+        this.user = {
+          id: myId,
+          username: currentUser.username || currentUser.USERNAME || 'ไม่ระบุชื่อ',
+          email: currentUser.email || currentUser.EMAIL || '-',
+          phone: localPhone, // ✅ ใช้เบอร์จาก localStorage เป็นหลัก
+          role_id: myRole,
+          status: currentUser.ACCOUNT_STATUS ?? currentUser.status ?? 0
+        };
+      } catch (e) { console.error(e); }
+    }
+
+    // 2. ดึงข้อมูลจาก API (อาจไม่มีเบอร์โทร)
     try {
-      // 1. ดึงข้อมูล "คนกด" (Current User)
-      const stored = localStorage.getItem('loggedIn');
-      let currentUser: any = null;
-      let myRole: number = 1;
-      let myId: number = 0;
-
-      if (stored) {
-         currentUser = JSON.parse(stored);
-         // เช็ค key ให้ชัวร์ว่า Database ส่งอะไรมา (role_id หรือ role_type_id)
-         myRole = currentUser.role_id || currentUser.role_type_id || 1; 
-         myId = currentUser.id || currentUser.user_id || currentUser.USER_ID;
-      }
-
-      // 2. เช็คว่า "กำลังดูใคร?" (Target User) จาก URL
       const routeId = this.route.snapshot.paramMap.get('id');
 
       if (routeId) {
-        // 🅰️ กรณี: กำลังส่องคนอื่น (มี ID ใน URL)
+        // กรณีดูโปรไฟล์คนอื่น
         this.isOwnProfile = false;
+        const rawData = await this.userService.getUserProfile(Number(routeId));
         
-        // โหลดข้อมูลคนนั้นมาโชว์
-        const targetUser = await this.userService.getUserProfile(Number(routeId));
-        this.user = targetUser || {};
-
-        // 🔥 Logic สิทธิ์การแก้ไขเมื่อดูคนอื่น:
-        // Role 3 (แอดมิน) -> แก้ไขได้ ✅
-        // Role 1 (สมาชิก)// Role 2 (เจ้าของ) -> แก้ไขไม่ได้ ❌
-        if (myRole === 3) {
-           this.canEdit = true;
-        } else {
-           this.canEdit = false;
+        if (rawData && (rawData.EMAIL || rawData.email || rawData.PHONE_NUMBER || rawData.phone_number || rawData.PHONE || rawData.phone || rawData.USERNAME || rawData.username)) {
+            this.user = {
+              id: rawData.USER_ID || rawData.id || 0,
+              username: rawData.USERNAME || rawData.username || 'ไม่ระบุชื่อ',
+              email: rawData.EMAIL || rawData.email || '-',
+              phone: rawData.PHONE_NUMBER || this.extractPhone(rawData),
+              role_id: rawData.ROLE_TYPE_ID || rawData.role_id || 1,
+              status: rawData.ACCOUNT_STATUS ?? rawData.status ?? 0
+            };
         }
-
+        this.canEdit = (myRole === 3); 
       } else {
-        // 🅱️ กรณี: ดูตัวเอง (ไม่มี ID ใน URL)
+        // กรณีดูโปรไฟล์ตัวเอง
         this.isOwnProfile = true;
-        
-        // โหลดข้อมูลตัวเอง
-        if (myId) {
-           const userData = await this.userService.getUserProfile(myId);
-           this.user = userData || currentUser; 
-        }
-        
-        // 🔥 Logic สิทธิ์การแก้ไขเมื่อดูตัวเอง:
-        // ทุกคนแก้ของตัวเองได้เสมอ ✅
         this.canEdit = true; 
-      }
 
+        if (myId) {
+          const rawData = await this.userService.getUserProfile(myId);
+
+          const isRealData = rawData && (rawData.EMAIL || rawData.email ||rawData.PHONE_NUMBER || rawData.phone_number || rawData.PHONE || rawData.phone || rawData.USERNAME || rawData.username);
+
+          if (isRealData) {
+            const apiPhone = this.extractPhone(rawData);
+            
+            // ✅ ตรรกะสำคัญ: ถ้า API ไม่มีเบอร์ หรือส่งมาเป็น '-' ให้ใช้ของ localStorage
+            const finalPhone = (apiPhone !== '-') ? apiPhone : localPhone;
+
+            console.log('📞 API Phone:', apiPhone);
+            console.log('📱 Final Phone (using):', finalPhone);
+
+            this.user = {
+              id: rawData.USER_ID || rawData.id || this.user.id || 0,
+              username: rawData.USERNAME || rawData.username || this.user.username || 'ไม่ระบุชื่อ',
+              email: rawData.EMAIL || rawData.email || this.user.email || '-',
+              phone:rawData.PHONE_NUMBER || this.user.phone  || finalPhone, // ✅ ใช้เบอร์จาก localStorage ถ้า API ไม่มี
+              role_id: rawData.ROLE_TYPE_ID || rawData.role_id || this.user.role_id || 1,
+              status: rawData.ACCOUNT_STATUS ?? rawData.status ?? this.user.status
+            };
+
+            // อัปเดตกลับเข้า localStorage
+            if (stored) {
+              const parsedStore = JSON.parse(stored);
+              if (parsedStore.user) {
+                parsedStore.user.username = this.user.username;
+                parsedStore.user.USERNAME = this.user.username;
+                parsedStore.user.phone = this.user.phone;
+                parsedStore.user.PHONE_NUMBER = this.user.phone;
+              } else {
+                parsedStore.username = this.user.username;
+                parsedStore.USERNAME = this.user.username;
+                parsedStore.phone = this.user.phone;
+                parsedStore.PHONE_NUMBER = this.user.phone;
+              }
+              localStorage.setItem('loggedIn', JSON.stringify(parsedStore));
+            }
+          } else {
+             console.warn("⚠️ API Error 401/403 — ใช้ข้อมูลจาก localStorage 100%");
+             // this.user ยังคงใช้ข้อมูลจาก localStorage ที่ set ไว้ตอนแรก
+          }
+        }
+      }
     } catch (e) {
-      console.error('Error loading profile:', e);
-      this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
+      console.warn('❌ API Error:', e);
+      console.log('✅ Falling back to localStorage data');
+      // this.user ยังคงเป็นค่าจาก localStorage
     } finally {
       this.isLoading = false;
     }
   }
 
   goToEditProfile() {
-    // ส่งข้อมูล User ที่กำลังแสดงผลไปหน้าแก้ไข
-    this.router.navigate(['/edit-profile'], { state: { user: this.user } });
+    this.router.navigate(['/edit-profile']); 
   }
   
   goBack() {
-    // ถ้าดูคนอื่นอยู่ ให้กลับไปหน้า Manage Users
-    if (!this.isOwnProfile) {
-        this.router.navigate(['/manage-users']); 
-    } else {
-        this.router.navigate(['/home']);
-    }
+    if (!this.isOwnProfile) { this.router.navigate(['/manage-users']); } 
+    else { this.router.navigate(['/home']); }
   }
 
   async showToast(msg: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message: msg,
-      duration: 2000,
-      color: color,
-      position: 'bottom'
-    });
+    const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });
     toast.present();
   }
 }

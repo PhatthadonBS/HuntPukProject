@@ -1,99 +1,83 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar style="--background: #222; color: white;">
+  <ion-toolbar class="dark-toolbar">
     <ion-buttons slot="start">
-      <ion-button color="warning" (click)="goBack()">
-        <ion-icon name="arrow-back" slot="start"></ion-icon>
-        กลับ
+      <ion-button (click)="goBack()" class="btn-back">
+        <ion-icon name="arrow-back" slot="start"></ion-icon> กลับ
       </ion-button>
     </ion-buttons>
     <ion-title>จัดอันดับหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="dark-content">
   <div class="main-container">
-
-    <div class="loading-center" *ngIf="isLoading">
-      <ion-spinner name="crescent" color="warning"></ion-spinner>
+    
+    <div *ngIf="compareError" class="error-box">
+      <p>{{ compareError }}</p>
     </div>
 
-    <div class="yellow-card" *ngIf="!isLoading">
-
-      <div class="rank-one-section" *ngIf="topDorm">
-        
+    <div class="yellow-card" *ngIf="topDorm">
+      
+      <div class="rank-one-section">
         <div class="rank-wrapper">
+          <div class="rank-badge rank-1">อันดับที่ 1</div>
           
-          <div class="rank-badge rank-1">
-            <ion-icon name="trophy"></ion-icon> อันดับที่ 1
-          </div>
-
-          <div class="dorm-card highlight" (click)="goToDetail(topDorm)">
+          <div class="dorm-card highlight" (click)="goToDetail(topDorm, $event)">
             
-            <div class="interest-tag" (click)="addToFavorite($event, topDorm)" title="เพิ่มรายการโปรด">
-               <ion-icon name="heart"></ion-icon>
+            <div class="interest-tag" [class.active]="topDorm.isChecked" (click)="toggleFavorite($event, topDorm)">
+               <ion-icon [name]="topDorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
                <span>สนใจ</span>
             </div>
 
-            <div class="card-body">
-              <div class="img-wrapper">
-                <img [src]="topDorm.image || 'assets/dorm-placeholder.jpg'" 
-                     onerror="this.src='https://placehold.co/150x150?text=No+Image'">
+            <div class="card-body-row">
+              <div class="img-wrapper-main">
+                <img [src]="topDorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/300x300?text=No+Image'">
               </div>
-
-              <div class="info-wrapper">
-                <h3>{{ topDorm.DORM_NAME }}</h3>
-                <p class="address">{{ topDorm.ADDRESS || 'ไม่ระบุที่อยู่' }}</p>
-                <div class="stats-row">
-                   <p class="price">{{ topDorm.start_price | number }} บ./ด.</p>
-                   <p class="score">⭐ {{ topDorm.SCORE | number:'1.1-1' }}</p>
+              <div class="info-main">
+                <h2>{{ topDorm.DORM_NAME }}</h2>
+                <p class="address">{{ topDorm.address || topDorm.ZONE_NAME || 'ไม่ระบุที่อยู่' }}</p>
+                <div class="price-score-row">
+                  <span class="price">{{ topDorm.start_price | number }} บ./ด.</span>
+                  <span class="score"><ion-icon name="star"></ion-icon> {{ topDorm.scoreDisplay }}</span>
                 </div>
               </div>
             </div>
             
-            <div class="click-more">
-              ดูรายละเอียดเพิ่มเติม <ion-icon name="chevron-forward-circle"></ion-icon>
-            </div>
+            <div class="click-more">ดูรายละเอียดเพิ่มเติม</div>
           </div>
         </div>
       </div>
 
       <div class="rank-grid" *ngIf="otherDorms.length > 0">
-        
         <div class="rank-item" *ngFor="let item of otherDorms; let i = index">
           
           <div class="rank-wrapper">
-            <div class="rank-badge" [style.background]="getRankColor(i + 1)">
-              #{{ i + 2 }}
-            </div>
+            <div class="rank-badge normal-rank">#{{ i + 2 }}</div>
 
-            <div class="dorm-card" (click)="goToDetail(item)">
+            <div class="dorm-card" (click)="goToDetail(item, $event)">
                
-               <div class="interest-tag" (click)="addToFavorite($event, item)" title="เพิ่มรายการโปรด">
-                 <ion-icon name="heart"></ion-icon>
+               <div class="interest-tag" [class.active]="item.isChecked" (click)="toggleFavorite($event, item)">
+                 <ion-icon [name]="item.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
                  <span>สนใจ</span>
                </div>
 
                <div class="card-body-column">
                  <div class="img-wrapper-mini">
-                   <img [src]="item.image || 'assets/dorm-placeholder.jpg'" 
-                        onerror="this.src='https://placehold.co/150x150?text=No+Image'">
+                   <img [src]="item.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/150x150?text=No+Image'">
                  </div>
                  
                  <div class="info-mini">
                    <h4>{{ item.DORM_NAME }}</h4>
-                   <p class="address-mini">{{ item.ADDRESS }}</p>
+                   <p class="address-mini">{{ item.address || item.ZONE_NAME || 'ไม่ระบุที่อยู่' }}</p>
                    <p class="price-mini">{{ item.start_price | number }} บ./ด.</p>
                  </div>
                </div>
 
-               <div class="click-more-mini">
-                 ดูรายละเอียด
-               </div>
+               <div class="click-more-mini">ดูรายละเอียด</div>
             </div>
           </div>
-
+          
         </div>
-
       </div>
 
     </div>
