@@ -56,27 +56,44 @@
           <h2 class="dorm-title">{{ selectedDorm.DORM_NAME }}</h2>
           <p class="dorm-zone"><ion-icon name="location-sharp"></ion-icon> {{ selectedDorm.zone || selectedDorm.ZONE_NAME || 'ไม่ระบุโซน' }}</p>
 
-          <div class="rating-contact-row">
-            <div class="rating-box">
-              <ion-icon name="star"></ion-icon>
-              <span class="score">{{ selectedDorm.SCORE | number:'1.1-1' }}</span>
-              <span class="reviews link" (click)="sidePanelTab = 'reviews'">(อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)</span>
-            </div>
-         <div class="contact-box">
-              <a *ngIf="selectedDorm.phone && selectedDorm.phone !== '-'" [href]="'tel:' + selectedDorm.phone" class="btn-contact phone">
-                <ion-icon name="call"></ion-icon> <span>{{ selectedDorm.phone }}</span>
-              </a>
-              <a *ngIf="selectedDorm.line && selectedDorm.line !== '-'" [href]="selectedDorm.line" target="_blank" class="btn-contact line">
-                <ion-icon name="chatbubble-ellipses-outline"></ion-icon> <span>LINE</span>
-              </a>
-              <a *ngIf="selectedDorm.facebook && selectedDorm.facebook !== '-'" [href]="selectedDorm.facebook" target="_blank" class="btn-contact fb">
-                <ion-icon name="logo-facebook"></ion-icon> <span>Facebook</span>
-              </a>
-            </div>
+          <div class="rating-box" style="display: flex; align-items: center; gap: 5px; color: #fbc02d; font-weight: bold; font-size: 18px; margin-bottom: 20px;">
+            <ion-icon name="star"></ion-icon>
+            <span class="score">{{ selectedDorm.SCORE | number:'1.1-1' }}</span>
+            <span class="reviews link" (click)="sidePanelTab = 'reviews'" style="font-size: 14px; color: #1976d2; cursor: pointer; text-decoration: underline; margin-left: 5px;">
+              (อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)
+            </span>
           </div>
 
-          <!-- ระยะทาง -->
-          <div class="travel-section">
+          <div class="contact-list-container">
+            <div class="inline-box-title"><ion-icon name="chatbubbles-outline"></ion-icon> ช่องทางการติดต่อ</div>
+            
+            <a *ngIf="selectedDorm.phone && selectedDorm.phone !== '-'" [href]="'tel:' + selectedDorm.phone" class="contact-btn phone">
+              <div class="icon-wrap"><ion-icon name="call"></ion-icon></div>
+              <span class="contact-text">{{ selectedDorm.phone }}</span>
+            </a>
+            
+            <a *ngIf="selectedDorm.line && selectedDorm.line !== '-'" [href]="selectedDorm.line" target="_blank" class="contact-btn line">
+              <div class="icon-wrap"><ion-icon name="chatbubble-ellipses-outline"></ion-icon></div>
+              <span class="contact-text">แอด LINE</span>
+            </a>
+            
+            <a *ngIf="selectedDorm.facebook && selectedDorm.facebook !== '-'" [href]="selectedDorm.facebook" target="_blank" class="contact-btn fb">
+              <div class="icon-wrap"><ion-icon name="logo-facebook"></ion-icon></div>
+              <span class="contact-text">Facebook Page</span>
+            </a>
+
+            <a *ngIf="selectedDorm.instagram && selectedDorm.instagram !== '-'" [href]="selectedDorm.instagram" target="_blank" class="contact-btn ig">
+              <div class="icon-wrap"><ion-icon name="logo-instagram"></ion-icon></div>
+              <span class="contact-text">Instagram</span>
+            </a>
+
+            <a *ngIf="selectedDorm.x && selectedDorm.x !== '-'" [href]="selectedDorm.x" target="_blank" class="contact-btn x">
+              <div class="icon-wrap"><ion-icon name="logo-twitter"></ion-icon></div>
+              <span class="contact-text">X (Twitter)</span>
+            </a>
+          </div>
+
+          <div class="travel-section" style="margin-top: 25px;">
             <div class="travel-tabs">
               <div class="tab" [class.active]="activeTravelMode === 'DRIVING'" (click)="changeTravelMode('DRIVING')">
                 <ion-icon name="car-outline"></ion-icon> ขับรถ
@@ -96,7 +113,6 @@
             </div>
           </div>
 
-          <!-- ราคาห้องพัก -->
           <div class="inline-rooms-box" *ngIf="selectedDorm.rooms && selectedDorm.rooms.length > 0">
             <div class="inline-box-title"><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</div>
             <div class="inline-room-item" *ngFor="let room of selectedDorm.rooms">
@@ -105,7 +121,6 @@
             </div>
           </div>
 
-          <!-- สิ่งอำนวยความสะดวก -->
           <div class="inline-fac-box" *ngIf="selectedDorm.facilities && selectedDorm.facilities.length > 0">
             <div class="inline-box-title"><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</div>
             <div class="inline-fac-grid">
@@ -115,7 +130,6 @@
             </div>
           </div>
 
-          <!-- หอพักใกล้เคียง -->
           <div class="nearby-section" *ngIf="nearbyDorms.length > 0">
             <div class="inline-box-title"><ion-icon name="location-outline"></ion-icon> หอพักใกล้เคียง (ภายใน 1 กม.)</div>
             <div class="nearby-list">
@@ -130,6 +144,10 @@
               </div>
             </div>
           </div>
+
+          <ion-button expand="block" shape="round" color="dark" (click)="goToDetail()" style="margin: 20px 0;">
+            ดูข้อมูลหอพักทั้งหมด <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
 
         </div>
 
@@ -163,8 +181,6 @@
       </div>
     </div>
   </div>
-
- 
 
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
     <ng-template>
