@@ -1,73 +1,15 @@
-<ion-menu #dashboardMenu contentId="dashboard-content" menuId="dashboard-menu" side="start" type="overlay" swipeGesture="false" style="z-index: 99999 !important;">
-  <ion-content class="sidebar-content">
-    <div class="sidebar-wrapper">
-      
-      <div class="logo-area">
-        <ng-container *ngIf="currentUser; else showLogo">
-          <div class="user-avatar-circle">
-            <ion-icon name="person"></ion-icon>
-          </div>
-          <h3 class="user-name">{{ currentUser.username || currentUser.USERNAME }}</h3>
-          <span class="user-role">Administrator</span>
-        </ng-container>
-        <ng-template #showLogo>
-          <img src="assets/logo.png" alt="Logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
-        </ng-template>
-      </div>
-
-      <div class="menu-list">
-        
-        <div class="menu-item" (click)="navigate('/home')">
-          <ion-icon name="home-outline"></ion-icon> หน้าแรก
-        </div>
-        <div class="menu-item" (click)="navigate('/list')">
-          <ion-icon name="list-outline"></ion-icon> รายการ
-        </div>
-        
-        <div class="menu-divider"></div>
-        <div class="menu-title">ADMIN MANAGEMENT</div>
-
-        <div class="menu-item" (click)="navigate('/manage-requests-dorm-owner')">
-           <ion-icon name="people-outline"></ion-icon> คำขอเป็นเจ้าของหอ
-        </div>
-        <div class="menu-item" (click)="navigate('/manage-users')">
-           <ion-icon name="person-circle-outline"></ion-icon> จัดการบัญชีสมาชิก
-        </div>
-        <div class="menu-item" (click)="navigate('/manage-dorm')">
-           <ion-icon name="business-outline"></ion-icon> จัดการข้อมูลหอพัก
-        </div>
-        <div class="menu-item" (click)="navigate('/manage-requests-createdorm')">
-           <ion-icon name="document-text-outline"></ion-icon> คำขอลงทะเบียนหอ
-        </div>
-        
-        <div class="menu-item active-dashboard" (click)="toggleMenu()">
-           <ion-icon name="stats-chart"></ion-icon> Dashboard
-        </div>
-
-        <div class="menu-item logout-item" (click)="logout()">
-          <ion-icon name="log-out-outline"></ion-icon> ออกจากระบบ
-        </div>
-
-      </div>
-    </div>
-  </ion-content>
-</ion-menu>
-
-<div class="ion-page" id="dashboard-content">
+<div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
   
-  <ion-header class="ion-no-border">
-    <ion-toolbar class="custom-toolbar">
-      <ion-buttons slot="start">
-        <ion-button (click)="toggleMenu()" color="dark">
-          <ion-icon name="menu-outline" style="font-size: 28px;"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-title>Dashboard ภาพรวมระบบ</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <app-header title="Dashboard ภาพรวม" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
 
   <ion-content class="bg-light">
     
+    <div class="page-actions">
+      <button class="action-btn dark-btn" (click)="openMenu()">
+        <ion-icon name="menu-outline"></ion-icon> เมนูผู้ดูแลระบบ
+      </button>
+    </div>
+
     <div class="loading-center" *ngIf="isLoading">
       <ion-spinner name="crescent" color="warning"></ion-spinner>
     </div>
