@@ -18,33 +18,43 @@ ion-content.custom-content {
   background: linear-gradient(180deg, #FFD600 0%, rgba(255, 214, 0, 0.85) 100%);
   display: flex;
   flex-direction: column;
-  padding: 15px 15px 0 15px; 
 }
 
-/* =========================================
-   🔍 1. Top Bar & Modern Search Bar 
-   ========================================= */
-.top-bar {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 25px; padding-top: 10px;
+/* 🌟 สไตล์ปุ่ม ควบคุม (กลับ/เมนู) 🌟 */
+.page-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px 10px 20px;
 
-  .back-btn-wrapper {
-    background: rgba(0, 0, 0, 0.06); border-radius: 50%; width: 45px; height: 45px;
-    display: flex; align-items: center; justify-content: center; color: $msu-dark; font-size: 24px;
-    cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(5px);
-    &:active { transform: scale(0.9); background: rgba(0, 0, 0, 0.15); }
-  }
-  
-  .search-bar-modern {
-    flex: 1; background: #ffffff; border-radius: 25px; height: 50px;
-    display: flex; align-items: center; padding: 0 5px 0 20px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); 
+  .action-btn {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+    
+    ion-icon { font-size: 18px; }
+    &:active { transform: scale(0.95); }
 
-    .search-icon { font-size: 20px; color: #888; margin-right: 10px; }
-    input { border: none; background: transparent; width: 100%; outline: none; font-size: 15px; color: $text-dark; font-weight: 600; &::placeholder { color: #bbb; font-weight: 400; } }
-    .search-btn {
-      background: $msu-dark; color: $msu-yellow; height: 40px; padding: 0 20px; border-radius: 20px;
-      display: flex; align-items: center; font-weight: 800; font-size: 14px; cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); transition: all 0.2s ease;
-      &:active { transform: scale(0.95); filter: brightness(1.2); }
+    /* ปุ่มแบบโปร่งแสง (กลับ) */
+    &.outline-btn {
+      background: rgba(0, 0, 0, 0.08);
+      color: #1a1a1a;
+      &:hover { background: rgba(0, 0, 0, 0.15); }
+    }
+
+    /* ปุ่มแบบทึบ (เมนู) */
+    &.dark-btn {
+      background: #1a1a1a;
+      color: #FFD600;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      &:hover { background: #333; }
     }
   }
 }
@@ -55,17 +65,16 @@ ion-content.custom-content {
 }
 
 /* =========================================
-   📐 3. Grid Layout (การ์ดใหญ่เหมือน Compare)
+   📐 Grid Layout 
    ========================================= */
 .dorm-grid {
   display: grid;
-  /* ✅ บังคับขนาดการ์ด 280px จะเรียง 3-4 อันบนจอคอมพ์ได้สวยงามเหมือน Compare */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
   gap: 20px; 
 }
 
 /* =========================================
-   🏠 4. Dorm Card (การ์ดใหญ่ แนวตั้ง)
+   🏠 Dorm Card
    ========================================= */
 .dorm-card {
   background: $card-bg; border-radius: 20px; overflow: hidden; position: relative; 
@@ -76,18 +85,15 @@ ion-content.custom-content {
   @media (min-width: 992px) { &:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); } }
   &:active { transform: translateY(2px) scale(0.98); }
 
-  /* รูปภาพใหญ่จุใจแบบหน้า Compare */
   .card-image {
     height: 180px; position: relative; background: #e9ecef; width: 100%;
     img { width: 100%; height: 100%; object-fit: cover; }
     
-    /* เงาดำด้านล่างรูป เพื่อให้ป้ายราคาเด่น */
     &::after {
       content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
       background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 100%); pointer-events: none;
     }
 
-    /* ริบบิ้นสนใจ (มุมขวาบนทับรูป) */
     .bookmark-ribbon {
       position: absolute; top: 0; right: 20px;
       width: 38px; height: 50px; background: $msu-dark;
@@ -98,7 +104,6 @@ ion-content.custom-content {
       &.active { background: #e74c3c; ion-icon { color: #ffffff; } }
     }
     
-    /* ป้ายราคามุมขวาล่าง (เหมือนหน้า Compare) */
     .price-tag {
       position: absolute; bottom: 12px; right: 12px; background: $msu-yellow; color: $msu-dark;
       padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 900; z-index: 2;
@@ -106,16 +111,22 @@ ion-content.custom-content {
     }
   }
 
-  /* ข้อมูลด้านล่างรูป */
   .card-content {
     padding: 16px; display: flex; flex-direction: column; flex: 1;
     h3 { margin: 0 0 6px 0; font-size: 16px; font-weight: 900; color: $text-dark; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;} 
+    
+    .rating-row {
+      display: flex; align-items: center; gap: 4px; margin-bottom: 8px;
+      ion-icon { color: #fbc02d; font-size: 16px; }
+      span { font-size: 13px; font-weight: 800; color: #555; }
+    }
+
     .zone { font-size: 13px; color: $text-muted; margin: 0; display: flex; align-items: center; gap: 4px; font-weight: 500; ion-icon { font-size: 16px; color: #e74c3c; } }
   }
 }
 
 /* =========================================
-   🚫 5. Empty State & Skeleton Loading
+   🚫 Empty State & Skeleton
    ========================================= */
 .no-data-state {
   display: flex; flex-direction: column; align-items: center; justify-content: center; height: 320px; text-align: center;

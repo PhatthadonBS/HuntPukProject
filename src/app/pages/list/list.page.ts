@@ -1,121 +1,162 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, ToastController } from '@ionic/angular';
+import { IonicModule, NavController, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack } from 'ionicons/icons';
+import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, menuOutline } from 'ionicons/icons';
 
 import { DormitoryService, Dormitory } from '../../services/dormitory'; 
 import { UserService } from '../../services/user'; 
+import { HeaderComponent } from '../../components/header/header.component'; 
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, HeaderComponent] 
 })
 export class ListPage implements OnInit {
 
   dorms: Dormitory[] = [];
   keyword: string = '';
   currentUserId: number = 0;
-  isLoading: boolean = true; // ✅ เพิ่มตัวแปรสำหรับคุม Skeleton Loading
+  currentUser: any = null; 
+  isLoading: boolean = true; 
 
   constructor(
     private router: Router, 
     private navCtrl: NavController,
     private toastCtrl: ToastController,
+    private alertCtrl: AlertController, 
     private dormService: DormitoryService,
     private userService: UserService
   ) { 
-    addIcons({ bookmark, bookmarkOutline, locationSharp, home, search, arrowBack });
+    // ✅ เพิ่ม menuOutline เข้าไปในระบบไอคอน
+    addIcons({ bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, 'menu-outline': menuOutline });
   }
 
   ngOnInit() {
-    this.currentUserId = this.userService.getMyUserId();
+    this.checkLoginStatus(); 
     this.loadDorms();
   }
 
-  // ✅ เปลี่ยนจาก Loading หมุนๆ กลางจอ มาใช้ Skeleton แทน
+  checkLoginStatus() {
+    this.currentUser = null;
+    this.currentUserId = 0; 
+    const storedData = localStorage.getItem('loggedIn');
+    if (storedData) {
+      try {
+        const userObj = JSON.parse(storedData);
+        this.currentUser = userObj.user ? userObj.user : userObj;
+        this.currentUserId = Number(this.currentUser?.id || this.currentUser?.USER_ID || 0);
+      } catch (e) {
+        console.error('Error parsing user data', e);
+      }
+    }
+  }
+
   async loadDorms() {
     this.isLoading = true; 
     try {
       const res = await this.dormService.getAllDorms();
-      if (res) { 
-         this.dorms = res.data || []; 
-      }
-    } catch (error) {
-      console.error('Error loading dorms:', error);
-    } finally {
-      // หน่วงเวลาให้เห็น Skeleton นิดนึง (ลบ setTimeout ออกได้ถ้าอยากให้ไวสุดๆ)
-      setTimeout(() => { this.isLoading = false; }, 500);
-    }
+      if (res) { this.dorms = res.data || []; }
+    } catch (error) { console.error('Error loading dorms:', error); } 
+    finally { setTimeout(() => { this.isLoading = false; }, 300); }
   }
 
-  async onSearch() {
-    if(!this.keyword.trim()) {
-      this.loadDorms(); 
-      return;
-    }
+  async onSearch(event?: any) {
+    if (event !== undefined) { this.keyword = (typeof event === 'string' ? event : event?.target?.value || '').trim(); }
+    if(!this.keyword) { this.loadDorms(); return; }
 
-    this.isLoading = true; // เปิด Skeleton ตอนค้นหา
+    this.isLoading = true; 
     try {
        const res = await this.dormService.searchDorms(this.keyword);
        this.dorms = res.data || [];
-    } catch (error) {
-       console.error(error);
-    } finally {
-       this.isLoading = false;
-    }
+    } catch (error) { console.error(error); } 
+    finally { this.isLoading = false; }
   }
 
-async toggleFavorite(event: Event, dorm: any) {
+  async toggleFavorite(event: Event, dorm: any) {
     event.stopPropagation(); 
+    event.preventDefault(); 
 
-    // ✅ ปรับปรุงการแจ้งเตือน: แยกกรณีผู้ใช้ทั่วไป vs สมาชิก
-    if (!this.currentUserId || this.currentUserId === 0) {
-        this.showToast('กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนบันทึกรายการโปรด', 'warning');
+    if (!this.currentUser || this.currentUserId === 0) {
+        const alert = await this.alertCtrl.create({
+            header: 'แจ้งเตือน',
+            message: 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อเลือกหอพักที่คุณสนใจครับ',
+            buttons: [
+                { text: 'ยกเลิก', role: 'cancel' },
+                { text: 'เข้าสู่ระบบ', handler: () => this.router.navigate(['/login']) }
+            ]
+        });
+        await alert.present();
         return;
     }
 
     if (dorm.isChecked) {
-      this.showToast('หอพักนี้อยู่ในรายการโปรดของคุณแล้ว', 'medium');
-      return;
+        const alert = await this.alertCtrl.create({
+            header: 'ยกเลิกการสนใจ',
+            message: 'คุณต้องการยกเลิกการสนใจหอพักนี้ใช่หรือไม่?',
+            buttons: [
+                { text: 'ไม่', role: 'cancel' },
+                { 
+                  text: 'ใช่, ยกเลิก', 
+                  handler: async () => {
+                    try {
+                        await this.dormService.removeFavorite(this.currentUserId, dorm.DORM_ID);
+                        dorm.isChecked = false;
+                        this.showToast('ยกเลิกการสนใจเรียบร้อย', 'medium');
+                    } catch (error) {
+                        this.showToast('เกิดข้อผิดพลาดในการยกเลิก', 'danger');
+                    }
+                  }
+                }
+            ]
+        });
+        await alert.present();
+        return;
     }
 
-    try {
-      await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID);
-      dorm.isChecked = true; 
-      this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการโปรดเรียบร้อย!`, 'success');
-    } catch (error: any) {
-      if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
-         dorm.isChecked = true;
-         this.showToast('หอพักนี้มีในรายการโปรดแล้วครับ', 'warning');
-      } else {
-         this.showToast('เกิดข้อผิดพลาดในการบันทึกรายการโปรด', 'danger');
-      }
-    }
+    const alert = await this.alertCtrl.create({
+        header: 'ยืนยัน',
+        message: 'คุณสนใจหอพักนี้ใช่หรือไม่?',
+        buttons: [
+            { text: 'ยกเลิก', role: 'cancel' },
+            { 
+              text: 'ใช่, สนใจ', 
+              handler: async () => {
+                try {
+                  await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID);
+                  dorm.isChecked = true; 
+                  this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการสนใจเรียบร้อย!`, 'success');
+                } catch (error: any) {
+                  if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
+                     dorm.isChecked = true;
+                     this.showToast('หอพักนี้มีในรายการสนใจแล้วครับ', 'warning');
+                  } else {
+                     this.showToast('เกิดข้อผิดพลาดในการบันทึก', 'danger');
+                  }
+                }
+              }
+            }
+        ]
+    });
+    await alert.present();
   }
 
-  // ✅ ปรับปรุง Toast ให้ดูพรีเมียมขึ้น
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
-      message: msg,
-      duration: 2500, // เพิ่มเวลาแสดงนิดนึงให้อ่านทัน
-      color: color,
-      position: 'bottom',
-      buttons: [{ text: 'ปิด', role: 'cancel' }] // เพิ่มปุ่มปิด
+      message: msg, duration: 2500, color: color, position: 'bottom',
+      buttons: [{ text: 'ปิด', role: 'cancel' }] 
     });
-    toast.present();
+    await toast.present(); 
   }
 
-  goToDetail(dorm: any) {
-    this.router.navigate(['/dorm-detail', dorm.DORM_ID]); 
-  }
+  goToDetail(dorm: any) { this.router.navigate(['/dorm-detail', dorm.DORM_ID]); }
+  goBack() { this.navCtrl.back(); }
 
-  goBack() {
-    this.navCtrl.back();
-  }
+  // 🌟 ฟังก์ชันเปิดเมนูด้านข้าง
+  openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
 }

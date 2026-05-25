@@ -2,8 +2,7 @@
   <ion-toolbar class="dark-toolbar">
     <ion-buttons slot="start">
       <ion-button (click)="goBack()" class="btn-back">
-        <ion-icon name="arrow-back" slot="start"></ion-icon> กลับ
-      </ion-button>
+        <ion-icon name="arrow-back" slot="start"></ion-icon> กลับ</ion-button>
     </ion-buttons>
     <ion-title>จัดอันดับหอพัก</ion-title>
   </ion-toolbar>
@@ -35,15 +34,18 @@
               </div>
               <div class="info-main">
                 <h2>{{ topDorm.DORM_NAME }}</h2>
-                <p class="address">{{ topDorm.address || topDorm.ZONE_NAME || 'ไม่ระบุที่อยู่' }}</p>
-                <div class="price-score-row">
-                  <span class="price">{{ topDorm.start_price | number }} บ./ด.</span>
-                  <span class="score"><ion-icon name="star"></ion-icon> {{ topDorm.scoreDisplay }}</span>
+                
+                <div class="rating-row-main" style="display: flex; align-items: center; gap: 5px; color: #f39c12; font-weight: 900; font-size: 16px; margin-bottom: 5px;">
+                  <ion-icon name="star"></ion-icon>
+                  <span>{{ topDorm.scoreDisplay }}</span>
                 </div>
+                <p class="address" style="display: flex; align-items: center; gap: 4px; color: #666; font-size: 13px; margin: 0 0 10px 0;"><ion-icon name="location-outline" style="color: #e74c3c;"></ion-icon> {{ topDorm.zone || topDorm.ZONE_NAME || topDorm.address || 'ไม่ระบุโซน' }}</p>
+                
+                <div class="price-main" style="color: #d32f2f; font-weight: 900; font-size: 18px;">฿ {{ topDorm.start_price | number }} <span class="per-month" style="font-size: 12px; color: #666; font-weight: normal;">/ เดือน</span></div>
               </div>
             </div>
             
-            <div class="click-more">ดูรายละเอียดเพิ่มเติม</div>
+            <div class="click-more" style="text-align: center; color: #1976d2; font-weight: 800; font-size: 13px; margin-top: 5px;">ดูรายละเอียดเพิ่มเติม</div>
           </div>
         </div>
       </div>
@@ -67,13 +69,20 @@
                  </div>
                  
                  <div class="info-mini">
-                   <h4>{{ item.DORM_NAME }}</h4>
-                   <p class="address-mini">{{ item.address || item.ZONE_NAME || 'ไม่ระบุที่อยู่' }}</p>
-                   <p class="price-mini">{{ item.start_price | number }} บ./ด.</p>
+                   <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 900; color: #222; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.DORM_NAME }}</h4>
+                   
+                   <div class="rating-row-mini" style="display: flex; align-items: center; gap: 4px; color: #f39c12; font-weight: 900; font-size: 14px; margin-bottom: 6px;">
+                     <ion-icon name="star"></ion-icon>
+                     <span>{{ item.scoreDisplay || '0.0' }}</span>
+                   </div>
+
+                   <p class="address-mini" style="display: flex; align-items: center; gap: 4px; color: #888; font-size: 12px; margin: 0 0 6px 0;"><ion-icon name="location-outline" style="color: #e74c3c;"></ion-icon> {{ item.zone || item.ZONE_NAME || item.address || 'ไม่ระบุโซน' }}</p>
+                   
+                   <p class="price-mini" style="color: #d32f2f; font-weight: 900; font-size: 14px; margin: 0;">฿ {{ item.start_price | number }} <span class="per-month" style="font-size: 10px; color: #888; font-weight: normal;">/ ด.</span></p>
                  </div>
                </div>
 
-               <div class="click-more-mini">ดูรายละเอียด</div>
+               <div class="click-more-mini" style="text-align: right; color: #888; font-size: 12px; font-weight: 700;">ดูรายละเอียด</div>
             </div>
           </div>
           

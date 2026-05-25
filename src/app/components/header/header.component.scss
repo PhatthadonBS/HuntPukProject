@@ -10,9 +10,10 @@ ion-header {
   padding: 5px 0;
   /* บังคับให้พื้นที่ Toolbar รับการกด */
   pointer-events: auto !important; 
+  min-height: 60px;
 }
 
-.toolbar-content {
+.main-header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -56,7 +57,7 @@ ion-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0; /* เปลี่ยนเป็น 0 เพื่อให้ปุ่มและช่องกรอกติดกัน */
+  gap: 0; 
   max-width: 600px; 
   
   .search-box {
@@ -200,29 +201,59 @@ ion-header {
   }
 }
 
-/* ==================
-   Responsive (หน้าจอมือถือ)
-   ================== */
+/* =========================================
+   📱 Responsive (ส่วนจัดระเบียบสำหรับมือถือ)
+   ========================================= */
 @media (max-width: 768px) {
-  /* บังคับให้ช่องค้นหาปัดลงมาอยู่บรรทัดใหม่ และกว้าง 100% บนมือถือ */
-  .header-container {
+  /* ทำให้ Header ยืดหยุ่นและขึ้นบรรทัดใหม่ได้ */
+  .main-header-container {
     flex-wrap: wrap !important;
     height: auto !important;
-    padding: 10px !important;
+    padding: 8px 10px !important; /* ลด padding */
+    gap: 8px !important;
   }
   
-  .search-wrapper {
-    order: 3; /* ย้ายช่องค้นหาไปลำดับสุดท้าย */
+  /* ดันช่องค้นหาไปเป็นลำดับสุดท้าย (ตกลงไปบรรทัด 2) และกว้างเต็มจอ */
+  .search-section {
+    order: 3; 
     width: 100% !important;
     max-width: 100% !important;
-    margin-top: 10px;
+    margin-top: 5px;
+
+    /* ลดขนาดช่องค้นหาให้เล็กลง */
+    .search-box {
+      height: 38px;
+      padding: 0 15px;
+      input { font-size: 13px; }
+    }
+    .btn-search-action {
+      height: 38px;
+      padding: 0 15px;
+      font-size: 13px;
+    }
   }
-  
-  /* ดันปุ่มแผงซ้ายมือลงมาหลบช่องค้นหาที่ขยายใหญ่ขึ้น */
-  :host-context(.ion-page) .menu-fab-btn {
-    top: 135px !important;
+
+  /* ซ่อนชื่อแอปในมือถือ และลดขนาดโลโก้ */
+  .logo-section {
+    min-width: auto;
+    .header-title { display: none; }
+    .header-logo { height: 35px; width: 35px; }
   }
-  :host-context(.ion-page) .filter-compare-group {
-    top: 135px !important;
+
+  /* ปรับขนาดปุ่มมุมขวาบนมือถือ */
+  .auth-buttons {
+    min-width: auto;
+    gap: 5px;
+    .btn-login, .btn-register {
+       height: 32px; padding: 0 10px; font-size: 12px;
+    }
+    .user-badge {
+       padding: 2px 10px 2px 2px; font-size: 12px;
+       ion-icon { font-size: 24px; }
+    }
+    .logout-btn {
+      padding: 6px 10px;
+      ion-icon { font-size: 16px; }
+    }
   }
 }

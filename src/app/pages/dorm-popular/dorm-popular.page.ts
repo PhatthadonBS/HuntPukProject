@@ -1,14 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController } from '@ionic/angular'; 
+import { IonicModule, ToastController, AlertController } from '@ionic/angular'; 
 import { Router } from '@angular/router'; 
 import { DormitoryService } from '../../services/dormitory'; 
 import { addIcons } from 'ionicons';
 import { 
   arrowBack, star, trophy, bookmark, bookmarkOutline,
   call, callOutline, documentTextOutline, chatbubbleEllipsesOutline, 
-  logoFacebook, locationOutline, checkmarkCircleOutline // ✅ นำเข้าไอคอนที่ทำให้เกิด Error ทั้งหมดมาไว้ที่นี่
+  logoFacebook, locationOutline, checkmarkCircleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -29,12 +29,11 @@ export class DormPopularPage implements OnInit {
     private dormService: DormitoryService,
     private router: Router,  
     private cdr: ChangeDetectorRef,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController // ✅ นำเข้า AlertController
   ) { 
-    // ✅ ลงทะเบียนไอคอนทั้งหมดเพื่อป้องกันระบบ UI ช็อก (TypeError)
     addIcons({ 
-      arrowBack, star, trophy,
-      bookmark, 'bookmark-outline': bookmarkOutline,
+      arrowBack, star, trophy, bookmark, 'bookmark-outline': bookmarkOutline,
       call, 'call-outline': callOutline, 'document-text-outline': documentTextOutline,
       'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook,
       'location-outline': locationOutline, 'checkmark-circle-outline': checkmarkCircleOutline
@@ -47,11 +46,13 @@ export class DormPopularPage implements OnInit {
   }
 
   checkLoginStatus() {
+    this.currentUserId = 0;
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
-        this.currentUserId = userObj.id || userObj.USER_ID || 0;
+        const currentUser = userObj.user ? userObj.user : userObj;
+        this.currentUserId = Number(currentUser?.id || currentUser?.USER_ID || 0);
       } catch (e) { console.error(e); }
     }
   }
@@ -61,13 +62,12 @@ export class DormPopularPage implements OnInit {
     try {
       const res = await this.dormService.getPopularDorms();
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        
         let processedDorms = res.data.map((dorm: any) => {
           const rawScore = dorm.SCORE || dorm.score || 0;
           const parsedScore = parseFloat(rawScore);
           return { 
             ...dorm, 
-            scoreDisplay: (!isNaN(parsedScore)) ? parsedScore.toFixed(1) : '-',
+            scoreDisplay: (!isNaN(parsedScore)) ? parsedScore.toFixed(1) : '0.0',
             isChecked: false 
           };
         });
@@ -80,72 +80,91 @@ export class DormPopularPage implements OnInit {
            this.topDorm = processedDorms[0];
            this.otherDorms = processedDorms.slice(1);
         }
-
-      } else {
-        this.compareError = 'ยังไม่มีข้อมูลหอพักยอดนิยมในขณะนี้';
-      }
-    } catch (err) {
-      this.compareError = 'เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาลองใหม่อีกครั้ง';
-    } finally {
-      this.cdr.detectChanges(); 
-    }
+      } else { this.compareError = 'ยังไม่มีข้อมูลหอพักยอดนิยมในขณะนี้'; }
+    } catch (err) { this.compareError = 'เกิดข้อผิดพลาดในการดึงข้อมูล'; } 
+    finally { this.cdr.detectChanges(); }
   }
 
-  goBack() {
-    this.router.navigate(['/home']);
-  }
+  goBack() { this.router.navigate(['/home']); }
 
   goToDetail(dorm: any, event?: any) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation(); 
-    }
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    if (dorm && (dorm.DORM_ID || dorm.id)) {
-      this.router.navigate(['/dorm-detail', dorm.DORM_ID || dorm.id]);
-    }
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    if (document.activeElement instanceof HTMLElement) { document.activeElement.blur(); }
+    if (dorm && (dorm.DORM_ID || dorm.id)) { this.router.navigate(['/dorm-detail', dorm.DORM_ID || dorm.id]); }
   }
 
-  // ✅ ระบบกดสนใจ (Bookmark) 
+  // 🌟 ระบบกดสนใจ (แบบมี Popup ยืนยัน)
   async toggleFavorite(event: Event, dorm: any) {
-    event.preventDefault(); // บล็อกไม่ให้มันเด้งไปหน้าอื่น
-    event.stopPropagation(); // บล็อกการคลิกทะลุ 
+    event.preventDefault(); 
+    event.stopPropagation(); 
 
     if (!this.currentUserId || this.currentUserId === 0) {
-        this.showToast('กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนบันทึกรายการโปรด', 'warning');
+        const alert = await this.alertCtrl.create({
+            header: 'แจ้งเตือน',
+            message: 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อเลือกหอพักที่คุณสนใจครับ',
+            buttons: [
+                { text: 'ยกเลิก', role: 'cancel' },
+                { text: 'เข้าสู่ระบบ', handler: () => this.router.navigate(['/login']) }
+            ]
+        });
+        await alert.present();
         return;
     }
 
     if (dorm.isChecked) {
-      this.showToast('หอพักนี้อยู่ในรายการโปรดของคุณแล้ว', 'medium');
-      return;
+        const alert = await this.alertCtrl.create({
+            header: 'ยกเลิกการสนใจ',
+            message: 'ต้องการยกเลิกการสนใจหอพักนี้ใช่หรือไม่?',
+            buttons: [
+                { text: 'ไม่', role: 'cancel' },
+                { 
+                  text: 'ใช่, ยกเลิก', 
+                  handler: async () => {
+                    try {
+                        await this.dormService.removeFavorite(this.currentUserId, dorm.DORM_ID || dorm.id);
+                        dorm.isChecked = false;
+                        this.showToast('ยกเลิกการสนใจเรียบร้อย', 'medium');
+                        this.cdr.detectChanges();
+                    } catch (error) { this.showToast('เกิดข้อผิดพลาดในการยกเลิก', 'danger'); }
+                  }
+                }
+            ]
+        });
+        await alert.present();
+        return;
     }
 
-    try {
-      await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID || dorm.id);
-      dorm.isChecked = true; 
-      this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการโปรดเรียบร้อย!`, 'success');
-    } catch (error: any) {
-      if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
-         dorm.isChecked = true;
-         this.showToast('หอพักนี้มีในรายการโปรดแล้วครับ', 'warning');
-      } else {
-         this.showToast('เกิดข้อผิดพลาดในการบันทึกรายการโปรด', 'danger');
-      }
-    }
-    this.cdr.detectChanges(); // สั่งให้หน้าจอรีเฟรชปุ่มเปลี่ยนสีทันที!
+    const alert = await this.alertCtrl.create({
+        header: 'ยืนยัน',
+        message: 'คุณสนใจหอพักนี้ใช่หรือไม่?',
+        buttons: [
+            { text: 'ยกเลิก', role: 'cancel' },
+            { 
+              text: 'ใช่, สนใจ', 
+              handler: async () => {
+                try {
+                  await this.dormService.addFavorite(this.currentUserId, dorm.DORM_ID || dorm.id);
+                  dorm.isChecked = true; 
+                  this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการสนใจเรียบร้อย!`, 'success');
+                  this.cdr.detectChanges();
+                } catch (error: any) {
+                  if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
+                     dorm.isChecked = true;
+                     this.showToast('หอพักนี้มีในรายการสนใจแล้วครับ', 'warning');
+                  } else { this.showToast('เกิดข้อผิดพลาดในการบันทึก', 'danger'); }
+                }
+              }
+            }
+        ]
+    });
+    await alert.present();
   }
 
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
-      message: msg,
-      duration: 2500,
-      color: color,
-      position: 'top', // ✅ แจ้งเตือนลอยอยู่ด้านบนตามที่ขอ
+      message: msg, duration: 2500, color: color, position: 'bottom',
       buttons: [{ text: 'ปิด', role: 'cancel' }]
     });
-    toast.present();
+    await toast.present();
   }
 }

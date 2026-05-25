@@ -307,15 +307,20 @@ ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px
 
 /* 🌟 เมื่ออยู่บนมือถือ แผงจะสไลด์ขึ้นจากด้านล่าง (Bottom Sheet Style) */
 @media (max-width: 768px) {
+  /* ดันปุ่มแผงซ้ายมือ (ในหน้า Home) ลงมาหลบช่องค้นหาที่ขยายใหญ่ขึ้น */
   .menu-fab-btn {
-    top: 65px; left: 10px; width: 48px; height: 48px;
-    ion-icon { font-size: 26px; }
+    top: 125px; /* <--- ตรงนี้สำคัญ ดันลงมาหลบ Header แถว 2 */
+    left: 10px; 
+    width: 45px; height: 45px;
+    ion-icon { font-size: 24px; }
   }
 
   .filter-compare-group {
-    top: 65px; left: 70px; gap: 8px;
+    top: 125px; /* <--- ตรงนี้สำคัญ ดันลงมาหลบ Header แถว 2 */
+    left: 65px; 
+    gap: 8px;
     .chip-button { 
-      padding: 8px 14px; font-size: 13px; 
+      padding: 8px 12px; font-size: 12px; 
       ion-icon { font-size: 16px; }
     }
   }
@@ -346,7 +351,8 @@ ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px
 @media (max-width: 380px) {
   .filter-compare-group {
     flex-direction: column; 
-    top: 65px; left: 70px;
+    top: 125px; /* <--- เปลี่ยนเหมือนกัน */
+    left: 65px;
     .chip-button { padding: 6px 10px; font-size: 12px; }
   }
 }
