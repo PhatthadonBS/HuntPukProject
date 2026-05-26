@@ -14,7 +14,7 @@ $text-dark: #222;
 
 /* 🌟 สไตล์ปุ่มเปิดเมนู 🌟 */
 .page-actions {
-  display: flex; justify-content: flex-end; padding: 15px 20px 0 20px;
+  display: flex; justify-content: flex-start; padding: 15px 20px 0 20px;
   .action-btn {
     border: none; padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px;
     font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s;
