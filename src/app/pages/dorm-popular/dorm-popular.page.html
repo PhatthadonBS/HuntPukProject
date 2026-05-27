@@ -29,9 +29,13 @@
             </div>
 
             <div class="card-body-row">
-              <div class="img-wrapper-main">
-                <img [src]="topDorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/300x300?text=No+Image'">
+           <div class="img-wrapper" style="position: relative;">
+              <img [src]="topDorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+              
+              <div class="status-badge" [ngClass]="getStatusClass(topDorm.status || topDorm.DORM_STATUS_ID)">
+                {{ getStatusText(topDorm.status || topDorm.DORM_STATUS_ID) }}
               </div>
+            </div>
               <div class="info-main">
                 <h2>{{ topDorm.DORM_NAME }}</h2>
                 
@@ -64,9 +68,13 @@
                </div>
 
                <div class="card-body-column">
-                 <div class="img-wrapper-mini">
-                   <img [src]="item.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/150x150?text=No+Image'">
-                 </div>
+         <div class="img-wrapper-mini" style="position: relative;">
+                <img [src]="item.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                
+                <div class="status-badge" [ngClass]="getStatusClass(item.status || item.DORM_STATUS_ID)">
+                  {{ getStatusText(item.status || item.DORM_STATUS_ID) }}
+                </div>
+              </div>
                  
                  <div class="info-mini">
                    <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 900; color: #222; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ item.DORM_NAME }}</h4>

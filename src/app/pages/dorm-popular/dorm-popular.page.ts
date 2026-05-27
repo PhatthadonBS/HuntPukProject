@@ -167,4 +167,20 @@ export class DormPopularPage implements OnInit {
     });
     await toast.present();
   }
+
+  // 🌟 ฟังก์ชันแปลงตัวเลขสถานะ เป็น "ข้อความ"
+  getStatusText(status: any): string {
+    const s = Number(status);
+    if (s === 3) return 'ห้องเต็ม';
+    if (s === 2) return 'ปิดให้บริการ'; // สำหรับกรณีหอพักปิด
+    return 'ว่าง';
+  }
+
+  // 🌟 ฟังก์ชันแปลงตัวเลขสถานะ เป็น "คลาส CSS (สี)"
+  getStatusClass(status: any): string {
+    const s = Number(status);
+    if (s === 3) return 'full';
+    if (s === 2) return 'closed';
+    return 'available';
+  }
 }

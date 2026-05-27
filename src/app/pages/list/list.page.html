@@ -37,6 +37,10 @@
             <div class="card-image">
                <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" 
                     onerror="this.src='https://placehold.co/600x400?text=No+Image'" loading="lazy" />
+
+                   <div class="status-badge" [ngClass]="getStatusClass(dorm.status || dorm.DORM_STATUS_ID)">
+                  {{ getStatusText(dorm.status || dorm.DORM_STATUS_ID) }}
+               </div>
                
                <div class="bookmark-ribbon" [class.active]="dorm.isChecked" (click)="toggleFavorite($event, dorm)">
                   <ion-icon [name]="dorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>

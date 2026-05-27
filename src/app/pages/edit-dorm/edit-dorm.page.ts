@@ -114,7 +114,7 @@ export class EditDormPage implements OnInit {
     }
   }
 
-  async loadInitialData() {
+async loadInitialData() {
     this.isLoading = true;
     try {
       // 1. Get Zones
@@ -124,49 +124,62 @@ export class EditDormPage implements OnInit {
       // 2. Get Dorm Data
       const res = await this.dormService.getDormById(this.dormId);
       if (res && res.success) {
-        const d = res.data;
         
-        // Map General Data
+        // ✅ ปรับให้ดึงข้อมูลได้อย่างปลอดภัย (API อาจส่งมาเป็น Object หรือ Array ก็รับได้หมด)
+        const d = Array.isArray(res.data) ? res.data[0] : res.data;
+        
+        // Map General Data (✅ เติมค่า Default || กันพังกรณีข้อมูลในฐานข้อมูลเป็น Null)
         this.formData = {
-          name: d.DORM_NAME,
-          address: d.ADDRESS,
+          name: d.DORM_NAME || '',
+          address: d.ADDRESS || '',
           phone: d.phone || '',
           line: d.line || '',
           facebook: d.facebook || '',
-          water_unit: d.WATER_UNIT,
-          elect_unit: d.ELECT_UNIT,
-          description: d.ADD_DORM_DATA || d.description,
-          lat: d.lat,
-          lng: d.lng,
-          zone_id: d.ZONE_ID,
-          type_id: d.DORM_TYPE_ID
+          water_unit: d.WATER_UNIT || 0,
+          elect_unit: d.ELECT_UNIT || 0,
+          description: d.ADD_DORM_DATA || d.description || '',
+          lat: d.lat || 0,
+          lng: d.lng || 0,
+          zone_id: d.ZONE_ID || 1,
+          type_id: d.DORM_TYPE_ID || 1
         };
 
-        // Map Facilities (Backend sends array of names string or IDs, need to match logic)
-        // Assuming backend sends names in `d.facilities` array of strings
+        // Map Facilities
         if (d.facilities && Array.isArray(d.facilities)) {
            this.facilities.forEach(f => {
              f.checked = d.facilities.includes(f.name); // Simple text match
            });
         }
 
-        // Map Room Types
-        if (d.rooms && Array.isArray(d.rooms)) {
+        // Map Room Types (✅ ดึงข้อมูลประเภทเตียง และราคารายเทอม มาโชว์ด้วย)
+        if (d.rooms && Array.isArray(d.rooms) && d.rooms.length > 0) {
           this.roomTypes = d.rooms.map((r: any) => ({
-            roomTypeId: r.ROOM_TYPE_ID, // Important for update logic
-            roomType: r.ROOM_TYPE_NAME,
-            bedType: 'Single Bed', // Default or fetch if available
-            perMonth: r.PRICE, // Assuming monthly price
-            perTerm: 0 // Fetch if available
+            roomTypeId: r.ROOM_TYPE_ID, 
+            roomType: r.ROOM_TYPE_NAME || '',
+            bedType: r.bedType || 'Single Bed', 
+            perMonth: r.PRICE || r.perMonth || 0, 
+            perTerm: r.perTerm || 0 
           }));
         } else {
           this.addRoomType(); // Add at least one empty
         }
 
         // Set Existing Images as Previews
-        if(d.image) this.previews.FRONT_DORM_IMG = d.image;
-        if(d.gallery) this.previews.OTHER_IMG = d.gallery; 
-        // Note: Specific room images (bed, bath) might need separate logic to fetch if not in main gallery list
+        if (d.image) this.previews.FRONT_DORM_IMG = d.image;
+        
+        // ✅ แยกรูปเตียงกับห้องน้ำออกจากรูป Gallery ตามที่คอมเมนต์ไว้
+        if (d.gallery && Array.isArray(d.gallery)) {
+          this.previews.OTHER_IMG = [];
+          d.gallery.forEach((url: string) => {
+            if (url.includes('BED_IMG')) {
+              this.previews.BED_IMG = url;
+            } else if (url.includes('BATHROOM_IMG')) {
+              this.previews.BATHROOM_IMG = url;
+            } else {
+              this.previews.OTHER_IMG.push(url); // รูปที่เหลือโยนเข้า Gallery
+            }
+          });
+        }
       }
 
     } catch (error) {
@@ -229,14 +242,28 @@ export class EditDormPage implements OnInit {
   }
 
   // --- Submit ---
+// --- Submit ---
   async onSubmit() {
+    // ✅ เพิ่ม Popup ถามยืนยันก่อนเซฟ
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการบันทึก',
+      message: 'คุณต้องการบันทึกการแก้ไขข้อมูลหอพักใช่หรือไม่?',
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        { text: 'บันทึก', handler: () => { this.processSaveData(); } }
+      ]
+    });
+    await alert.present();
+  }
+
+  // ✅ แยกโค้ดการเซฟมาไว้ตรงนี้
+  async processSaveData() {
     const loading = await this.loadingCtrl.create({ message: 'กำลังบันทึกข้อมูล...' });
     await loading.present();
 
     try {
       const form = new FormData();
 
-      // 1. General Data
       form.append('name', this.formData.name);
       form.append('address', this.formData.address);
       form.append('detail', this.formData.description);
@@ -247,31 +274,25 @@ export class EditDormPage implements OnInit {
       form.append('water_unit', this.formData.water_unit);
       form.append('elect_unit', this.formData.elect_unit);
       
-      // 2. Facilities (Send IDs Array)
       const selectedFacIds = this.facilities.filter(f => f.checked).map(f => f.id);
       form.append('facilities', JSON.stringify(selectedFacIds));
 
-      // 3. Room Types (JSON String)
       form.append('roomTypes', JSON.stringify(this.roomTypes));
 
-      // 4. Images
+      // ✅ ตัด LICENSE_IMG ทิ้งไปแล้วตามที่ตกลงกันไว้
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
-      if (this.selectedFiles.LICENSE_IMG) form.append('LICENSE_IMG', this.selectedFiles.LICENSE_IMG);
       if (this.selectedFiles.BED_IMG) form.append('BED_IMG', this.selectedFiles.BED_IMG);
       if (this.selectedFiles.BATHROOM_IMG) form.append('BATHROOM_IMG', this.selectedFiles.BATHROOM_IMG);
       
-      // Gallery (Multiple)
       if (this.selectedFiles.OTHER_IMG && this.selectedFiles.OTHER_IMG.length > 0) {
         this.selectedFiles.OTHER_IMG.forEach((file: any) => {
           form.append('OTHER_IMG', file);
         });
       }
 
-      // Call Service
       await this.dormService.updateDorm(this.dormId, form);
       
       this.showToast('บันทึกข้อมูลสำเร็จ!', 'success');
-      // this.router.navigate(['/my-dorms']); // Optional: Go back
 
     } catch (error: any) {
       console.error(error);

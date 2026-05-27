@@ -159,4 +159,19 @@ export class ListPage implements OnInit {
 
   // 🌟 ฟังก์ชันเปิดเมนูด้านข้าง
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
+
+  // 🌟 ฟังก์ชันแปลงสถานะ
+  getStatusText(status: any): string {
+    const s = Number(status);
+    if (s === 3) return 'ห้องเต็ม';
+    if (s === 2) return 'ปิดให้บริการ';
+    return 'ว่าง';
+  }
+
+  getStatusClass(status: any): string {
+    const s = Number(status);
+    if (s === 3) return 'full';
+    if (s === 2) return 'closed';
+    return 'available';
+  }
 }

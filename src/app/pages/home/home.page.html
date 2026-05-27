@@ -35,7 +35,7 @@
     <div class="chip-button compare-btn" (click)="goToCompare()"><ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ</div>
   </div>
     
-  <div class="dorm-side-panel" [class.open]="selectedDorm != null">
+ <div class="dorm-side-panel" [class.open]="selectedDorm != null" [class.minimized]="isPanelMinimized">
     <div class="panel-content" *ngIf="selectedDorm">
 
       <div class="panel-drag-handle" (click)="togglePanelSize()">
@@ -45,8 +45,13 @@
       
       <div class="btn-close-panel" (click)="closeDetailPanel()"><ion-icon name="close"></ion-icon></div>
 
-      <div class="panel-header-img">
+<div class="panel-header-img">
         <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
+        
+     <div class="status-badge" [ngClass]="getStatusClass(selectedDorm.status || selectedDorm.DORM_STATUS_ID)">
+          {{ getStatusText(selectedDorm.status || selectedDorm.DORM_STATUS_ID) }}
+        </div>
+
         <div class="price-badge">฿ {{ selectedDorm.start_price | number }} / เดือน</div>
       </div>
 

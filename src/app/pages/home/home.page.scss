@@ -99,6 +99,23 @@ $text-muted: #6c757d;
     content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
     background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%);
   }
+
+  /* 🌟 เพิ่ม CSS ของป้ายสถานะ */
+  .status-badge {
+    position: absolute; top: 15px; left: 15px;
+    padding: 6px 14px; border-radius: 12px;
+    font-size: 13px; font-weight: 900; color: #fff;
+    z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    
+    &.full { background: #e74c3c; } 
+    &.available { background: #2ecc71; }
+    &.closed { background: #7f8c8d; } /* 👈 เพิ่มสีเทาสำหรับห้องปิด */
+  }
+
+  /* 👈 เพิ่มลูกเล่น: รูปมืดลงถ้าหอปิด */
+  &:has(.status-badge.closed) img {
+    filter: grayscale(100%) brightness(80%);
+  }
   .price-badge {
     position: absolute; bottom: 12px; left: 20px; background: $msu-yellow; color: $msu-dark;
     padding: 6px 14px; border-radius: 12px; font-size: 15px; font-weight: 900; z-index: 2;
