@@ -37,6 +37,11 @@
     
   <div class="dorm-side-panel" [class.open]="selectedDorm != null">
     <div class="panel-content" *ngIf="selectedDorm">
+
+      <div class="panel-drag-handle" (click)="togglePanelSize()">
+        <div class="drag-pill"></div>
+        <span>{{ isPanelMinimized ? 'แตะเพื่อขยาย' : 'แตะเพื่อย่อ' }}</span>
+      </div>
       
       <div class="btn-close-panel" (click)="closeDetailPanel()"><ion-icon name="close"></ion-icon></div>
 

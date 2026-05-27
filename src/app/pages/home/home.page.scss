@@ -329,25 +329,64 @@ ion-modal.filter-modal-custom { --height: auto; --width: 90%; --max-width: 420px
     bottom: 20px; right: 15px; width: 45px; height: 45px;
   }
 
-  /* 👉 ปรับ Side Panel ให้โผล่จากด้านล่างในมือถือ */
+/* 👉 ปรับ Side Panel ให้โผล่จากด้านล่างในมือถือ */
   .dorm-side-panel { 
     width: 100%; 
-    height: 75vh; /* สูง 75% ของจอ เพื่อให้ยังเห็นแผนที่ 25% */
+    height: 55vh; /* สูง 55% ของจอ เพื่อให้ยังเห็นแผนที่ 45% */
     right: 0;
     top: auto; 
     bottom: -100vh; /* ซ่อนไว้ล่างสุด */
     border-radius: 24px 24px 0 0; /* โค้งเฉพาะด้านบน */
     box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
-    transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     
-    &.open { bottom: 0; right: 0; } 
+    /* 🌟 1. เพิ่ม transform เข้าไปใน transition เพื่อให้มันสไลด์ขึ้นลงได้ */
+    transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    &.open { 
+      bottom: 0; 
+      right: 0; 
+      transform: translateY(0); /* 🌟 2. กำหนดจุดเริ่มต้นให้ชัดเจน */
+    } 
+    
+    &.open.minimized {
+      /* 🌟 3. บังคับให้ขยับลงมาซ่อนข้างล่าง และโผล่มาแค่ขอบ 80px */
+      transform: translateY(calc(100% - 80px)) !important;
+    }
   }
 
-  .panel-content { border-radius: 24px 24px 0 0; }
-  .panel-header-img { flex: 0 0 160px; } 
-  .btn-close-panel { top: 10px; right: 10px; background: rgba(0,0,0,0.6); }
-}
+  .panel-content { 
+    border-radius: 24px 24px 0 0; 
+    padding-top: 35px; /* เพิ่มพื้นที่ให้แถบจับ */
+    height: 100%;
+  }  
 
+  /* ตกแต่งแถบให้จับย่อ/ขยาย */
+  .panel-drag-handle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 35px;
+    background: #ffffff;
+    position: absolute;
+    top: 0; left: 0;
+    z-index: 999; /* 🌟 4. ดันขึ้นมาอยู่บนสุด ป้องกันเลเยอร์อื่นบังคลิก */
+    cursor: pointer;
+    border-radius: 24px 24px 0 0;
+    
+    .drag-pill {
+      width: 45px;
+      height: 5px;
+      background: #d1d5db;
+      border-radius: 10px;
+      margin-bottom: 3px;
+    }
+    span { font-size: 11px; font-weight: 700; color: #9ca3af; }
+  }
+  .panel-header-img { flex: 0 0 140px; } 
+  .btn-close-panel { top: 12px; right: 12px; background: rgba(0,0,0,0.6); z-index: 30; }
+}
 @media (max-width: 380px) {
   .filter-compare-group {
     flex-direction: column; 

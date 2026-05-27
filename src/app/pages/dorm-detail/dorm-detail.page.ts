@@ -1,7 +1,8 @@
-import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core'; // ✅ 1. Import ChangeDetectorRef
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, LoadingController, NavController } from '@ionic/angular';
+// ✅ นำเข้า AlertController เพิ่ม
+import { IonicModule, ToastController, LoadingController, NavController, AlertController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
@@ -42,7 +43,8 @@ export class DormDetailPage implements OnInit {
     private dormService: DormitoryService, 
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private cdr: ChangeDetectorRef // ✅ 2. Inject เข้ามาใช้งาน
+    private alertCtrl: AlertController, // ✅ Inject AlertController
+    private cdr: ChangeDetectorRef 
   ) { 
     addIcons({ 
       star, 'star-half': starHalf, 'star-outline': starOutline, arrowBack, 'location-sharp': locationSharp,
@@ -67,7 +69,6 @@ export class DormDetailPage implements OnInit {
       } catch (e) { console.error('Error parsing user data'); }
     }
 
-    // ดึง ID หอพักจาก URL
     const idParam = this.route.snapshot.paramMap.get('id');
     
     if (idParam) {
@@ -82,14 +83,10 @@ export class DormDetailPage implements OnInit {
     try {
       const res = await this.dormService.getDormById(id);
       if (res && res.success && res.data) {
-        
-        // ✅ 3. กันเหนียวกรณี API คืนค่ามาเป็น Array [ { ... } ]
         this.dormData = Array.isArray(res.data) ? res.data[0] : res.data; 
         
         this.prepareOwnerInfo();
         this.loadReviews();
-        
-        // ✅ 4. ตบหน้า Angular ให้ตื่นมาวาดข้อมูลลงจอ!
         this.cdr.detectChanges(); 
       } else {
         this.showToast('ไม่พบข้อมูลหอพัก', 'danger');
@@ -119,7 +116,7 @@ export class DormDetailPage implements OnInit {
 
   switchTab(tab: string) { 
     this.activeTab = tab; 
-    this.cdr.detectChanges(); // ✅ อัปเดตตอนสลับแท็บด้วย
+    this.cdr.detectChanges(); 
   }
 
   get facilitiesList(): string[] {
@@ -148,7 +145,7 @@ export class DormDetailPage implements OnInit {
     } catch (error) { console.error('Load reviews failed', error); } 
     finally { 
       this.isLoadingReviews = false; 
-      this.cdr.detectChanges(); // ✅ โหลดเสร็จต้องปลุกจออีกรอบ
+      this.cdr.detectChanges(); 
     }
   }
 
@@ -157,10 +154,32 @@ export class DormDetailPage implements OnInit {
     this.cdr.detectChanges();
   }
 
+  // ✅ เปลี่ยนฟังก์ชันยืนยันส่งรีวิว
   async submitReview() {
     if (this.newReview.score === 0) {
       this.showToast('กรุณาให้คะแนนดาวก่อนส่งรีวิว', 'warning'); return;
     }
+    
+    // เด้ง Popup ถามความแน่ใจ พร้อมคำเตือน
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการรีวิว',
+      message: 'คุณต้องการส่งรีวิวนี้ใช่หรือไม่? ข้อควรระวัง:หากรีวิวถูกส่งไปแล้ว จะไม่สามารถแก้ไขหรือลบได้ในภายหลัง',
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        { 
+          text: 'ยืนยัน', 
+          handler: () => {
+            this.processSubmitReview(); // ถ้ากดตกลง ให้ทำงานต่อ
+          } 
+        }
+      ]
+    });
+    
+    await alert.present();
+  }
+
+  // แยกฟังก์ชันการยิง API ไว้ส่วนนี้
+  async processSubmitReview() {
     const loading = await this.loadingCtrl.create({ message: 'กำลังส่งรีวิว...' });
     await loading.present();
     try {
@@ -180,7 +199,6 @@ export class DormDetailPage implements OnInit {
     return Array(5).fill(0).map((_, i) => i < Math.round(score) ? 1 : 0);
   }
 
-// เปลี่ยนฟังก์ชันนี้ให้ดึงคะแนนจาก Database โดยตรง
   get averageScore(): number {
     const rawScore = this.dormData?.SCORE || this.dormData?.score || 0;
     return parseFloat(rawScore);

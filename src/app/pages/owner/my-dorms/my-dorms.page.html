@@ -47,7 +47,8 @@
 
     <div class="dorm-list fade-in" *ngIf="!isLoading && myDorms.length > 0">
       
-      <div class="dorm-card" *ngFor="let item of myDorms" (click)="goToEdit(item.DORM_ID)"> <div class="card-image">
+      <div class="dorm-card" *ngFor="let item of myDorms" (click)="goToDetail(item.DORM_ID)"> 
+        <div class="card-image">
           <img [src]="item.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" 
                onerror="this.src='https://placehold.co/400x250?text=No+Image'">
           

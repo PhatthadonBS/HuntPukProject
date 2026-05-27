@@ -97,7 +97,7 @@
           <div class="rating-input">
             <ion-icon *ngFor="let s of [1,2,3,4,5]" [name]="s <= newReview.score ? 'star' : 'star-outline'" [class.active]="s <= newReview.score" (click)="setRating(s)"></ion-icon>
           </div>
-          <ion-textarea [(ngModel)]="newReview.comment" placeholder="บอกเล่าประสบการณ์ของคุณ..." rows="3"></ion-textarea>
+          <ion-textarea [(ngModel)]="newReview.comment" placeholder="กรุณาเขียนรีวิว (บอกเล่าประสบการณ์ของคุณ)..." rows="3"></ion-textarea>
           <button class="submit-btn" (click)="submitReview()">ส่งรีวิว</button>
         </div>
 

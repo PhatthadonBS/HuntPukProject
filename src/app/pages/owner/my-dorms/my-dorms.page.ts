@@ -99,6 +99,11 @@ export class MyDormsPage implements OnInit {
     this.router.navigate(['/dorm-form']); 
   }
 
+  // ✅ เพิ่มฟังก์ชันไปหน้ารายละเอียดหอพัก
+  goToDetail(dormId: number) {
+    this.router.navigate(['/dorm-detail', dormId]); 
+  }
+
   // ไปหน้าแก้ไข
   goToEdit(dormId: number) {
     this.router.navigate(['/edit-dorm', dormId]); 

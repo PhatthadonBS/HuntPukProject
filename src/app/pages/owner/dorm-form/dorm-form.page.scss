@@ -79,6 +79,8 @@
   margin-bottom: 15px;
   display: flex;
   flex-direction: column;
+  width: 100%;
+
   label {
     font-size: 0.9rem;
     font-weight: 600;
@@ -88,10 +90,19 @@
   input,
   select,
   textarea {
+    width: 100%; 
+    box-sizing: border-box; 
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #e0e0e0; 
     border-radius: 6px;
     font-size: 1rem;
+    background-color: #fff; 
+    color: #1a1a1a !important; /* ✅ เพิ่มสีเข้มให้ตัวอักษรตอนพิมพ์ */
+    
+    &::placeholder {
+      color: #bbbbbb; 
+    }
+
     &:focus {
       outline: none;
       border-color: var(--primary);
@@ -102,9 +113,11 @@
     resize: vertical;
   }
 }
+
 .row-group {
   display: flex;
   gap: 15px;
+  width: 100%; 
   .form-group {
     flex: 1;
   }
@@ -276,5 +289,18 @@
 @media (max-width: 900px) {
   .form-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .row-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .upload-row {
+    flex-direction: column;
+  }
+
+  .scroll-content {
+    padding: 15px; 
   }
 }

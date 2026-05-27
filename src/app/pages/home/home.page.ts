@@ -297,13 +297,29 @@ constructor(
   }
   deg2rad(deg: number): number { return deg * (Math.PI / 180); }
 
+// 🌟 เพิ่มตัวแปรเช็คสถานะการย่อแผง
+  isPanelMinimized: boolean = false;
+
+  // 🌟 เพิ่มฟังก์ชันย่อขยาย
+  togglePanelSize() {
+    this.isPanelMinimized = !this.isPanelMinimized;
+  }
+
+  // 🌟 นำไปแทนที่ฟังก์ชันเปิดหอพักเดิม
   openInfoWindow(marker: MapMarker, dorm: Dormitory) {
     this.selectedDorm = { ...dorm };
     this.sidePanelTab = 'info';
+    this.isPanelMinimized = false; // รีเซ็ตให้แผงขยายทุกครั้งที่เปิดหอใหม่
     
     if (this.googleMapComponent?.googleMap) {
       this.googleMapComponent.googleMap.panTo({ lat: dorm.lat, lng: dorm.lng });
       this.googleMapComponent.googleMap.setZoom(16);
+      
+      // ✅ 2. ขยับแผนที่ (Pan): สั่งให้แผนที่ขยับจุดศูนย์กลางลงมา 150px เพื่อให้หมุดเด้งขึ้นไปอยู่ด้านบน
+      setTimeout(() => {
+        this.googleMapComponent?.googleMap?.panBy(0, 150); 
+      }, 300);
+
     } else {
       this.center = { lat: dorm.lat, lng: dorm.lng };
       this.zoom = 16;
@@ -330,7 +346,6 @@ constructor(
         }
       } catch (e) { console.error(e); }
 
-      // 🛡️ เช็คระยะทาง: ลดเหลือแค่ 15 กม. ถ้าไกลกว่านี้บล็อกเลยเพื่อความปลอดภัยของมือถือ
       const dist = this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng);
       if (dist <= 15) {
         this.calculateActiveTravelMode(dorm.lat, dorm.lng);
@@ -342,6 +357,15 @@ constructor(
       }
       this.loadReviews(dorm.DORM_ID);
     }, 300); 
+  }
+
+  // 🌟 ปรับฟังก์ชันปิดแผง เพื่อรีเซ็ตค่า
+  closeDetailPanel() { 
+    this.selectedDorm = null; 
+    this.isPanelMinimized = false; 
+    this.directionsResult = undefined; 
+    this.altRouteRenderers = []; 
+    this.nearbyDorms = [];
   }
 
   selectNearbyDorm(dorm: any) { this.openInfoWindow(null as any, dorm); }
@@ -414,10 +438,6 @@ constructor(
 
   getAltRouteOptions() {
     return { suppressMarkers: true, polylineOptions: { strokeColor: '#a4b0be', strokeOpacity: 0.7, strokeWeight: 4, zIndex: 2 } };
-  }
-
-  closeDetailPanel() { 
-    this.selectedDorm = null; this.directionsResult = undefined; this.altRouteRenderers = []; this.nearbyDorms = [];
   }
 
   goToDetail() {

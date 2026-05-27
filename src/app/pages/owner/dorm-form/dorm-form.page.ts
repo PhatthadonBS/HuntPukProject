@@ -14,13 +14,15 @@ import { DormitoryService } from '../../../services/dormitory';
 import { environment } from '../../../../environments/environment';
 import { Observable, Subscription } from 'rxjs';
 import { DormFacGetRes } from '../../../model/res/dorm_fac_get_res';
+import { IonHeader, IonToolbar, IonButtons, IonContent, IonButton, IonIcon, IonTitle } from "@ionic/angular/standalone";
+import { AlertController } from '@ionic/angular'; // ✅ นำเข้า AlertController
 
 @Component({
   selector: 'app-dorm-form',
   templateUrl: './dorm-form.page.html',
   styleUrls: ['./dorm-form.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonTitle, IonIcon, IonButton, IonContent, IonButtons, IonToolbar, IonHeader, 
     CommonModule,
     ReactiveFormsModule,
     GoogleMapsModule,
@@ -48,7 +50,8 @@ export class DormFormPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dormService: DormitoryService,
-    private router: Router
+    private router: Router,
+    private alertCtrl: AlertController // ✅ เพิ่ม AlertController เข้ามาใช้งาน
   ) {
     this.dormForm = this.fb.group({
       owner_id: [this.userLogin.id, Validators.required],
@@ -68,6 +71,10 @@ export class DormFormPage implements OnInit {
 
   ngOnInit(): void {
     this.addRoomType();
+  }
+  goBack() {
+    window.history.back(); 
+    // this.router.navigate(['/home']); 
   }
 
 
@@ -112,13 +119,37 @@ export class DormFormPage implements OnInit {
     }
   }
 
-  onSubmit() {
+  // ✅ แก้ไข onSubmit ให้ถามยืนยันก่อน
+  async onSubmit() {
     if (this.dormForm.invalid) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      const alert = await this.alertCtrl.create({
+        header: 'ข้อมูลไม่ครบถ้วน',
+        message: 'กรุณากรอกข้อมูลให้ครบถ้วนก่อนทำการบันทึก',
+        buttons: ['ตกลง']
+      });
+      await alert.present();
       this.dormForm.markAllAsTouched();
       return;
     }
 
+    const confirmAlert = await this.alertCtrl.create({
+      header: 'ยืนยันการบันทึก',
+      message: 'คุณต้องการบันทึกข้อมูลหอพักใช่หรือไม่?',
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ยืนยัน',
+          handler: () => {
+            this.processSaveData(); // ถ้ายืนยัน ให้ไปเรียกฟังก์ชันเตรียมข้อมูลด้านล่าง
+          }
+        }
+      ]
+    });
+    await confirmAlert.present();
+  }
+
+  // ✅ แยก Logic เดิมมาไว้ตรงนี้
+  processSaveData() {
     const formData = new FormData();
     const formValue = this.dormForm.value;
 
@@ -150,13 +181,13 @@ export class DormFormPage implements OnInit {
     }
     console.log(formData);
 
-    // this.dormService.createDorm(formData).subscribe({
-    //   next: (res) => {
-    //     alert('บันทึกสำเร็จ!');
-    //     this.router.navigate(['/owner/my-dorms']);
-    //   },
-    //   error: (err) => alert('Error: ' + err.message)
-    // });
+    this.dormService.createDorm(formData).subscribe({
+      next: (res) => {
+        alert('บันทึกสำเร็จ!');
+        this.router.navigate(['/owner/my-dorms']);
+      },
+      error: (err) => alert('Error: ' + err.message)
+    });
   }
 
 }
