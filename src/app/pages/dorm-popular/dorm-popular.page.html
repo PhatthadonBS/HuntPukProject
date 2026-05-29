@@ -45,8 +45,7 @@
                 </div>
                 <p class="address" style="display: flex; align-items: center; gap: 4px; color: #666; font-size: 13px; margin: 0 0 10px 0;"><ion-icon name="location-outline" style="color: #e74c3c;"></ion-icon> {{ topDorm.zone || topDorm.ZONE_NAME || topDorm.address || 'ไม่ระบุโซน' }}</p>
                 
-                <div class="price-main" style="color: #d32f2f; font-weight: 900; font-size: 18px;">฿ {{ topDorm.start_price | number }} <span class="per-month" style="font-size: 12px; color: #666; font-weight: normal;">/ เดือน</span></div>
-              </div>
+<div class="price-main" style="color: #d32f2f; font-weight: 900; font-size: 18px;">เริ่มต้น ฿{{ topDorm.start_price | number }} <span class="per-month" style="font-size: 12px; color: #666; font-weight: normal;">/ เดือน</span></div>              </div>
             </div>
             
             <div class="click-more" style="text-align: center; color: #1976d2; font-weight: 800; font-size: 13px; margin-top: 5px;">ดูรายละเอียดเพิ่มเติม</div>
@@ -86,8 +85,7 @@
 
                    <p class="address-mini" style="display: flex; align-items: center; gap: 4px; color: #888; font-size: 12px; margin: 0 0 6px 0;"><ion-icon name="location-outline" style="color: #e74c3c;"></ion-icon> {{ item.zone || item.ZONE_NAME || item.address || 'ไม่ระบุโซน' }}</p>
                    
-                   <p class="price-mini" style="color: #d32f2f; font-weight: 900; font-size: 14px; margin: 0;">฿ {{ item.start_price | number }} <span class="per-month" style="font-size: 10px; color: #888; font-weight: normal;">/ ด.</span></p>
-                 </div>
+<p class="price-mini" style="color: #d32f2f; font-weight: 900; font-size: 14px; margin: 0;">เริ่มต้น ฿{{ item.start_price | number }} <span class="per-month" style="font-size: 10px; color: #888; font-weight: normal;">/ เดือน.</span></p>                 </div>
                </div>
 
                <div class="click-more-mini" style="text-align: right; color: #888; font-size: 12px; font-weight: 700;">ดูรายละเอียด</div>

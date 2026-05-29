@@ -34,74 +34,88 @@ ion-content { --background: #{$light-bg}; }
     background: #fff;
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #555;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    display: flex; align-items: center; gap: 5px;
-    ion-icon { color: $primary-yellow; font-size: 16px; }
+    font-size: 13px;
+    font-weight: bold;
+    color: #ff9800;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
   }
 }
 
-/* Card Style */
+/* Loading */
+.loading-center {
+  display: flex; justify-content: center; padding: 40px 0;
+}
+
+/* Dorm List & Cards */
+.dorm-list {
+  display: flex; flex-direction: column; gap: 15px;
+}
+
 .dorm-card {
   background: #fff;
   border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
   overflow: hidden;
-  border: 1px solid #f0f0f0;
-  transition: transform 0.2s;
-  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+  position: relative;
 
   &:active { transform: scale(0.98); }
 
-  .card-image {
-    position: relative;
-    height: 160px;
-    background: #eee;
-    
-    img { width: 100%; height: 100%; object-fit: cover; }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 15px; border-bottom: 1px solid #f0f0f0;
 
-    .status-chip {
-      position: absolute; top: 12px; right: 12px;
-      padding: 4px 10px; border-radius: 12px;
-      font-size: 11px; font-weight: 700;
-      color: #fff;
-      display: flex; align-items: center; gap: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    .status-indicator {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 800;
+      padding: 4px 10px; border-radius: 20px;
       
-      ion-icon { font-size: 8px; }
+      ion-icon { font-size: 10px; }
 
-      &.success { background: #2ecc71; }
-      &.warning { background: #f1c40f; color: #333; }
-      &.danger { background: #e74c3c; }
-      &.medium { background: #95a5a6; }
+      &.warning { background: #fff8e1; color: #f57f17; }
+      &.success { background: #e8f5e9; color: #2e7d32; }
+      &.danger { background: #ffebee; color: #c62828; }
+      &.medium { background: #f0f0f0; color: #666; }
+    }
+
+    .zone-badge {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; color: #666; font-weight: 600;
+      ion-icon { color: #e53935; }
     }
   }
 
   .card-body {
-    padding: 15px;
-    
-    .info-main {
-      margin-bottom: 12px;
-      h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: $dark-text; }
-      .address { 
-        font-size: 13px; color: #777; margin: 0; 
-        display: flex; align-items: center; gap: 4px;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        ion-icon { font-size: 14px; }
-      }
+    display: flex; padding: 15px; gap: 15px;
+
+    .dorm-img {
+      width: 80px; height: 80px;
+      object-fit: cover; border-radius: 12px;
+      background: #eee;
     }
 
-    .stats-row {
-      display: flex; align-items: center; justify-content: space-between;
-      border-top: 1px dashed #eee;
-      padding-top: 10px;
+    .dorm-info {
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+      
+      h3 { margin: 0 0 6px 0; font-size: 16px; font-weight: 900; color: $dark-text; }
+      .address-text {
+        margin: 0; font-size: 13px; color: #888;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      }
+    }
+  }
+
+  .card-footer {
+    padding: 0 15px 15px 15px;
+
+    .stats {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #f9f9f9; padding: 10px 15px; border-radius: 12px;
 
       .stat-item {
-        display: flex; align-items: center; gap: 5px;
-        font-size: 13px; color: #555; font-weight: 600;
+        display: flex; align-items: center; gap: 6px;
+        font-size: 14px; font-weight: 700; color: #444;
       }
 
       .price-tag {
@@ -134,23 +148,22 @@ ion-content { --background: #{$light-bg}; }
 
   .empty-icon {
     width: 80px; height: 80px; background: #fffbe6;
-    border-radius: 50%; color: $primary-yellow;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px; margin: 0 auto 20px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    ion-icon { font-size: 40px; color: #FFD600; }
   }
 
-  h3 { font-size: 20px; font-weight: 800; color: $dark-text; margin-bottom: 8px; }
-  p { font-size: 14px; color: #777; margin-bottom: 25px; }
+  h3 { font-size: 20px; font-weight: 900; color: $dark-text; margin: 0 0 10px 0; }
+  p { font-size: 14px; color: #777; line-height: 1.5; margin: 0 0 25px 0; }
 
-  .btn-register {
-    --border-radius: 12px; --box-shadow: 0 4px 15px rgba(255, 214, 0, 0.3);
-    font-weight: 700; color: #000;
+  .add-btn {
+    --background: #FFD600; --color: #222; font-weight: 800;
+    --border-radius: 14px; margin: 0 20px; box-shadow: 0 6px 15px rgba(255, 214, 0, 0.3);
   }
 }
 
-.loading-center {
-  display: flex; justify-content: center; margin-top: 50px;
+.fade-in { animation: fadeIn 0.4s ease-out forwards; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

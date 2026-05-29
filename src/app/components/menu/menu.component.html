@@ -39,7 +39,7 @@
           <div class="menu-item" *ngIf="userRole === 1 || userRole === 3" (click)="navigate('/requests')">
             <ion-icon name="key"></ion-icon> ร้องขอเป็นเจ้าของหอพัก
           </div>
-          <ng-container *ngIf="userRole === 2 || userRole === 3">
+        <ng-container *ngIf="userRole === 2 || userRole === 3">
             <div class="menu-item" (click)="navigate('/dorm-form')">
               <ion-icon name="create"></ion-icon> ลงทะเบียนหอพัก
             </div>

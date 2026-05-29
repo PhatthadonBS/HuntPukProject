@@ -47,28 +47,69 @@ export class MenuComponent implements OnInit {
 // ✅ รับคำสั่งจากหน้า Home และบังคับหน้าจอให้อัปเดตทันที
   @HostListener('window:toggle-sidebar')
   toggleSidebar() {
-    this.checkLoginStatus(); // 👈 เพิ่มบรรทัดนี้: สั่งให้อ่านสิทธิ์ใหม่ทุกครั้งที่กดเปิดเมนู!
+    this.checkLoginStatus();
     this.isOpen = !this.isOpen;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
+  }
+
+  // ✅ เพิ่ม: ฟังทุกครั้งที่ navigate กลับมาหน้าที่มีเมนู
+  @HostListener('window:user-logged-in')
+  onUserLoggedIn() {
+    this.checkLoginStatus();
+  }
+
+  // ✅ รับ event ตอน auto logout
+  @HostListener('window:user-logged-out')
+  onUserLoggedOut() {
+    this.currentUser = null;
+    this.isOpen = false;
+    this.cdr.detectChanges();
   }
 
   get userRole(): number {
     if (!this.currentUser) return 0;
-    return this.currentUser.role_id || this.currentUser.ROLE_TYPE_ID || this.currentUser.role_type_id || 1;
+    // ✅ รองรับทั้ง role_id, role_type_id, ROLE_TYPE_ID
+    const role = this.currentUser.role_id 
+      || this.currentUser.ROLE_TYPE_ID 
+      || this.currentUser.role_type_id 
+      || 0;
+    return Number(role);
   }
 
   checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
       try {
-        const userObj = JSON.parse(storedData);
-        if (userObj && userObj.accout_status === 0) {
-           this.currentUser = userObj;
+        const parsed = JSON.parse(storedData);
+
+        // ✅ รองรับทั้ง { user: {...} } และ { id, username, ... } โดยตรง
+        const userObj = parsed.user ? parsed.user : parsed;
+
+        if (userObj && userObj.id) {
+          // ✅ เช็ค accout_status (ชื่อผิด) หรือ account_status หรือ ACCOUNT_STATUS
+          const status = userObj.accout_status 
+            ?? userObj.account_status 
+            ?? userObj.ACCOUNT_STATUS 
+            ?? 0; // ถ้าไม่มี field นี้ให้ถือว่า active
+
+          if (status === 0 || status === 'active') {
+            this.currentUser = userObj;
+            console.log('✅ Menu: User logged in, role:', this.userRole, 'user:', userObj);
+          } else {
+            this.currentUser = null;
+            console.warn('⚠️ Menu: Account suspended');
+          }
+        } else {
+          this.currentUser = null;
         }
       } catch (e) {
+        console.error('❌ Menu: Parse localStorage error', e);
         this.currentUser = null;
       }
+    } else {
+      this.currentUser = null;
     }
+    this.cdr.detectChanges();
   }
 
   async navigate(path: string) {

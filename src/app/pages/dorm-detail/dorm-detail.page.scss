@@ -178,6 +178,52 @@ $text-dark: #222222;
 .status-box { text-align: center; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 700; &.success { background: #e8f5e9; color: #2e7d32; } &.warning { background: #fff3e0; color: #e65100; } &.normal { background: #eee; color: #555; } }
 .loading-fullscreen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; font-weight: 700; ion-spinner { margin-bottom: 15px; transform: scale(1.5); } }
 
+/* 🌟 CSS ป้ายสถานะหอพักบนรูปปก */
+.status-badge {
+  position: absolute; bottom: 20px; left: 20px; z-index: 10;
+  padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: 900; color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  &.available { background: #2ecc71; }
+  &.full { background: #e74c3c; }
+  &.closed { background: #7f8c8d; }
+}
+
+/* 🌟 CSS โซนราคา (รองรับรายเดือนและรายเทอม) */
+.price-container {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; margin-top: -10px;
+  
+  .price-chip {
+    background: rgba(255, 214, 0, 0.2); color: #886a00;
+    padding: 8px 15px; border-radius: 12px; font-size: 13px; font-weight: bold;
+    display: inline-flex; align-items: center; gap: 8px;
+    span { font-size: 18px; font-weight: 900; color: #d32f2f; }
+    
+    &.term { background: rgba(52, 152, 219, 0.15); color: #2980b9; }
+  }
+}
+
+/* 🌟 CSS ปุ่มนำทาง & ค่าน้ำค่าไฟ */
+.nav-btn {
+  --background: #FFD600; --color: #1a1a1a; --border-radius: 12px;
+  margin: 15px 0; font-weight: bold; box-shadow: 0 4px 10px rgba(255, 214, 0, 0.3);
+}
+
+.utility-row {
+  display: flex; gap: 15px; margin-top: 5px; margin-bottom: 20px;
+  .util-box {
+    flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px;
+    background: #f8f9fa; border-radius: 12px; border: 1px solid #edf2f7;
+    ion-icon { font-size: 26px; }
+    &.water ion-icon { color: #3498db; }
+    &.elect ion-icon { color: #f39c12; }
+    .util-text {
+      display: flex; flex-direction: column;
+      .label { font-size: 12px; color: #888; font-weight: bold; margin-bottom: 2px; }
+      .val { font-size: 13px; font-weight: 900; color: #222; }
+    }
+  }
+}
+
 /* Animations */
 .fade-in { animation: fadeIn 0.3s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }

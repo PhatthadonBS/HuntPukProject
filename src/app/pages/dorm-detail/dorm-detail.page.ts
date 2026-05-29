@@ -1,14 +1,14 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
-// ✅ นำเข้า AlertController เพิ่ม
 import { IonicModule, ToastController, LoadingController, NavController, AlertController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   star, starHalf, starOutline, locationOutline, callOutline, arrowBack,
   wifi, car, snow, checkmarkCircleOutline, personCircle, timeOutline, send,
-  person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp
+  person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp,
+  navigateCircleOutline, waterOutline, flashOutline // ✅ เพิ่มไอคอนใหม่
 } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
 
@@ -43,7 +43,7 @@ export class DormDetailPage implements OnInit {
     private dormService: DormitoryService, 
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController, // ✅ Inject AlertController
+    private alertCtrl: AlertController, 
     private cdr: ChangeDetectorRef 
   ) { 
     addIcons({ 
@@ -53,7 +53,8 @@ export class DormDetailPage implements OnInit {
       'person-circle': personCircle, 'time-outline': timeOutline, send,
       person, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 
       'chatbubble-ellipses': chatbubbleEllipses, 'bed-outline': bedOutline,
-      'image-outline': imageOutline
+      'image-outline': imageOutline,
+      'navigate-circle-outline': navigateCircleOutline, 'water-outline': waterOutline, 'flash-outline': flashOutline // ✅ ลงทะเบียนไอคอนใหม่
     });
   }
 
@@ -154,31 +155,23 @@ export class DormDetailPage implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ✅ เปลี่ยนฟังก์ชันยืนยันส่งรีวิว
   async submitReview() {
     if (this.newReview.score === 0) {
       this.showToast('กรุณาให้คะแนนดาวก่อนส่งรีวิว', 'warning'); return;
     }
     
-    // เด้ง Popup ถามความแน่ใจ พร้อมคำเตือน
     const alert = await this.alertCtrl.create({
       header: 'ยืนยันการรีวิว',
       message: 'คุณต้องการส่งรีวิวนี้ใช่หรือไม่? ข้อควรระวัง:หากรีวิวถูกส่งไปแล้ว จะไม่สามารถแก้ไขหรือลบได้ในภายหลัง',
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
-        { 
-          text: 'ยืนยัน', 
-          handler: () => {
-            this.processSubmitReview(); // ถ้ากดตกลง ให้ทำงานต่อ
-          } 
-        }
+        { text: 'ยืนยัน', handler: () => { this.processSubmitReview(); } }
       ]
     });
     
     await alert.present();
   }
 
-  // แยกฟังก์ชันการยิง API ไว้ส่วนนี้
   async processSubmitReview() {
     const loading = await this.loadingCtrl.create({ message: 'กำลังส่งรีวิว...' });
     await loading.present();
@@ -209,5 +202,40 @@ export class DormDetailPage implements OnInit {
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });
     toast.present();
+  }
+
+  // ==========================================
+  // 🌟 ฟังก์ชันใหม่ 3 ตัว (สถานะ & นำทาง)
+  // ==========================================
+  
+  getStatusText(status: any): string {
+    const s = Number(status);
+    if (s === 3) return 'ห้องเต็ม';
+    if (s === 2) return 'ปิดให้บริการ';
+    return 'ว่าง';
+  }
+
+  getStatusClass(status: any): string {
+    const s = Number(status);
+    if (s === 3) return 'full';
+    if (s === 2) return 'closed';
+    return 'available';
+  }
+
+  goToNavigate() {
+    // ดึงพิกัดออกมา
+    const targetLat = this.dormData.lat || this.dormData.LATITUDE;
+    const targetLng = this.dormData.lng || this.dormData.LONGITUDE;
+    const dormId = this.dormData.DORM_ID || this.dormData.id;
+
+    if (!targetLat || !targetLng) {
+      this.showToast('ไม่พบข้อมูลพิกัดของหอพักนี้', 'warning');
+      return;
+    }
+
+    // 🚀 สั่งให้เด้งกลับไปหน้า Home พร้อมแนบพิกัดไปกับ URL (QueryParams)
+    this.router.navigate(['/home'], {
+      queryParams: { navLat: targetLat, navLng: targetLng, dormId: dormId }
+    });
   }
 }

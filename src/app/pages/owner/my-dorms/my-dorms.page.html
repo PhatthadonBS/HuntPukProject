@@ -36,40 +36,41 @@
       <div class="empty-icon">
         <ion-icon name="home-outline"></ion-icon>
       </div>
-      <h3>คุณยังไม่มีหอพักในระบบ</h3>
-      <p>ลงทะเบียนหอพักของคุณเพื่อเริ่มใช้งาน</p>
-      
-      <ion-button expand="block" color="warning" class="btn-register" (click)="goToAddDorm()">
+      <h3>ยังไม่มีหอพัก</h3>
+      <p>คุณยังไม่ได้ลงทะเบียนหอพักใดๆ ในระบบ<br>กดปุ่มด้านล่างเพื่อเพิ่มหอพักใหม่</p>
+      <ion-button expand="block" class="add-btn" (click)="goToAddDorm()">
         <ion-icon name="add-circle" slot="start"></ion-icon>
-        ลงทะเบียนหอพักใหม่
+        เพิ่มหอพักใหม่
       </ion-button>
     </div>
 
-    <div class="dorm-list fade-in" *ngIf="!isLoading && myDorms.length > 0">
+    <div class="dorm-list" *ngIf="!isLoading && myDorms.length > 0">
       
-      <div class="dorm-card" *ngFor="let item of myDorms" (click)="goToDetail(item.DORM_ID)"> 
-        <div class="card-image">
-          <img [src]="item.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" 
-               onerror="this.src='https://placehold.co/400x250?text=No+Image'">
-          
-          <div class="status-chip" [class]="getStatusColor(item.DORM_STATUS_ID, item.REQ_STATUS)">
+      <div class="dorm-card fade-in" *ngFor="let item of myDorms" (click)="goToDetail(item.DORM_ID)">
+        
+        <div class="card-header">
+          <div class="status-indicator" [ngClass]="getStatusColor(item.DORM_STATUS_ID, item.REQ_STATUS)">
             <ion-icon name="ellipse"></ion-icon>
             {{ getStatusText(item.DORM_STATUS_ID, item.REQ_STATUS) }}
+          </div>
+          <div class="zone-badge">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ item.ZONE_NAME || 'ไม่ระบุ' }}
           </div>
         </div>
 
         <div class="card-body">
-          <div class="info-main">
+          <img [src]="item.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" class="dorm-img">
+          <div class="dorm-info">
             <h3>{{ item.DORM_NAME }}</h3>
-            <p class="address">
-              <ion-icon name="location-outline"></ion-icon>
-              {{ item.ADDRESS || 'ไม่ระบุที่อยู่' }}
-            </p>
+            <p class="address-text">{{ item.ADDRESS }}</p>
           </div>
+        </div>
 
-          <div class="stats-row">
+        <div class="card-footer">
+          <div class="stats">
             <div class="stat-item">
-              <ion-icon name="eye" color="medium"></ion-icon>
+              <ion-icon name="eye" color="primary"></ion-icon>
               <span>{{ item.VIEW_COUNT || 0 }}</span>
             </div>
             <div class="stat-item">
@@ -89,11 +90,20 @@
           </ion-button>
           
           <div class="right-btns">
-            <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)">
+            <ion-button fill="outline" size="small" color="tertiary" class="action-btn" (click)="openStatusSheet(item)" *ngIf="item.REQ_STATUS === 1 && item.DORM_STATUS_ID !== 2">
+              <ion-icon name="swap-vertical-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+
+            <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 2">
               <ion-icon name="create-outline" slot="icon-only"></ion-icon>
             </ion-button>
-            <ion-button fill="outline" size="small" color="danger" class="action-btn" (click)="confirmDelete(item.DORM_ID)">
+
+            <ion-button fill="outline" size="small" color="danger" class="action-btn" (click)="confirmDelete(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 2">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+
+            <ion-button fill="solid" size="small" color="success" class="action-btn" (click)="confirmRestoreWithOTP(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID === 2">
+              <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </div>
         </div>
@@ -103,11 +113,5 @@
     </div>
 
   </div>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="myDorms.length > 0">
-    <ion-fab-button color="warning" (click)="goToAddDorm()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 
 </ion-content>

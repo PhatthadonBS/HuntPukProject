@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'; // 🌟 เพิ่ม ViewChild, ElementRef
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ViewDidEnter } from '@ionic/angular'; // 🌟 เพิ่ม ViewDidEnter
 import { Auth } from '../../services/auth';
 import { addIcons } from 'ionicons';
 import { arrowBack, key, person, eye, eyeOff, logInOutline } from 'ionicons/icons'; 
@@ -14,24 +14,35 @@ import { arrowBack, key, person, eye, eyeOff, logInOutline } from 'ionicons/icon
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule, RouterModule],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, ViewDidEnter { // 🌟 เพิ่ม ViewDidEnter ตรงนี้
   email: string = '';
   password: string = '';
   showPassword: boolean = false;
   
-  // ⭐ State สำคัญสำหรับควบคุมสถานะ "กำลังเข้าสู่ระบบ..."
   isLoading: boolean = false;
+
+  // 🌟 ประกาศตัวแปรอ้างอิงไปที่ช่อง input อีเมลในหน้า HTML
+  @ViewChild('emailInput', { static: false }) emailInput!: ElementRef;
 
   constructor(
     private router: Router,
     private alertController: AlertController,
     private authService: Auth
   ) {
-    // ลงทะเบียนไอคอนให้ครบถ้วนเพื่อความปลอดภัย
     addIcons({ arrowBack, person, key, eye, eyeOff, logInOutline }); 
   }
 
   ngOnInit() {}
+
+  // 🌟 ฟังก์ชันนี้จะทำงานอัตโนมัติเมื่อหน้า Login สไลด์เปิดขึ้นมาเสร็จสมบูรณ์
+  ionViewDidEnter() {
+    // หน่วงเวลา 150ms ให้ Animation จบก่อน แล้วค่อยสั่งให้เคอร์เซอร์ไปกระพริบรอที่ช่องอีเมล
+    setTimeout(() => {
+      if (this.emailInput && this.emailInput.nativeElement) {
+        this.emailInput.nativeElement.focus();
+      }
+    }, 150);
+  }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -44,12 +55,12 @@ export class LoginPage implements OnInit {
   async login() {
     console.log("🔥 1. เริ่มทำงาน login()");
     
-    // ป้องกันการกดปุ่มซ้ำขณะที่ระบบกำลังโหลดข้อมูลอยู่
     if (this.isLoading) return;
 
-    // 🔍 Step 1: ตรวจสอบความถูกต้องของข้อมูล (Validation) ก่อนยิง API
     if (!this.email || !this.email.trim()) {
       this.showAlert('กรอกข้อมูลไม่ครบ', 'กรุณาระบุอีเมลของคุณ');
+      // 🌟 ถ้าผู้ใช้ลืมกรอก ให้โฟกัสกลับไปที่ช่องอีเมลใหม่
+      setTimeout(() => this.emailInput?.nativeElement?.focus(), 100);
       return;
     }
 
@@ -58,26 +69,18 @@ export class LoginPage implements OnInit {
       return;
     }
 
-    // ⏳ Step 2: เปิดสถานะกำลังเข้าสู่ระบบ (ปรับปรุงจาก LoadingController มาใช้ State)
     this.isLoading = true;
-    console.log("🚀 2. เปลี่ยน State isLoading = true (ปุ่มล็อกอินจะแสดงไอคอนโหลด)");
 
     try {
-      console.log("📡 3. กำลังส่งข้อมูลไปตรวจสอบที่ Backend...");
       const res = (await this.authService.login(
         this.email.trim(),
         this.password
       )) as any;
 
-      console.log("📥 4. Backend ตอบกลับมาสำเร็จ:", res);
-
       if (res && res.logged_in) {
-        console.log("🎉 5. ตรวจสอบข้อมูลถูกต้อง เตรียมบันทึก Session และเปลี่ยนหน้า");
-        
         const roleId = res.user.role_id;
         const status = res.user.accout_status; 
 
-        // ตรวจสอบสิทธิ์การใช้งานและสถานะบัญชี
         if ((roleId === 1 || roleId === 2 || roleId === 3) && status === 0) {
           const userData = {
             loggedIn: true, 
@@ -92,7 +95,6 @@ export class LoginPage implements OnInit {
           
           localStorage.setItem("loggedIn", JSON.stringify(userData));
           
-          // เปลี่ยนหน้าตามระดับสิทธิ์ของผู้ใช้งาน
           if (roleId === 3) {
             this.router.navigate(['/dashboard']);
           } else {
@@ -103,14 +105,10 @@ export class LoginPage implements OnInit {
           localStorage.removeItem("loggedIn");
         }
       } else {
-        console.log("❌ 6. ข้อมูลไม่ถูกต้องตามเงื่อนไขเซิร์ฟเวอร์");
         this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง');
       }
 
     } catch (error: any) {
-      console.error("🔥 7. ตรวจพบข้อผิดพลาดจากเซิร์ฟเวอร์ (Catch Error):", error);
-
-      // ล้วงเอาข้อความ Error จริงๆ จาก Backend ออกมาวิเคราะห์และแปลภาษา
       const serverMessage = error.error?.message || error.error || error.message || '';
       let displayMsg = 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์';
 
@@ -127,9 +125,7 @@ export class LoginPage implements OnInit {
       this.showAlert('พบข้อผิดพลาด', displayMsg);
 
     } finally {
-      // 🟢 ปิดสถานะกำลังโหลดทุกกรณี ไม่ว่าจะสำเร็จหรือพัง เพื่อให้ปุ่มกลับมาใช้งานได้ปกติ
       this.isLoading = false;
-      console.log("🟢 8. รีเซ็ต State isLoading = false เรียบร้อย");
     }
   }
 

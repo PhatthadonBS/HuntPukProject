@@ -9,16 +9,53 @@
 
       <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
       <div class="hero-overlay"></div>
+      
+      <div class="status-badge" [ngClass]="getStatusClass(dormData.status || dormData.DORM_STATUS_ID)">
+        {{ getStatusText(dormData.status || dormData.DORM_STATUS_ID) }}
+      </div>
     </div>
 
     <div class="main-info-card">
-      <div class="price-chip">เริ่มต้น <span>฿ {{ dormData.start_price | number }}</span> / เดือน</div>
+      
+      <div class="price-container">
+        <div class="price-chip" *ngIf="dormData.start_price">
+          รายเดือน <span>฿ {{ dormData.start_price | number }}</span>
+        </div>
+        <div class="price-chip term" *ngIf="dormData.term_price || dormData.TERM_PRICE">
+          รายเทอม <span>฿ {{ dormData.term_price || dormData.TERM_PRICE | number }}</span>
+        </div>
+      </div>
       
       <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
       
       <div class="location-row">
         <ion-icon name="location-sharp"></ion-icon>
         <p>{{ dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone">({{ dormData.zone }})</span></p>
+      </div>
+
+      <ion-button expand="block" class="nav-btn" (click)="goToNavigate()">
+        <ion-icon name="navigate-circle-outline" slot="start"></ion-icon>
+        นำทางไปหอพักนี้
+      </ion-button>
+
+      <div class="utility-row">
+        <div class="util-box water">
+          <ion-icon name="water-outline"></ion-icon>
+          <div class="util-text">
+            <span class="label">ค่าน้ำ</span>
+            <span class="val" *ngIf="dormData.water_lump || dormData.WATER_LUMP">{{ dormData.water_lump || dormData.WATER_LUMP }} บ./ด. (เหมา)</span>
+            <span class="val" *ngIf="!(dormData.water_lump || dormData.WATER_LUMP) && (dormData.water_unit || dormData.WATER_UNIT)">{{ dormData.water_unit || dormData.WATER_UNIT }} บ./หน่วย</span>
+            <span class="val" *ngIf="!(dormData.water_lump || dormData.WATER_LUMP) && !(dormData.water_unit || dormData.WATER_UNIT)">สอบถาม</span>
+          </div>
+        </div>
+
+        <div class="util-box elect">
+          <ion-icon name="flash-outline"></ion-icon>
+          <div class="util-text">
+            <span class="label">ค่าไฟ</span>
+            <span class="val">{{ dormData.elect_unit || dormData.ELECT_UNIT ? (dormData.elect_unit || dormData.ELECT_UNIT) + ' บ./หน่วย' : 'สอบถาม' }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="rating-row">
@@ -39,16 +76,43 @@
       
       <div *ngIf="activeTab === 'info'" class="info-tab fade-in">
         
-        <div class="premium-box" *ngIf="dormData.rooms && dormData.rooms.length > 0">
+<div class="premium-box" *ngIf="dormData.rooms && dormData.rooms.length > 0">
           <h3><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</h3>
           <div class="room-list">
+            
             <div class="room-item" *ngFor="let room of dormData.rooms">
-              <span class="room-name">{{ room.ROOM_TYPE_NAME }}</span>
-              <span class="room-price">฿ {{ room.PRICE | number }}.-</span>
+              <!-- ฝั่งซ้าย: ชื่อห้อง และ ประเภทเตียง -->
+              <div class="room-info" style="display: flex; flex-direction: column;">
+                <span class="room-name" style="font-size: 14px; font-weight: 700; color: #333;">{{ room.ROOM_TYPE_NAME }}</span>
+                <span class="room-bed" style="font-size: 12px; color: #888;">
+                  {{ room.bedType === 'Double Bed' ? '(เตียงคู่)' : '(เตียงเดี่ยว)' }}
+                </span>
+              </div>
+              
+              <!-- ฝั่งขวา: ราคา (โชว์ทั้งเดือน, เทอม, วัน ถ้ามีข้อมูล) -->
+              <div class="room-prices" style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                
+                <!-- ราคารายเดือน (สีปกติ) -->
+                <span class="room-price" *ngIf="room.PRICE > 0" style="font-weight: 900; color: #d32f2f;">
+                  ฿ {{ room.PRICE | number }} /ด.
+                </span>
+                
+                <!-- ราคารายเทอม (ป้ายสีฟ้า) -->
+                <span class="room-price term" *ngIf="room.perTerm > 0" style="background: #e3f2fd; color: #1976d2; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: bold;">
+                  ฿ {{ room.perTerm | number }} /เทอม
+                </span>
+
+                <!-- ราคารายวัน (ป้ายสีชมพู) -->
+                <span class="room-price day" *ngIf="room.perDay > 0" style="background: #fce4ec; color: #c2185b; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: bold;">
+                  ฿ {{ room.perDay | number }} /วัน
+                </span>
+                
+              </div>
             </div>
+
           </div>
         </div>
-
+        
         <div class="premium-box">
           <h3><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</h3>
           <div class="amenities-grid" *ngIf="facilitiesList.length > 0">

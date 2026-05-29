@@ -8,6 +8,7 @@ import { DormFacGetRes } from '../model/res/dorm_fac_get_res';
 // 1. Interfaces
 // ============================================
 export interface Dormitory {
+  [x: string]: any; // ✅ อนุญาตให้มีฟิลด์อื่นๆ ที่ไม่ได้ระบุใน Interface ได้ (เช่น lat, lng, start_price ที่ Backend อาจจะส่งมาเพิ่มในอนาคต)
   DORM_ID: number;
   DORM_NAME: string;
   ADDRESS: string;
@@ -417,4 +418,26 @@ export class DormitoryService {
     const url = `${this.apiUrl}/dorms/facility/${uid}`;
     return this.http.put(url, facData);
   }
+
+  // ==========================================
+  // 🌟 ฟังก์ชันจัดการสถานะหอพัก (Owner)
+  // ==========================================
+
+// ==========================================
+  // 🌟 ฟังก์ชันจัดการสถานะหอพัก (Owner)
+  // ==========================================
+
+  // 1. เปลี่ยนสถานะ (ว่าง = 1, เต็ม = 3)
+  public async changeDormStatus(dormId: number, statusId: number): Promise<any> {
+    // ✅ แก้ URL ให้ถูกต้อง (เอา /api/ ออก และแก้เป็น changeStatus)
+    const url = `${this.apiUrl}/dorms/changeStatus/${dormId}`;
+    try {
+      const res = await lastValueFrom(this.http.put<any>(url, { status_id: statusId }));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+
 }

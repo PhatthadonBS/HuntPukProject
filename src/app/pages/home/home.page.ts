@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, MenuController, ViewDidEnter } from '@ionic/angular';
-import { Router, RouterModule } from '@angular/router';
+import { IonicModule, MenuController, ViewDidEnter, ToastController, AlertController } from '@ionic/angular';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 
 import {
@@ -30,7 +30,8 @@ import {
   navigateCircleOutline, timeOutline, walkOutline, carOutline,
   locate, navigate, createOutline, star, lockClosedOutline,
   bedOutline, checkmarkCircleOutline, locationSharp, chevronForwardOutline,
-  listOutline, starOutline, arrowForwardOutline, gitBranchOutline, logoTwitter, chatbubblesOutline, location, closeCircle
+  listOutline, starOutline, arrowForwardOutline, gitBranchOutline, logoTwitter, chatbubblesOutline, location, closeCircle,
+  personCircleOutline, alertCircleOutline // ✅ เพิ่มไอคอนสำหรับระบบแจ้งเตือน
 } from 'ionicons/icons';
 
 @Component({
@@ -76,6 +77,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   sidePanelTab: 'info' | 'reviews' = 'info';
   reviews: any[] = [];
   isLoadingReviews: boolean = false;
+  isPanelMinimized: boolean = false;
 
   // ⭕ จุดอ้างอิงและวงกลม
   circleCenter: google.maps.LatLngLiteral | undefined;
@@ -85,6 +87,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     strokeOpacity: 0.8, strokeWeight: 2, clickable: false,
   };
   referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
+  userLocationGranted: boolean = false; // ✅ เช็คว่าอนุญาต GPS หรือยัง
 
   // 🧭 ระบบนำทาง
   directionsService: google.maps.DirectionsService | undefined;
@@ -105,14 +108,16 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
 
-constructor(
+  constructor(
     private router: Router,
+    private route: ActivatedRoute, // ✅ รับ Query Parameters จากหน้า Detail
     private dormService: DormitoryService,
     private httpClient: HttpClient,
     private menuCtrl: MenuController, 
     private cdr: ChangeDetectorRef,
+    private toastCtrl: ToastController, // ✅ ระบบแจ้งเตือน Welcome
+    private alertCtrl: AlertController  // ✅ ระบบแจ้งเตือนเปิด GPS
   ) {
-    // ✅ ลงทะเบียนไอคอนให้ครบทุกตัวเพื่อป้องกัน Error Invalid base URL
     addIcons({
       'menu-outline': menuOutline,
       'caret-down-outline': caretDownOutline,
@@ -126,7 +131,7 @@ constructor(
       'checkmark-circle-outline': checkmarkCircleOutline,
       'chevron-down-circle-outline': chevronDownCircleOutline,
       'chevron-forward-outline': chevronForwardOutline,
-      'call': call, // 👈 ตัวการที่ทำให้พัง เติมมาให้แล้วครับ!
+      'call': call, 
       'chatbubbles-outline': chatbubblesOutline,
       'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
       'logo-facebook': logoFacebook,
@@ -147,7 +152,9 @@ constructor(
       'bed-outline': bedOutline,
       'list-outline': listOutline,
       'arrow-forward-outline': arrowForwardOutline,
-      'git-branch-outline': gitBranchOutline
+      'git-branch-outline': gitBranchOutline,
+      'person-circle-outline': personCircleOutline, // ✅ ไอคอนใหม่
+      'alert-circle-outline': alertCircleOutline // ✅ ไอคอนใหม่
     });
 
     if (typeof google === 'object' && typeof google.maps === 'object') {
@@ -166,22 +173,39 @@ constructor(
   }
 
   ngOnInit() {
-    this.fetchDorms();
-    this.fetchZones();
     this.checkLoginStatus();
+    this.fetchZones();
+    
+    // โหลดข้อมูลหอพักให้เสร็จก่อน แล้วค่อยเช็คว่ามีการสั่ง "นำทาง" มาหรือไม่
+    this.fetchDorms().then(() => {
+      this.checkForNavigationIntent();
+    });
+
+    // 🌟 แอบดึงตำแหน่ง GPS แบบเงียบๆ (ถ้าไม่ได้สิทธิ์ จะไม่เด้งกวนใจ)
+    this.getCurrentLocation(true);
   }
 
   ionViewDidEnter() {
     this.checkLoginStatus();
   }
 
+  // 🌟 1. ระบบข้อความต้อนรับสุดสมาร์ท
   checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
+    const welcomeShown = sessionStorage.getItem('welcomeShown'); // เช็คว่าเคยโชว์ข้อความหรือยัง
+
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
         if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
-          this.currentUser = userObj;
+          this.currentUser = userObj.user ? userObj.user : userObj;
+          
+          // ทักทายผู้ใช้ที่เข้าสู่ระบบแล้ว (โชว์ครั้งเดียวต่อเซสชัน)
+          if (!welcomeShown) {
+            const name = this.currentUser.USERNAME || this.currentUser.FIRST_NAME || 'ผู้ใช้งาน';
+            this.showToast(`ยินดีต้อนรับ คุณ ${name}`, 'success', 'person-circle-outline');
+            sessionStorage.setItem('welcomeShown', 'true');
+          }
         } else {
           this.currentUser = null;
         }
@@ -190,15 +214,42 @@ constructor(
       }
     } else {
       this.currentUser = null;
+      // ทักทายผู้ใช้ทั่วไป (Guest)
+      if (!welcomeShown) {
+        this.showToast('เข้าสู่ระบบเพื่อใช้งานเต็มรูปแบบ', 'medium', 'lock-closed-outline');
+        sessionStorage.setItem('welcomeShown', 'true');
+      }
     }
   }
 
-  openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
+  // 🌟 2. ระบบรับคำสั่งนำทางจากหน้าอื่น
+  checkForNavigationIntent() {
+    this.route.queryParams.subscribe(params => {
+      if (params['navLat'] && params['navLng'] && params['dormId']) {
+        const dId = Number(params['dormId']);
+        const targetDorm = this.allDorms.find(d => d.DORM_ID === dId || d.id === dId);
+        
+        if (targetDorm) {
+          // หน่วงเวลาให้แผนที่ Render เสร็จก่อน แล้วค่อยล็อกเป้า
+          setTimeout(() => {
+            this.openInfoWindow(null as any, targetDorm);
+            
+            // ถ้ายังไม่ยอมให้สิทธิ์ GPS ให้เด้งเตือนขอสิทธิ์ตอนนี้เลย
+            if (!this.userLocationGranted) {
+               this.getCurrentLocation(false); 
+            }
+          }, 800);
+        }
+      }
+    });
+  }
 
-  getCurrentLocation() {
+  // 🌟 3. ระบบดึงตำแหน่ง GPS (รองรับแบบเงียบ และแบบบังคับเตือน)
+  getCurrentLocation(isSilent = false) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          this.userLocationGranted = true;
           const newPos: google.maps.LatLngLiteral = { lat: position.coords.latitude, lng: position.coords.longitude };
           this.referencePoint = newPos;
           this.center = newPos;
@@ -215,15 +266,46 @@ constructor(
             this.googleMapComponent.googleMap.setZoom(15);
           }
           this.cdr.detectChanges();
+          
           if (this.selectedDorm) {
             this.calculateActiveTravelMode(this.selectedDorm.lat, this.selectedDorm.lng);
           }
+          
+          if (!isSilent) this.showToast('ดึงตำแหน่งปัจจุบันสำเร็จ', 'success', 'location-outline');
         },
-        (error) => { console.error('Error getting location', error); alert('กรุณาเปิดอนุญาตให้เบราว์เซอร์เข้าถึงตำแหน่งของคุณ (Allow Location)'); },
+        (error) => { 
+          this.userLocationGranted = false;
+          console.error('Error getting location', error); 
+          if (!isSilent) this.showLocationAlert(); 
+        },
         { enableHighAccuracy: true, timeout: 10000 }
       );
-    } else { alert('เบราว์เซอร์นี้ไม่รองรับการดึงตำแหน่ง (GPS)'); }
+    } else { 
+      if (!isSilent) this.showToast('เบราว์เซอร์นี้ไม่รองรับการดึงตำแหน่ง (GPS)', 'danger', 'alert-circle-outline'); 
+    }
   }
+
+  async showLocationAlert() {
+    const alert = await this.alertCtrl.create({
+      header: 'ต้องการเปิด GPS',
+      message: 'เพื่อประสบการณ์ที่ดีที่สุดในการคำนวณเส้นทางและค้นหาหอพักใกล้เคียง กรุณาอนุญาตการเข้าถึงตำแหน่งของอุปกรณ์ด้วยครับ',
+      buttons: ['รับทราบ']
+    });
+    await alert.present();
+  }
+
+  async showToast(msg: string, color: string, icon: string) {
+    const toast = await this.toastCtrl.create({
+      message: msg,
+      color: color,
+      duration: 3000,
+      position: 'top', // เด้งด้านบนจะได้ไม่บัง UI แผนที่
+      icon: icon
+    });
+    toast.present();
+  }
+
+  openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
 
   onMapClick(event: google.maps.MapMouseEvent) { if (this.infoWindow) this.infoWindow.close(); }
 
@@ -236,8 +318,7 @@ constructor(
     try {
       const res = await this.dormService.getAllDorms();
       if (res.success && res.data) {
-        this.allDorms = res.data.map((d) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) }));
-        this.dorms = [...this.allDorms];
+this.allDorms = res.data.map((d: any) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) })) as any[];        this.dorms = [...this.allDorms];
       }
     } catch (err) { console.error('Fetch Dorms Error:', err); }
   }
@@ -254,13 +335,13 @@ constructor(
     try {
       const res = await this.dormService.searchDorms(this.searchText, this.selectedZone, this.minPrice || undefined, this.maxPrice || undefined);
       if (res.success && res.data) {
-        let tempDorms = res.data.map((d) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) }));
+        let tempDorms = res.data.map((d: any) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) })) as any[];
         if (this.maxDistance) {
-          tempDorms = tempDorms.filter((dorm) => {
+          tempDorms = tempDorms.filter((dorm: any) => {
             return this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng) <= this.maxDistance!;
           });
         }
-        this.dorms = tempDorms;
+        this.dorms = tempDorms as any[];
         if (this.selectedZone) {
           const targetZone = this.zoneOptions.find(z => z.ZONE_NAME === this.selectedZone);
           if (targetZone && targetZone.lat && targetZone.lng) {
@@ -295,31 +376,24 @@ constructor(
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
+  
   deg2rad(deg: number): number { return deg * (Math.PI / 180); }
 
-// 🌟 เพิ่มตัวแปรเช็คสถานะการย่อแผง
-  isPanelMinimized: boolean = false;
-
-  // 🌟 เพิ่มฟังก์ชันย่อขยาย
   togglePanelSize() {
     this.isPanelMinimized = !this.isPanelMinimized;
   }
 
-  // 🌟 นำไปแทนที่ฟังก์ชันเปิดหอพักเดิม
   openInfoWindow(marker: MapMarker, dorm: Dormitory) {
     this.selectedDorm = { ...dorm };
     this.sidePanelTab = 'info';
-    this.isPanelMinimized = false; // รีเซ็ตให้แผงขยายทุกครั้งที่เปิดหอใหม่
+    this.isPanelMinimized = false; 
     
     if (this.googleMapComponent?.googleMap) {
       this.googleMapComponent.googleMap.panTo({ lat: dorm.lat, lng: dorm.lng });
       this.googleMapComponent.googleMap.setZoom(16);
-      
-      // ✅ 2. ขยับแผนที่ (Pan): สั่งให้แผนที่ขยับจุดศูนย์กลางลงมา 150px เพื่อให้หมุดเด้งขึ้นไปอยู่ด้านบน
       setTimeout(() => {
         this.googleMapComponent?.googleMap?.panBy(0, 150); 
       }, 300);
-
     } else {
       this.center = { lat: dorm.lat, lng: dorm.lng };
       this.zoom = 16;
@@ -334,7 +408,7 @@ constructor(
     this.drivingTime = '-';
     this.drivingDistance = '-';
 
-    this.nearbyDorms = this.allDorms.filter(d => d.DORM_ID !== dorm.DORM_ID && this.calculateDistance(dorm.lat, dorm.lng, d.lat, d.lng) <= 1).slice(0, 5);
+    this.nearbyDorms = this.allDorms.filter((d: any) => d.DORM_ID !== dorm.DORM_ID && this.calculateDistance(dorm.lat, dorm.lng, d.lat, d.lng) <= 1).slice(0, 5);
     this.cdr.detectChanges(); 
 
     setTimeout(async () => {
@@ -359,13 +433,14 @@ constructor(
     }, 300); 
   }
 
-  // 🌟 ปรับฟังก์ชันปิดแผง เพื่อรีเซ็ตค่า
   closeDetailPanel() { 
     this.selectedDorm = null; 
     this.isPanelMinimized = false; 
     this.directionsResult = undefined; 
     this.altRouteRenderers = []; 
     this.nearbyDorms = [];
+    // ✅ ล้าง URL Parameters ทิ้ง เพื่อไม่ให้เด้งกลับมานำทางซ้ำเวลารีเฟรชหน้า
+    this.router.navigate([], { queryParams: {} });
   }
 
   selectNearbyDorm(dorm: any) { this.openInfoWindow(null as any, dorm); }
@@ -392,10 +467,8 @@ constructor(
     const destination = { lat: destLat, lng: destLng };
     const straightDist = this.calculateDistance(origin.lat, origin.lng, destination.lat, destination.lng);
     
-    // 🛑 ยกเลิกการหาเส้นทางสำรองแบบ 100% (ประหยัดทรัพยากรเครื่องได้มหาศาล)
     const provideAlt = false; 
 
-    // 🛡️ ฆาตกรตัวที่ 2: ถ้าเลือกเดินเท้า แต่ไกลเกิน 10 กม. ห้ามวาดเส้นทางเด็ดขาด ไม่งั้นค้าง 100%
     if (this.activeTravelMode === 'WALKING' && straightDist > 10) {
       this.walkingTime = 'ไกลเกินเดินไหว';
       this.walkingDistance = `> ${straightDist.toFixed(1)} กม.`;
@@ -412,7 +485,7 @@ constructor(
         if (this.activeTravelMode === 'DRIVING') {
           this.drivingTime = res.routes[0]?.legs[0]?.duration?.text || '-';
           this.drivingDistance = res.routes[0]?.legs[0]?.distance?.text || '-';
-          this.possibleRoutesCount = 1; // ล็อกเป็น 1 เส้นทาง
+          this.possibleRoutesCount = 1; 
         } else {
           this.walkingTime = res.routes[0]?.legs[0]?.duration?.text || '-';
           this.walkingDistance = res.routes[0]?.legs[0]?.distance?.text || '-';
@@ -424,7 +497,7 @@ constructor(
 
   renderRoutesOnMap(result: google.maps.DirectionsResult) {
     this.directionsResult = result;
-    this.altRouteRenderers = []; // ล้างอาเรย์ของเส้นทางสำรองทิ้งเลย
+    this.altRouteRenderers = []; 
     this.cdr.detectChanges();
   }
 
@@ -453,7 +526,6 @@ constructor(
   openFilter() { this.setOpen(true); }
   selectZone(zoneName: string) { this.selectedZone = this.selectedZone === zoneName ? '' : zoneName; }
 
-  // 🌟 ฟังก์ชันแปลงสถานะ
   getStatusText(status: any): string {
     const s = Number(status);
     if (s === 3) return 'ห้องเต็ม';
