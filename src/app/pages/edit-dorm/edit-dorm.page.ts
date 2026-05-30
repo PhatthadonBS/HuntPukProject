@@ -146,7 +146,8 @@ export class EditDormPage implements OnInit {
             roomType: r.ROOM_TYPE_NAME,
             bedType: r.bedType === 'Double Bed' ? '2' : '1',
             perMonth: r.PRICE || null,
-            perTerm: r.perTerm || null
+            perTerm: r.perTerm || null,
+            perDay: r.perDay || null
           }));
         } else {
           this.addRoomType();
@@ -172,7 +173,8 @@ export class EditDormPage implements OnInit {
       roomType: '',
       bedType: '1',
       perMonth: null,
-      perTerm: null
+      perTerm: null,
+      perDay: null
     });
   }
 

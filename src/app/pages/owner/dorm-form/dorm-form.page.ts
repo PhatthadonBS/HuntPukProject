@@ -1,193 +1,238 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { GoogleMapsModule } from '@angular/google-maps';
-import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { 
+  IonContent, IonHeader, IonTitle, IonToolbar, 
+  IonButtons, IonBackButton, IonButton, IonIcon, 
+  IonSegment, IonSegmentButton, IonLabel, 
+  IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
+  IonCheckbox, IonList, LoadingController, ToastController, AlertController 
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { 
+  saveOutline, imageOutline, homeOutline, wifi, 
+  bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle 
+} from 'ionicons/icons';
+import { Router } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
-import { environment } from '../../../../environments/environment';
-import { Observable, Subscription } from 'rxjs';
-import { DormFacGetRes } from '../../../model/res/dorm_fac_get_res';
-import { IonHeader, IonToolbar, IonButtons, IonContent, IonButton, IonIcon, IonTitle } from "@ionic/angular/standalone";
-import { AlertController } from '@ionic/angular'; // ✅ นำเข้า AlertController
+import { lastValueFrom } from 'rxjs'; 
 
 @Component({
   selector: 'app-dorm-form',
   templateUrl: './dorm-form.page.html',
   styleUrls: ['./dorm-form.page.scss'],
   standalone: true,
-  imports: [IonTitle, IonIcon, IonButton, IonContent, IonButtons, IonToolbar, IonHeader, 
-    CommonModule,
-    ReactiveFormsModule,
-    GoogleMapsModule,
-    HttpClientModule,
-    RouterModule,
-  ],
+  imports: [
+    IonContent, IonHeader, IonTitle, IonToolbar, 
+    IonButtons, IonBackButton, IonButton, IonIcon, 
+    IonSegment, IonSegmentButton, IonLabel,
+    IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
+    IonCheckbox, IonList, CommonModule, FormsModule
+  ]
 })
 export class DormFormPage implements OnInit {
-  api = environment.GGMAPI;
-  facilities$ = this.dormService.getFacilities();
-  userLogin = {
-    id: 2,
-    name: 'asdjsa',
-    role: 1,
+  activeSegment: string = 'general';
+  ownerId: number = 0;
+  
+  formData: any = {
+    name: '', address: '', lat: 16.245279, lng: 103.250106, 
+    zone_id: null, type_id: 1, water_unit: null, water_lump: null, elect_unit: null, detail: ''
   };
 
-  dormForm: FormGroup;
+  zones: any[] = [];
+  facilities: any[] = []; 
+  roomTypes: any[] = [];
 
-  selectedFiles: { [key: string]: File | File[] } = {};
-
-  center: google.maps.LatLngLiteral = { lat: 16.2455, lng: 103.25 };
-  zoom = 15;
-  markerPosition: google.maps.LatLngLiteral | null = null;
+  selectedFiles: any = { FRONT_DORM_IMG: null, BED_IMG: null, BATHROOM_IMG: null, OTHER_IMG: [] };
+  previews: any = { FRONT_DORM_IMG: null, BED_IMG: null, BATHROOM_IMG: null, OTHER_IMG: [] };
 
   constructor(
-    private fb: FormBuilder,
-    private dormService: DormitoryService,
     private router: Router,
-    private alertCtrl: AlertController // ✅ เพิ่ม AlertController เข้ามาใช้งาน
+    private dormService: DormitoryService,
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController
   ) {
-    this.dormForm = this.fb.group({
-      owner_id: [this.userLogin.id, Validators.required],
-      name: ['', Validators.required],
-      address: ['', Validators.required],
-      lat: [null, Validators.required],
-      lng: [null, Validators.required],
-      zone_id: [1, Validators.required],
-      type_id: [1, Validators.required],
-      water_unit: [0, Validators.required],
-      elect_unit: [0, Validators.required],
-      water_lump: [0],
-      detail: [''],
-      roomTypes: this.fb.array([]),
+    addIcons({
+      saveOutline, homeOutline, locationOutline, wifi, 
+      bedOutline, addCircleOutline, trashOutline, imageOutline, 
+      cloudUploadOutline, closeCircle
     });
   }
 
-  ngOnInit(): void {
-    this.addRoomType();
-  }
-  goBack() {
-    window.history.back(); 
-    // this.router.navigate(['/home']); 
+  async ngOnInit() {
+    const stored = localStorage.getItem('loggedIn');
+    if (stored) {
+      const user = JSON.parse(stored);
+      this.ownerId = user.id || user.USER_ID;
+    }
+    await this.loadInitialData();
+    this.resetForm(); // เคลียร์ฟอร์มเตรียมพร้อม
   }
 
+  async loadInitialData() {
+    try {
+      const zoneRes = await this.dormService.getZones();
+      if (zoneRes.success) this.zones = zoneRes.data;
 
-  get roomTypes(): FormArray {
-    return this.dormForm.get('roomTypes') as FormArray;
+      const facRes: any = await lastValueFrom(this.dormService.getFacilities());
+      if (facRes && facRes.length > 0) {
+        this.facilities = facRes.map((f: any) => ({
+          id: f.FAC_TYPE_ID, name: f.FAC_TYPE_NAME, checked: false 
+        }));
+      }
+    } catch (error) { console.error('Error loading initial data', error); }
   }
+
+  resetForm() {
+    this.formData = {
+      name: '', address: '', lat: 16.245279, lng: 103.250106, 
+      zone_id: null, type_id: 1, water_unit: null, water_lump: null, elect_unit: null, detail: ''
+    };
+    this.facilities.forEach(f => f.checked = false);
+    this.roomTypes = [{ id: null, roomType: '', bedType: '1', perMonth: null, perTerm: null, perDay: null }];
+    this.selectedFiles = { FRONT_DORM_IMG: null, BED_IMG: null, BATHROOM_IMG: null, OTHER_IMG: [] };
+    this.previews = { FRONT_DORM_IMG: null, BED_IMG: null, BATHROOM_IMG: null, OTHER_IMG: [] };
+    this.activeSegment = 'general';
+  }
+
+  segmentChanged(ev: any) { this.activeSegment = ev.detail.value; }
 
   addRoomType() {
-    const roomGroup = this.fb.group({
-      roomType: ['', Validators.required],
-      bedType: ['Single', Validators.required],
-      perMonth: [0],
-      perTerm: [0],
-    });
-    this.roomTypes.push(roomGroup);
+    this.roomTypes.push({ id: null, roomType: '', bedType: '1', perMonth: null, perTerm: null, perDay: null });
   }
 
   removeRoomType(index: number) {
-    this.roomTypes.removeAt(index);
+    if (this.roomTypes.length > 1) this.roomTypes.splice(index, 1);
   }
 
-  onMapClick(event: google.maps.MapMouseEvent) {
-    if (event.latLng) {
-      this.markerPosition = event.latLng.toJSON();
-      this.dormForm.patchValue({
-        lat: this.markerPosition.lat,
-        lng: this.markerPosition.lng,
-        address: `พิกัด: ${this.markerPosition.lat.toFixed(
-          5
-        )}, ${this.markerPosition.lng.toFixed(5)}`,
-      });
+  onFileSelect(event: any, field: string) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFiles[field] = file;
+      const reader = new FileReader();
+      reader.onload = () => { this.previews[field] = reader.result; };
+      reader.readAsDataURL(file);
     }
   }
 
-  onFileSelect(event: any, fieldName: string, isMultiple: boolean = false) {
-    if (event.target.files.length > 0) {
-      if (isMultiple) {
-        this.selectedFiles[fieldName] = Array.from(event.target.files);
-      } else {
-        this.selectedFiles[fieldName] = event.target.files[0];
+  onGallerySelect(event: any) {
+    const files = event.target.files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        this.selectedFiles.OTHER_IMG.push(files[i]);
+        const reader = new FileReader();
+        reader.onload = () => { this.previews.OTHER_IMG.push(reader.result); };
+        reader.readAsDataURL(files[i]);
       }
     }
   }
 
-  // ✅ แก้ไข onSubmit ให้ถามยืนยันก่อน
+  removeGalleryImage(index: number) {
+    this.previews.OTHER_IMG.splice(index, 1);
+    this.selectedFiles.OTHER_IMG.splice(index, 1);
+  }
+
   async onSubmit() {
-    if (this.dormForm.invalid) {
-      const alert = await this.alertCtrl.create({
-        header: 'ข้อมูลไม่ครบถ้วน',
-        message: 'กรุณากรอกข้อมูลให้ครบถ้วนก่อนทำการบันทึก',
-        buttons: ['ตกลง']
-      });
-      await alert.present();
-      this.dormForm.markAllAsTouched();
+    if (!this.formData.name || !this.formData.zone_id || !this.selectedFiles.FRONT_DORM_IMG) {
+      this.showToast('กรุณากรอกชื่อหอพัก, โซนที่ตั้ง และใส่รูปหน้าปกหอพักให้ครบถ้วน', 'warning');
       return;
     }
 
     const confirmAlert = await this.alertCtrl.create({
-      header: 'ยืนยันการบันทึก',
-      message: 'คุณต้องการบันทึกข้อมูลหอพักใช่หรือไม่?',
+      header: 'ยืนยัน',
+      message: 'ต้องการบันทึกข้อมูลหอพักใหม่ใช่หรือไม่?',
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'ยืนยัน',
-          handler: () => {
-            this.processSaveData(); // ถ้ายืนยัน ให้ไปเรียกฟังก์ชันเตรียมข้อมูลด้านล่าง
-          }
-        }
+        { text: 'บันทึก', handler: () => { this.processSaveData(); } }
       ]
     });
     await confirmAlert.present();
   }
 
-  // ✅ แยก Logic เดิมมาไว้ตรงนี้
-  processSaveData() {
-    const formData = new FormData();
-    const formValue = this.dormForm.value;
+  async processSaveData() {
+    const loading = await this.loadingCtrl.create({ message: 'กำลังบันทึกข้อมูล...' });
+    await loading.present();
 
-    Object.keys(formValue).forEach((key) => {
-      if (key !== 'roomTypes') formData.append(key, formValue[key]);
-    });
+    try {
+      const form = new FormData();
+      
+      form.append('user_id', this.ownerId.toString());
+      form.append('name', this.formData.name || '');
+      form.append('address', this.formData.address || '');
+      form.append('lat', (this.formData.lat || 0).toString());
+      form.append('lng', (this.formData.lng || 0).toString());
+      form.append('zone_id', (this.formData.zone_id || '').toString());
+      form.append('type_id', (this.formData.type_id || 1).toString());
+      form.append('detail', this.formData.detail || '');
 
-    formData.append('roomTypes', JSON.stringify(formValue.roomTypes));
+      form.append('water_unit', (this.formData.water_unit || 0).toString());
+      form.append('water_lump', (this.formData.water_lump || 0).toString());
+      form.append('elect_unit', (this.formData.elect_unit || 0).toString());
+      
+      const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any) => f.id);
+      form.append('facilities', JSON.stringify(selectedFacIds));
+      form.append('roomTypes', JSON.stringify(this.roomTypes));
 
-    const singleFileFields = [
-      'FRONT_DORM_IMG',
-      'LICENSE_IMG',
-      'CEILING_IMG',
-      'WALL_IMG',
-      'FLOOR_IMG',
-      'BED_IMG',
-      'BATHROOM_IMG',
-      'BALCONY_IMG',
-    ];
-    singleFileFields.forEach((field) => {
-      if (this.selectedFiles[field])
-        formData.append(field, this.selectedFiles[field] as File);
-    });
+      if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
+      if (this.selectedFiles.BED_IMG) form.append('BED_IMG', this.selectedFiles.BED_IMG);
+      if (this.selectedFiles.BATHROOM_IMG) form.append('BATHROOM_IMG', this.selectedFiles.BATHROOM_IMG);
+      
+      if (this.selectedFiles.OTHER_IMG && this.selectedFiles.OTHER_IMG.length > 0) {
+        this.selectedFiles.OTHER_IMG.forEach((file: any) => {
+          form.append('OTHER_IMG', file);
+        });
+      }
 
-    if (this.selectedFiles['OTHER_IMG']) {
-      (this.selectedFiles['OTHER_IMG'] as File[]).forEach((file) =>
-        formData.append('OTHER_IMG', file)
-      );
+      await lastValueFrom(this.dormService.createDorm(form));
+      
+      loading.dismiss();
+      this.showSuccessFlow(); // 🌟 เรียก Flow แจ้งเตือนความสำเร็จ
+
+    } catch (error: any) {
+      loading.dismiss();
+      this.showToast('เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่', 'danger');
     }
-    console.log(formData);
-
-    this.dormService.createDorm(formData).subscribe({
-      next: (res) => {
-        alert('บันทึกสำเร็จ!');
-        this.router.navigate(['/owner/my-dorms']);
-      },
-      error: (err) => alert('Error: ' + err.message)
-    });
   }
 
+  // 🌟 แจ้งเตือน + รอ 24 ชม.
+  async showSuccessFlow() {
+    const alert = await this.alertCtrl.create({
+      header: 'บันทึกสำเร็จ!',
+      message: 'ข้อมูลหอพักของคุณถูกส่งแล้ว <b>กรุณารอผู้ดูแลระบบตรวจสอบข้อมูลภายใน 24 ชั่วโมง</b> หากผ่านการอนุมัติ หอพักของคุณจะแสดงบนระบบ',
+      buttons: [
+        {
+          text: 'ตกลง',
+          handler: () => { this.askAddMore(); }
+        }
+      ],
+      backdropDismiss: false
+    });
+    await alert.present();
+  }
+
+  // 🌟 ถามว่าต้องการเพิ่มหอพักอีกหรือไม่
+  async askAddMore() {
+    const alert = await this.alertCtrl.create({
+      header: 'จัดการหอพัก',
+      message: 'ท่านต้องการลงทะเบียนหอพักเพิ่มอีกหรือไม่?',
+      buttons: [
+        {
+          text: 'ไม่, กลับไปหน้ารายการ',
+          role: 'cancel',
+          handler: () => { this.router.navigate(['/my-dorms']); }
+        },
+        {
+          text: 'ใช่, เพิ่มหอพักอีก',
+          handler: () => { this.resetForm(); }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async showToast(msg: string, color: string) {
+    const toast = await this.toastCtrl.create({ message: msg, duration: 2500, color: color, position: 'bottom' });
+    toast.present();
+  }
 }

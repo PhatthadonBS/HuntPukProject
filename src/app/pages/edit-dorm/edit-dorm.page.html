@@ -151,14 +151,18 @@
             </ion-select>
           </ion-item>
 
-          <div class="row-2-col">
+<div class="row-2-col">
             <ion-item class="custom-input">
               <ion-label position="stacked">รายเดือน (บาท)</ion-label>
-              <ion-input type="number" [(ngModel)]="room.perMonth"></ion-input>
+              <ion-input type="number" [(ngModel)]="room.perMonth" placeholder="ไม่ระบุปล่อยว่าง"></ion-input>
             </ion-item>
             <ion-item class="custom-input">
               <ion-label position="stacked">รายเทอม (บาท)</ion-label>
-              <ion-input type="number" [(ngModel)]="room.perTerm"></ion-input>
+              <ion-input type="number" [(ngModel)]="room.perTerm" placeholder="ไม่ระบุปล่อยว่าง"></ion-input>
+            </ion-item>
+            <ion-item class="custom-input">
+              <ion-label position="stacked">รายวัน (บาท)</ion-label>
+              <ion-input type="number" [(ngModel)]="room.perDay" placeholder="ไม่ระบุปล่อยว่าง"></ion-input>
             </ion-item>
           </div>
         </div>
