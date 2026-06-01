@@ -1,56 +1,171 @@
+/* ============================================================
+   dorm-form.page.scss  – HuntPuk
+   ✅ FIX: เพิ่ม Font Awesome icon style + UI improvements
+   ============================================================ */
+
 /* --- Global --- */
 .bg-light { --background: #f4f5f8; }
-.form-container { max-width: 600px; margin: 0 auto; }
-.req { color: red; font-weight: bold; margin-left: 4px; }
+.form-container { max-width: 600px; margin: 0 auto; padding-top: 10px; }
+.req { color: #e53935; font-weight: bold; margin-left: 2px; }
 .fade-in { animation: fadeIn 0.3s ease-in-out; }
+.text-danger { color: #d32f2f; }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Section Card --- */
+/* ============================================================
+   Step Indicator (ใหม่ - สวยขึ้น)
+   ============================================================ */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      color: #999;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s;
+    }
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #bbb;
+      transition: color 0.3s;
+      white-space: nowrap;
+    }
+
+    &.active {
+      .step-num { background: #FFD600; color: #333; box-shadow: 0 2px 8px rgba(255, 214, 0, 0.5); }
+      .step-label { color: #b8960a; }
+    }
+    &.done {
+      .step-num { background: #4CAF50; color: white; }
+      .step-label { color: #388E3C; }
+    }
+  }
+
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: #e0e0e0;
+    margin: 0 6px;
+    margin-bottom: 14px; /* align กับ circle */
+    transition: background 0.3s;
+
+    &.active { background: #FFD600; }
+  }
+}
+
+/* ============================================================
+   Admin Badge
+   ============================================================ */
+.admin-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #1565C0, #1976D2);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+
+  ion-icon { font-size: 18px; }
+  b { font-weight: 700; }
+}
+
+/* ============================================================
+   Bottom Action Bar
+   ============================================================ */
+.bottom-action-bar {
+  position: fixed; bottom: 0; left: 0; width: 100%;
+  background: white;
+  padding: 12px 20px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  display: flex; align-items: center; z-index: 999;
+
+  .spacer { flex: 1; }
+
+  .nav-btn {
+    font-weight: 800;
+    --border-radius: 20px;
+    letter-spacing: 0.5px;
+    min-width: 110px;
+  }
+  .submit-btn {
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+  }
+}
+
+/* ============================================================
+   Section Card
+   ============================================================ */
 .section-card {
-  background: #ffffff !important; 
+  background: #ffffff;
   border-radius: 16px;
   padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
 
-  h3 { 
-    margin-top: 0; font-size: 18px; font-weight: 700; color: #1a1a1a !important; 
-    display: flex; align-items: center; gap: 8px;
-    ion-icon { color: #ffc107; }
+  h3 {
+    margin-top: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    ion-icon { color: #ffc107; font-size: 20px; }
   }
-  .hint-text { font-size: 13px; color: #666; margin-top: -5px; margin-bottom: 15px; }
+
+  .hint-text {
+    font-size: 13px;
+    color: #777;
+    margin-top: -6px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
 }
 
-/* --- Custom Inputs --- */
+/* ============================================================
+   Custom Inputs
+   ============================================================ */
 .custom-input {
-  --background: #fff;
+  --background: #fafafa;
   --padding-start: 0;
   --inner-padding-end: 0;
-  margin-bottom: 15px;
-  border: 1px solid #e0e0e0;
+  margin-bottom: 12px;
+  border: 1.5px solid #e8e8e8;
   border-radius: 12px;
-  padding: 5px 15px;
+  padding: 4px 15px;
+  transition: border-color 0.2s;
 
-  ion-label { 
-    font-size: 13px !important; 
-    color: #666 !important; 
-    font-weight: 600; 
-  }
-  
-  ion-input, ion-textarea, ion-select { 
-    --padding-top: 5px; 
-    font-size: 15px; 
-    
-    /* บังคับสีตัวอักษรให้เป็นสีดำเข้ม */
-    --color: #1a1a1a !important; 
-    color: #1a1a1a !important;
-    
-    --placeholder-color: #999;
-    --placeholder-opacity: 1;
+  &:focus-within { border-color: #ffc107; }
+
+  ion-label { font-size: 12px !important; color: #888 !important; font-weight: 600; }
+  ion-input, ion-textarea, ion-select {
+    --padding-top: 4px;
+    font-size: 15px;
+    --color: #1a1a1a;
+    color: #1a1a1a;
   }
 }
 
@@ -59,134 +174,286 @@
   ion-item { flex: 1; margin-bottom: 10px; }
 }
 
-/* --- Facilities --- */
+.row-3-col {
+  display: flex; gap: 10px;
+  ion-item { flex: 1; margin-bottom: 10px; }
+}
+
+/* ============================================================
+   Coordinate Display
+   ============================================================ */
+.coord-display {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #555;
+  font-weight: 600;
+  background: #f4f5f8;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* ============================================================
+   Map
+   ============================================================ */
+.map-wrapper {
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 12px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ============================================================
+   Facilities Grid
+   ✅ FIX: รองรับทั้ง Font Awesome และ URL icon
+   ============================================================ */
 .facilities-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
-  gap: 12px !important;
+  gap: 10px !important;
   background: transparent !important;
   padding: 0 !important;
 }
 
 .checkbox-item {
-  --padding-start: 12px;
-  --inner-padding-end: 12px;
-  --background: #f8f9fa !important; 
-  
+  --padding-start: 10px;
+  --inner-padding-end: 10px;
+  --background: #fff !important;
   border-radius: 12px;
   margin-bottom: 0;
-  border: 1px solid #edf2f7;
+  border: 1.5px solid #e8e8e8;
   display: flex;
   align-items: center;
-  color: #1a1a1a !important; 
+  color: #1a1a1a;
+  transition: all 0.25s ease;
+  min-height: 56px;
 
-  ion-checkbox { 
-    margin-right: 12px; 
-    --size: 22px; 
-    --checkbox-background-checked: #ffc107; 
-    --border-color-checked: #ffc107; 
+  &.checked {
+    --background: #fffbe6 !important;
+    border-color: #ffc107;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.18);
+  }
+
+  ion-checkbox {
+    margin-right: 8px;
+    --size: 20px;
+    --checkbox-background-checked: #ffc107;
+    --border-color-checked: #ffc107;
+    flex-shrink: 0;
+  }
+
+  .fac-icon-wrapper {
+    width: 34px; height: 34px;
+    background: #f4f5f8;
+    border-radius: 8px;
+    display: flex; justify-content: center; align-items: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+
+    /* ✅ FIX: Font Awesome icon */
+    .fac-fa-icon {
+      font-size: 16px;
+      color: #555;
+    }
+
+    /* ✅ URL image */
+    .fac-icon-img {
+      width: 20px; height: 20px;
+      object-fit: contain;
+    }
+
+    /* Fallback ion-icon */
+    .fac-ion-icon {
+      font-size: 18px;
+      color: #bbb;
+    }
   }
 
   ion-label {
-    white-space: normal !important; 
-    line-height: 1.4;
-    padding: 8px 0;
+    white-space: normal !important;
+    line-height: 1.3;
+    font-size: 13px;
     font-weight: 600;
+    color: #333;
   }
 }
 
-/* --- Room Cards --- */
+.selected-count {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  text-align: right;
+}
+
+/* ============================================================
+   Room Cards
+   ============================================================ */
 .room-card {
-  background: #fcfcfc;
-  border: 1px dashed #ccc;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
+  background: #fafafa;
+  border: 1.5px dashed #ddd;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: #ffc107; }
 
   .room-header {
-    display: flex; justify-content: space-between; align-items: center;
-    font-weight: bold; font-size: 14px; color: #555; margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .room-badge {
+      background: #fff3cd;
+      color: #856404;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #ffc107;
+    }
   }
 }
 
 .header-row {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-/* --- Image Upload --- */
+/* ============================================================
+   Image Upload
+   ============================================================ */
 .img-upload-box {
-  position: relative; width: 100%; height: 200px;
-  background: #eee; border-radius: 12px; overflow: hidden;
-  cursor: pointer; border: 2px dashed #ddd;
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px dashed #ccc;
+  transition: border-color 0.2s;
 
-  .preview-img { width: 100%; height: 100%; object-fit: cover; }
-  
+  &:hover { border-color: #ffc107; }
+  &.has-image { border-style: solid; border-color: #4CAF50; }
+
+  .preview-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
   .overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4); color: white;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    opacity: 0; transition: 0.3s;
-    ion-icon { font-size: 32px; margin-bottom: 5px; }
-    span { font-weight: bold; }
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45);
+    color: white;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.25s;
+
+    ion-icon { font-size: 32px; margin-bottom: 6px; }
+    span { font-size: 14px; font-weight: 700; }
   }
 
   &:hover .overlay { opacity: 1; }
 }
 
-.grid-2-col {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+.upload-status {
+  font-size: 12px;
+  color: #388E3C;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+
+/* Grid 3 cols สำหรับรูปมุมห้อง */
+.grid-3-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .img-mini-box {
-  text-align: center; cursor: pointer;
-  label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; }
-  img { 
-    width: 100%; height: 100px; object-fit: cover; 
-    border-radius: 8px; border: 1px solid #ddd;
+  text-align: center;
+  background: #fdfdfd;
+  padding: 10px 8px;
+  border-radius: 12px;
+  border: 1.5px dashed #ddd;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: #ffc107; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #555;
   }
+
+  img {
+    width: 100%; height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: opacity 0.2s;
+
+    &.uploaded { border-color: #4CAF50; }
+    &:hover { opacity: 0.85; }
+  }
+
+  .upload-btn { font-size: 11px !important; }
 }
 
+/* Gallery Grid */
 .gallery-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;
-  
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+
   .gallery-item {
     position: relative;
-    
+
     img {
-      width: 100%; height: 80px; object-fit: cover; border-radius: 8px;
+      width: 100%; height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
       border: 1px solid #ddd;
     }
-    
+
     .del-btn {
-      position: absolute; top: -10px; right: -10px;
-      margin: 0; --padding-start: 0; --padding-end: 0;
-      width: 28px; height: 28px;
-      background: white; border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      position: absolute;
+      top: -10px; right: -10px;
+      margin: 0;
+      --padding-start: 0; --padding-end: 0;
+      width: 26px; height: 26px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
   }
 }
 
-/* --- Responsive (รองรับมือถือ) --- */
-@media (max-width: 768px) {
-  .row-2-col {
-    flex-direction: column;
-    gap: 0;
-  }
-  .grid-2-col {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .img-upload-box {
-    height: 160px;
-  }
-  .img-mini-box img {
-    height: 140px;
-  }
-  .facilities-grid {
-    grid-template-columns: 1fr !important;
-  }
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 480px) {
+  .row-2-col { flex-direction: column; gap: 0; }
+  .row-3-col { flex-direction: column; gap: 0; }
+  .grid-3-col { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .img-upload-box { height: 140px; }
+  .facilities-grid { grid-template-columns: 1fr !important; }
+  .step .step-label { font-size: 10px; }
 }

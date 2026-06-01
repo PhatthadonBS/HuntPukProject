@@ -60,8 +60,8 @@ toggleNewPassword() {
 
     try {
       // 1. เรียก API ขอ OTP
-      await this.authService.reqOTP(this.email);
-
+// ✅ ของใหม่ (เรียกใช้ reqOTP_Recover)
+      await this.authService.reqOTP_Recover(this.email);
       // 2. ✅ เปิด Modal OTP (ใช้ตัวเดียวกับ Register)
       const modal = await this.modalCtrl.create({
         component: OtpModalComponent,

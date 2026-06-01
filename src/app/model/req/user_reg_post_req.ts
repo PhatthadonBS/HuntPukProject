@@ -3,4 +3,5 @@ export interface UserRegPostReq {
     email:    string;
     password: string;
     phone:    string;
+    role_type_id: number;
 }
