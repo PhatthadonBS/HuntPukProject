@@ -57,7 +57,7 @@
 
       <div class="warning-text" style="font-size: 12px; color: #666; margin-bottom: 15px; padding-left: 10px; opacity: 0.9;">
          <p style="margin: 2px 0;">* เป็นตัวอักษร a-z ผสมตัวเลข 0-9 เท่านั้น</p>
-         <p style="margin: 2px 0;">* ความยาวอย่างน้อย 8 ตัวอักษรและสูงสุด 8 ตัวอักษร</p>
+         <p style="margin: 2px 0;">* ความยาวอย่างน้อย 8 ตัวอักษร</p>
       </div>
 
       <div class="custom-input">
@@ -73,8 +73,13 @@
         expand="block" 
         shape="round" 
         class="btn-register" 
-        (click)="onNextStep()">
-        ตกลง <ion-icon name="arrow-forward" slot="end"></ion-icon>
+        (click)="onNextStep()"
+        [disabled]="isSubmitting">
+        
+        <span *ngIf="!isSubmitting">ตกลง</span>
+        <ion-icon *ngIf="!isSubmitting" name="arrow-forward" slot="end"></ion-icon>
+        <ion-spinner *ngIf="isSubmitting" name="crescent" style="width: 24px; height: 24px; margin-top: 5px;"></ion-spinner>
+        
       </ion-button>
 
       </div>

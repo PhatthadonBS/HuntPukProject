@@ -12,25 +12,25 @@
     
     <div class="form-card" *ngIf="!isSuccess">
       
-      <div class="profile-section">
-        <input 
-          type="file" 
-          #fileInput 
-          (change)="onFileSelected($event)" 
-          accept="image/*" 
-          style="display: none;"
-        >
-
-        <div class="img-wrapper" (click)="fileInput.click()" 
-             [class.error-border]="isSubmitted && !selectedFile"> <img [src]="previewImage || placeholderImage" alt="Profile">
+      <div class="upload-section">
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+        
+        <div class="upload-box" (click)="fileInput.click()" 
+             [class.has-image]="previewImage" 
+             [class.error-border]="isSubmitted && !selectedFile">
+             
+          <img *ngIf="previewImage" [src]="previewImage" alt="Profile">
           
-          <div class="edit-badge">
-            <ion-icon name="image"></ion-icon>
+          <div class="upload-placeholder" *ngIf="!previewImage">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span class="main-text">แตะเพื่ออัปโหลดรูป</span>
+            <span class="sub-text">(* จำเป็น)</span>
+          </div>
+
+          <div class="edit-badge" *ngIf="previewImage">
+            <ion-icon name="camera"></ion-icon>
           </div>
         </div>
-
-        <h3>ข้อมูลผู้ยื่นคำขอ</h3>
-        <p class="sub-text">แตะที่รูปเพื่ออัปโหลดโปรไฟล์ใหม่ (* จำเป็น)</p>
       </div>
 
       <div class="error-banner" *ngIf="errorMessage">
@@ -105,9 +105,13 @@
            </div>
         </div>
 
-        <div class="btn-container">
-          <button type="button" class="btn cancel" (click)="onCancel()">ยกเลิก</button>
-          <button type="submit" class="btn confirm">ยืนยันการขอสิทธิ์</button>
+<div class="btn-container">
+          <button type="button" class="btn cancel" (click)="onCancel()" [disabled]="isSubmitting">ยกเลิก</button>
+          
+          <button type="submit" class="btn confirm" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">ยืนยันการขอสิทธิ์</span>
+            <ion-spinner name="crescent" *ngIf="isSubmitting" style="width: 22px; height: 22px; margin-top: 5px;"></ion-spinner>
+          </button>
         </div>
 
       </form>
@@ -123,7 +127,7 @@
       </div>
       <p class="desc">
         ข้อมูลของคุณถูกส่งไปยังผู้ดูแลระบบแล้ว<br>
-        กรุณารอการอนุมัติภายใน 24 ชม.
+        กรุณารอการอนุมัติทางอีเมล
       </p>
       <button class="btn back-home" (click)="onCancel()">กลับหน้าหลัก</button>
     </div>
