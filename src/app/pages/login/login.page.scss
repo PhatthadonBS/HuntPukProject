@@ -1,16 +1,13 @@
 // --- Variables ---
-$msu-dark: #1a1a1a;
+$msu-dark:   #1a1a1a;
 $msu-yellow: #FFD700;
 
-ion-content {
-  --background: transparent;
-}
+ion-content { --background: transparent; }
 
 // --- Layout & Background ---
 .main-container {
   min-height: 100vh;
   width: 100%;
-  // พื้นหลังตัดเฉียง คงเอกลักษณ์ไว้
   background: linear-gradient(145deg, $msu-dark 50%, $msu-yellow 50%);
   display: flex;
   flex-direction: column;
@@ -27,9 +24,8 @@ ion-content {
   top: 50px;
   left: 20px;
   z-index: 100;
-  
-  background: rgba(255, 255, 255, 0.1); 
-  backdrop-filter: blur(10px); 
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 30px;
@@ -44,40 +40,31 @@ ion-content {
   transition: all 0.3s ease;
 
   ion-icon { font-size: 18px; }
-
-  &:hover { background: rgba(255, 255, 255, 0.25); }
+  &:hover  { background: rgba(255, 255, 255, 0.25); }
   &:active { transform: scale(0.95); }
 }
 
-// --- 💎 Premium White Glass Card ---
-// --- 💎 Premium Glass Card (การ์ดกระจกใส) ---
+// --- Glass Card ---
 .glass-card {
   width: 100%;
   max-width: 400px;
-  
-  // 👉 จุดสำคัญ: เปลี่ยนความทึบเหลือแค่ 0.25 (25%) ให้มองทะลุพื้นหลังได้
-  background: rgba(255, 255, 255, 0.25); 
-  
-  // เพิ่มความเบลอและดึงสีพื้นหลังให้ชัดขึ้น
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(25px) saturate(120%);
   -webkit-backdrop-filter: blur(25px) saturate(120%);
-  
-  // ขอบการ์ดสีขาวโปร่งแสงบางๆ
-  border: 1px solid rgba(255, 255, 255, 0.5); 
-  
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 32px;
   padding: 40px 30px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2); // ลดเงาดำลงนิดนึงให้กลืนกับพื้นหลัง
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 10;
 }
 
-// --- ส่วนโลโก้ ---
+// --- โลโก้ ---
 .logo-section {
   margin-bottom: 35px;
-  
+
   .logo-circle {
     width: 110px;
     height: 110px;
@@ -87,31 +74,25 @@ ion-content {
     justify-content: center;
     align-items: center;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    border: 4px solid $msu-yellow; // ขอบเหลืองให้ดูมีเอกลักษณ์
+    border: 4px solid $msu-yellow;
     overflow: hidden;
+    cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-    &:hover { 
-      transform: scale(1.08); 
-      box-shadow: 0 12px 30px rgba(255, 215, 0, 0.4); 
+    &:hover {
+      transform: scale(1.08);
+      box-shadow: 0 12px 30px rgba(255, 215, 0, 0.4);
     }
-
-    img {
-      width: 70%;
-      height: auto;
-      object-fit: contain;
-    }
+    img { width: 70%; height: auto; object-fit: contain; }
   }
 }
 
-// --- ส่วนฟอร์ม ---
-.form-section {
-  width: 100%;
-}
+// --- Form ---
+.form-section { width: 100%; }
 
-// --- Input Styles ---
+// --- Input ---
 .custom-input {
-  background: #f4f6f8; // สีเทาอ่อนๆ ให้กลืนไปกับการ์ด
+  background: #f4f6f8;
   border-radius: 18px;
   height: 55px;
   display: flex;
@@ -129,51 +110,82 @@ ion-content {
     background: transparent;
     color: #222;
     font-weight: 700;
-    
-    &::placeholder {
-      color: #999;
-      font-weight: 500;
-    }
+    &::placeholder { color: #999; font-weight: 500; }
     &:disabled { opacity: 0.6; }
   }
 
-  ion-icon {
-    font-size: 20px;
-    color: #888;
-    transition: 0.3s;
-  }
+  ion-icon { font-size: 20px; color: #888; transition: 0.3s; }
+  .eye-icon { padding: 5px; margin-right: -5px; cursor: pointer; }
 
-  .eye-icon {
-    padding: 5px;
-    margin-right: -5px;
-    cursor: pointer;
-  }
-
-  // Effect ลูกเล่นตอนคลิกพิมพ์
   &:focus-within {
     background: #ffffff;
     border-color: $msu-yellow;
     box-shadow: 0 8px 20px rgba(255, 215, 0, 0.15);
-    
     ion-icon:not(.eye-icon) { color: $msu-dark; }
   }
 }
 
-// --- ลืมรหัสผ่าน ---
-.forgot-pass {
-  margin-bottom: 30px;
-  text-align: right;
-  padding-right: 4px;
+// ============================================================
+// ✅ แถว: จดจำการเข้าสู่ระบบ  ←→  ลืมรหัสผ่าน?
+// ============================================================
+.remember-forgot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding: 0 2px;
 
-  a {
+  // --- Checkbox จดจำการเข้าสู่ระบบ ---
+  .remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid #ccc;
+      background: #f4f6f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+
+      ion-icon {
+        font-size: 13px;
+        color: white;
+      }
+
+      &.checked {
+        background: $msu-dark;
+        border-color: $msu-dark;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      }
+    }
+
+    span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    &:active .custom-checkbox { transform: scale(0.9); }
+  }
+
+  // --- ลืมรหัสผ่าน ---
+  .link-forgot-password {
     color: #777;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
     transition: all 0.2s;
 
-    &:hover { 
-      color: $msu-dark; 
+    &:hover {
+      color: $msu-dark;
       text-decoration: underline;
       text-decoration-color: $msu-yellow;
       text-decoration-thickness: 2px;
@@ -182,17 +194,15 @@ ion-content {
   }
 }
 
-// --- ปุ่มหลัก (Login) ---
+// --- ปุ่ม Login ---
 .btn-login {
   margin-bottom: 30px;
   height: 55px;
   width: 100%;
-  
-  --background: #1a1a1a; 
-  --color: #FFD700; 
+  --background: #1a1a1a;
+  --color: #FFD700;
   --border-radius: 18px;
   --box-shadow: 0 10px 25px rgba(26, 26, 26, 0.3);
-  
   font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -211,11 +221,11 @@ ion-content {
   }
 }
 
-// --- สมัครสมาชิก / กู้คืนบัญชี (Modern Clean UI) ---
+// --- Link ด้านล่าง ---
 .register-text {
   text-align: center;
   font-size: 14px;
-  color: #888; 
+  color: #888;
   font-weight: 500;
   display: flex;
   justify-content: center;
@@ -225,35 +235,116 @@ ion-content {
   padding-bottom: 10px;
 
   .link-register {
-    color: $msu-dark; 
+    color: $msu-dark;
     text-decoration: none;
     font-weight: 800;
-    position: relative;
     padding: 4px 6px;
     border-radius: 6px;
-    transition: all 0.2s;
-
-    // ลูกเล่นเน้นคำ (Highlight Marker Style)
     background: linear-gradient(180deg, transparent 60%, rgba(255, 214, 0, 0.5) 60%);
-
-    &:hover { 
-      background: rgba(255, 214, 0, 0.2);
-      color: #000;
-    }
+    transition: all 0.2s;
+    &:hover { background: rgba(255, 214, 0, 0.2); color: #000; }
   }
 
-  .divider {
-    color: #e0e0e0;
-    font-weight: 300;
-  }
+  .divider { color: #e0e0e0; font-weight: 300; }
 }
 
-// --- Animation ตอนเปิดหน้า ---
+// --- Animation ---
 .fade-in-up {
   animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ============================================================
+// ✅ Welcome Alert Styles (Global — ใส่ใน global.scss ก็ได้)
+// ============================================================
+
+// Member
+.welcome-alert-member {
+  --backdrop-opacity: 0.5;
+
+  .alert-wrapper {
+    border-radius: 24px !important;
+    overflow: hidden;
+    border-top: 5px solid #FFD600 !important;
+  }
+  .alert-head { background: #fffde7; }
+  .alert-title {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #1a1a1a !important;
+  }
+  .alert-message {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    color: #444 !important;
+  }
+  .alert-button {
+    background: #1a1a1a !important;
+    color: #FFD600 !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    margin: 8px 16px 16px !important;
+  }
+}
+
+// Dorm Owner
+.welcome-alert-owner {
+  --backdrop-opacity: 0.5;
+
+  .alert-wrapper {
+    border-radius: 24px !important;
+    overflow: hidden;
+    border-top: 5px solid #4CAF50 !important;
+  }
+  .alert-head { background: #f1f8e9; }
+  .alert-title {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #1a1a1a !important;
+  }
+  .alert-message {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    color: #444 !important;
+  }
+  .alert-button {
+    background: #2E7D32 !important;
+    color: white !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    margin: 8px 16px 16px !important;
+  }
+}
+
+// Admin
+.welcome-alert-admin {
+  --backdrop-opacity: 0.6;
+
+  .alert-wrapper {
+    border-radius: 24px !important;
+    overflow: hidden;
+    border-top: 5px solid #1565C0 !important;
+  }
+  .alert-head { background: #e3f2fd; }
+  .alert-title {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #1a1a1a !important;
+  }
+  .alert-message {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    color: #333 !important;
+  }
+  .alert-button {
+    background: #1565C0 !important;
+    color: white !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    margin: 8px 16px 16px !important;
+  }
 }

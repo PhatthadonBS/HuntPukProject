@@ -18,9 +18,6 @@
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
 
-        <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="mainRouteOptions"></map-directions-renderer>
-        <map-directions-renderer *ngFor="let altRoute of altRouteRenderers" [directions]="altRoute" [options]="getAltRouteOptions()"></map-directions-renderer>
-
       </google-map>
 
       <div class="gps-fab-btn" (click)="getCurrentLocation()">
@@ -45,7 +42,7 @@
       
       <div class="btn-close-panel" (click)="closeDetailPanel()"><ion-icon name="close"></ion-icon></div>
 
-<div class="panel-header-img">
+      <div class="panel-header-img">
         <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
         
      <div class="status-badge" [ngClass]="getStatusClass(selectedDorm.status || selectedDorm.DORM_STATUS_ID)">
@@ -73,6 +70,10 @@
               (อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)
             </span>
           </div>
+
+          <p *ngIf="selectedDorm.UPDATE_AT" style="font-size: 13px; color: #666; margin-top: -15px; margin-bottom: 20px; font-weight: bold;">
+            <ion-icon name="refresh-circle-outline" style="color: #4CAF50; font-size: 16px; vertical-align: text-bottom;"></ion-icon> อัปเดตล่าสุด: {{ selectedDorm.UPDATE_AT | date:'dd/MM/yyyy' }}
+          </p>
 
           <div class="contact-list-container">
             <div class="inline-box-title"><ion-icon name="chatbubbles-outline"></ion-icon> ช่องทางการติดต่อ</div>
@@ -135,7 +136,9 @@
             <div class="inline-box-title"><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</div>
             <div class="inline-fac-grid">
               <div class="fac-chip" *ngFor="let fac of selectedDorm.facilities">
-                <ion-icon name="checkmark-circle-outline"></ion-icon> {{ fac }}
+                <img *ngIf="fac.FAC_TYPE_ICON || fac.icon" [src]="fac.FAC_TYPE_ICON || fac.icon" style="width: 16px; height: 16px; object-fit: contain;" />
+                <ion-icon *ngIf="!(fac.FAC_TYPE_ICON || fac.icon)" name="checkmark-circle-outline"></ion-icon> 
+                {{ fac.FAC_TYPE_NAME || fac.name || fac }}
               </div>
             </div>
           </div>
@@ -200,42 +203,68 @@
           <ion-icon name="close-circle" (click)="setOpen(false)" class="close-modal-btn"></ion-icon>
         </div>
 
-        <div class="distance-section">
-           <div class="section-title">
-              <h3>ระยะทาง (กม.)</h3>
-              <span>จากจุดอ้างอิง(หมุดสีน้ำเงิน)</span>
-           </div>
-           <div class="input-capsule">
-              <ion-icon name="location" class="icon-yellow"></ion-icon>
-              <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20">
-           </div>
-           <p class="hint-text">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
-        </div>
-
-        <div class="price-section">
-          <h3>ช่วงราคา</h3>
-          <div class="price-inputs">
-            <div class="price-col"><span class="label">ต่ำสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="minPrice" placeholder="0"></div></div>
-            <div class="dash">-</div>
-            <div class="price-col"><span class="label">สูงสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด"></div></div>
+        <div class="filter-scrollable-body">
+          <div class="distance-section">
+             <div class="section-title">
+               <h3>ระยะทาง (กม.)</h3>
+               <span>จากจุดอ้างอิง(หมุดสีน้ำเงิน)</span>
+             </div>
+             <div class="input-capsule">
+               <ion-icon name="location" class="icon-yellow"></ion-icon>
+               <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20">
+             </div>
+             <p class="hint-text">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
           </div>
-        </div>
 
-        <div class="zone-section">
-          <h3>บริเวณหอพัก</h3>
-          <div class="zone-options">
-            <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME" (click)="selectZone(zone.ZONE_NAME)">
-              <span>{{ zone.ZONE_NAME }}</span>
-              <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle"></ion-icon>
-              <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>
+          <div class="price-section">
+            <h3>ช่วงราคา</h3>
+            <div class="price-inputs">
+              <div class="price-col"><span class="label">ต่ำสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="minPrice" placeholder="0"></div></div>
+              <div class="dash">-</div>
+              <div class="price-col"><span class="label">สูงสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด"></div></div>
             </div>
-            <div *ngIf="zoneOptions.length === 0" class="loading-zone">กำลังโหลดข้อมูลโซน...</div>
+          </div>
+
+          <div style="margin-bottom: 25px;">
+             <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">คะแนนรีวิวขั้นต่ำ</h3>
+             <div style="display: flex; gap: 10px;">
+               <div (click)="minScore = 4" [style.background]="minScore === 4 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 4 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">4+ ดาว</div>
+               <div (click)="minScore = 3" [style.background]="minScore === 3 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 3 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">3+ ดาว</div>
+               <div (click)="minScore = null" [style.background]="minScore === null ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === null ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">ทั้งหมด</div>
+             </div>
+          </div>
+
+          <div style="margin-bottom: 25px; display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าน้ำสูงสุด</h3>
+              <div class="input-capsule">
+                <input type="number" [(ngModel)]="maxWater" placeholder="บาท">
+              </div>
+            </div>
+            <div style="flex: 1;">
+              <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าไฟสูงสุด</h3>
+              <div class="input-capsule">
+                <input type="number" [(ngModel)]="maxElect" placeholder="บาท">
+              </div>
+            </div>
+          </div>
+
+          <div class="zone-section">
+            <h3>บริเวณหอพัก</h3>
+            <div class="zone-options">
+              <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME" (click)="selectZone(zone.ZONE_NAME)">
+                <span>{{ zone.ZONE_NAME }}</span>
+                <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle"></ion-icon>
+                <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>
+              </div>
+              <div *ngIf="zoneOptions.length === 0" class="loading-zone">กำลังโหลดข้อมูลโซน...</div>
+            </div>
           </div>
         </div>
 
         <div class="action-section">
           <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
-          <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; applyFilter()">ล้างตัวกรองทั้งหมด</button>
+          <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; minScore=null; maxWater=null; maxElect=null; applyFilter()">ล้างตัวกรองทั้งหมด</button>
         </div>
       </div>
     </ng-template>

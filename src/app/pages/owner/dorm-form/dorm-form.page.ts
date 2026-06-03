@@ -429,8 +429,8 @@ export class DormFormPage implements OnInit {
   async showSuccessFlow() {
     const alert = await this.alertCtrl.create({
       header: '✅ บันทึกสำเร็จ!',
-      message: `ข้อมูลหอพักของคุณถูกส่งแล้ว<br><br>
-        <b>กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง</b><br>
+      message: `ข้อมูลหอพักของคุณถูกส่งแล้ว
+        กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง
         หากผ่านการอนุมัติ หอพักของคุณจะแสดงบนระบบ`,
       buttons: [{ text: 'ตกลง', handler: () => { this.askAddMore(); } }],
       backdropDismiss: false
