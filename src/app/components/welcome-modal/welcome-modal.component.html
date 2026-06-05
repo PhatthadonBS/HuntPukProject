@@ -1,0 +1,23 @@
+<div class="welcome-overlay" *ngIf="isVisible" (click)="onOverlayClick($event)">
+  <div class="welcome-card" [@slideUp]>
+    
+    <div class="confetti-area">
+      <span *ngFor="let c of confetti" class="confetti-dot" [style]="c"></span>
+    </div>
+
+    <div class="avatar-ring" [ngClass]="roleClass">
+      <img src="assets/logo1.jpg" alt="Logo" />
+    </div>
+
+    <div class="welcome-text">
+      <h2>{{ title }}</h2>
+      <p [innerHTML]="message"></p>
+    </div>
+
+    <button class="btn-start" (click)="close()">
+      <span>{{ buttonText }}</span>
+      <ion-icon name="arrow-forward-outline"></ion-icon>
+    </button>
+
+  </div>
+</div>

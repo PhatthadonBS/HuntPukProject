@@ -198,33 +198,31 @@ export class DormitoryService {
     }
   }
 
-  public async getMyFavorites(userId: number): Promise<Dormitory[]> {
-    const url = `${this.apiUrl}/spec/favorite/${userId}`; // ✅ ตรงกับ router.get('/spec/favorite/:id')
-
-    try {
-      // Backend ส่งมาเป็น Array ตรงๆ (res.json(rows)) ไม่ได้ห่อ data: {}
-      const res = await lastValueFrom(this.http.get<any[]>(url));
-
-      // ✅ แปลงชื่อตัวแปรจาก SQL Alias (Backend) -> Interface (Frontend)
-      // SQL: DORMID, DORMNAME, COVERIMAGE, ADDRESS
-      // Front: DORM_ID, DORM_NAME, image, ADDRESS
-      return res.map((item) => ({
-        DORM_ID: item.DORMID,
-        DORM_NAME: item.DORMNAME,
-        ADDRESS: item.ADDRESS,
-        image: item.COVERIMAGE, // Map ให้ตรงกัน
-        SCORE: item.SCORE,
-        // ค่าเหล่านี้ SQL ไม่ได้ส่งมา ใส่ค่า Default ไว้ก่อนกัน Error
-        lat: 0,
-        lng: 0,
-        start_price: item.START_PRICE || 0, // ถ้า SQL ไม่ได้ select ราคามา มันจะเป็น undefined
-        zone: '',
-      }));
-    } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
-    }
+  public async getMyFavorites(userId: number): Promise<any[]> {
+  const url = `${this.apiUrl}/spec/favorite/${userId}`;
+  try {
+    const res = await lastValueFrom(this.http.get<any>(url));
+ 
+    // ✅ FIX: รองรับทั้ง array ตรงๆ และแบบห่อ { data: [...] }
+    const rows: any[] = Array.isArray(res) ? res : (res?.data || []);
+ 
+    return rows.map((item: any) => ({
+      DORM_ID:     item.DORMID    || item.DORM_ID,
+      DORM_NAME:   item.DORMNAME  || item.DORM_NAME,
+      ADDRESS:     item.ADDRESS,
+      image:       item.COVERIMAGE || item.image,
+      SCORE:       item.SCORE,
+      lat:         0,
+      lng:         0,
+      start_price: Number(item.START_PRICE || item.start_price || 0),
+      zone:        '',
+    }));
+  } catch (error: any) {
+    // ถ้า 404 (ไม่มีรายการโปรด) ให้ return [] แทน throw
+    if (error?.status === 404 || error?.status === 400) return [];
+    throw new Error(JSON.stringify(error.error || error.message, null, 2));
   }
-
+}
   /**
    * 6. ดึงรายการคำร้องขอหอพักที่รออนุมัติ (Pending Requests)
    * API: GET /dorms/pendingReq

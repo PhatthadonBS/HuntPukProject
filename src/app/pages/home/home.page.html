@@ -18,6 +18,9 @@
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
 
+        <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="mainRouteOptions"></map-directions-renderer>
+        <map-directions-renderer *ngFor="let altRoute of altRouteRenderers" [directions]="altRoute" [options]="getAltRouteOptions()"></map-directions-renderer>
+
       </google-map>
 
       <div class="gps-fab-btn" (click)="getCurrentLocation()">
@@ -32,7 +35,7 @@
     <div class="chip-button compare-btn" (click)="goToCompare()"><ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ</div>
   </div>
     
- <div class="dorm-side-panel" [class.open]="selectedDorm != null" [class.minimized]="isPanelMinimized">
+  <div class="dorm-side-panel" [class.open]="selectedDorm != null" [class.minimized]="isPanelMinimized">
     <div class="panel-content" *ngIf="selectedDorm">
 
       <div class="panel-drag-handle" (click)="togglePanelSize()">
@@ -45,11 +48,11 @@
       <div class="panel-header-img">
         <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
         
-     <div class="status-badge" [ngClass]="getStatusClass(selectedDorm.status || selectedDorm.DORM_STATUS_ID)">
+        <div class="status-badge" [ngClass]="getStatusClass(selectedDorm.status || selectedDorm.DORM_STATUS_ID)">
           {{ getStatusText(selectedDorm.status || selectedDorm.DORM_STATUS_ID) }}
         </div>
 
-        <div class="price-badge">฿ {{ selectedDorm.start_price | number }} / เดือน</div>
+        <div class="price-badge">฿ {{ getDormMinPrice(selectedDorm) | number }} / เดือน</div>
       </div>
 
       <div class="panel-tabs">
@@ -70,10 +73,6 @@
               (อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)
             </span>
           </div>
-
-          <p *ngIf="selectedDorm.UPDATE_AT" style="font-size: 13px; color: #666; margin-top: -15px; margin-bottom: 20px; font-weight: bold;">
-            <ion-icon name="refresh-circle-outline" style="color: #4CAF50; font-size: 16px; vertical-align: text-bottom;"></ion-icon> อัปเดตล่าสุด: {{ selectedDorm.UPDATE_AT | date:'dd/MM/yyyy' }}
-          </p>
 
           <div class="contact-list-container">
             <div class="inline-box-title"><ion-icon name="chatbubbles-outline"></ion-icon> ช่องทางการติดต่อ</div>
@@ -136,9 +135,9 @@
             <div class="inline-box-title"><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</div>
             <div class="inline-fac-grid">
               <div class="fac-chip" *ngFor="let fac of selectedDorm.facilities">
-                <img *ngIf="fac.FAC_TYPE_ICON || fac.icon" [src]="fac.FAC_TYPE_ICON || fac.icon" style="width: 16px; height: 16px; object-fit: contain;" />
-                <ion-icon *ngIf="!(fac.FAC_TYPE_ICON || fac.icon)" name="checkmark-circle-outline"></ion-icon> 
-                {{ fac.FAC_TYPE_NAME || fac.name || fac }}
+                 <img *ngIf="fac.FAC_TYPE_ICON || fac.icon" [src]="fac.FAC_TYPE_ICON || fac.icon" style="width: 16px; height: 16px; object-fit: contain;" />
+                 <ion-icon *ngIf="!(fac.FAC_TYPE_ICON || fac.icon)" name="checkmark-circle-outline"></ion-icon>
+                 <span>{{ fac.FAC_TYPE_NAME || fac.name || fac }}</span>
               </div>
             </div>
           </div>
@@ -150,7 +149,8 @@
                 <img [src]="nb.image || nb.FRONT_DORM_IMAGE" onerror="this.src='https://placehold.co/80x60?text=No+Image'" />
                 <div class="nb-info">
                   <span class="nb-name">{{ nb.DORM_NAME }}</span>
-                  <span class="nb-price">฿ {{ nb.start_price | number }} / เดือน</span>
+                  <span class="nb-price-badge" *ngIf="getDormMinPrice(nb) > 0">฿ {{ getDormMinPrice(nb) | number }} / เดือน</span>
+                  <span class="nb-price-badge nb-price-na" *ngIf="getDormMinPrice(nb) === 0">ราคาติดต่อสอบถาม</span>
                   <span class="nb-dist"><ion-icon name="walk-outline"></ion-icon> {{ getDistanceText(nb) }}</span>
                 </div>
                 <ion-icon name="chevron-forward-outline" class="nb-arrow"></ion-icon>
@@ -269,5 +269,12 @@
       </div>
     </ng-template>
   </ion-modal>
+
+  <!-- ใส่ก่อนปิด </div> สุดท้าย -->
+<app-welcome-modal 
+  *ngIf="showWelcomeModal" 
+  [user]="currentUser" 
+  (closed)="showWelcomeModal = false">
+</app-welcome-modal>
 
 </div>

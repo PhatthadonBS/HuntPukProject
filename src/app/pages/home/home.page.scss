@@ -20,7 +20,6 @@ $text-muted: #6c757d;
 /* =========================================
    🚀 3. Floating UI (ปุ่มลอยแยกอิสระ)
    ========================================= */
-
 .menu-fab-btn {
   position: absolute; top: 85px; left: 15px; z-index: 9999;
   width: 56px; height: 56px; background: $msu-yellow; color: $msu-dark;
@@ -93,7 +92,7 @@ $text-muted: #6c757d;
 }
 
 .panel-header-img {
-  flex: 0 0 140px; /* 🌟 ลดความสูงจาก 190px เป็น 140px เพื่อให้เหลือพื้นที่แสดงรายละเอียดข้างล่างมากขึ้น */
+  flex: 0 0 160px; /* ให้พื้นที่รูปภาพ */
   width: 100%; position: relative; background: #e2e8f0;
   img { width: 100%; height: 100%; object-fit: cover; }
   &::after {
@@ -101,7 +100,6 @@ $text-muted: #6c757d;
     background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%);
   }
 
-  /* 🌟 เพิ่ม CSS ของป้ายสถานะ */
   .status-badge {
     position: absolute; top: 15px; left: 15px;
     padding: 6px 14px; border-radius: 12px;
@@ -110,10 +108,9 @@ $text-muted: #6c757d;
     
     &.full { background: #e74c3c; } 
     &.available { background: #2ecc71; }
-    &.closed { background: #7f8c8d; } /* 👈 เพิ่มสีเทาสำหรับห้องปิด */
+    &.closed { background: #7f8c8d; }
   }
 
-  /* 👈 เพิ่มลูกเล่น: รูปมืดลงถ้าหอปิด */
   &:has(.status-badge.closed) img {
     filter: grayscale(100%) brightness(80%);
   }
@@ -149,7 +146,6 @@ $text-muted: #6c757d;
   .dorm-zone { margin: 0 0 16px 0; font-size: 14px; color: $text-muted; font-weight: 600; display: flex; align-items: center; gap: 4px; ion-icon { color: #e74c3c; font-size: 16px; } }
 }
 
-/* 📞 การตกแต่งช่องทางติดต่อแบบใหม่ (มีชื่อด้านข้าง) */
 .contact-list-container {
   display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
   
@@ -164,11 +160,8 @@ $text-muted: #6c757d;
       ion-icon { font-size: 18px; color: #fff; } 
     }
     
-    .contact-text { 
-      color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; 
-    }
+    .contact-text { color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
     
-    /* สีของแต่ละ Platform */
     &.phone { background: #f0fdf4; border: 1px solid #bbf7d0; .icon-wrap { background: #22c55e; } }
     &.line { background: #f0fdf4; border: 1px solid #bbf7d0; .icon-wrap { background: #00c300; } }
     &.fb { background: #eff6ff; border: 1px solid #bfdbfe; .icon-wrap { background: #1877f2; } }
@@ -179,8 +172,6 @@ $text-muted: #6c757d;
   }
 }
 
-
-/* 🧭 ระบบเดินทาง และปุ่มนำทาง */
 .travel-section {
   background: #ffffff; border-radius: 16px; border: 1px solid #eaedf1; overflow: hidden; margin-bottom: 20px;
   
@@ -204,10 +195,7 @@ $text-muted: #6c757d;
     }
   }
 
-  .alt-route-notice {
-    font-size: 12px; color: #64748b; text-align: center; padding: 0 0 12px 0; font-weight: 600;
-    display: flex; justify-content: center; align-items: center; gap: 4px;
-  }
+  .alt-route-notice { font-size: 12px; color: #64748b; text-align: center; padding: 0 0 12px 0; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 4px; }
 }
 
 /* =========================================
@@ -247,53 +235,38 @@ $text-muted: #6c757d;
   .link-login { color: #1a1a1a; text-decoration: underline; cursor: pointer; font-weight: 900; &:hover { color: #f59e0b; } }
 }
 
-/* 🏷️ หัวย่อย */
 .inline-box-title {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 13px; font-weight: 800; color: #333;
-  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: #333; margin-bottom: 10px;
   ion-icon { color: $msu-yellow; font-size: 16px; background: $msu-dark; padding: 3px; border-radius: 6px; }
 }
 
-/* 🛏️ ประเภทห้องพัก */
 .inline-rooms-box {
   background: #f8fafc; border-radius: 14px; padding: 14px; margin-bottom: 16px; border: 1px solid #edf2f7;
-  .inline-room-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 0; border-bottom: 1px dashed #e2e8f0;
-    &:last-child { border-bottom: none; }
-    .r-name { font-size: 13px; font-weight: 700; color: #333; }
-    .r-price { font-size: 13px; font-weight: 900; color: #d32f2f; background: #ffebee; padding: 3px 8px; border-radius: 8px; }
-  }
+  .inline-room-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; &:last-child { border-bottom: none; } .r-name { font-size: 13px; font-weight: 700; color: #333; } .r-price { font-size: 13px; font-weight: 900; color: #d32f2f; background: #ffebee; padding: 3px 8px; border-radius: 8px; } }
 }
 
-/* ✅ สิ่งอำนวยความสะดวก */
 .inline-fac-box {
   background: #f8fafc; border-radius: 14px; padding: 14px; margin-bottom: 16px; border: 1px solid #edf2f7;
   .inline-fac-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-  .fac-chip {
-    display: flex; align-items: center; gap: 4px;
-    background: #fff; border: 1px solid #e2e8f0; border-radius: 20px;
-    padding: 5px 10px; font-size: 12px; font-weight: 700; color: #444;
-    ion-icon { font-size: 14px; color: #28a745; }
-    /* 🌟 CSS เพิ่มเติมสำหรับไอคอนจากฐานข้อมูล */
-    .db-quick-icon { width: 16px; height: 16px; object-fit: contain; }
-  }
+  .fac-chip { display: flex; align-items: center; gap: 4px; background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 5px 10px; font-size: 12px; font-weight: 700; color: #444; ion-icon { font-size: 14px; color: #28a745; } }
 }
 
-/* 📍 หอพักใกล้เคียง */
 .nearby-section {
   background: #f8fafc; border-radius: 14px; padding: 14px; margin-bottom: 16px; border: 1px solid #edf2f7;
   .nearby-list { display: flex; flex-direction: column; gap: 10px; }
   .nearby-item {
-    display: flex; align-items: center; gap: 10px;
-    background: #fff; border-radius: 12px; padding: 10px; border: 1px solid #e8ecf0;
-    cursor: pointer; transition: 0.2s;
+    display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 12px; padding: 10px; border: 1px solid #e8ecf0; cursor: pointer; transition: 0.2s;
     &:active { transform: scale(0.98); background: #f0f4f8; }
     img { width: 64px; height: 50px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-    .nb-info { flex: 1; display: flex; flex-direction: column; gap: 2px;
+    .nb-info {
+      flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
       .nb-name { font-size: 13px; font-weight: 800; color: #222; line-height: 1.3; }
-      .nb-price { font-size: 12px; font-weight: 700; color: #d32f2f; }
+      .nb-price-badge {
+        display: inline-block; background: $msu-yellow; color: $msu-dark;
+        padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 900;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        &.nb-price-na { background: #eceff1; color: #546e7a; box-shadow: none; }
+      }
       .nb-dist { font-size: 11px; color: #888; font-weight: 600; display: flex; align-items: center; gap: 3px; ion-icon { font-size: 12px; } }
     }
     .nb-arrow { font-size: 16px; color: #ccc; flex-shrink: 0; }
@@ -304,7 +277,7 @@ $text-muted: #6c757d;
    🛠️ 8. Filter Modal (แก้ไขระบบ Scroll & ปุ่ม Sticky)
    ========================================= */
 ion-modal.filter-modal-custom { 
-  --height: 85%; /* ให้กินพื้นที่ 85% ของจอ */
+  --height: 85%; 
   --width: 90%; 
   --max-width: 420px; 
   --border-radius: 24px; 
@@ -313,54 +286,39 @@ ion-modal.filter-modal-custom {
 
 .filter-wrapper { 
   display: flex; 
-  flex-direction: column; /* เรียงจากบนลงล่าง */
+  flex-direction: column; /* 🌟 เรียงแนวตั้ง */
   height: 100%; 
   background: #ffffff; 
-  overflow: hidden; /* ห้ามให้ตัวแม่ใหญ่ทะลุจอ */
+  overflow: hidden; /* 🌟 บังคับไม่ให้กรอบแม่ทะลุ */
 
   .filter-head { 
-    flex-shrink: 0; /* ห้ามโดนบีบย่อ */
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 20px 25px 15px;
-    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0; /* 🌟 ส่วนหัวห้ามโดนบีบย่อเด็ดขาด */
+    display: flex; justify-content: space-between; align-items: center; padding: 20px 25px 15px; border-bottom: 1px solid #f0f0f0;
     h2 { font-size: 20px; font-weight: 900; margin: 0; color: #1a1a1a; } 
     .close-modal-btn { font-size: 32px; color: #ccc; cursor: pointer; } 
   }
 
-  /* 🌟 ตัวแปรสำคัญ: โซนนี้คือโซนที่อนุญาตให้เลื่อนขึ้นลงได้ */
+  /* 🌟 ตัวแปรสำคัญ: อนุญาตให้เนื้อหาข้างในเลื่อนไถจอได้ตรงนี้ */
   .filter-scrollable-body {
-    flex: 1; /* ให้กินพื้นที่ว่างทั้งหมดที่เหลือ */
-    overflow-y: auto; /* อนุญาตให้เลื่อนไถจอได้ตรงนี้แหละ! */
+    flex: 1; /* กินพื้นที่ว่างที่เหลือทั้งหมด */
+    overflow-y: auto; /* อนุญาตเลื่อนลงได้ */
     padding: 25px;
-    
     &::-webkit-scrollbar { width: 5px; }
     &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
   }
 
   h3 { font-size: 15px; font-weight: 800; margin: 0 0 10px 0; color: #333; }
   
-  .input-capsule { 
-    background: #f9f9f9; border: 2px solid #eaeaea; border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; 
-    &:focus-within { border-color: #1a1a1a; background: #fff; box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2); } 
-    .icon-yellow { color: #FFD600; font-size: 22px; margin-right: 10px; } 
-    input { border: none; background: transparent; outline: none; width: 100%; font-weight: 800; font-size: 16px; color: #1a1a1a; } 
-  }
-  
+  .input-capsule { background: #f9f9f9; border: 2px solid #eaeaea; border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; &:focus-within { border-color: #1a1a1a; background: #fff; box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2); } .icon-yellow { color: #FFD600; font-size: 22px; margin-right: 10px; } input { border: none; background: transparent; outline: none; width: 100%; font-weight: 800; font-size: 16px; color: #1a1a1a; } }
   .distance-section { margin-bottom: 25px; .section-title { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; span { font-size: 12px; color: #888; font-weight: 600; } } .hint-text { font-size: 12px; color: #aaa; margin-top: 8px; font-weight: 500;} }
-  
   .price-section { margin-bottom: 25px; .price-inputs { display: flex; align-items: center; gap: 12px; .price-col { flex: 1; .label { display: block; font-size: 13px; font-weight: 700; color: #666; margin-bottom: 6px; } } .dash { font-weight: 900; color: #ccc; font-size: 20px; margin-top: 20px; } } }
-  
   .zone-section { margin-bottom: 20px; .zone-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .loading-zone { grid-column: span 2; text-align: center; color: #999; font-size: 14px; padding: 10px; } .zone-item { background: #f5f5f5; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; color: #555; text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; &:hover { background: #e0e0e0; } &.selected { background: #1a1a1a; color: #FFD600; border-color: #1a1a1a; box-shadow: 0 4px 10px rgba(0,0,0,0.15); ion-icon { font-size: 18px; } } } }
   
-  /* 🌟 ปุ่มกดจะถูกดันมาติดข้างล่างเสมอ และไม่มีวันหายไปจากการเลื่อนจอ */
+  /* 🌟 ส่วนปุ่ม Action จะโดนบังคับให้ติดขอบล่างเสมอ (Sticky) */
   .action-section { 
-    flex-shrink: 0; /* ห้ามย่อ */
+    flex-shrink: 0; /* ห้ามย่อส่วนปุ่มเด็ดขาด */
     display: flex; flex-direction: column; gap: 10px; 
-    padding: 15px 25px 25px; 
-    background: #fff; border-top: 1px solid #f0f0f0;
-    
+    padding: 15px 25px 25px; background: #fff; border-top: 1px solid #f0f0f0;
     .btn-confirm { background: #1a1a1a; color: #FFD600; padding: 16px; border-radius: 16px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.15); } 
     .btn-clear { background: transparent; color: #888; padding: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; text-decoration: underline; &:hover { color: #d32f2f; } } 
   }
@@ -371,98 +329,28 @@ ion-modal.filter-modal-custom {
    ========================================= */
 
 @media (max-width: 1024px) {
-  .dorm-side-panel {
-    width: 380px; 
-  }
+  .dorm-side-panel { width: 380px; }
 }
 
-/* 🌟 เมื่ออยู่บนมือถือ แผงจะสไลด์ขึ้นจากด้านล่าง (Bottom Sheet Style) */
 @media (max-width: 768px) {
-  /* ดันปุ่มแผงซ้ายมือ (ในหน้า Home) ลงมาหลบช่องค้นหาที่ขยายใหญ่ขึ้น */
-  .menu-fab-btn {
-    top: 125px; 
-    left: 10px; 
-    width: 45px; height: 45px;
-    ion-icon { font-size: 24px; }
-  }
+  .menu-fab-btn { top: 125px; left: 10px; width: 45px; height: 45px; ion-icon { font-size: 24px; } }
+  .filter-compare-group { top: 125px; left: 65px; gap: 8px; .chip-button { padding: 8px 12px; font-size: 12px; ion-icon { font-size: 16px; } } }
+  .gps-fab-btn { bottom: 20px; right: 15px; width: 45px; height: 45px; }
 
-  .filter-compare-group {
-    top: 125px; 
-    left: 65px; 
-    gap: 8px;
-    .chip-button { 
-      padding: 8px 12px; font-size: 12px; 
-      ion-icon { font-size: 16px; }
-    }
-  }
-
-  .gps-fab-btn {
-    bottom: 20px; right: 15px; width: 45px; height: 45px;
-  }
-
-/* 👉 ปรับ Side Panel ให้โผล่จากด้านล่างในมือถือ */
   .dorm-side-panel { 
-    width: 100%; 
-    height: 55vh; /* สูง 55% ของจอ เพื่อให้ยังเห็นแผนที่ 45% */
-    right: 0;
-    top: auto; 
-    bottom: -100vh; /* ซ่อนไว้ล่างสุด */
-    border-radius: 24px 24px 0 0; 
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
-    
-    /* 🌟 1. เพิ่ม transform เข้าไปใน transition เพื่อให้มันสไลด์ขึ้นลงได้ */
+    width: 100%; height: 55vh; right: 0; top: auto; bottom: -100vh; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
     transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    
-    &.open { 
-      bottom: 0; 
-      right: 0; 
-      transform: translateY(0); /* 🌟 2. กำหนดจุดเริ่มต้นให้ชัดเจน */
-    } 
-    
-    &.open.minimized {
-      /* 🌟 3. บังคับให้ขยับลงมาซ่อนข้างล่าง และโผล่มาแค่ขอบ 80px */
-      transform: translateY(calc(100% - 80px)) !important;
-    }
+    &.open { bottom: 0; right: 0; transform: translateY(0); } 
+    &.open.minimized { transform: translateY(calc(100% - 80px)) !important; }
   }
 
-  .panel-content { 
-    border-radius: 24px 24px 0 0; 
-    padding-top: 35px; /* เพิ่มพื้นที่ให้แถบจับ */
-    height: 100%;
-  }  
+  .panel-content { border-radius: 24px 24px 0 0; padding-top: 35px; height: 100%; }  
 
-  /* ตกแต่งแถบให้จับย่อ/ขยาย */
-  .panel-drag-handle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 35px;
-    background: #ffffff;
-    position: absolute;
-    top: 0; left: 0;
-    z-index: 999; /* 🌟 4. ดันขึ้นมาอยู่บนสุด ป้องกันเลเยอร์อื่นบังคลิก */
-    cursor: pointer;
-    border-radius: 24px 24px 0 0;
-    
-    .drag-pill {
-      width: 45px;
-      height: 5px;
-      background: #d1d5db;
-      border-radius: 10px;
-      margin-bottom: 3px;
-    }
-    span { font-size: 11px; font-weight: 700; color: #9ca3af; }
-  }
-  .panel-header-img { flex: 0 0 120px; } /* 🌟 ลดความสูงของรูปตอนดูในมือถือ ให้เหลือพื้นที่ด้านล่างเยอะขึ้น */
+  .panel-drag-handle { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 35px; background: #ffffff; position: absolute; top: 0; left: 0; z-index: 999; cursor: pointer; border-radius: 24px 24px 0 0; .drag-pill { width: 45px; height: 5px; background: #d1d5db; border-radius: 10px; margin-bottom: 3px; } span { font-size: 11px; font-weight: 700; color: #9ca3af; } }
+  .panel-header-img { flex: 0 0 120px; } 
   .btn-close-panel { top: 12px; right: 12px; background: rgba(0,0,0,0.6); z-index: 30; }
 }
+
 @media (max-width: 380px) {
-  .filter-compare-group {
-    flex-direction: column; 
-    top: 125px; /* <--- เปลี่ยนเหมือนกัน */
-    left: 65px;
-    .chip-button { padding: 6px 10px; font-size: 12px; }
-  }
+  .filter-compare-group { flex-direction: column; top: 125px; left: 65px; .chip-button { padding: 6px 10px; font-size: 12px; } }
 }
