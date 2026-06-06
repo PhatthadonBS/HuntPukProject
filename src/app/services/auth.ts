@@ -136,11 +136,11 @@ export class Auth {
   public async updateProfile(userId: number, username: string, phoneNumber: string) {
     const url = this.endpoint.API_ENDPOINT + '/spec/user/' + userId;
     try {
-      const body = { username: username, phone_number: phoneNumber };
+      const body = { username, phone_number: phoneNumber };
       const res = await lastValueFrom(this.http.put(url, body));
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error, null, 2));
+      throw error;
     }
   }
 

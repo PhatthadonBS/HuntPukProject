@@ -31,14 +31,14 @@
         </div>
 
         <div class="dorm-grid" *ngIf="!isLoading && dorms.length > 0">
-          <div class="dorm-card ion-activatable ripple-parent" *ngFor="let dorm of dorms">
+          <div class="dorm-card ion-activatable ripple-parent" *ngFor="let dorm of dorms" (click)="goToDetail(dorm)">
             <ion-ripple-effect></ion-ripple-effect>
             
-            <div class="card-image" (click)="goToDetail(dorm)">
+            <div class="card-image">
                <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" 
                     onerror="this.src='https://placehold.co/600x400?text=No+Image'" loading="lazy" />
 
-               <div class="status-badge" [ngClass]="getStatusClass(dorm.status || dorm.DORM_STATUS_ID)">
+                   <div class="status-badge" [ngClass]="getStatusClass(dorm.status || dorm.DORM_STATUS_ID)">
                   {{ getStatusText(dorm.status || dorm.DORM_STATUS_ID) }}
                </div>
                
@@ -46,11 +46,9 @@
                   <ion-icon [name]="dorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
                   <span>สนใจ</span>
                </div>
+<div class="price-tag">เริ่มต้น ฿{{ dorm.start_price | number }}</div>            </div>
 
-               <div class="price-tag">เริ่มต้น ฿{{ getDormMinPrice(dorm) | number }}</div>
-            </div>
-
-            <div class="card-content" (click)="goToDetail(dorm)">
+            <div class="card-content">
                <h3>{{ dorm.DORM_NAME }}</h3>
                
                <div class="rating-row">

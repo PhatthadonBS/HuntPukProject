@@ -149,8 +149,9 @@
                 <img [src]="nb.image || nb.FRONT_DORM_IMAGE" onerror="this.src='https://placehold.co/80x60?text=No+Image'" />
                 <div class="nb-info">
                   <span class="nb-name">{{ nb.DORM_NAME }}</span>
-                  <span class="nb-price-badge" *ngIf="getDormMinPrice(nb) > 0">฿ {{ getDormMinPrice(nb) | number }} / เดือน</span>
-                  <span class="nb-price-badge nb-price-na" *ngIf="getDormMinPrice(nb) === 0">ราคาติดต่อสอบถาม</span>
+                  
+                  <span class="nb-price">฿ {{ getDormMinPrice(nb) | number }} / เดือน</span>
+                  
                   <span class="nb-dist"><ion-icon name="walk-outline"></ion-icon> {{ getDistanceText(nb) }}</span>
                 </div>
                 <ion-icon name="chevron-forward-outline" class="nb-arrow"></ion-icon>
@@ -269,12 +270,5 @@
       </div>
     </ng-template>
   </ion-modal>
-
-  <!-- ใส่ก่อนปิด </div> สุดท้าย -->
-<app-welcome-modal 
-  *ngIf="showWelcomeModal" 
-  [user]="currentUser" 
-  (closed)="showWelcomeModal = false">
-</app-welcome-modal>
 
 </div>

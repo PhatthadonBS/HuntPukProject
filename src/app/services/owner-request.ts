@@ -42,7 +42,7 @@ export class OwnerRequestService {
 
   constructor(private http: HttpClient) { }
 
-  // 1. User ส่งคำขอ
+  // 1. User ส่งคำขอ (POST /user/dormOwner)
   requestToBeOwner(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/user/dormOwner`, formData);
   }

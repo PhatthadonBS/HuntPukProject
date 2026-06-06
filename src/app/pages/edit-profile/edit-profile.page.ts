@@ -85,7 +85,8 @@ export class EditProfilePage implements OnInit {
     });
     await alert.present();
   }
-async saveProfile() {
+
+  async saveProfile() {
     try {
       await this.authService.updateProfile(this.userId, this.editData.username, this.editData.phone_number);
 
@@ -106,7 +107,7 @@ async saveProfile() {
           parsed.PHONE_NUMBER = this.editData.phone_number;
         }
 
-        // เซฟกลับเข้า LocalStorage (Token จะปลอดภัยอยู่ใน parsed)
+        // เซฟกลับเข้า LocalStorage
         localStorage.setItem('loggedIn', JSON.stringify(parsed));
       }
 
@@ -116,12 +117,14 @@ async saveProfile() {
     } catch (error: any) { 
       console.error('Update Error:', error);
       let msg = 'บันทึกไม่สำเร็จ';
-      try {
-         const errObj = JSON.parse(error.message);
-         msg = errObj.message || msg;
-      } catch(e) {
-         msg = error.message || msg;
+      
+      // 🌟 ดึงข้อความ Error จากเซิร์ฟเวอร์มาแสดงให้ชัดเจน
+      if (error.error && error.error.message) {
+        msg = error.error.message;
+      } else if (error.message) {
+        msg = error.message;
       }
+      
       await this.showToast(msg, 'danger');
     }
   }

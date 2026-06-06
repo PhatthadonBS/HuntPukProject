@@ -70,8 +70,8 @@ export class RequestsPage implements OnInit, ViewWillEnter {
         const userId = user.id || user.user_id || user.USER_ID;
         if (userId) {
              this.formData.user_id = userId; 
-             if(user.phone_number || user.PHONE_NUMBER) {
-                 this.formData.phone_number = user.phone_number || user.PHONE_NUMBER;
+             if (user.phone || user.phone_number || user.PHONE_NUMBER) {
+                 this.formData.phone_number = user.phone || user.phone_number || user.PHONE_NUMBER;
              }
         } else { this.forceLogout(); }
       } catch (e) { this.forceLogout(); }

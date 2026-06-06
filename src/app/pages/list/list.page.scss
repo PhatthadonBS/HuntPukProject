@@ -120,7 +120,6 @@ ion-content.custom-content {
       ion-icon { font-size: 18px; color: $msu-yellow; margin-bottom: 2px; pointer-events: none; }
       span { font-size: 9px; font-weight: 800; color: #fff; pointer-events: none; }
       &.active { background: #e74c3c; ion-icon { color: #ffffff; } }
-      &:active { transform: scale(0.95); }
     }
     
     .price-tag {

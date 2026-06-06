@@ -258,17 +258,7 @@ $text-muted: #6c757d;
     display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 12px; padding: 10px; border: 1px solid #e8ecf0; cursor: pointer; transition: 0.2s;
     &:active { transform: scale(0.98); background: #f0f4f8; }
     img { width: 64px; height: 50px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-    .nb-info {
-      flex: 1; display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
-      .nb-name { font-size: 13px; font-weight: 800; color: #222; line-height: 1.3; }
-      .nb-price-badge {
-        display: inline-block; background: $msu-yellow; color: $msu-dark;
-        padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 900;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-        &.nb-price-na { background: #eceff1; color: #546e7a; box-shadow: none; }
-      }
-      .nb-dist { font-size: 11px; color: #888; font-weight: 600; display: flex; align-items: center; gap: 3px; ion-icon { font-size: 12px; } }
-    }
+    .nb-info { flex: 1; display: flex; flex-direction: column; gap: 2px; .nb-name { font-size: 13px; font-weight: 800; color: #222; line-height: 1.3; } .nb-price { font-size: 12px; font-weight: 700; color: #d32f2f; } .nb-dist { font-size: 11px; color: #888; font-weight: 600; display: flex; align-items: center; gap: 3px; ion-icon { font-size: 12px; } } }
     .nb-arrow { font-size: 16px; color: #ccc; flex-shrink: 0; }
   }
 }
