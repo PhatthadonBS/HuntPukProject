@@ -21,6 +21,7 @@ import { DormitoryService, Dormitory } from '../../services/dormitory';
 import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
+import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-modal.component';
 
 import {
   menuOutline, caretDownOutline, layersOutline, close,
@@ -42,7 +43,8 @@ import {
   imports: [
     CommonModule, FormsModule, IonicModule, RouterModule,
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
-    HeaderComponent, DormDetailPage, MapDirectionsRenderer, MapCircle, MapMarker, MapInfoWindow
+    HeaderComponent, DormDetailPage, MapDirectionsRenderer, MapCircle, MapMarker, MapInfoWindow,
+    WelcomeModalComponent,
   ],
 })
 export class HomePage implements OnInit, ViewDidEnter {
@@ -94,8 +96,6 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   // 🧭 ระบบนำทาง
   directionsService: google.maps.DirectionsService | undefined;
-  
-  // 🌟 แก้ไข: เขียน Type ให้ถูกต้องตาม Strict Mode จะได้ไม่ติด Error แดงๆ อีก
   directionsResult: google.maps.DirectionsResult | undefined = undefined;
   
   walkingTime = '-';
@@ -112,6 +112,21 @@ export class HomePage implements OnInit, ViewDidEnter {
   altRouteRenderers: google.maps.DirectionsResult[] = []; 
 
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
+
+  // 🎉 Welcome Modal
+  showWelcomeModal = false;
+
+  // 🔵 วงกลมครอบโซน
+  zoneCircleCenter: google.maps.LatLngLiteral | undefined = undefined;
+  zoneCircleRadius: number = 0;
+  
+  // 🌟 แก้ไข: เอา strokeDashArray ออก เพื่อล้าง Error
+  zoneCircleOptions: google.maps.CircleOptions = {
+    fillColor: '#2196F3', fillOpacity: 0.08,
+    strokeColor: '#2196F3', strokeOpacity: 0.6,
+    strokeWeight: 2,
+    clickable: false,
+  };
 
   constructor(
     private router: Router,
@@ -154,24 +169,33 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   ionViewDidEnter() {
-    this.checkLoginStatus();
-  }
-
-  // 🌟 ระบบตรวจสอบการเข้าสู่ระบบ
-  checkLoginStatus() {
     const storedData = localStorage.getItem('loggedIn');
-
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
         if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
           this.currentUser = userObj.user ? userObj.user : userObj;
-          
-          // 🌟 เช็คตั๋ว showWelcome ถ้ามาจากหน้า Login ให้เด้ง Alert
-          const showWelcome = sessionStorage.getItem('showWelcome');
-          if (showWelcome === 'true') {
-            sessionStorage.removeItem('showWelcome');
-            this.presentWelcomeAlert(this.currentUser);
+          this.cdr.detectChanges();
+        }
+      } catch (e) {}
+    }
+  }
+
+  checkLoginStatus() {
+    const storedData = localStorage.getItem('loggedIn');
+    if (storedData) {
+      try {
+        const userObj = JSON.parse(storedData);
+        if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
+          this.currentUser = userObj.user ? userObj.user : userObj;
+
+          if (userObj.showWelcome === true) {
+            userObj.showWelcome = false;
+            localStorage.setItem('loggedIn', JSON.stringify(userObj));
+            setTimeout(() => {
+              this.showWelcomeModal = true;
+              this.cdr.detectChanges();
+            }, 700);
           }
         } else {
           this.currentUser = null;
@@ -182,31 +206,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     } else {
       this.currentUser = null;
     }
-  }
-
-  // 🌟 สร้าง Alert สวยๆ เด้งกลางจอ ไม่มีทางโดนแผนที่บังแน่นอน!
-  async presentWelcomeAlert(user: any) {
-    const name = user.FIRST_NAME || user.username || user.EMAIL || 'ผู้ใช้งาน';
-    const role = user.role_id || user.ROLE_TYPE_ID;
-    
-    let head = ''; 
-    let msg = '';
-    if (role === 2) {
-      head = `🏠 ยินดีต้อนรับเจ้าของหอพัก`;
-      msg = `สวัสดีคุณ ${name}<br>จัดการและอัปเดตข้อมูลหอพักของคุณได้เลยครับ ✨`;
-    } else {
-      head = `👋 ยินดีต้อนรับ`;
-      msg = `สวัสดีคุณ ${name}<br>ขอให้เจอหอพักที่ถูกใจกับ HuntPuk นะครับ 🏡`;
-    }
-
-    const alert = await this.alertCtrl.create({
-      header: head, 
-      message: msg, 
-      buttons: ['เริ่มใช้งาน'],
-      cssClass: 'custom-alert',
-      backdropDismiss: false
-    });
-    await alert.present();
   }
 
   checkForNavigationIntent() {
@@ -320,59 +319,70 @@ export class HomePage implements OnInit, ViewDidEnter {
       if (res.success && res.data) {
         let tempDorms = res.data.map((d: any) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) })) as any[];
         
-        // 🌟 แก้ไข: ถ้าระบุโซน ให้ย้ายจุดอ้างอิงไปที่ใจกลางโซนนั้น เพื่อวาดวงกลมได้ถูกต้อง!
         if (this.selectedZone) {
           const targetZone = this.zoneOptions.find(z => z.ZONE_NAME === this.selectedZone);
           if (targetZone && targetZone.lat && targetZone.lng) {
             const newCenter = { lat: Number(targetZone.lat), lng: Number(targetZone.lng) };
-            this.referencePoint = newCenter; // ย้ายจุดอ้างอิงมาตรงนี้
+            this.referencePoint = newCenter;
             this.center = newCenter;
-            this.zoom = 14; 
+            this.zoom = 14;
             if (this.googleMapComponent?.googleMap) {
               this.googleMapComponent.googleMap.panTo(newCenter);
               this.googleMapComponent.googleMap.setZoom(14);
             }
+
+            const dormsInZone = tempDorms;
+            if (dormsInZone.length > 0) {
+              const maxDist = Math.max(...dormsInZone.map((d: any) =>
+                this.calculateDistance(newCenter.lat, newCenter.lng, d.lat, d.lng) * 1000
+              ));
+              this.zoneCircleCenter = newCenter;
+              this.zoneCircleRadius = Math.max(maxDist + 300, 800); 
+            } else {
+              this.zoneCircleCenter = newCenter;
+              this.zoneCircleRadius = 1000;
+            }
           }
+        } else {
+          this.zoneCircleCenter = undefined;
+          this.zoneCircleRadius = 0;
         }
 
-        // 🌟 แก้ไข: กรองระยะทางและวาดวงกลมตามจุดอ้างอิงใหม่
         if (this.maxDistance) {
-          this.circleCenter = this.referencePoint; // วงกลมจะเกิดตรงโซนที่เลือกเป๊ะๆ
+          this.circleCenter = this.referencePoint;
           this.circleRadius = this.maxDistance * 1000;
-          tempDorms = tempDorms.filter((dorm: any) => {
-            return this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng) <= this.maxDistance!;
-          });
+          tempDorms = tempDorms.filter((dorm: any) =>
+            this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng) <= this.maxDistance!
+          );
         } else {
           this.circleCenter = undefined;
         }
 
-        // ใช้ Filter อื่นๆ ที่เราเขียนเพิ่มไว้
         if (this.minScore) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
         if (this.maxWater) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT <= this.maxWater! || dorm.WATER_LUMP <= this.maxWater!);
         if (this.maxElect) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms as any[];
-        
-        // ขยับจอหาหอพักกรณีไม่มีการเลือกโซน
+
         if (!this.selectedZone && this.dorms.length > 0) {
           if (!this.maxDistance) {
             const firstDorm = this.dorms[0];
             if (firstDorm) this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
           }
-          this.zoom = 15; 
+          this.zoom = 15;
           if (this.googleMapComponent?.googleMap) {
-             this.googleMapComponent.googleMap.panTo(this.center);
-             this.googleMapComponent.googleMap.setZoom(15);
+            this.googleMapComponent.googleMap.panTo(this.center);
+            this.googleMapComponent.googleMap.setZoom(15);
           }
         }
-      } else { 
-        this.dorms = []; 
+      } else {
+        this.dorms = [];
         this.circleCenter = undefined;
+        this.zoneCircleCenter = undefined;
       }
     } catch (err) { console.error('Search Error:', err); }
   }
 
-  // 🌟 ดึงราคาชัวร์ๆ ไม่มีทางไม่ตรงกัน
   getDormMinPrice(dorm: any): number {
     if (!dorm) return 0;
     return Number(dorm.start_price || dorm.START_PRICE || 0);
@@ -418,7 +428,6 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.drivingTime = '-';
     this.drivingDistance = '-';
 
-    // 🌟 แก้ไข: เช็คหอซ้ำ ด้วย Number(ID) ทำให้หอตัวเองไม่โผล่มากวนใจด้านล่าง
     this.nearbyDorms = this.allDorms.filter((d: any) => Number(d.DORM_ID) !== Number(dorm.DORM_ID) && this.calculateDistance(dorm.lat, dorm.lng, d.lat, d.lng) <= 1).slice(0, 5);
     this.cdr.detectChanges(); 
 
@@ -534,7 +543,13 @@ export class HomePage implements OnInit, ViewDidEnter {
   goToCompare() { this.router.navigate(['/compare']); }
   setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
   openFilter() { this.setOpen(true); }
-  selectZone(zoneName: string) { this.selectedZone = this.selectedZone === zoneName ? '' : zoneName; }
+  selectZone(zoneName: string) {
+    this.selectedZone = this.selectedZone === zoneName ? '' : zoneName;
+    if (!this.selectedZone) {
+      this.zoneCircleCenter = undefined;
+      this.zoneCircleRadius = 0;
+    }
+  }
 
   getStatusText(status: any): string {
     const s = Number(status);

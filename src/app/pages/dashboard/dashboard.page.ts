@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
@@ -15,19 +15,21 @@ import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from '
 import { DormitoryService } from '../../services/dormitory';
 import { UserService } from '../../services/user';
 import { HeaderComponent } from '../../components/header/header.component';
+import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-modal.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, BaseChartDirective, HeaderComponent]
+  imports: [CommonModule, FormsModule, IonicModule, BaseChartDirective, HeaderComponent, WelcomeModalComponent]
 })
 export class DashboardPage implements OnInit {
 
   currentUser: any = null;
   isLoading = true;
   dashboardData: any = null;
+  showWelcomeModal = false; // ✅ ควบคุม welcome modal
 
   public barChartOptions: ChartConfiguration['options'] = {
     responsive: true, maintainAspectRatio: false,
@@ -45,7 +47,6 @@ export class DashboardPage implements OnInit {
 
   constructor(
     public router: Router,
-    private alertCtrl: AlertController,
     private dormService: DormitoryService,
     private userService: UserService
   ) {
@@ -75,31 +76,19 @@ export class DashboardPage implements OnInit {
         return;
       }
 
-      // ✅ Welcome Popup สำหรับ Admin แสดงที่หน้า Dashboard
+      // ✅ ใช้ WelcomeModalComponent แทน alertCtrl
       if (userObj.showWelcome) {
         userObj.showWelcome = false;
         localStorage.setItem('loggedIn', JSON.stringify(userObj));
-        setTimeout(() => this.showAdminWelcome(this.currentUser.username || this.currentUser.USERNAME), 800);
+        setTimeout(() => { this.showWelcomeModal = true; }, 800);
       }
 
       this.loadDashboardData();
     } catch (e) { this.router.navigate(['/login']); }
   }
 
-  // ✅ Welcome Popup เฉพาะ Admin
-  async showAdminWelcome(username: string) {
-    const alert = await this.alertCtrl.create({
-      header: '🛡️ ยินดีต้อนรับ Admin',
-      message: `สวัสดี ${username}
-                ระบบพร้อมใช้งานแล้ว 🔔<br>
-                ลองเช็คดูสิว่ามี หอพักใหม่รออนุมัติ
-                หรือ รีวิวใหม่ เข้ามาบ้างไหมวันนี้ 👀`,
-      cssClass: 'welcome-alert-admin',
-      buttons: [{ text: 'ไปดูเลย! 🚀', role: 'confirm' }],
-      backdropDismiss: true
-    });
-    await alert.present();
-  }
+  // ✅ ปิด welcome modal
+  onWelcomeClosed() { this.showWelcomeModal = false; }
 
   async loadDashboardData() {
     this.isLoading = true;
@@ -148,7 +137,6 @@ export class DashboardPage implements OnInit {
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
 
   async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({ header, message, buttons: ['ตกลง'] });
-    await alert.present();
+    alert(`${header}\n${message}`);
   }
 }

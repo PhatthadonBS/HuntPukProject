@@ -8,7 +8,9 @@ import {
   star, starHalf, starOutline, locationOutline, callOutline, arrowBack,
   wifi, car, snow, checkmarkCircleOutline, personCircle, timeOutline, send,
   person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp,
-  navigateCircleOutline, waterOutline, flashOutline // ✅ เพิ่มไอคอนใหม่
+  navigateCircleOutline, waterOutline, flashOutline, // ✅ เพิ่มไอคอนใหม่
+  logoTwitter,
+  paperPlane
 } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
 
@@ -46,7 +48,7 @@ export class DormDetailPage implements OnInit {
     private alertCtrl: AlertController, 
     private cdr: ChangeDetectorRef 
   ) { 
-    addIcons({ 
+addIcons({ 
       star, 'star-half': starHalf, 'star-outline': starOutline, arrowBack, 'location-sharp': locationSharp,
       'location-outline': locationOutline, 'call-outline': callOutline, 
       wifi, car, snow, 'checkmark-circle-outline': checkmarkCircleOutline,
@@ -54,7 +56,8 @@ export class DormDetailPage implements OnInit {
       person, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 
       'chatbubble-ellipses': chatbubbleEllipses, 'bed-outline': bedOutline,
       'image-outline': imageOutline,
-      'navigate-circle-outline': navigateCircleOutline, 'water-outline': waterOutline, 'flash-outline': flashOutline // ✅ ลงทะเบียนไอคอนใหม่
+      'navigate-circle-outline': navigateCircleOutline, 'water-outline': waterOutline, 'flash-outline': flashOutline,
+      'logo-twitter': logoTwitter, 'paper-plane': paperPlane 
     });
   }
 
@@ -120,12 +123,21 @@ export class DormDetailPage implements OnInit {
     this.cdr.detectChanges(); 
   }
 
-  get facilitiesList(): string[] {
+  // ✅ facilities จาก API คือ [{name: string, icon: string}]
+  get facilitiesList(): { name: string; icon: string }[] {
     if (!this.dormData) return [];
-    const facData = this.dormData.facilities || this.dormData.FACILITIES || this.dormData.facility; 
+    const facData = this.dormData.facilities || this.dormData.FACILITIES || this.dormData.facility;
     if (!facData || facData === 'null') return [];
-    if (Array.isArray(facData)) return facData;
-    if (typeof facData === 'string') return facData.split(',').map((item: string) => item.trim());
+
+    if (Array.isArray(facData)) {
+      return facData.map((f: any) => {
+        if (typeof f === 'string') return { name: f, icon: '' };
+        return { name: f.name || f.FAC_TYPE_NAME || '', icon: f.icon || f.FAC_TYPE_ICON || '' };
+      });
+    }
+    if (typeof facData === 'string') {
+      return facData.split(',').map((s: string) => ({ name: s.trim(), icon: '' }));
+    }
     return [];
   }
 

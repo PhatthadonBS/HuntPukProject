@@ -37,17 +37,27 @@ export class WelcomeModalComponent implements OnInit {
   }
 
   buildContent() {
-    const name = this.user?.FIRST_NAME || this.user?.username || 'ผู้ใช้งาน';
+    const name = this.user?.FIRST_NAME || this.user?.username || this.user?.USERNAME || 'ผู้ใช้งาน';
     const role = Number(this.user?.role_id || this.user?.ROLE_TYPE_ID || 1);
-    if (role === 2) {
+
+    if (role === 3) {
+      // Admin
+      this.title = '🛡️ ยินดีต้อนรับ Admin';
+      this.message = `สวัสดีคุณ <strong>${name}</strong><br>ระบบพร้อมใช้งานแล้ว 🔔<br>ลองเช็คดูสิว่ามีหอพักใหม่รออนุมัติหรือรีวิวใหม่เข้ามาบ้างไหมวันนี้ 👀`;
+      this.roleClass = 'admin';
+      this.buttonText = 'ไปดูแดชบอร์ด 🚀';
+    } else if (role === 2) {
+      // Owner
       this.title = '🏠 ยินดีต้อนรับเจ้าของหอพัก';
       this.message = `สวัสดีคุณ <strong>${name}</strong><br>จัดการและอัปเดตข้อมูลหอพักของคุณได้เลยครับ ✨`;
       this.roleClass = 'owner';
       this.buttonText = 'ไปจัดการหอพัก';
     } else {
+      // Member
       this.title = '👋 ยินดีต้อนรับสู่ HuntPuk';
       this.message = `สวัสดีคุณ <strong>${name}</strong><br>ขอให้เจอหอพักที่ถูกใจนะครับ 🏡`;
       this.roleClass = 'member';
+      this.buttonText = 'เริ่มค้นหาเลย';
     }
   }
 

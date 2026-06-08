@@ -82,31 +82,24 @@
             
             <div class="room-item" *ngFor="let room of dormData.rooms">
               <!-- ฝั่งซ้าย: ชื่อห้อง และ ประเภทเตียง -->
-              <div class="room-info" style="display: flex; flex-direction: column;">
-                <span class="room-name" style="font-size: 14px; font-weight: 700; color: #333;">{{ room.ROOM_TYPE_NAME }}</span>
-                <span class="room-bed" style="font-size: 12px; color: #888;">
-                  {{ room.bedType === 'Double Bed' ? '(เตียงคู่)' : '(เตียงเดี่ยว)' }}
+              <div class="room-info">
+                <span class="room-name">{{ room.ROOM_TYPE_NAME }}</span>
+                <span class="room-bed" *ngIf="room.bedType && room.bedType !== '-'">
+                  ({{ room.bedType }})
                 </span>
               </div>
               
-              <!-- ฝั่งขวา: ราคา (โชว์ทั้งเดือน, เทอม, วัน ถ้ามีข้อมูล) -->
-              <div class="room-prices" style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-                
-                <!-- ราคารายเดือน (สีปกติ) -->
-                <span class="room-price" *ngIf="room.PRICE > 0" style="font-weight: 900; color: #d32f2f;">
+              <!-- ฝั่งขวา: ราคา -->
+              <div class="room-prices">
+                <span class="room-price monthly" *ngIf="room.PRICE > 0">
                   ฿ {{ room.PRICE | number }} /ด.
                 </span>
-                
-                <!-- ราคารายเทอม (ป้ายสีฟ้า) -->
-                <span class="room-price term" *ngIf="room.perTerm > 0" style="background: #e3f2fd; color: #1976d2; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: bold;">
+                <span class="room-price term" *ngIf="room.perTerm > 0">
                   ฿ {{ room.perTerm | number }} /เทอม
                 </span>
-
-                <!-- ราคารายวัน (ป้ายสีชมพู) -->
-                <span class="room-price day" *ngIf="room.perDay > 0" style="background: #fce4ec; color: #c2185b; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: bold;">
+                <span class="room-price day" *ngIf="room.perDay > 0">
                   ฿ {{ room.perDay | number }} /วัน
                 </span>
-                
               </div>
             </div>
 
@@ -117,7 +110,14 @@
           <h3><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</h3>
           <div class="amenities-grid" *ngIf="facilitiesList.length > 0">
             <div class="amenity-item" *ngFor="let fac of facilitiesList">
-              <ion-icon name="checkmark-circle-outline"></ion-icon> {{ fac }}
+              <!-- ✅ ถ้า icon เป็น URL → <img>, ถ้าไม่มีหรือไม่ใช่ URL → ion-icon -->
+              <ng-container *ngIf="fac.icon && fac.icon.startsWith('http')">
+                <img [src]="fac.icon" class="fac-icon" (error)="fac.icon = ''">
+              </ng-container>
+              <ng-container *ngIf="!fac.icon || !fac.icon.startsWith('http')">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+              </ng-container>
+              <span>{{ fac.name }}</span>
             </div>
           </div>
           <p class="empty-text" *ngIf="facilitiesList.length === 0">- ไม่ระบุสิ่งอำนวยความสะดวก -</p>
@@ -145,10 +145,13 @@
               <span>ผู้ดูแลหอพัก</span>
             </div>
           </div>
-          <div class="contact-grid">
+        <div class="contact-grid">
             <a *ngIf="ownerInfo.phone !== '-'" [href]="'tel:' + ownerInfo.phone" class="contact-btn phone"><ion-icon name="call"></ion-icon> โทรติดต่อ</a>
             <a *ngIf="ownerInfo.line !== '-'" [href]="ownerInfo.line" target="_blank" class="contact-btn line"><ion-icon name="chatbubble-ellipses"></ion-icon> LINE</a>
             <a *ngIf="ownerInfo.facebook !== '-'" [href]="ownerInfo.facebook" target="_blank" class="contact-btn fb"><ion-icon name="logo-facebook"></ion-icon> Facebook</a>
+            <a *ngIf="ownerInfo.instagram !== '-'" [href]="ownerInfo.instagram" target="_blank" class="contact-btn ig"><ion-icon name="logo-instagram"></ion-icon> Instagram</a>
+            <a *ngIf="ownerInfo.x !== '-'" [href]="ownerInfo.x" target="_blank" class="contact-btn x"><ion-icon name="logo-twitter"></ion-icon> X (Twitter)</a>
+            <a *ngIf="ownerInfo.telegram !== '-'" [href]="ownerInfo.telegram" target="_blank" class="contact-btn telegram"><ion-icon name="paper-plane"></ion-icon> Telegram</a>
           </div>
         </div>
 

@@ -1,5 +1,12 @@
 <div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
 
+  <!-- ✅ Welcome Modal — โชว์ครั้งเดียวหลัง login สำเร็จ -->
+  <app-welcome-modal
+    *ngIf="showWelcomeModal"
+    [user]="currentUser"
+    (closed)="showWelcomeModal = false">
+  </app-welcome-modal>
+
   <app-header title="หน้าหลัก" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
 
   <ion-content [fullscreen]="true" [scrollY]="false">
@@ -8,7 +15,11 @@
       <google-map #mapRef *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
         [options]="mapOptions">
 
+        <!-- วงกลมระยะทาง / หอพักที่เลือก -->
         <map-circle *ngIf="circleCenter" [center]="circleCenter" [radius]="circleRadius" [options]="circleOptions"></map-circle>
+
+        <!-- ✅ วงกลมครอบโซนที่เลือก -->
+        <map-circle *ngIf="zoneCircleCenter" [center]="zoneCircleCenter" [radius]="zoneCircleRadius" [options]="zoneCircleOptions"></map-circle>
 
         <map-marker [position]="referencePoint" title="ตำแหน่งของคุณ" 
           [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 999 }">
@@ -265,7 +276,7 @@
 
         <div class="action-section">
           <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
-          <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; minScore=null; maxWater=null; maxElect=null; applyFilter()">ล้างตัวกรองทั้งหมด</button>
+          <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; minScore=null; maxWater=null; maxElect=null; zoneCircleCenter=undefined; zoneCircleRadius=0; applyFilter()">ล้างตัวกรองทั้งหมด</button>
         </div>
       </div>
     </ng-template>

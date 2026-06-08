@@ -1,5 +1,12 @@
 <div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
-  
+
+  <!-- ✅ Welcome Modal Component -->
+  <app-welcome-modal
+    *ngIf="showWelcomeModal"
+    [user]="currentUser"
+    (closed)="onWelcomeClosed()">
+  </app-welcome-modal>
+
   <app-header title="Dashboard ภาพรวม" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
 
   <ion-content class="bg-light">
