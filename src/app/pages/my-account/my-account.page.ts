@@ -3,30 +3,38 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; 
 import { addIcons } from 'ionicons';
-import { person, mail, create, arrowBack, call, shieldCheckmark } from 'ionicons/icons';
+import { person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, close, alertCircle } from 'ionicons/icons';
 import { UserService } from '../../services/user'; 
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, LoadingController, ToastController } from '@ionic/angular/standalone';
+import { DormitoryService } from '../../services/dormitory';
+import { Auth } from '../../services/auth';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, LoadingController, ToastController, AlertController, IonModal } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-my-account',
   templateUrl: './my-account.page.html',
   styleUrls: ['./my-account.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner]
+  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, IonModal]
 })
 export class MyAccountPage implements OnInit {
   user: any = {};
   isLoading: boolean = false;
   isOwnProfile: boolean = true; 
   canEdit: boolean = false;
+  
+  myDorms: any[] = [];
+  isDormModalOpen: boolean = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute, 
     private userService: UserService,
-    private toastCtrl: ToastController
+    private dormService: DormitoryService,
+    private authService: Auth,
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController
   ) { 
-    addIcons({ person, mail, create, arrowBack, call, shieldCheckmark });
+    addIcons({ person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, close, alertCircle });
   }
 
   ngOnInit() {}
@@ -170,6 +178,9 @@ export class MyAccountPage implements OnInit {
       // this.user ยังคงเป็นค่าจาก localStorage
     } finally {
       this.isLoading = false;
+      if (this.user.role_id === 2) {
+        this.loadOwnerDorms();
+      }
     }
   }
 
@@ -185,5 +196,77 @@ export class MyAccountPage implements OnInit {
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });
     toast.present();
+  }
+
+  async loadOwnerDorms() {
+    try {
+      const res: any = await this.dormService.getMyDorms(this.user.id);
+      if (res && res.data) {
+        const summaryDorms = res.data;
+        // ดึงข้อมูลแบบละเอียดของแต่ละหอพัก เพื่อเอาชื่อเจ้าของ เบอร์ติดต่อ ไลน์ ฯลฯ
+        const detailedDorms = await Promise.all(summaryDorms.map(async (dorm: any) => {
+          try {
+            const detailRes: any = await this.dormService.getDormById(dorm.DORM_ID || dorm.id);
+            if (detailRes && detailRes.data) {
+              const fullDorm = Array.isArray(detailRes.data) ? detailRes.data[0] : detailRes.data;
+              return { ...dorm, ...fullDorm }; // รวมข้อมูลสรุปเข้ากับข้อมูลแบบละเอียด
+            }
+          } catch (err) {
+            console.error('Failed to load details for dorm', dorm.DORM_ID, err);
+          }
+          return dorm; // ถ้าดึงแบบละเอียดไม่สำเร็จ ก็ใช้แบบสรุปไปก่อน
+        }));
+        this.myDorms = detailedDorms;
+      }
+    } catch (e) {
+      console.error('Failed to load owner dorms', e);
+    }
+  }
+
+  openDormModal() {
+    this.isDormModalOpen = true;
+  }
+
+  closeDormModal() {
+    this.isDormModalOpen = false;
+  }
+
+  async deactivateAccount() {
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการปิดใช้งานบัญชี',
+      message: 'กรุณากรอกอีเมลของคุณเพื่อยืนยันการปิดบัญชีอย่างถาวร',
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'กรอกอีเมลของคุณ...'
+        }
+      ],
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ยืนยัน',
+          handler: async (data) => {
+            if (data.email !== this.user.email) {
+              this.showToast('อีเมลไม่ถูกต้อง', 'danger');
+              return false; // ไม่ปิด alert
+            }
+
+            try {
+              await this.authService.deactivateUser(this.user.id);
+              this.showToast('ปิดบัญชีสำเร็จ', 'success');
+              localStorage.removeItem('loggedIn');
+              this.router.navigate(['/login']);
+              return true;
+            } catch (err: any) {
+              this.showToast(err.error?.message || 'เกิดข้อผิดพลาดในการปิดบัญชี', 'danger');
+              return false;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 }
