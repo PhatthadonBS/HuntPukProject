@@ -66,20 +66,35 @@ $text-muted: #6c757d;
 .dorm-side-panel {
   position: absolute;
   top: 0;
-  right: -450px; /* ซ่อนไว้ทางขวาสุด */
-  width: 420px;  /* ความกว้างของแผง */
-  height: 100vh; /* สูงเต็มจอ */
+  right: -450px;
+  width: 420px;
+  height: 100vh;
   background: $card-bg;
   border-radius: 24px 0 0 24px; 
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
   z-index: 9999;
-  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex; flex-direction: column; // ✅ เพิ่มเพื่อให้ปุ่มด้านล่าง sticky ได้
 
-  &.open { right: 0; } /* สไลด์เข้ามาจากทางขวา */
+  &.open { right: 0; }
+
+  // ✅ Mobile: panel เต็มหน้าจอ เลื่อนขึ้นจากด้านล่าง
+  @media (max-width: 480px) {
+    width: 100%;
+    right: -100%;
+    border-radius: 24px 24px 0 0;
+    top: auto;
+    bottom: -100vh;
+    height: 88vh;
+    transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), right 0s 0.4s;
+    &.open { bottom: 0; right: 0; transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+  }
 }
 
 .panel-content {
   display: flex; flex-direction: column; height: 100%; position: relative; border-radius: 24px 0 0 24px; overflow: hidden;
+
+  @media (max-width: 480px) { border-radius: 24px 24px 0 0; }
 }
 
 .btn-close-panel { 
@@ -92,9 +107,19 @@ $text-muted: #6c757d;
 }
 
 .panel-header-img {
-  flex: 0 0 160px; /* ให้พื้นที่รูปภาพ */
+  flex: 0 0 180px;       /* ✅ กำหนด height ตายตัว ไม่ยืด */
+  max-height: 180px;     /* ✅ กันไม่ให้สูงเกิน */
+  min-height: 180px;     /* ✅ กันไม่ให้เล็กเกิน */
   width: 100%; position: relative; background: #e2e8f0;
-  img { width: 100%; height: 100%; object-fit: cover; }
+  overflow: hidden;      /* ✅ ตัดส่วนเกิน */
+
+  img {
+    width: 100%;
+    height: 180px;       /* ✅ บังคับขนาด img ตายตัว */
+    object-fit: cover;
+    display: block;
+  }
+
   &::after {
     content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
     background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%);
@@ -114,6 +139,7 @@ $text-muted: #6c757d;
   &:has(.status-badge.closed) img {
     filter: grayscale(100%) brightness(80%);
   }
+
   .price-badge {
     position: absolute; bottom: 12px; left: 20px; background: $msu-yellow; color: $msu-dark;
     padding: 6px 14px; border-radius: 12px; font-size: 15px; font-weight: 900; z-index: 2;

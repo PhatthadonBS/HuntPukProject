@@ -1,16 +1,16 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, LoadingController, NavController, AlertController } from '@ionic/angular';
+import { IonicModule, ToastController, NavController, AlertController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   star, starHalf, starOutline, locationOutline, callOutline, arrowBack,
   wifi, car, snow, checkmarkCircleOutline, personCircle, timeOutline, send,
   person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp,
-  navigateCircleOutline, waterOutline, flashOutline, // ✅ เพิ่มไอคอนใหม่
-  logoTwitter,
-  paperPlane
+  navigateCircleOutline, waterOutline, flashOutline, 
+  logoTwitter, paperPlane,
+  documentTextOutline, call, alertCircleOutline 
 } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
 
@@ -27,6 +27,9 @@ export class DormDetailPage implements OnInit {
   @Input() isPopup: boolean = false; 
 
   activeTab: string = 'info';
+  isLoading: boolean = false;
+  isError: boolean = false;
+  errorMessage: string = '';
   
   reviews: any[] = [];
   isLoadingReviews: boolean = false;
@@ -44,11 +47,10 @@ export class DormDetailPage implements OnInit {
     private navCtrl: NavController,
     private dormService: DormitoryService, 
     private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController,
     private alertCtrl: AlertController, 
     private cdr: ChangeDetectorRef 
   ) { 
-addIcons({ 
+    addIcons({ 
       star, 'star-half': starHalf, 'star-outline': starOutline, arrowBack, 'location-sharp': locationSharp,
       'location-outline': locationOutline, 'call-outline': callOutline, 
       wifi, car, snow, 'checkmark-circle-outline': checkmarkCircleOutline,
@@ -57,7 +59,9 @@ addIcons({
       'chatbubble-ellipses': chatbubbleEllipses, 'bed-outline': bedOutline,
       'image-outline': imageOutline,
       'navigate-circle-outline': navigateCircleOutline, 'water-outline': waterOutline, 'flash-outline': flashOutline,
-      'logo-twitter': logoTwitter, 'paper-plane': paperPlane 
+      'logo-twitter': logoTwitter, 'paper-plane': paperPlane,
+      'document-text-outline': documentTextOutline, call,
+      'alert-circle-outline': alertCircleOutline 
     });
   }
 
@@ -73,8 +77,13 @@ addIcons({
       } catch (e) { console.error('Error parsing user data'); }
     }
 
+    // ✅ กลับมาใช้ snapshot แบบเดิม (synchronous, อ่านค่าทันทีไม่ต้องพึ่ง observable emit)
+    // เวอร์ชัน subscribe ก่อนหน้านี้ทำให้ production build บางกรณีไม่ trigger callback เลย
+    this.isError = false;
+    this.errorMessage = '';
+
     const idParam = this.route.snapshot.paramMap.get('id');
-    
+
     if (idParam) {
       this.loadDormDetail(Number(idParam));
     } else if (this.dormData) {
@@ -83,23 +92,72 @@ addIcons({
     }
   }
 
+  get waterDetail(): string {
+    if (!this.dormData) return 'กำลังโหลด...';
+    const lump = Number(this.dormData.water_lump || this.dormData.WATER_LUMP || 0);
+    const unit = Number(this.dormData.water_unit || this.dormData.WATER_UNIT || 0);
+    
+    if (lump > 0 && unit > 0) return `เหมา ${lump} บ./ด. หรือ ${unit} บ./หน่วย`;
+    if (lump > 0) return `เหมาจ่าย ${lump} บ./เดือน`;
+    if (unit > 0) return `${unit} บาท/หน่วย`;
+    return 'จ่ายตามบิลรัฐฯ / สอบถาม';
+  }
+
+  get electDetail(): string {
+    if (!this.dormData) return 'กำลังโหลด...';
+    const unit = Number(this.dormData.elect_unit || this.dormData.ELECT_UNIT || 0);
+    
+    if (unit > 0) return `${unit} บาท/หน่วย`;
+    return 'จ่ายตามบิลรัฐฯ / สอบถาม';
+  }
+
   async loadDormDetail(id: number) {
+    this.isLoading = true;
+    this.isError = false;
+    this.errorMessage = '';
+    this.dormData = null;
+    this.cdr.detectChanges();
+
+    let timeoutTriggered = false;
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        timeoutTriggered = true;
+        reject(new Error('TIMEOUT'));
+      }, 12000);
+    });
+
     try {
-      const res = await this.dormService.getDormById(id);
-      if (res && res.success && res.data) {
-        this.dormData = Array.isArray(res.data) ? res.data[0] : res.data; 
-        
+      const res: any = await Promise.race([
+        this.dormService.getDormById(id),
+        timeoutPromise
+      ]);
+
+      if (res && res.data) {
+        const apiData = res.data;
+        this.dormData = Array.isArray(apiData) ? apiData[0] : apiData;
         this.prepareOwnerInfo();
         this.loadReviews();
-        this.cdr.detectChanges(); 
       } else {
-        this.showToast('ไม่พบข้อมูลหอพัก', 'danger');
-        this.navCtrl.back();
+        this.isError = true;
+        this.errorMessage = 'ไม่พบข้อมูลหอพัก';
       }
-    } catch (error) {
-      console.error('Error loading dorm detail:', error);
-      this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล (API Error)', 'danger');
-      this.navCtrl.back();
+    } catch (error: any) {
+      this.isError = true;
+      if (timeoutTriggered || error?.message === 'TIMEOUT') {
+        this.errorMessage = 'โหลดข้อมูลไม่ได้\nกรุณากด "ลองใหม่" อีกครั้ง';
+      } else if (error?.status === 0) {
+        this.errorMessage = 'ไม่สามารถเชื่อมต่อ Server ได้';
+      } else if (error?.status === 404) {
+        this.errorMessage = 'ไม่พบข้อมูลหอพักนี้';
+      } else if (error?.status === 500) {
+        this.errorMessage = 'Server Error กรุณาลองใหม่';
+      } else {
+        this.errorMessage = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+      }
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -123,7 +181,6 @@ addIcons({
     this.cdr.detectChanges(); 
   }
 
-  // ✅ facilities จาก API คือ [{name: string, icon: string}]
   get facilitiesList(): { name: string; icon: string }[] {
     if (!this.dormData) return [];
     const facData = this.dormData.facilities || this.dormData.FACILITIES || this.dormData.facility;
@@ -148,6 +205,7 @@ addIcons({
 
     try {
       const res = await this.dormService.getReviewsByDormId(this.dormData.DORM_ID);
+      
       if (res && res.data) {
         this.reviews = res.data;
         if (this.currentUserId > 0) {
@@ -155,8 +213,9 @@ addIcons({
           this.hasReviewed = !!myReview; 
         }
       }
-    } catch (error) { console.error('Load reviews failed', error); } 
-    finally { 
+    } catch (error) { 
+      console.error('Load reviews failed', error); 
+    } finally { 
       this.isLoadingReviews = false; 
       this.cdr.detectChanges(); 
     }
@@ -185,8 +244,6 @@ addIcons({
   }
 
   async processSubmitReview() {
-    const loading = await this.loadingCtrl.create({ message: 'กำลังส่งรีวิว...' });
-    await loading.present();
     try {
       await this.dormService.addReview(this.currentUserId, this.dormData.DORM_ID, this.newReview.score, this.newReview.comment);
       this.showToast('ขอบคุณสำหรับการรีวิว!', 'success');
@@ -195,7 +252,7 @@ addIcons({
     } catch (error: any) {
       const msg = error.error?.message || 'ส่งรีวิวไม่สำเร็จ';
       this.showToast(msg, 'danger');
-    } finally { loading.dismiss(); }
+    }
   }
 
   viewImage(imgUrl: string) { console.log('View full image:', imgUrl); }
@@ -211,15 +268,18 @@ addIcons({
 
   goBack() { this.navCtrl.back(); }
 
-  async showToast(msg: string, color: string) {
-    const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });
+  retryLoad() {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.loadDormDetail(Number(idParam));
+    }
+  }
+
+  async showToast(msg: string, color: string, duration: number = 2000) {
+    const toast = await this.toastCtrl.create({ message: msg, duration: duration, color: color, position: 'bottom' });
     toast.present();
   }
 
-  // ==========================================
-  // 🌟 ฟังก์ชันใหม่ 3 ตัว (สถานะ & นำทาง)
-  // ==========================================
-  
   getStatusText(status: any): string {
     const s = Number(status);
     if (s === 3) return 'ห้องเต็ม';
@@ -235,7 +295,6 @@ addIcons({
   }
 
   goToNavigate() {
-    // ดึงพิกัดออกมา
     const targetLat = this.dormData.lat || this.dormData.LATITUDE;
     const targetLng = this.dormData.lng || this.dormData.LONGITUDE;
     const dormId = this.dormData.DORM_ID || this.dormData.id;
@@ -245,7 +304,6 @@ addIcons({
       return;
     }
 
-    // 🚀 สั่งให้เด้งกลับไปหน้า Home พร้อมแนบพิกัดไปกับ URL (QueryParams)
     this.router.navigate(['/home'], {
       queryParams: { navLat: targetLat, navLng: targetLng, dormId: dormId }
     });

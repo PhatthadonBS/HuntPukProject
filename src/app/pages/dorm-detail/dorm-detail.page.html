@@ -28,10 +28,10 @@
       
       <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
       
-      <div class="location-row">
-        <ion-icon name="location-sharp"></ion-icon>
-        <p>{{ dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone">({{ dormData.zone }})</span></p>
-      </div>
+<div class="location-row">
+  <ion-icon name="location-sharp"></ion-icon>
+  <p>{{ dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
+</div>
 
       <ion-button expand="block" class="nav-btn" (click)="goToNavigate()">
         <ion-icon name="navigate-circle-outline" slot="start"></ion-icon>
@@ -110,13 +110,16 @@
           <h3><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</h3>
           <div class="amenities-grid" *ngIf="facilitiesList.length > 0">
             <div class="amenity-item" *ngFor="let fac of facilitiesList">
-              <!-- ✅ ถ้า icon เป็น URL → <img>, ถ้าไม่มีหรือไม่ใช่ URL → ion-icon -->
-              <ng-container *ngIf="fac.icon && fac.icon.startsWith('http')">
-                <img [src]="fac.icon" class="fac-icon" (error)="fac.icon = ''">
-              </ng-container>
-              <ng-container *ngIf="!fac.icon || !fac.icon.startsWith('http')">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-              </ng-container>
+              <div class="fac-icon-wrap">
+                <!-- แสดงรูปภาพถ้ามี URL, ซ่อนตอนโหลด, fade-in เมื่อโหลดเสร็จ -->
+                <img *ngIf="fac.icon"
+                     [src]="fac.icon"
+                     class="fac-icon"
+                     (load)="$event.target.classList.add('loaded')"
+                     (error)="$event.target.style.display='none'; fac.icon = ''">
+                <!-- ถ้าไม่มีรูป แสดง ion-icon แทน -->
+                <ion-icon *ngIf="!fac.icon" name="checkmark-circle-outline" class="fac-fallback-icon"></ion-icon>
+              </div>
               <span>{{ fac.name }}</span>
             </div>
           </div>
@@ -145,14 +148,32 @@
               <span>ผู้ดูแลหอพัก</span>
             </div>
           </div>
-        <div class="contact-grid">
-            <a *ngIf="ownerInfo.phone !== '-'" [href]="'tel:' + ownerInfo.phone" class="contact-btn phone"><ion-icon name="call"></ion-icon> โทรติดต่อ</a>
-            <a *ngIf="ownerInfo.line !== '-'" [href]="ownerInfo.line" target="_blank" class="contact-btn line"><ion-icon name="chatbubble-ellipses"></ion-icon> LINE</a>
-            <a *ngIf="ownerInfo.facebook !== '-'" [href]="ownerInfo.facebook" target="_blank" class="contact-btn fb"><ion-icon name="logo-facebook"></ion-icon> Facebook</a>
-            <a *ngIf="ownerInfo.instagram !== '-'" [href]="ownerInfo.instagram" target="_blank" class="contact-btn ig"><ion-icon name="logo-instagram"></ion-icon> Instagram</a>
-            <a *ngIf="ownerInfo.x !== '-'" [href]="ownerInfo.x" target="_blank" class="contact-btn x"><ion-icon name="logo-twitter"></ion-icon> X (Twitter)</a>
-            <a *ngIf="ownerInfo.telegram !== '-'" [href]="ownerInfo.telegram" target="_blank" class="contact-btn telegram"><ion-icon name="paper-plane"></ion-icon> Telegram</a>
-          </div>
+<div class="contact-grid">
+                  <a [href]="ownerInfo.phone !== '-' ? 'tel:' + ownerInfo.phone : 'javascript:void(0)'" class="contact-btn phone" [class.disabled]="ownerInfo.phone === '-'">
+                    <ion-icon name="call"></ion-icon> 
+                    <span class="contact-label">{{ ownerInfo.phone !== '-' ? ownerInfo.phone : 'ไม่ระบุเบอร์โทร' }}</span>
+                  </a>
+                  <a [href]="ownerInfo.line !== '-' ? ownerInfo.line : 'javascript:void(0)'" target="_blank" class="contact-btn line" [class.disabled]="ownerInfo.line === '-'">
+                    <ion-icon name="chatbubble-ellipses"></ion-icon> 
+                    <span class="contact-label">{{ ownerInfo.line !== '-' ? 'LINE' : 'ไม่ระบุ LINE' }}</span>
+                  </a>
+                  <a [href]="ownerInfo.facebook !== '-' ? ownerInfo.facebook : 'javascript:void(0)'" target="_blank" class="contact-btn fb" [class.disabled]="ownerInfo.facebook === '-'">
+                    <ion-icon name="logo-facebook"></ion-icon> 
+                    <span class="contact-label">{{ ownerInfo.facebook !== '-' ? 'Facebook' : 'ไม่ระบุ Facebook' }}</span>
+                  </a>
+                  <a [href]="ownerInfo.instagram !== '-' ? ownerInfo.instagram : 'javascript:void(0)'" target="_blank" class="contact-btn ig" [class.disabled]="ownerInfo.instagram === '-'">
+                    <ion-icon name="logo-instagram"></ion-icon> 
+                    <span class="contact-label">{{ ownerInfo.instagram !== '-' ? 'Instagram' : 'ไม่ระบุ IG' }}</span>
+                  </a>
+                  <a [href]="ownerInfo.x !== '-' ? ownerInfo.x : 'javascript:void(0)'" target="_blank" class="contact-btn x" [class.disabled]="ownerInfo.x === '-'">
+                    <ion-icon name="logo-twitter"></ion-icon> 
+                    <span class="contact-label">{{ ownerInfo.x !== '-' ? 'X (Twitter)' : 'ไม่ระบุ X' }}</span>
+                  </a>
+                  <a [href]="ownerInfo.telegram !== '-' ? ownerInfo.telegram : 'javascript:void(0)'" target="_blank" class="contact-btn telegram" [class.disabled]="ownerInfo.telegram === '-'">
+                    <ion-icon name="paper-plane"></ion-icon> 
+                    <span class="contact-label">{{ ownerInfo.telegram !== '-' ? 'Telegram' : 'ไม่ระบุ Telegram' }}</span>
+                  </a>
+                </div>
         </div>
 
       </div>
@@ -164,7 +185,7 @@
           <div class="rating-input">
             <ion-icon *ngFor="let s of [1,2,3,4,5]" [name]="s <= newReview.score ? 'star' : 'star-outline'" [class.active]="s <= newReview.score" (click)="setRating(s)"></ion-icon>
           </div>
-          <ion-textarea [(ngModel)]="newReview.comment" placeholder="กรุณาเขียนรีวิว (บอกเล่าประสบการณ์ของคุณ)..." rows="3"></ion-textarea>
+          <ion-textarea id="reviewComment" name="reviewComment" [(ngModel)]="newReview.comment" placeholder="กรุณาเขียนรีวิว (บอกเล่าประสบการณ์ของคุณ)..." rows="3"></ion-textarea>
           <button class="submit-btn" (click)="submitReview()">ส่งรีวิว</button>
         </div>
 
@@ -197,8 +218,22 @@
   </div>
 
   <div *ngIf="!dormData" class="loading-fullscreen">
-     <ion-spinner name="crescent"></ion-spinner>
-     <p>กำลังรวบรวมข้อมูล...</p>
+     <!-- แสดง Error -->
+     <div *ngIf="isError" class="error-container">
+       <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+       <p class="error-msg">{{ errorMessage }}</p>
+       <ion-button expand="block" (click)="retryLoad()" class="retry-btn">
+         ลองใหม่อีกครั้ง
+       </ion-button>
+       <ion-button expand="block" fill="outline" (click)="goBack()" class="back-btn">
+         กลับหน้าหลัก
+       </ion-button>
+     </div>
+     <!-- แสดง Loading -->
+     <div *ngIf="!isError && isLoading">
+       <ion-spinner name="crescent"></ion-spinner>
+       <p>กำลังโหลด...</p>
+     </div>
   </div>
 
 </ion-content>

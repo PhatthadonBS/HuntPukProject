@@ -195,7 +195,7 @@ export class HomePage implements OnInit, ViewDidEnter {
             setTimeout(() => {
               this.showWelcomeModal = true;
               this.cdr.detectChanges();
-            }, 700);
+            }, 200);
           }
         } else {
           this.currentUser = null;

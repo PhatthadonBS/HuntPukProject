@@ -173,7 +173,8 @@ export class ManageUsersPage implements OnInit {
         username: this.newUser.username,
         email: this.newUser.email,
         password: this.newUser.password,
-        phone: this.newUser.phone_number // 👈 Backend ใช้คำว่า phone เฉยๆ
+        phone: this.newUser.phone_number, // 👈 Backend ใช้คำว่า phone เฉยๆ
+        role_type_id: 1
       };
 
       console.log('📦 Sending to Sec1:', payloadSec1);

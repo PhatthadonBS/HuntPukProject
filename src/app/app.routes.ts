@@ -29,12 +29,9 @@ export const routes: Routes = [
       import('./pages/home/home.page').then((m) => m.HomePage),
   },
 
-  {
+{
     path: 'dorm-detail/:id',
-    loadComponent: () =>
-      import('./pages/dorm-detail/dorm-detail.page').then(
-        (m) => m.DormDetailPage
-      ),
+    loadComponent: () => import('./pages/dorm-detail/dorm-detail.page').then( m => m.DormDetailPage)
   },
   {
     path: 'compare',

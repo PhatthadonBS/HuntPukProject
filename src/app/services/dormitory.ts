@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom, firstValueFrom, Observable } from 'rxjs'; // 🌟 เพิ่ม firstValueFrom
 import { Constants } from '../config/config';
 import { DormFacGetRes } from '../model/res/dorm_fac_get_res';
 
@@ -8,7 +8,7 @@ import { DormFacGetRes } from '../model/res/dorm_fac_get_res';
 // 1. Interfaces
 // ============================================
 export interface Dormitory {
-  [x: string]: any; // ✅ อนุญาตให้มีฟิลด์อื่นๆ ที่ไม่ได้ระบุใน Interface ได้ (เช่น lat, lng, start_price ที่ Backend อาจจะส่งมาเพิ่มในอนาคต)
+  [x: string]: any; 
   DORM_ID: number;
   DORM_NAME: string;
   ADDRESS: string;
@@ -16,25 +16,21 @@ export interface Dormitory {
   lng: number;
   start_price?: number;
 
-  // ✅ ฟิลด์ที่ Backend ส่งมา (Alias)
   image?: string;
   zone?: string;
   SCORE?: number;
 
-  // ✅ ฟิลด์รายละเอียดเพิ่มเติม (สำหรับหน้า Detail/Compare)
   phone?: string;
   line?: string;
   facilities?: string[];
   gallery?: string[];
   description?: string;
 
-  // ✅ โครงสร้างของห้องพัก
   rooms?: {
     ROOM_TYPE_NAME: string;
     PRICE: number;
   }[];
 
-  // ✅ ใช้สำหรับหน้า Compare (Checkbox)
   isChecked?: boolean;
 }
 
@@ -67,38 +63,41 @@ export class DormitoryService {
       );
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      // 🌟 เอา JSON.stringify ออก เพื่อไม่ให้โค้ดแครชเวลาเจอ CORS/Mixed Content
+      throw error;
     }
   }
+
   /**
    * ✅ ดึงหอพักทั้งหมดสำหรับ Admin (รวมที่ปิดปรับปรุง + ชื่อเจ้าของ)
-   * API: GET /dorms/admin
    */
   public async getAllDormsAdmin(): Promise<ApiResponse<any[]>> {
-    const url = `${this.apiUrl}/dorms/admin`; // ยิงไป Route ใหม่ที่เราเพิ่งสร้าง
+    const url = `${this.apiUrl}/dorms/admin`; 
     try {
       const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      throw error; // 🌟
     }
   }
+
   /**
-   * 2. ดึงรายละเอียดหอพักตาม ID
+   * 2. ดึงรายละเอียดหอพักตาม ID (🌟 อัปเกรดให้กันค้าง 100%)
    */
   public async getDormById(id: number): Promise<ApiResponse<any>> {
     const url = `${this.apiUrl}/dorms/${id}`;
     try {
-      const res = await lastValueFrom(this.http.get<ApiResponse<any>>(url));
+      // 🌟 ใช้ firstValueFrom จะจบงานได้เร็วกว่าและเสถียรกว่าในเคสแบบนี้
+      const res = await firstValueFrom(this.http.get<ApiResponse<any>>(url));
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      console.error("🔥 Error in Service getDormById:", error);
+      throw error; // 🌟 สำคัญมาก: โยน error ก้อนเดิมออกไปให้หน้า UI จัดการต่อ
     }
   }
 
   /**
    * 3. ค้นหาและกรองหอพัก (รองรับ Keyword, Zone, Price)
-   * ✅ อัปเดต: รับค่า zone, min, max เพิ่ม
    */
   public async searchDorms(
     keyword: string,
@@ -109,7 +108,6 @@ export class DormitoryService {
     const url = `${this.apiUrl}/dorms`;
     let params = new HttpParams();
 
-    // ใส่ Parameter ถ้ามีค่าส่งมา
     if (keyword) params = params.set('search', keyword);
     if (zone) params = params.set('zone', zone);
     if (min) params = params.set('minPrice', min.toString());
@@ -121,7 +119,7 @@ export class DormitoryService {
       );
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      throw error; // 🌟
     }
   }
 
@@ -146,7 +144,7 @@ export class DormitoryService {
       return res;
     } catch (error: any) {
       console.warn('API /dorms/nearby might not be implemented yet.');
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      throw error; // 🌟
     }
   }
 
@@ -159,7 +157,7 @@ export class DormitoryService {
       const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      throw error; // 🌟
     }
   }
 
@@ -167,30 +165,26 @@ export class DormitoryService {
    * เพิ่มรายการโปรด
    */
   public async addFavorite(userId: number, dormId: number) {
-    const url = `${this.apiUrl}/other/addFavorite`; // ⚠️ ตรวจสอบ Path API ของคุณว่าชื่อ route อะไร
+    const url = `${this.apiUrl}/other/addFavorite`; 
     const body = { user_id: userId, dorm_id: dormId };
 
     try {
       const res = await lastValueFrom(this.http.post<any>(url, body));
       return res;
     } catch (error: any) {
-      // ถ้า Error 409 (ซ้ำ) ให้ throw error เฉพาะออกไป หรือจัดการตามเหมาะสม
       throw error;
     }
   }
 
   /**
    * ลบรายการโปรด
-   * หมายเหตุ: HTTP Delete ส่ง body ต้องซับซ้อนหน่อยใน Angular
    */
   public async removeFavorite(userId: number, dormId: number) {
-    const url = `${this.apiUrl}/other/delFavorite`; // ✅ Path ตามที่คุณแจ้ง
-
+    const url = `${this.apiUrl}/other/delFavorite`; 
     try {
       const options = {
         body: { user_id: userId, dorm_id: dormId },
       };
-
       const res = await lastValueFrom(this.http.delete<any>(url, options));
       return res;
     } catch (error: any) {
@@ -199,51 +193,44 @@ export class DormitoryService {
   }
 
   public async getMyFavorites(userId: number): Promise<any[]> {
-  const url = `${this.apiUrl}/spec/favorite/${userId}`;
-  try {
-    const res = await lastValueFrom(this.http.get<any>(url));
- 
-    // ✅ FIX: รองรับทั้ง array ตรงๆ และแบบห่อ { data: [...] }
-    const rows: any[] = Array.isArray(res) ? res : (res?.data || []);
- 
-    return rows.map((item: any) => ({
-      DORM_ID:     item.DORMID    || item.DORM_ID,
-      DORM_NAME:   item.DORMNAME  || item.DORM_NAME,
-      ADDRESS:     item.ADDRESS,
-      image:       item.COVERIMAGE || item.image,
-      SCORE:       item.SCORE,
-      lat:         0,
-      lng:         0,
-      start_price: Number(item.START_PRICE || item.start_price || 0),
-      zone:        '',
-    }));
-  } catch (error: any) {
-    // ถ้า 404 (ไม่มีรายการโปรด) ให้ return [] แทน throw
-    if (error?.status === 404 || error?.status === 400) return [];
-    throw new Error(JSON.stringify(error.error || error.message, null, 2));
+    const url = `${this.apiUrl}/spec/favorite/${userId}`;
+    try {
+      const res = await lastValueFrom(this.http.get<any>(url));
+  
+      const rows: any[] = Array.isArray(res) ? res : (res?.data || []);
+  
+      return rows.map((item: any) => ({
+        DORM_ID:     item.DORMID    || item.DORM_ID,
+        DORM_NAME:   item.DORMNAME  || item.DORM_NAME,
+        ADDRESS:     item.ADDRESS,
+        image:       item.COVERIMAGE || item.image,
+        SCORE:       item.SCORE,
+        lat:         0,
+        lng:         0,
+        start_price: Number(item.START_PRICE || item.start_price || 0),
+        zone:        '',
+      }));
+    } catch (error: any) {
+      if (error?.status === 404 || error?.status === 400) return [];
+      throw error; // 🌟
+    }
   }
-}
+
   /**
    * 6. ดึงรายการคำร้องขอหอพักที่รออนุมัติ (Pending Requests)
-   * API: GET /dorms/pendingReq
    */
   public async getPendingRequests(): Promise<ApiResponse<any[]>> {
     const url = `${this.apiUrl}/dorms/pendingReq`;
     try {
-      // Backend ส่งกลับมารูปแบบ { data: [...] } ตรงกับ ApiResponse
       const res = await lastValueFrom(this.http.get<ApiResponse<any[]>>(url));
       return res;
     } catch (error: any) {
-      throw new Error(JSON.stringify(error.error || error.message, null, 2));
+      throw error; // 🌟
     }
   }
 
   /**
    * 7. อนุมัติหรือปฏิเสธคำร้องขอหอพัก
-   * API: POST /dorms/approve
-   * @param dormId รหัสหอพัก
-   * @param isApproved true = อนุมัติ (Accept), false = ปฏิเสธ (Reject)
-   * @param message ข้อความเหตุผล (จำเป็นต้องใส่ถ้าปฏิเสธ)
    */
   public async approveRequest(
     dormId: number,
@@ -251,12 +238,9 @@ export class DormitoryService {
     message: string = ''
   ): Promise<any> {
     const url = `${this.apiUrl}/dorms/approve`;
-
-    // จัดเตรียม Body ให้ตรงกับที่ Backend ต้องการ
-    // const { dorm_id, approve_status, msg } = req.body;
     const body = {
       dorm_id: dormId,
-      approve_status: isApproved, // ส่ง boolean ไปเลย Backend เช็ค true/false เอง
+      approve_status: isApproved, 
       msg: message,
     };
 
@@ -264,14 +248,12 @@ export class DormitoryService {
       const res = await lastValueFrom(this.http.post<any>(url, body));
       return res;
     } catch (error: any) {
-      // โยน Error ออกไปให้หน้าบ้านจัดการ Alert
       throw error;
     }
   }
 
   /**
    * 8. ลบหอพัก (ปิดปรับปรุง / Soft Delete)
-   * API: DELETE /spec/dorm/:id
    */
   public async removeDorm(dormId: number) {
     const url = `${this.apiUrl}/spec/dorm/${dormId}`;
@@ -285,12 +267,10 @@ export class DormitoryService {
 
   /**
    * 9. กู้คืนหอพัก (Restore)
-   * API: PUT /spec/restoreDorm/:id
    */
   public async restoreDorm(dormId: number) {
     const url = `${this.apiUrl}/spec/restoreDorm/${dormId}`;
     try {
-      // PUT method มักจะต้องส่ง body เสมอในบาง config, ถ้าไม่มีให้ส่ง {} ว่างๆ
       const res = await lastValueFrom(this.http.put<any>(url, {}));
       return res;
     } catch (error: any) {
@@ -304,7 +284,6 @@ export class DormitoryService {
 
   /**
    * 10. ดึงรีวิวของหอพัก (ตาม ID หอพัก)
-   * API: GET /dorms/review/:id
    */
   public async getReviewsByDormId(dormId: number): Promise<ApiResponse<any[]>> {
     const url = `${this.apiUrl}/dorms/review/${dormId}`;
@@ -318,7 +297,6 @@ export class DormitoryService {
 
   /**
    * 11. ลบรีวิว
-   * API: DELETE /spec/review/:id
    */
   public async deleteReview(reviewId: number): Promise<any> {
     const url = `${this.apiUrl}/spec/review/${reviewId}`;
@@ -332,7 +310,6 @@ export class DormitoryService {
 
   /**
    * 12. เพิ่มรีวิวใหม่
-   * API: POST /user/review
    */
   public async addReview(
     userId: number,
@@ -358,7 +335,6 @@ export class DormitoryService {
 
   /**
    * 13. ดึงหอพักยอดนิยม (Top Ranking)
-   * API: GET /dorms/popular?limit=10
    */
   public async getPopularDorms(limit: number = 6): Promise<ApiResponse<any[]>> {
     const url = `${this.apiUrl}/dorms/popular`;
@@ -376,7 +352,6 @@ export class DormitoryService {
 
   /**
    * 14. ดึงหอพักของฉัน (สำหรับเจ้าของหอ)
-   * API: GET /spec/dorm/:id (ส่ง user_id ไป)
    */
   public async getMyDorms(ownerId: number): Promise<ApiResponse<any[]>> {
     const url = `${this.apiUrl}/spec/dorm/${ownerId}`;
@@ -390,7 +365,6 @@ export class DormitoryService {
 
   /**
    * 15. อัปเดตข้อมูลหอพัก
-   * API: PUT /spec/dorm/:id
    */
   public async updateDorm(dormId: number, formData: FormData): Promise<any> {
     const url = `${this.apiUrl}/spec/dorm/${dormId}`;
@@ -421,13 +395,8 @@ export class DormitoryService {
   // 🌟 ฟังก์ชันจัดการสถานะหอพัก (Owner)
   // ==========================================
 
-// ==========================================
-  // 🌟 ฟังก์ชันจัดการสถานะหอพัก (Owner)
-  // ==========================================
-
   // 1. เปลี่ยนสถานะ (ว่าง = 1, เต็ม = 3)
   public async changeDormStatus(dormId: number, statusId: number): Promise<any> {
-    // ✅ แก้ URL ให้ถูกต้อง (เอา /api/ ออก และแก้เป็น changeStatus)
     const url = `${this.apiUrl}/dorms/changeStatus/${dormId}`;
     try {
       const res = await lastValueFrom(this.http.put<any>(url, { status_id: statusId }));
@@ -436,6 +405,4 @@ export class DormitoryService {
       throw error;
     }
   }
-
-
 }
