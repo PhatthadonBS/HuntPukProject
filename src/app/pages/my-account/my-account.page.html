@@ -19,7 +19,8 @@
     <div class="profile-header-bg">
       <div class="avatar-wrapper">
         <div class="avatar-circle">
-          <ion-icon name="person"></ion-icon> 
+          <img *ngIf="user.profile_image" [src]="user.profile_image" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+          <ion-icon *ngIf="!user.profile_image" name="person"></ion-icon> 
         </div>
         <div class="user-name-display">
           <h2>{{ user.username || 'Guest' }}</h2>
@@ -41,8 +42,8 @@
         </ion-button>
 
         <ion-button color="light" shape="round" (click)="openDormModal()" *ngIf="user.role_id === 2" style="margin: 0; --box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: bold;">
-          <ion-icon name="home" slot="start"></ion-icon>
-          ข้อมูลหอพัก
+          <ion-icon name="person-circle" slot="start"></ion-icon>
+          ข้อมูลเจ้าของหอพัก
         </ion-button>
       </div>
 
@@ -55,6 +56,20 @@
         </div>
         <div class="info-value">
           {{ user.username || '-' }}
+        </div>
+      </div>
+
+      <div class="divider" *ngIf="user.role_id === 2 || (user.first_name || user.last_name)"></div>
+
+      <div class="info-group" *ngIf="user.role_id === 2 || (user.first_name || user.last_name)">
+        <div class="info-label">
+          <div class="icon-box">
+            <ion-icon name="document-text"></ion-icon>
+          </div>
+          <span>ชื่อ-นามสกุล</span>
+        </div>
+        <div class="info-value">
+          {{ user.first_name || '-' }} {{ user.last_name || '' }}
         </div>
       </div>
 
@@ -119,7 +134,7 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar>
-          <ion-title>ข้อมูลหอพัก</ion-title>
+          <ion-title>ข้อมูลเจ้าของหอพัก</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="closeDormModal()">
               <ion-icon name="close"></ion-icon>
@@ -131,31 +146,24 @@
       <ion-content class="ion-padding">
         <div *ngIf="myDorms.length === 0" style="text-align: center; color: gray; margin-top: 30px;">
           <ion-icon name="document-text" style="font-size: 40px;"></ion-icon>
-          <p>ยังไม่มีข้อมูลหอพัก</p>
+          <p>ยังไม่มีข้อมูลเจ้าของหอพัก</p>
         </div>
 
         <div *ngFor="let dorm of myDorms" class="dorm-info-card" style="margin-bottom: 20px; padding: 15px; border-radius: 12px; background: #f9f9f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-          <h3 style="margin-top: 0; color: #333;">{{ dorm.DORM_NAME || dorm.dorm_name }}</h3>
-          
-          <p><strong>สถานะหอพัก:</strong> 
-            <span *ngIf="dorm.DORM_STATUS === 1" style="color: green;">ว่าง</span>
-            <span *ngIf="dorm.DORM_STATUS === 2" style="color: gray;">ปิด</span>
-            <span *ngIf="dorm.DORM_STATUS === 3" style="color: red;">เต็ม</span>
-          </p>
 
           <p><strong>ชื่อ-นามสกุลเจ้าของ:</strong> <br>
-             {{ dorm.FIRST_NAME || dorm.OWNER_FIRST_NAME || '-' }} {{ dorm.LAST_NAME || dorm.OWNER_LAST_NAME || '' }}</p>
+             {{ dorm.OWNER_FIRST_NAME || dorm.FIRST_NAME || '-' }} {{ dorm.OWNER_LAST_NAME || dorm.LAST_NAME || '' }}</p>
 
           <p><strong>ใบอนุญาต/ทะเบียนพาณิชย์:</strong> <br>
              {{ dorm.LICENSE || dorm.license || dorm.OWNER_LICENSE || '-' }}</p>
 
-          <p><strong>เบอร์โทรหอพัก:</strong> <br>
-             {{ dorm.phone || dorm.PHONE || dorm.OWNER_PHONE || '-' }}</p>
+          <p><strong>เบอร์โทร:</strong> <br>
+             {{ dorm.OWNER_PHONE || dorm.phone || dorm.PHONE || '-' }}</p>
 
           <p><strong>โซเชียลมีเดีย:</strong> <br>
-            Line: {{ dorm.line || dorm.OWNER_LINE || '-' }} <br>
-            Facebook: {{ dorm.facebook || dorm.OWNER_FACEBOOK || '-' }} <br>
-            Instagram: {{ dorm.instagram || dorm.OWNER_INSTAGRAM || '-' }}
+            Line: {{ dorm.LINE || dorm.line || dorm.OWNER_LINE || '-' }} <br>
+            Facebook: {{ dorm.FACEBOOK || dorm.facebook || dorm.OWNER_FACEBOOK || '-' }} <br>
+            Instagram: {{ dorm.INSTAGRAM || dorm.instagram || dorm.OWNER_INSTAGRAM || '-' }}
           </p>
         </div>
       </ion-content>

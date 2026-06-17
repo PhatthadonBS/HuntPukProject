@@ -118,7 +118,10 @@ export class MyAccountPage implements OnInit {
               email: rawData.EMAIL || rawData.email || '-',
               phone: rawData.PHONE_NUMBER || this.extractPhone(rawData),
               role_id: rawData.ROLE_TYPE_ID || rawData.role_id || 1,
-              status: rawData.ACCOUNT_STATUS ?? rawData.status ?? 0
+              status: rawData.ACCOUNT_STATUS ?? rawData.status ?? 0,
+              first_name: rawData.FIRST_NAME || rawData.first_name || '',
+              last_name: rawData.LAST_NAME || rawData.last_name || '',
+              profile_image: rawData.PROFILE_IMAGE || rawData.profile_image || ''
             };
         }
         this.canEdit = (myRole === 3); 
@@ -147,7 +150,10 @@ export class MyAccountPage implements OnInit {
               email: rawData.EMAIL || rawData.email || this.user.email || '-',
               phone:rawData.PHONE_NUMBER || this.user.phone  || finalPhone, // ✅ ใช้เบอร์จาก localStorage ถ้า API ไม่มี
               role_id: rawData.ROLE_TYPE_ID || rawData.role_id || this.user.role_id || 1,
-              status: rawData.ACCOUNT_STATUS ?? rawData.status ?? this.user.status
+              status: rawData.ACCOUNT_STATUS ?? rawData.status ?? this.user.status,
+              first_name: rawData.FIRST_NAME || rawData.first_name || '',
+              last_name: rawData.LAST_NAME || rawData.last_name || '',
+              profile_image: rawData.PROFILE_IMAGE || rawData.profile_image || ''
             };
 
             // อัปเดตกลับเข้า localStorage
@@ -209,12 +215,23 @@ export class MyAccountPage implements OnInit {
             const detailRes: any = await this.dormService.getDormById(dorm.DORM_ID || dorm.id);
             if (detailRes && detailRes.data) {
               const fullDorm = Array.isArray(detailRes.data) ? detailRes.data[0] : detailRes.data;
-              return { ...dorm, ...fullDorm }; // รวมข้อมูลสรุปเข้ากับข้อมูลแบบละเอียด
+              return { 
+                ...dorm, 
+                ...fullDorm,
+                OWNER_FIRST_NAME: fullDorm.FIRST_NAME || fullDorm.OWNER_FIRST_NAME || dorm.FIRST_NAME || this.user.first_name,
+                OWNER_LAST_NAME: fullDorm.LAST_NAME || fullDorm.OWNER_LAST_NAME || dorm.LAST_NAME || this.user.last_name,
+                OWNER_PHONE: fullDorm.PHONE || fullDorm.PHONE_NUMBER || dorm.PHONE || this.user.phone
+              }; // รวมข้อมูลสรุปเข้ากับข้อมูลแบบละเอียด และแนบข้อมูลเจ้าของ
             }
           } catch (err) {
             console.error('Failed to load details for dorm', dorm.DORM_ID, err);
           }
-          return dorm; // ถ้าดึงแบบละเอียดไม่สำเร็จ ก็ใช้แบบสรุปไปก่อน
+          return {
+            ...dorm,
+            OWNER_FIRST_NAME: dorm.FIRST_NAME || this.user.first_name,
+            OWNER_LAST_NAME: dorm.LAST_NAME || this.user.last_name,
+            OWNER_PHONE: dorm.PHONE || dorm.PHONE_NUMBER || this.user.phone
+          }; // ถ้าดึงแบบละเอียดไม่สำเร็จ ก็ใช้แบบสรุปไปก่อนและแนบชื่อเจ้าของ
         }));
         this.myDorms = detailedDorms;
       }
