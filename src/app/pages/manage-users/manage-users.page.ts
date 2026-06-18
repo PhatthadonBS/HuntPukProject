@@ -8,7 +8,7 @@ import {
   AlertController, ToastController 
 } from '@ionic/angular/standalone';
 import { UserService, UserRegPostReq } from '../../services/user';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
@@ -107,24 +107,6 @@ export class ManageUsersPage implements OnInit {
     }
   }
 
-  async confirmBan(user: any) {
-    const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการแบน',
-      message: `คุณต้องการแบนผู้ใช้ ${user.username} ใช่หรือไม่?`,
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'แบนเลย',
-          role: 'destructive',
-          handler: async () => {
-            const success = await this.userService.banUser(user.id);
-            if (success) this.loadAllUsers();
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
 
   getDormStatusText(roleId: number): string {
     return roleId === 2 ? 'ลงทะเบียนหอพัก' : 'ไม่ได้ลงทะเบียนหอพัก';
