@@ -61,18 +61,10 @@ export class UserService {
       });
 
       // 🌟 3. แนบ { headers } ส่งไปด้วยตอน get 
-      const res = await lastValueFrom(this.http.get<any[]>(url, { headers }));
+      const res = await lastValueFrom(this.http.get<any>(url, { headers }));
       
-      if (res && res.length > 0) {
-        const u = res[0];
-        return {
-          id: u.USER_ID,
-          username: u.USERNAME,
-          email: u.EMAIL,
-          phone: u.PHONE_NUMBER,
-          role_id: u.ROLE_TYPE_ID,
-          status: u.ACCOUNT_STATUS
-        };
+      if (res && (res.USER_ID || res.USERNAME || res.id || res.username)) {
+        return res; // Return the full object so we don't lose FIRST_NAME, PROFILE_IMAGE, etc.
       }
       return null;
     } catch (error) {
@@ -111,6 +103,18 @@ export class UserService {
     const url = `${this.apiUrl}/user/registerSec2`;
     try {
       const obj = { userData: user, verify };
+      const res = await lastValueFrom(this.http.post(url, obj));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  // 5.1 Register Sec 2 สำหรับ Admin (ส่ง admin: true เพื่อ bypass OTP)
+  public async registerSec2Admin(userData: any) {
+    const url = `${this.apiUrl}/user/registerSec2`;
+    try {
+      const obj = { userData: userData, verify: false, admin: true };
       const res = await lastValueFrom(this.http.post(url, obj));
       return res;
     } catch (error: any) {

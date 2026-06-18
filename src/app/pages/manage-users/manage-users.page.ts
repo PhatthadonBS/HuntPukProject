@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
-  createOutline, filterOutline, caretDown, close 
+  createOutline, filterOutline, caretDown, close, mail, call, personCircle
 } from 'ionicons/icons';
 @Component({
   selector: 'app-manage-users',
@@ -29,6 +29,8 @@ export class ManageUsersPage implements OnInit {
   filterType: string = 'all';
 
   isAddModalOpen = false;
+  isOwnerModalOpen = false;
+  selectedOwner: any = null;
   
   // ✅ บังคับ role_type_id = 1 (สมาชิก) เท่านั้น
   newUser: UserRegPostReq = {
@@ -45,7 +47,7 @@ export class ManageUsersPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) { 
-    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close });
+    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle });
   }
 
   ngOnInit() {
@@ -129,6 +131,22 @@ export class ManageUsersPage implements OnInit {
   }
 
   // ==========================================
+  // ส่วนจัดการแสดง Popup ข้อมูลเจ้าของหอพัก
+  // ==========================================
+  async openOwnerModal(user: any) {
+    if (user.role_id === 2 || user.role_id === '2') {
+      const profile = await this.userService.getUserProfile(user.id);
+      this.selectedOwner = profile ? profile : user;
+      this.isOwnerModalOpen = true;
+    }
+  }
+
+  closeOwnerModal() {
+    this.isOwnerModalOpen = false;
+    this.selectedOwner = null;
+  }
+
+  // ==========================================
   // ส่วนจัดการเพิ่มสมาชิกใหม่
   // ==========================================
 
@@ -187,7 +205,8 @@ export class ManageUsersPage implements OnInit {
       if (sec1Result) {
          // Step 2: ยิงไป registerSec2
          // ส่งผลลัพธ์จาก Sec1 ไปให้ Sec2 (เพราะในนั้นมี Hashed Password แล้ว)
-         await this.userService.registerSec2(sec1Result, true);
+         // ส่ง admin: true เพื่อ bypass OTP (admin เพิ่มเองไม่ต้อง verify)
+         await this.userService.registerSec2Admin(sec1Result);
          console.log('✅ Sec2 Success');
       } else {
          throw new Error('ไม่ได้รับข้อมูลตอบกลับจากขั้นตอนแรก');
@@ -202,7 +221,10 @@ export class ManageUsersPage implements OnInit {
       await toast.present();
       
       this.closeAddModal();
-      this.loadAllUsers(); // โหลดข้อมูลใหม่มาแสดง
+      
+      // Reset filter so we can see the new member
+      this.filterType = 'all';
+      await this.loadAllUsers(); // โหลดข้อมูลใหม่มาแสดง
 
       // ❌ ตัดส่วน Redirect ไปหน้า Profile ออก 
       // เพราะ Backend registerSec2 ไม่ได้คืนค่า ID (INSERT ID) กลับมาให้

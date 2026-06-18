@@ -49,7 +49,9 @@
               {{ user.username }}
             </div>
             <div class="col-2 status-text">
-              <span [class.is-owner]="user.role_id === 2">
+              <span [class.is-owner]="user.role_id === 2" 
+                    (click)="openOwnerModal(user)" 
+                    [style.cursor]="user.role_id === 2 ? 'pointer' : 'default'">
                 {{ getDormStatusText(user.role_id) }}
               </span>
             </div>
@@ -101,6 +103,71 @@
 
         </div>
       </div>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal แสดงข้อมูลคำร้องเป็นเจ้าของหอพัก -->
+  <ion-modal [isOpen]="isOwnerModalOpen" (didDismiss)="closeOwnerModal()" class="owner-info-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar style="--background: #1a1a1a; --color: #fff;">
+          <ion-title style="font-weight: 700; font-size: 16px;">ข้อมูลเจ้าของหอพัก</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeOwnerModal()" style="--color: #fff;">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content style="--background: #f5f5f5;">
+        <div *ngIf="selectedOwner" class="owner-modal-body">
+
+          <!-- Profile Hero -->
+          <div class="owner-hero">
+            <div class="owner-avatar-wrap">
+              <img *ngIf="(selectedOwner.PROFILE_IMAGE || selectedOwner.profile_image) && (selectedOwner.PROFILE_IMAGE || selectedOwner.profile_image).startsWith('http')"
+                   [src]="selectedOwner.PROFILE_IMAGE || selectedOwner.profile_image"
+                   alt=""
+                   class="owner-avatar-img">
+              <div *ngIf="!((selectedOwner.PROFILE_IMAGE || selectedOwner.profile_image) && (selectedOwner.PROFILE_IMAGE || selectedOwner.profile_image).startsWith('http'))"
+                   class="owner-avatar-placeholder">
+                <ion-icon name="person-circle"></ion-icon>
+              </div>
+            </div>
+            <h2 class="owner-full-name">
+              {{ selectedOwner.FIRST_NAME || selectedOwner.first_name || 'ไม่ระบุชื่อ' }}
+              {{ selectedOwner.LAST_NAME || selectedOwner.last_name || '' }}
+            </h2>
+            <p class="owner-username">@{{ selectedOwner.USERNAME || selectedOwner.username || '-' }}</p>
+          </div>
+
+          <!-- Info Cards -->
+          <div class="owner-info-cards">
+
+            <div class="info-card">
+              <div class="info-card-icon mail-icon">
+                <ion-icon name="mail"></ion-icon>
+              </div>
+              <div class="info-card-content">
+                <span class="info-card-label">อีเมล</span>
+                <span class="info-card-value">{{ selectedOwner.EMAIL || selectedOwner.email || '-' }}</span>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-icon phone-icon">
+                <ion-icon name="call"></ion-icon>
+              </div>
+              <div class="info-card-content">
+                <span class="info-card-label">เบอร์โทร</span>
+                <span class="info-card-value">{{ selectedOwner.PHONE_NUMBER || selectedOwner.phone || '-' }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </ion-content>
     </ng-template>
   </ion-modal>
 

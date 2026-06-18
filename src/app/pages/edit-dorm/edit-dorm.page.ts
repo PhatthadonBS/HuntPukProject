@@ -12,7 +12,8 @@ import {
 import { addIcons } from 'ionicons';
 import { 
   saveOutline, imageOutline, homeOutline, wifi, 
-  bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle 
+  bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle,
+  checkmarkCircle, checkmarkCircleOutline
 } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory';
@@ -80,7 +81,9 @@ export class EditDormPage implements OnInit {
     addIcons({
       saveOutline, homeOutline, locationOutline, wifi, 
       bedOutline, addCircleOutline, trashOutline, imageOutline, 
-      cloudUploadOutline, closeCircle
+      cloudUploadOutline, closeCircle,
+      'checkmark-circle': checkmarkCircle,
+      'checkmark-circle-outline': checkmarkCircleOutline
     });
   }
 
@@ -104,6 +107,7 @@ export class EditDormPage implements OnInit {
         this.facilities = facRes.map((f: any) => ({
           id: f.FAC_TYPE_ID,
           name: f.FAC_TYPE_NAME,
+          icon: f.FAC_TYPE_ICON || f.icon || '',
           checked: false 
         }));
       }

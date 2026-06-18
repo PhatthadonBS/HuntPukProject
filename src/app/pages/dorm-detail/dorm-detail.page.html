@@ -30,7 +30,7 @@
       
 <div class="location-row">
   <ion-icon name="location-sharp"></ion-icon>
-  <p>{{ dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
+  <p>{{ dormData.ADDRESS || dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
 </div>
 
       <ion-button expand="block" class="nav-btn" (click)="goToNavigate()">

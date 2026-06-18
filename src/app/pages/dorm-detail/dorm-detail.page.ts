@@ -295,8 +295,8 @@ export class DormDetailPage implements OnInit {
   }
 
   goToNavigate() {
-    const targetLat = this.dormData.lat || this.dormData.LATITUDE;
-    const targetLng = this.dormData.lng || this.dormData.LONGITUDE;
+    const targetLat = this.dormData.lat || this.dormData.LATITUDE || this.dormData.latitude;
+    const targetLng = this.dormData.lng || this.dormData.LONGITUDE || this.dormData.longitude;
     const dormId = this.dormData.DORM_ID || this.dormData.id;
 
     if (!targetLat || !targetLng) {

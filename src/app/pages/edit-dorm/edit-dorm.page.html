@@ -112,12 +112,28 @@
         <h3><ion-icon name="wifi"></ion-icon> สิ่งอำนวยความสะดวก</h3>
         <p class="hint-text">เลือกสิ่งที่หอพักของคุณมีให้บริการ</p>
         
-        <ion-list lines="none" class="facilities-grid">
-          <ion-item *ngFor="let fac of facilities" class="checkbox-item">
-            <ion-checkbox slot="start" [(ngModel)]="fac.checked"></ion-checkbox>
-            <ion-label>{{ fac.name }}</ion-label>
-          </ion-item>
-        </ion-list>
+        <div class="facilities-checkbox-grid">
+          <div *ngFor="let fac of facilities" 
+               class="fac-checkbox-card" 
+               [class.checked]="fac.checked"
+               (click)="fac.checked = !fac.checked">
+            <div class="fac-icon-area">
+              <img *ngIf="fac.icon && fac.icon.startsWith('http')" 
+                   [src]="fac.icon" 
+                   [alt]="fac.name"
+                   class="fac-icon-img"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+              <div class="fac-default-icon" 
+                   [style.display]="(fac.icon && fac.icon.startsWith('http')) ? 'none' : 'flex'">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+              </div>
+            </div>
+            <span class="fac-name">{{ fac.name }}</span>
+            <div class="fac-tick" *ngIf="fac.checked">
+              <ion-icon name="checkmark-circle" style="color: #f5a623;"></ion-icon>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

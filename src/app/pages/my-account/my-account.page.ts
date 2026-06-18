@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; 
 import { addIcons } from 'ionicons';
-import { person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, close, alertCircle } from 'ionicons/icons';
+import { 
+  person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, 
+  close, alertCircle, business, chatbubbleEllipses, logoFacebook, logoInstagram, 
+  documentTextOutline, personCircle 
+} from 'ionicons/icons';
 import { UserService } from '../../services/user'; 
 import { DormitoryService } from '../../services/dormitory';
 import { Auth } from '../../services/auth';
@@ -34,7 +38,12 @@ export class MyAccountPage implements OnInit {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) { 
-    addIcons({ person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, close, alertCircle });
+    addIcons({ 
+      person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, 
+      close, alertCircle, business, 'chatbubble-ellipses': chatbubbleEllipses, 
+      'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 
+      'document-text-outline': documentTextOutline, 'person-circle': personCircle 
+    });
   }
 
   ngOnInit() {}
@@ -88,32 +97,35 @@ export class MyAccountPage implements OnInit {
 
         // ✅ ดึงเบอร์โทรจาก localStorage และเก็บไว้ (ไม่ให้ API ทับ!)
         localPhone = this.extractPhone(currentUser);
-        console.log('📱 Phone from localStorage:', localPhone);
-
-        // นำขึ้นจอทันที
-        this.user = {
-          id: myId,
-          username: currentUser.username || currentUser.USERNAME || 'ไม่ระบุชื่อ',
-          email: currentUser.email || currentUser.EMAIL || '-',
-          phone: localPhone, // ✅ ใช้เบอร์จาก localStorage เป็นหลัก
-          role_id: myRole,
-          status: currentUser.ACCOUNT_STATUS ?? currentUser.status ?? 0
-        };
       } catch (e) { console.error(e); }
     }
 
-    // 2. ดึงข้อมูลจาก API (อาจไม่มีเบอร์โทร)
+    // 2. ดึงข้อมูลจาก API
     try {
       const routeId = this.route.snapshot.paramMap.get('id');
 
       if (routeId) {
-        // กรณีดูโปรไฟล์คนอื่น
+        // ==========================================
+        // กรณีดูโปรไฟล์คนอื่น (admin เข้ามาดูจาก manage-users)
+        // ==========================================
         this.isOwnProfile = false;
+        this.canEdit = (myRole === 3); // แอดมินแก้ไขโปรไฟล์คนอื่นได้
+
+        // ตั้งค่าเริ่มต้นเป็นว่าง ก่อนโหลด API (เพื่อไม่ให้แสดงข้อมูลของแอดมินเอง)
+        this.user = {
+          id: Number(routeId),
+          username: 'กำลังโหลด...',
+          email: '-',
+          phone: '-',
+          role_id: 1,
+          status: 0
+        };
+
         const rawData = await this.userService.getUserProfile(Number(routeId));
         
         if (rawData && (rawData.EMAIL || rawData.email || rawData.PHONE_NUMBER || rawData.phone_number || rawData.PHONE || rawData.phone || rawData.USERNAME || rawData.username)) {
             this.user = {
-              id: rawData.USER_ID || rawData.id || 0,
+              id: rawData.USER_ID || rawData.id || Number(routeId),
               username: rawData.USERNAME || rawData.username || 'ไม่ระบุชื่อ',
               email: rawData.EMAIL || rawData.email || '-',
               phone: rawData.PHONE_NUMBER || this.extractPhone(rawData),
@@ -123,12 +135,26 @@ export class MyAccountPage implements OnInit {
               last_name: rawData.LAST_NAME || rawData.last_name || '',
               profile_image: rawData.PROFILE_IMAGE || rawData.profile_image || ''
             };
+        } else {
+          // API ไม่คืนข้อมูล — แสดงว่าไม่พบผู้ใช้
+          this.user.username = 'ไม่พบข้อมูลผู้ใช้';
         }
-        this.canEdit = (myRole === 3); 
       } else {
+        // ==========================================
         // กรณีดูโปรไฟล์ตัวเอง
+        // ==========================================
         this.isOwnProfile = true;
         this.canEdit = true; 
+
+        // นำข้อมูลจาก localStorage ขึ้นจอทันที
+        this.user = {
+          id: myId,
+          username: currentUser?.username || currentUser?.USERNAME || 'ไม่ระบุชื่อ',
+          email: currentUser?.email || currentUser?.EMAIL || '-',
+          phone: localPhone,
+          role_id: myRole,
+          status: currentUser?.ACCOUNT_STATUS ?? currentUser?.status ?? 0
+        };
 
         if (myId) {
           const rawData = await this.userService.getUserProfile(myId);
@@ -141,14 +167,11 @@ export class MyAccountPage implements OnInit {
             // ✅ ตรรกะสำคัญ: ถ้า API ไม่มีเบอร์ หรือส่งมาเป็น '-' ให้ใช้ของ localStorage
             const finalPhone = (apiPhone !== '-') ? apiPhone : localPhone;
 
-            console.log('📞 API Phone:', apiPhone);
-            console.log('📱 Final Phone (using):', finalPhone);
-
             this.user = {
               id: rawData.USER_ID || rawData.id || this.user.id || 0,
               username: rawData.USERNAME || rawData.username || this.user.username || 'ไม่ระบุชื่อ',
               email: rawData.EMAIL || rawData.email || this.user.email || '-',
-              phone:rawData.PHONE_NUMBER || this.user.phone  || finalPhone, // ✅ ใช้เบอร์จาก localStorage ถ้า API ไม่มี
+              phone:rawData.PHONE_NUMBER || this.user.phone  || finalPhone,
               role_id: rawData.ROLE_TYPE_ID || rawData.role_id || this.user.role_id || 1,
               status: rawData.ACCOUNT_STATUS ?? rawData.status ?? this.user.status,
               first_name: rawData.FIRST_NAME || rawData.first_name || '',
@@ -172,16 +195,15 @@ export class MyAccountPage implements OnInit {
               }
               localStorage.setItem('loggedIn', JSON.stringify(parsedStore));
             }
-          } else {
-             console.warn("⚠️ API Error 401/403 — ใช้ข้อมูลจาก localStorage 100%");
-             // this.user ยังคงใช้ข้อมูลจาก localStorage ที่ set ไว้ตอนแรก
           }
         }
       }
     } catch (e) {
       console.warn('❌ API Error:', e);
-      console.log('✅ Falling back to localStorage data');
-      // this.user ยังคงเป็นค่าจาก localStorage
+      // ถ้าดูโปรไฟล์คนอื่นแล้ว API Error ให้แสดงว่าไม่พบข้อมูล
+      if (!this.isOwnProfile) {
+        this.user.username = 'ไม่สามารถโหลดข้อมูลได้';
+      }
     } finally {
       this.isLoading = false;
       if (this.user.role_id === 2) {
