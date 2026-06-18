@@ -86,6 +86,17 @@ export class UserService {
     }
   }
 
+  async unbanUser(userId: number): Promise<boolean> {
+    const url = `${this.apiUrl}/spec/unbanAccount/${userId}`;
+    try {
+      await lastValueFrom(this.http.put(url, {}));
+      return true;
+    } catch (error) {
+      console.error('Unban User Error:', error);
+      return false;
+    }
+  }
+
   // 4. Register Sec 1 (ตรวจสอบข้อมูลเบื้องต้น) ✅ ของใหม่
   public async register(user: UserRegPostReq) {
     const url = `${this.apiUrl}/user/registerSec1`;

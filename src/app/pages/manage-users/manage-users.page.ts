@@ -12,7 +12,8 @@ import { Router, RouterModule } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
-  createOutline, filterOutline, caretDown, close, mail, call, personCircle, arrowBackOutline
+  createOutline, filterOutline, caretDown, close, mail, call, personCircle, arrowBackOutline,
+  warningOutline, refreshOutline
 } from 'ionicons/icons';
 @Component({
   selector: 'app-manage-users',
@@ -32,6 +33,10 @@ export class ManageUsersPage implements OnInit {
   isOwnerModalOpen = false;
   selectedOwner: any = null;
   
+  isBanModalOpen = false;
+  selectedBanUser: any = null;
+  banActionType: 'ban' | 'unban' = 'ban';
+  
   // ✅ บังคับ role_type_id = 1 (สมาชิก) เท่านั้น
   newUser: UserRegPostReq = {
     username: '',
@@ -47,7 +52,7 @@ export class ManageUsersPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) { 
-    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline });
+    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline, 'warning-outline': warningOutline, 'refresh-outline': refreshOutline });
   }
 
   ngOnInit() {
@@ -237,45 +242,47 @@ export class ManageUsersPage implements OnInit {
   // ส่วนจัดการแบนสมาชิก
   // ==========================================
 
-  async confirmBan(user: any) {
-    const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการแบนผู้ใช้',
-      message: `คุณแน่ใจหรือไม่ว่าต้องการแบนผู้ใช้ <strong>${user.username}</strong>?<br><br><small style="color:var(--ion-color-danger)">การกระทำนี้ไม่สามารถย้อนกลับได้</small>`,
-      buttons: [
-        {
-          text: 'ยกเลิก',
-          role: 'cancel',
-          cssClass: 'secondary'
-        }, {
-          text: 'แบนผู้ใช้',
-          role: 'destructive',
-          handler: async () => {
-            await this.banUser(user);
-          }
-        }
-      ]
-    });
-    await alert.present();
+  openBanConfirmModal(user: any, action: 'ban' | 'unban') {
+    this.selectedBanUser = user;
+    this.banActionType = action;
+    this.isBanModalOpen = true;
   }
 
-  async banUser(user: any) {
+  closeBanConfirmModal() {
+    this.isBanModalOpen = false;
+    this.selectedBanUser = null;
+  }
+
+  async confirmBanAction() {
+    if (!this.selectedBanUser) return;
+    
+    const user = this.selectedBanUser;
+    const action = this.banActionType;
+    this.closeBanConfirmModal();
+
     try {
-      const success = await this.userService.banUser(user.id);
+      let success = false;
+      if (action === 'ban') {
+        success = await this.userService.banUser(user.id);
+      } else {
+        success = await this.userService.unbanUser(user.id);
+      }
+      
       if (success) {
         const toast = await this.toastCtrl.create({
-          message: `แบนผู้ใช้ ${user.username} สำเร็จ`,
+          message: action === 'ban' ? `แบนผู้ใช้ ${user.username} สำเร็จ` : `ยกเลิกแบน ${user.username} สำเร็จ`,
           duration: 2000,
           color: 'success'
         });
         await toast.present();
         await this.loadAllUsers(); 
       } else {
-        throw new Error('Ban failed');
+        throw new Error(action === 'ban' ? 'Ban failed' : 'Unban failed');
       }
     } catch (error) {
-      console.error('Ban Error:', error);
+      console.error('Ban/Unban Error:', error);
       const toast = await this.toastCtrl.create({
-        message: 'เกิดข้อผิดพลาดในการแบนผู้ใช้',
+        message: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
         duration: 2000,
         color: 'danger'
       });

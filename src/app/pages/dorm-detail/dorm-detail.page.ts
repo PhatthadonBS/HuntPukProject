@@ -295,11 +295,13 @@ export class DormDetailPage implements OnInit {
   }
 
   goToNavigate() {
-    const targetLat = this.dormData.lat || this.dormData.LATITUDE || this.dormData.latitude;
-    const targetLng = this.dormData.lng || this.dormData.LONGITUDE || this.dormData.longitude;
-    const dormId = this.dormData.DORM_ID || this.dormData.id || this.dormData.dorm_id;
+    const d = this.dormData;
+    const targetLat = Number(d.lat || d.LATITUDE || d.latitude || d.LAT || 0);
+    const targetLng = Number(d.lng || d.LONGITUDE || d.longitude || d.LNG || 0);
+    const dormId = d.DORM_ID || d.id || d.dorm_id;
 
     if (!targetLat || !targetLng) {
+      console.error('Missing coordinates in dormData:', d);
       this.showToast('ไม่พบข้อมูลพิกัดของหอพักนี้', 'warning');
       return;
     }

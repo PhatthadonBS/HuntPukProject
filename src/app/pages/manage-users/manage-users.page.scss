@@ -270,6 +270,32 @@ ion-modal.add-user-modal {
     }
   }
 
+// ==========================================
+// Ban Modal & Banned Row Styles
+// ==========================================
+
+.banned-row {
+  background-color: #f2f2f2;
+  opacity: 0.6;
+  
+  .user-link {
+    color: #666 !important;
+    text-decoration: line-through;
+  }
+}
+
+.banned-badge {
+  background: var(--ion-color-danger);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-weight: 600;
+  text-decoration: none !important;
+  display: inline-block;
+}
+
   .btn-save {
     margin-top: 15px;
     background: #000;
@@ -431,4 +457,120 @@ ion-modal.add-user-modal {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// ==========================================
+// Ban Modal Styles (Using ::ng-deep)
+// ==========================================
+::ng-deep ion-modal.ban-confirm-modal {
+  --width: 90%;
+  --max-width: 380px;
+  --height: auto;
+  --border-radius: 20px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --background: #fff; // Force white background overriding dark mode
+
+  .ban-modal-content {
+    background: #fff;
+    padding: 30px 20px;
+    text-align: center;
+    border-radius: 20px;
+  }
+
+  .ban-modal-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+    color: var(--ion-color-danger);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+
+    ion-icon {
+      font-size: 32px;
+    }
+
+    &.is-unban {
+      background: rgba(var(--ion-color-success-rgb), 0.1);
+      color: var(--ion-color-success);
+    }
+  }
+
+  .ban-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
+  .ban-modal-desc {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 25px;
+
+    strong {
+      color: #000;
+      font-size: 16px;
+    }
+
+    .warning-text {
+      display: block;
+      margin-top: 8px;
+      color: var(--ion-color-danger);
+      font-size: 13px;
+    }
+
+    .success-text {
+      display: block;
+      margin-top: 8px;
+      color: var(--ion-color-success);
+      font-size: 13px;
+    }
+  }
+
+  .ban-modal-actions {
+    display: flex;
+    gap: 10px;
+
+    button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    .btn-cancel {
+      background: #f0f0f0;
+      color: #666;
+
+      &:active {
+        background: #e0e0e0;
+      }
+    }
+
+    .btn-confirm {
+      background: var(--ion-color-danger);
+      color: #fff;
+
+      &:active {
+        background: var(--ion-color-danger-shade, #c82438);
+      }
+
+      &.btn-unban {
+        background: var(--ion-color-success);
+
+        &:active {
+          background: var(--ion-color-success-shade, #249957);
+        }
+      }
+    }
+  }
 }

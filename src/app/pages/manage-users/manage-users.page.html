@@ -46,9 +46,10 @@
         </div>
 
         <div class="scrollable-list">
-          <div class="table-row" *ngFor="let user of displayedUsers">
+          <div class="table-row" *ngFor="let user of displayedUsers" [class.banned-row]="user.status !== 0">
             <div class="col-1 user-link" (click)="goToProfile(user.id)">
               {{ user.username }}
+              <span *ngIf="user.status !== 0" class="banned-badge">แบน</span>
             </div>
             <div class="col-2 status-text">
               <span [class.is-owner]="user.role_id === 2" 
@@ -59,7 +60,12 @@
             </div>
             <div class="col-3 action-icons">
               <ion-icon name="create-outline" color="warning" class="icon-btn" (click)="goToProfile(user.id)"></ion-icon>
-              <ion-icon name="trash-outline" color="danger" class="icon-btn" (click)="confirmBan(user)"></ion-icon>
+              
+              <!-- Ban Button -->
+              <ion-icon *ngIf="user.status === 0" name="trash-outline" color="danger" class="icon-btn" (click)="openBanConfirmModal(user, 'ban')" title="แบนผู้ใช้"></ion-icon>
+              
+              <!-- Unban Button -->
+              <ion-icon *ngIf="user.status !== 0" name="refresh-outline" color="success" class="icon-btn" (click)="openBanConfirmModal(user, 'unban')" title="ปลดแบน"></ion-icon>
             </div>
           </div>
           <div class="no-data" *ngIf="displayedUsers.length === 0">
@@ -170,6 +176,40 @@
           </div>
         </div>
       </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- =======================================
+       Modal ยืนยันการแบน / ปลดแบน 
+       ======================================= -->
+  <ion-modal [isOpen]="isBanModalOpen" (didDismiss)="closeBanConfirmModal()" class="ban-confirm-modal">
+    <ng-template>
+      <div class="ban-modal-content">
+        <div class="ban-modal-icon" [class.is-unban]="banActionType === 'unban'">
+          <ion-icon [name]="banActionType === 'ban' ? 'warning-outline' : 'refresh-outline'"></ion-icon>
+        </div>
+        
+        <h3 class="ban-modal-title">
+          {{ banActionType === 'ban' ? 'ยืนยันการแบนผู้ใช้' : 'ยืนยันการปลดแบน' }}
+        </h3>
+        
+        <p class="ban-modal-desc" *ngIf="banActionType === 'ban'">
+          คุณแน่ใจหรือไม่ว่าต้องการแบนผู้ใช้ <br><strong>{{ selectedBanUser?.username }}</strong>?<br>
+          <span class="warning-text">ผู้ใช้จะไม่สามารถเข้าสู่ระบบได้อีก</span>
+        </p>
+        
+        <p class="ban-modal-desc" *ngIf="banActionType === 'unban'">
+          คุณต้องการปลดแบนผู้ใช้ <br><strong>{{ selectedBanUser?.username }}</strong> ใช่หรือไม่?<br>
+          <span class="success-text">ผู้ใช้จะสามารถกลับมาใช้งานได้ตามปกติ</span>
+        </p>
+
+        <div class="ban-modal-actions">
+          <button class="btn-cancel" (click)="closeBanConfirmModal()">ยกเลิก</button>
+          <button class="btn-confirm" [class.btn-unban]="banActionType === 'unban'" (click)="confirmBanAction()">
+            {{ banActionType === 'ban' ? 'แบนผู้ใช้' : 'ปลดแบน' }}
+          </button>
+        </div>
+      </div>
     </ng-template>
   </ion-modal>
 
