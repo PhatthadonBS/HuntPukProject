@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
-  createOutline, filterOutline, caretDown, close, mail, call, personCircle
+  createOutline, filterOutline, caretDown, close, mail, call, personCircle, arrowBackOutline
 } from 'ionicons/icons';
 @Component({
   selector: 'app-manage-users',
@@ -20,7 +20,7 @@ import {
   styleUrls: ['./manage-users.page.scss'],
   standalone: true,
   // ✅ อย่าลืมใส่ IonModal ในนี้ด้วย
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, IonButton, IonModal, CommonModule, FormsModule, IonButtons, IonBackButton]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, IonButton, IonModal, CommonModule, FormsModule, IonButtons, IonBackButton, RouterModule]
 })
 export class ManageUsersPage implements OnInit {
   
@@ -47,7 +47,7 @@ export class ManageUsersPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) { 
-    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle });
+    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline });
   }
 
   ngOnInit() {
@@ -246,6 +246,56 @@ export class ManageUsersPage implements OnInit {
         message: `บันทึกไม่สำเร็จ: ${msg}`, 
         duration: 4000, 
         color: 'danger' 
+      });
+      await toast.present();
+    }
+  }
+
+  // ==========================================
+  // ส่วนจัดการแบนสมาชิก
+  // ==========================================
+
+  async confirmBan(user: any) {
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการแบนผู้ใช้',
+      message: `คุณแน่ใจหรือไม่ว่าต้องการแบนผู้ใช้ <strong>${user.username}</strong>?<br><br><small style="color:var(--ion-color-danger)">การกระทำนี้ไม่สามารถย้อนกลับได้</small>`,
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          cssClass: 'secondary'
+        }, {
+          text: 'แบนผู้ใช้',
+          role: 'destructive',
+          handler: async () => {
+            await this.banUser(user);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async banUser(user: any) {
+    try {
+      const success = await this.userService.banUser(user.id);
+      if (success) {
+        const toast = await this.toastCtrl.create({
+          message: `แบนผู้ใช้ ${user.username} สำเร็จ`,
+          duration: 2000,
+          color: 'success'
+        });
+        await toast.present();
+        await this.loadAllUsers(); 
+      } else {
+        throw new Error('Ban failed');
+      }
+    } catch (error) {
+      console.error('Ban Error:', error);
+      const toast = await this.toastCtrl.create({
+        message: 'เกิดข้อผิดพลาดในการแบนผู้ใช้',
+        duration: 2000,
+        color: 'danger'
       });
       await toast.present();
     }

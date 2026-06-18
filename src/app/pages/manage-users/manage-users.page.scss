@@ -6,7 +6,32 @@
 .admin-toolbar {
   --background: #FFD600;
   --color: #000;
-  ion-title { font-weight: 800; }
+  padding: 5px 10px;
+  
+  ion-title { 
+    font-weight: 800; 
+    font-size: 22px;
+  }
+}
+
+.custom-back-btn {
+  --background: rgba(0, 0, 0, 0.06);
+  --border-radius: 50%;
+  --padding-start: 0;
+  --padding-end: 0;
+  width: 44px;
+  height: 44px;
+  margin-right: 10px;
+  --box-shadow: none;
+  
+  ion-icon {
+    font-size: 24px;
+    color: #000;
+  }
+  
+  &:active {
+    --background: rgba(0, 0, 0, 0.15);
+  }
 }
 
 .main-container {
