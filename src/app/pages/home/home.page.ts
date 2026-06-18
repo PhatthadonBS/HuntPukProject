@@ -212,8 +212,22 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.route.queryParams.subscribe(params => {
       if (params['navLat'] && params['navLng'] && params['dormId']) {
         const dId = Number(params['dormId']);
-        const targetDorm = this.allDorms.find(d => d.DORM_ID === dId || d.id === dId);
+        let targetDorm = this.allDorms.find(d => Number(d.DORM_ID) === dId || Number(d.id) === dId);
         
+        // ถ้าไม่พบใน allDorms (กรณีข้อมูลยังไม่โหลด หรือมาจากหน้าอื่น) ให้สร้าง Object จำลองเพื่อให้นำทางได้
+        if (!targetDorm) {
+          targetDorm = {
+            DORM_ID: dId,
+            id: dId,
+            lat: Number(params['navLat']),
+            lng: Number(params['navLng']),
+            DORM_NAME: 'พิกัดหอพัก',
+            dorm_name: 'พิกัดหอพัก',
+            images: [],
+            price_per_month: 0
+          } as any;
+        }
+
         if (targetDorm) {
           setTimeout(() => {
             this.openInfoWindow(null as any, targetDorm);
