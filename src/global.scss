@@ -65,3 +65,41 @@ ion-menu[menuId="home-menu"] {
 ion-backdrop {
   z-index: 9998 !important;
 }
+
+/* =========================================
+   Custom Alert Styles for Dorm Form
+   ========================================= */
+.minimal-confirm-alert {
+  --background: #ffffff;
+  --backdrop-opacity: 0.6;
+  border-radius: 16px;
+  
+  .alert-wrapper {
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  .alert-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #222;
+  }
+  
+  .alert-message {
+    color: #555;
+  }
+
+  .alert-btn-cancel {
+    color: #999;
+    font-weight: 500;
+  }
+  
+  .alert-btn-confirm {
+    color: #fff;
+    background: #000;
+    border-radius: 8px;
+    margin: 10px;
+    font-weight: bold;
+  }
+}
+

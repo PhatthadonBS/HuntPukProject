@@ -145,6 +145,25 @@
         <div class="selected-count" *ngIf="facilities.length > 0">
           เลือกแล้ว {{ facilities | countChecked }} / {{ facilities.length }} รายการ
         </div>
+
+        <!-- ปุ่มเสนอสิ่งอำนวยความสะดวกใหม่ -->
+        <div class="suggest-fac-container" style="text-align: center; margin-top: 15px;">
+          <ion-button fill="outline" shape="round" color="secondary" (click)="suggestNewFacility()" *ngIf="formData.new_facilities.length < 3">
+            <ion-icon slot="start" name="bulb-outline"></ion-icon>
+            เพิ่มสิ่งอำนวยความสะดวกเพิ่มเติม
+          </ion-button>
+          
+          <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list">
+            <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item">
+              <ion-icon name="checkmark-circle" color="success" style="vertical-align: middle;"></ion-icon> 
+              <ion-icon [name]="newFac.icon" style="margin-left:5px; vertical-align: middle;"></ion-icon>
+              <span style="vertical-align: middle; margin-left:5px;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
+              <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="vertical-align: middle; margin-left: 5px; --padding-start: 0; --padding-end: 0; height: 24px;">
+                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

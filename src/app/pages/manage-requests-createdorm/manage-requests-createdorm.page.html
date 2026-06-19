@@ -6,7 +6,17 @@
         <span style="font-size: 16px; font-weight: bold;">กลับ</span>
       </ion-button>
     </ion-buttons>
-    <ion-title>จัดการคำร้องขอเปิดหอพัก</ion-title>
+    <ion-title>จัดการคำร้องขอ</ion-title>
+  </ion-toolbar>
+  <ion-toolbar style="--background: #222; color: white;">
+    <ion-segment [(ngModel)]="currentSegment" mode="md" style="margin-top: 5px;">
+      <ion-segment-button value="dorms">
+        <ion-label>คำขอหอพัก</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="facilities">
+        <ion-label>คำขอสิ่งอำนวยความสะดวก</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
@@ -18,7 +28,7 @@
       <p>กำลังโหลดข้อมูล...</p>
     </div>
     
-    <div class="yellow-card" *ngIf="!isLoading">
+    <div class="yellow-card" *ngIf="!isLoading && currentSegment === 'dorms'">
       
       <div class="header-section">
         <div class="icon-badge">
@@ -56,10 +66,6 @@
             
             <div class="col-dorm">
               <div class="dorm-name-text">{{ item.DORM_NAME || '(ไม่มีชื่อ)' }}</div>
-              
-              <div class="detail-badge" (click)="viewOwnerDetail(item)">
-                <ion-icon name="eye"></ion-icon> ดูรายละเอียด
-              </div>
             </div>
 
             <div class="col-date">
@@ -69,12 +75,9 @@
             </div>
 
             <div class="col-action">
-              <ion-button class="action-btn" color="success" (click)="confirmAction(item, true)" title="อนุมัติ">
-                <ion-icon name="checkmark-circle" slot="icon-only"></ion-icon>
-              </ion-button>
-              <ion-button class="action-btn" color="danger" (click)="confirmAction(item, false)" title="ปฏิเสธ">
-                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
-              </ion-button>
+              <div class="detail-badge" (click)="viewOwnerDetail(item)" style="cursor: pointer;">
+                <ion-icon name="eye"></ion-icon> ดูรายละเอียด
+              </div>
             </div>
 
           </div>
@@ -90,5 +93,68 @@
       </div>
 
     </div>
+
+    <!-- 🌟 แท็บ: คำขอเพิ่มสิ่งอำนวยความสะดวก 🌟 -->
+    <div class="yellow-card" *ngIf="!isLoading && currentSegment === 'facilities'">
+      
+      <div class="header-section">
+        <div class="icon-badge">
+          <ion-icon name="bulb-outline"></ion-icon>
+        </div>
+        <h2>รายชื่อสิ่งอำนวยความสะดวกที่รอตรวจสอบ</h2>
+      </div>
+
+      <div class="table-container">
+        
+        <div class="table-header">
+          <div class="col-owner">
+            <ion-icon name="person" style="margin-right:5px"></ion-icon> ผู้เสนอ
+          </div>
+          <div class="col-dorm">
+            <ion-icon name="business" style="margin-right:5px"></ion-icon> สิ่งอำนวยความสะดวก
+          </div>
+          <div class="col-action" style="flex: 0.5;">
+            จัดการ
+          </div>
+        </div>
+
+        <ng-container *ngIf="pendingFacilities.length > 0; else noFacData">
+          <div class="table-row" *ngFor="let item of pendingFacilities">
+            
+            <div class="col-owner">
+              <div class="main-text">ID ผู้เสนอ: {{ item.ADD_BY }}</div>
+            </div>
+            
+            <div class="col-dorm">
+              <div class="dorm-name-text">
+                <ion-icon [name]="item.FAC_TYPE_ICON || 'star'" *ngIf="!item.FAC_TYPE_ICON?.startsWith('http')" style="vertical-align: middle; margin-right: 5px;"></ion-icon>
+                <img [src]="item.FAC_TYPE_ICON" *ngIf="item.FAC_TYPE_ICON?.startsWith('http')" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 5px; border-radius: 50%;">
+                {{ item.FAC_TYPE_NAME }}
+              </div>
+            </div>
+
+            <div class="col-action" style="flex: 0.5;">
+              <ion-button class="action-btn" color="success" (click)="confirmFacilityAction(item, true)" title="อนุมัติ">
+                <ion-icon name="checkmark-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button class="action-btn" color="danger" (click)="confirmFacilityAction(item, false)" title="ปฏิเสธ">
+                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+
+          </div>
+        </ng-container>
+
+        <ng-template #noFacData>
+          <div class="no-data">
+            <ion-icon name="folder-open-outline"></ion-icon>
+            <p>ไม่พบรายการคำขอสิ่งอำนวยความสะดวก</p>
+          </div>
+        </ng-template>
+
+      </div>
+
+    </div>
+
   </div>
 </ion-content>

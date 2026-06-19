@@ -391,6 +391,16 @@ export class DormitoryService {
     return this.http.put(url, facData);
   }
 
+  public getPendingFacilities(): Observable<ApiResponse<any[]>> {
+    const url = `${this.apiUrl}/dorms/facilities/pending`;
+    return this.http.get<ApiResponse<any[]>>(url);
+  }
+
+  public approveFacilityReq(facId: number, isApprove: boolean, reason: string = ''): Observable<ApiResponse<any>> {
+    const url = `${this.apiUrl}/dorms/facility/approve/${facId}`;
+    return this.http.put<ApiResponse<any>>(url, { isApprove, reason });
+  }
+
   // ==========================================
   // 🌟 ฟังก์ชันจัดการสถานะหอพัก (Owner)
   // ==========================================

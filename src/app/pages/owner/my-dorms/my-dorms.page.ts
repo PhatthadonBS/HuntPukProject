@@ -87,7 +87,7 @@ export class MyDormsPage implements OnInit {
     try {
       const res = await this.dormService.getMyDorms(userId);
       if (res.success) {
-        this.myDorms = res.data;
+        this.myDorms = res.data.filter((dorm: any) => dorm.REQ_STATUS !== 2);
       }
     } catch (error) {
       console.error('Error loadMyDorms:', error);

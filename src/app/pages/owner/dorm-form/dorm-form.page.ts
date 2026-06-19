@@ -12,7 +12,7 @@ import {
   saveOutline, imageOutline, homeOutline, wifi,
   bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle,
   locateOutline, documentTextOutline, arrowBackOutline, arrowForwardOutline, imagesOutline,
-  personOutline
+  personOutline, bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
@@ -44,7 +44,8 @@ export class DormFormPage implements OnInit {
     lat: 16.245279, lng: 103.250106,
     zone_id: 1,
     type_id: 1,
-    water_unit: null, water_lump: null, elect_unit: null, detail: ''
+    water_unit: null, water_lump: null, elect_unit: null, detail: '',
+    new_facilities: [] // { name: string, icon: string }
   };
 
   zones: any[] = [];
@@ -81,7 +82,8 @@ export class DormFormPage implements OnInit {
       saveOutline, homeOutline, locationOutline, wifi,
       bedOutline, addCircleOutline, trashOutline, imageOutline,
       cloudUploadOutline, closeCircle, locateOutline, documentTextOutline,
-      arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline
+      arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline,
+      bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
     });
   }
 
@@ -173,7 +175,8 @@ export class DormFormPage implements OnInit {
       name: '', address: '',
       lat: 16.245279, lng: 103.250106,
       zone_id: 1, type_id: 1,
-      water_unit: null, water_lump: null, elect_unit: null, detail: ''
+      water_unit: null, water_lump: null, elect_unit: null, detail: '',
+      new_facilities: []
     };
     this.facilities.forEach(f => f.checked = false);
 
@@ -328,6 +331,61 @@ export class DormFormPage implements OnInit {
     this.selectedFiles.OTHER_IMG.splice(index, 1);
   }
 
+  async suggestNewFacility() {
+    if (this.formData.new_facilities.length >= 3) {
+      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 3 รายการ', 'warning');
+      return;
+    }
+
+    const alertName = await this.alertCtrl.create({
+      header: 'เพิ่มสิ่งอำนวยความสะดวก',
+      inputs: [{ name: 'facName', type: 'text', placeholder: 'ถ้ามีเพิ่มเติมกรุณาระบุ' }],
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ถัดไป',
+          handler: (data) => {
+            if (!data.facName || data.facName.trim() === '') return false;
+            this.chooseFacilityIcon(data.facName.trim());
+          }
+        }
+      ]
+    });
+    await alertName.present();
+  }
+
+  async chooseFacilityIcon(facName: string) {
+    const alertIcon = await this.alertCtrl.create({
+      header: '2. เลือกไอคอนที่ตรงกัน',
+      inputs: [
+        { type: 'radio', label: '❄️ แอร์/ความเย็น', value: 'snow-outline', checked: true },
+        { type: 'radio', label: '💧 น้ำ/ซักล้าง', value: 'water-outline' },
+        { type: 'radio', label: '👕 เสื้อผ้า', value: 'shirt-outline' },
+        { type: 'radio', label: '🛡️ ความปลอดภัย/คีย์การ์ด', value: 'shield-checkmark-outline' },
+        { type: 'radio', label: '⚡ ไฟฟ้า/อิเล็กทรอนิกส์', value: 'flash-outline' },
+        { type: 'radio', label: '🚗 ที่จอดรถ/พาหนะ', value: 'car-outline' },
+        { type: 'radio', label: '🐾 สัตว์เลี้ยง', value: 'paw-outline' },
+        { type: 'radio', label: '🏋️ ฟิตเนส/ออกกำลังกาย', value: 'barbell-outline' },
+        { type: 'radio', label: '🍳 ห้องครัว', value: 'restaurant-outline' },
+        { type: 'radio', label: '🛋️ เฟอร์นิเจอร์/อื่นๆ', value: 'cube-outline' }
+      ],
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'เพิ่ม',
+          handler: (iconName) => {
+            this.formData.new_facilities.push({ name: facName, icon: iconName });
+          }
+        }
+      ]
+    });
+    await alertIcon.present();
+  }
+
+  removeNewFacility(index: number) {
+    this.formData.new_facilities.splice(index, 1);
+  }
+
   // ==========================
   // Submit
   // ==========================
@@ -338,11 +396,12 @@ export class DormFormPage implements OnInit {
     }
 
     const confirmAlert = await this.alertCtrl.create({
-      header: 'ยืนยันการบันทึก',
-      message: 'ต้องการบันทึกข้อมูลหอพักใหม่ใช่หรือไม่?',
+      header: 'ยืนยันการบันทึกหอพัก',
+      message: '<p>คุณตรวจสอบข้อมูลถูกต้องแล้วใช่หรือไม่?</p><p style="color:var(--ion-color-medium);font-size:0.9em;margin-top:10px;">หมายเหตุ: ข้อมูลจะถูกส่งไปให้ผู้ดูแลระบบตรวจสอบก่อนแสดงผลบนเว็บไซต์</p>',
+      cssClass: 'minimal-confirm-alert',
       buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        { text: 'บันทึก', cssClass: 'alert-btn-confirm', handler: () => { this.processSaveData(); } }
+        { text: 'ยกเลิก', role: 'cancel', cssClass: 'alert-btn-cancel' },
+        { text: 'ยืนยันส่งข้อมูล', cssClass: 'alert-btn-confirm', handler: () => { this.processSaveData(); } }
       ]
     });
     await confirmAlert.present();
@@ -388,6 +447,10 @@ export class DormFormPage implements OnInit {
         .map((f: any) => f.id);
       form.append('facilities', JSON.stringify(selectedFacIds));
 
+      if (this.formData.new_facilities && this.formData.new_facilities.length > 0) {
+        form.append('new_facilities', JSON.stringify(this.formData.new_facilities));
+      }
+
       // รูปภาพ
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
       if (this.selectedFiles.LICENSE_IMG) form.append('LICENSE_IMG', this.selectedFiles.LICENSE_IMG);
@@ -428,11 +491,14 @@ export class DormFormPage implements OnInit {
 
   async showSuccessFlow() {
     const alert = await this.alertCtrl.create({
-      header: '✅ บันทึกสำเร็จ!',
-      message: `ข้อมูลหอพักของคุณถูกส่งแล้ว
-        กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง
-        หากผ่านการอนุมัติ หอพักของคุณจะแสดงบนระบบ`,
-      buttons: [{ text: 'ตกลง', handler: () => { this.askAddMore(); } }],
+      header: '✅ ส่งข้อมูลสำเร็จ!',
+      message: `<div style="text-align:center; margin-top:10px;">
+        <ion-icon name="time-outline" style="font-size:48px; color:var(--ion-color-warning);"></ion-icon>
+        <p style="margin-top:15px; font-weight:bold; color:var(--ion-color-dark);">กำลังรอการอนุมัติ</p>
+        <p style="color:var(--ion-color-medium); font-size:0.9em;">ระบบได้รับข้อมูลหอพักของคุณแล้ว กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง</p>
+      </div>`,
+      cssClass: 'success-minimal-alert',
+      buttons: [{ text: 'ตกลงรับทราบ', handler: () => { this.askAddMore(); } }],
       backdropDismiss: false
     });
     await alert.present();

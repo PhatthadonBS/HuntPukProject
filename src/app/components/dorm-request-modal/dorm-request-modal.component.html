@@ -60,6 +60,46 @@
       </div>
     </div>
 
+    <!-- ประเภทห้องพัก -->
+    <div class="section-header" *ngIf="dorm.rooms?.length > 0 || dorm.ROOMS?.length > 0">
+      <div class="icon-box">
+        <ion-icon name="bed"></ion-icon>
+      </div>
+      <div class="header-text">ประเภทห้องพัก</div>
+    </div>
+    
+    <div class="info-card" *ngIf="dorm.rooms?.length > 0 || dorm.ROOMS?.length > 0">
+      <div class="room-item" *ngFor="let room of (dorm.rooms || dorm.ROOMS)">
+        <div class="room-info">
+          <span class="room-name">{{ room.ROOM_TYPE_NAME || room.ROOM_TYPE }}</span>
+          <span class="room-bed" *ngIf="(room.bedType || room.BED_TYPE_NAME) && (room.bedType || room.BED_TYPE_NAME) !== '-'">({{ room.bedType || room.BED_TYPE_NAME }})</span>
+        </div>
+        <div class="room-prices" style="display:flex; flex-direction:column; align-items:flex-end;">
+          <span class="room-price" *ngIf="room.PRICE > 0 || room.perMonth > 0">฿ {{ room.PRICE || room.perMonth }} /ด.</span>
+          <span class="room-price" *ngIf="room.perTerm > 0">฿ {{ room.perTerm }} /เทอม</span>
+          <span class="room-price" *ngIf="room.perDay > 0">฿ {{ room.perDay }} /วัน</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- สิ่งอำนวยความสะดวก -->
+    <div class="section-header" *ngIf="dorm.facilities?.length > 0 || dorm.FACILITIES?.length > 0">
+      <div class="icon-box">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+      <div class="header-text">สิ่งอำนวยความสะดวก</div>
+    </div>
+
+    <div class="info-card" *ngIf="dorm.facilities?.length > 0 || dorm.FACILITIES?.length > 0">
+      <div class="fac-list" style="display:flex; flex-wrap:wrap; gap:10px;">
+        <div class="fac-item" *ngFor="let fac of (dorm.facilities || dorm.FACILITIES)" style="background:var(--ion-color-light); padding:5px 10px; border-radius:15px; font-size:12px; display:flex; align-items:center; gap:5px;">
+          <img *ngIf="fac.icon && fac.icon.startsWith('http')" [src]="fac.icon" style="width:16px; height:16px; border-radius:50%;">
+          <ion-icon *ngIf="!fac.icon || !fac.icon.startsWith('http')" [name]="fac.icon || 'checkmark-circle-outline'"></ion-icon>
+          <span>{{ fac.name || fac.FAC_TYPE_NAME }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="section-header">
       <div class="icon-box">
         <ion-icon name="images"></ion-icon>
@@ -82,6 +122,16 @@
             <div class="img-header">ใบอนุญาต</div>
             <div class="img-wrapper">
               <ion-img [src]="dorm.DORM_LICENSE || 'assets/no-doc.png'"></ion-img>
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="dorm.gallery?.length > 0 || dorm.GALLERY?.length > 0">
+        <ion-col size="4" *ngFor="let img of (dorm.gallery || dorm.GALLERY)" style="padding: 2px;">
+          <div class="img-card" (click)="viewImage(img)">
+            <div class="img-wrapper" style="height: 80px;">
+              <ion-img [src]="img || 'assets/no-image.png'"></ion-img>
             </div>
           </div>
         </ion-col>

@@ -53,7 +53,8 @@ ion-content {
   border-radius: 16px;
   padding: 5px; // ลด padding นอกลงเพื่อให้แถวเต็มพื้นที่
   min-height: 300px;
-  overflow: hidden; // ตัดมุมมน
+  overflow-x: auto; // เลื่อนซ้ายขวาได้
+  overflow-y: hidden;
 }
 
 .table-header {
@@ -67,6 +68,7 @@ ion-content {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-radius: 12px 12px 0 0;
+  min-width: 800px;
 }
 
 .table-row {
@@ -76,6 +78,7 @@ ion-content {
   align-items: center;
   background-color: white;
   transition: all 0.2s;
+  min-width: 800px;
 
   &:last-child {
     border-bottom: none;
@@ -180,4 +183,43 @@ ion-content {
   height: 80vh;
   color: #FFD700;
   p { margin-top: 15px; font-size: 18px; }
+}
+
+// === Responsive Mobile Layout ===
+@media (max-width: 768px) {
+  .table-header {
+    display: none; // ซ่อน header ไปเลยบนมือถือ
+  }
+
+  .table-container {
+    min-height: auto;
+    background: transparent;
+    padding: 0;
+  }
+
+  .table-row {
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 100%;
+    margin-bottom: 15px;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: none;
+    position: relative;
+    gap: 15px;
+  }
+
+  .col-owner, .col-dorm, .col-date {
+    width: 100%;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .col-action {
+    width: 100%;
+    justify-content: flex-start;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd;
+  }
 }

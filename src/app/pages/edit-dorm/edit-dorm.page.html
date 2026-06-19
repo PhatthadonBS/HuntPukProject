@@ -123,8 +123,16 @@
                    [alt]="fac.name"
                    class="fac-icon-img"
                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-              <div class="fac-default-icon" 
-                   [style.display]="(fac.icon && fac.icon.startsWith('http')) ? 'none' : 'flex'">
+              
+              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.startsWith('http') && fac.icon.startsWith('fa-')">
+                 <i [class]="'fas ' + fac.icon"></i>
+              </div>
+
+              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.startsWith('http') && !fac.icon.startsWith('fa-')">
+                 <ion-icon [name]="fac.icon"></ion-icon>
+              </div>
+
+              <div class="fac-default-icon" *ngIf="!fac.icon">
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
               </div>
             </div>

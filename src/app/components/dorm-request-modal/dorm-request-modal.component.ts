@@ -8,7 +8,7 @@ import { addIcons } from 'ionicons';
 // ✅ Import Icons ให้ครบตามที่ใช้ใน HTML
 import { 
   close, checkmarkCircle, closeCircle, location, call, mail, 
-  person, home, images, documentText 
+  person, home, images, documentText, bed, checkmarkCircleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -30,7 +30,7 @@ export class DormRequestModalComponent implements OnInit {
     // ✅ ลงทะเบียน Icons ให้ครบ
     addIcons({ 
       close, checkmarkCircle, closeCircle, location, call, mail, 
-      person, home, images, documentText 
+      person, home, images, documentText, bed, checkmarkCircleOutline
     });
   }
 

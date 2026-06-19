@@ -4,13 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, 
   IonButtons, IonButton, IonIcon, IonSpinner,
+  IonSegment, IonSegmentButton, IonLabel,
   AlertController, ToastController, LoadingController, ModalController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 // ✅ Import Icons ให้ครบชุด
 import { 
   arrowBack, person, business, calendar, checkmarkCircle, closeCircle, 
-  eye, folderOpenOutline, mail, call, location, documentText, time
+  eye, folderOpenOutline, mail, call, location, documentText, time,
+  bulbOutline, chatboxEllipsesOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory'; 
@@ -24,6 +26,7 @@ import { DormRequestModalComponent } from '../../components/dorm-request-modal/d
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, 
     IonButtons, IonButton, IonIcon, IonSpinner,
+    IonSegment, IonSegmentButton, IonLabel,
     CommonModule, FormsModule
   ],
   providers: [DatePipe] 
@@ -31,7 +34,9 @@ import { DormRequestModalComponent } from '../../components/dorm-request-modal/d
 export class ManageRequestsCreatedormPage implements OnInit {
 
   requests: any[] = [];
+  pendingFacilities: any[] = [];
   isLoading = false;
+  currentSegment: string = 'dorms';
 
   constructor(
     private dormService: DormitoryService,
@@ -45,7 +50,7 @@ export class ManageRequestsCreatedormPage implements OnInit {
     addIcons({ 
       arrowBack, person, business, calendar, checkmarkCircle, 
       closeCircle, eye, folderOpenOutline, mail, call, location, 
-      documentText, time 
+      documentText, time, bulbOutline, chatboxEllipsesOutline
     });
   }
 
@@ -53,6 +58,7 @@ export class ManageRequestsCreatedormPage implements OnInit {
 
   ionViewWillEnter() {
     this.loadPendingRequests();
+    this.loadPendingFacilities();
   }
 
   goBack() {
@@ -70,25 +76,50 @@ export class ManageRequestsCreatedormPage implements OnInit {
       }
     } catch (error) {
       console.error('Load Error:', error);
-      this.showToast('โหลดข้อมูลล้มเหลว', 'danger');
+      this.showToast('โหลดข้อมูลหอพักล้มเหลว', 'danger');
     } finally {
       this.isLoading = false;
     }
   }
 
+  async loadPendingFacilities() {
+    try {
+      const res = await this.dormService.getPendingFacilities().toPromise();
+      if (res && res.data) {
+        this.pendingFacilities = res.data;
+      } else {
+        this.pendingFacilities = [];
+      }
+    } catch (error) {
+      console.error('Load Facilities Error:', error);
+    }
+  }
+
   async viewOwnerDetail(item: any) {
-    const modal = await this.modalCtrl.create({
-      component: DormRequestModalComponent,
-      componentProps: { dorm: item }
-    });
+    this.isLoading = true;
+    try {
+      const res = await this.dormService.getDormById(item.DORM_ID);
+      const fullDormInfo = (res && res.data && Array.isArray(res.data)) ? res.data[0] : (res?.data || item);
+      const finalDorm = { ...item, ...fullDormInfo };
 
-    await modal.present();
+      const modal = await this.modalCtrl.create({
+        component: DormRequestModalComponent,
+        componentProps: { dorm: finalDorm }
+      });
 
-    const { data } = await modal.onWillDismiss();
-    
-    if (data?.action) {
-      if (data.action === 'approve') this.confirmAction(item, true);
-      else if (data.action === 'reject') this.confirmAction(item, false);
+      await modal.present();
+
+      const { data } = await modal.onWillDismiss();
+      
+      if (data?.action) {
+        if (data.action === 'approve') this.confirmAction(item, true);
+        else if (data.action === 'reject') this.confirmAction(item, false);
+      }
+    } catch (error) {
+      console.error('Fetch Full Dorm Error:', error);
+      this.showToast('โหลดข้อมูลหอพักไม่สำเร็จ', 'danger');
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -142,9 +173,7 @@ export class ManageRequestsCreatedormPage implements OnInit {
   }
 
   async processRequest(dormId: number, isApprove: boolean, msg: string = '') {
-    const loading = await this.loadingCtrl.create({ message: 'กำลังประมวลผล...' });
-    await loading.present();
-
+    this.isLoading = true;
     try {
       await this.dormService.approveRequest(dormId, isApprove, msg);
       this.showToast(isApprove ? 'อนุมัติสำเร็จ' : 'ปฏิเสธคำขอเรียบร้อย', 'success');
@@ -154,7 +183,67 @@ export class ManageRequestsCreatedormPage implements OnInit {
       const errMsg = error.error?.message || 'เกิดข้อผิดพลาด';
       this.showToast(errMsg, 'danger');
     } finally {
-      loading.dismiss();
+      this.isLoading = false;
+    }
+  }
+
+  async confirmFacilityAction(item: any, isApprove: boolean) {
+    const actionText = isApprove ? 'อนุมัติ' : 'ปฏิเสธ';
+    
+    if (!isApprove) {
+      const alert = await this.alertCtrl.create({
+        header: `ยืนยันการ${actionText}`,
+        message: `คุณต้องการปฏิเสธสิ่งอำนวยความสะดวก "${item.FAC_TYPE_NAME}" ใช่หรือไม่?`,
+        inputs: [
+          {
+            name: 'reason',
+            type: 'textarea',
+            placeholder: 'ระบุเหตุผลที่ปฏิเสธ (ถ้ามี)',
+          }
+        ],
+        buttons: [
+          { text: 'ยกเลิก', role: 'cancel' },
+          {
+            text: 'ยืนยันปฏิเสธ',
+            role: 'destructive',
+            handler: (data) => {
+              this.processFacilityRequest(item.FAC_TYPE_ID, false, data.reason);
+              return true;
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+      const alert = await this.alertCtrl.create({
+        header: `ยืนยันการ${actionText}`,
+        message: `คุณต้องการอนุมัติ "${item.FAC_TYPE_NAME}" ให้ใช้งานในระบบใช่หรือไม่?`,
+        buttons: [
+          { text: 'ยกเลิก', role: 'cancel' },
+          {
+            text: 'อนุมัติเลย',
+            handler: () => {
+              this.processFacilityRequest(item.FAC_TYPE_ID, true);
+            }
+          }
+        ]
+      });
+      await alert.present();
+    }
+  }
+
+  async processFacilityRequest(facId: number, isApprove: boolean, msg: string = '') {
+    this.isLoading = true;
+    try {
+      await this.dormService.approveFacilityReq(facId, isApprove, msg).toPromise();
+      this.showToast(isApprove ? 'อนุมัติสิ่งอำนวยความสะดวกสำเร็จ' : 'ปฏิเสธเรียบร้อย', 'success');
+      await this.loadPendingFacilities();
+    } catch (error: any) {
+      console.error('Process Facility Error:', error);
+      const errMsg = error.error?.message || 'เกิดข้อผิดพลาด';
+      this.showToast(errMsg, 'danger');
+    } finally {
+      this.isLoading = false;
     }
   }
 
