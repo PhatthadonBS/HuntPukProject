@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
 import { lastValueFrom } from 'rxjs';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
 
 @Component({
   selector: 'app-dorm-form',
@@ -28,11 +29,16 @@ import { GoogleMapsModule } from '@angular/google-maps';
     IonContent, IonHeader, IonTitle, IonToolbar,
     IonButtons, IonBackButton, IonButton, IonIcon,
     IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-    IonCheckbox, IonList, CommonModule, FormsModule, GoogleMapsModule
+    IonCheckbox, IonList, CommonModule, FormsModule, GoogleMapsModule,
+    SuccessModalComponent
   ]
 })
 export class DormFormPage implements OnInit {
   currentStep: number = 1;
+
+  // ✅ ควบคุมการแสดง popup สำเร็จแบบ custom (แทน alertCtrl ที่ไม่ render HTML)
+  showSuccessModal: boolean = false;
+
 
   // ✅ เก็บข้อมูล user เต็มๆ ไว้ใช้ตลอด
   currentUser: any = null;
@@ -490,18 +496,15 @@ export class DormFormPage implements OnInit {
   }
 
   async showSuccessFlow() {
-    const alert = await this.alertCtrl.create({
-      header: '✅ ส่งข้อมูลสำเร็จ!',
-      message: `<div style="text-align:center; margin-top:10px;">
-        <ion-icon name="time-outline" style="font-size:48px; color:var(--ion-color-warning);"></ion-icon>
-        <p style="margin-top:15px; font-weight:bold; color:var(--ion-color-dark);">กำลังรอการอนุมัติ</p>
-        <p style="color:var(--ion-color-medium); font-size:0.9em;">ระบบได้รับข้อมูลหอพักของคุณแล้ว กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง</p>
-      </div>`,
-      cssClass: 'success-minimal-alert',
-      buttons: [{ text: 'ตกลงรับทราบ', handler: () => { this.askAddMore(); } }],
-      backdropDismiss: false
-    });
-    await alert.present();
+    // ✅ ใช้ custom modal component แทน alertCtrl
+    // เพราะ AlertController ไม่ render <ion-icon>/<div> ใน message — โผล่เป็น HTML ดิบ
+    this.showSuccessModal = true;
+  }
+
+  // ✅ เรียกตอนกด "ตกลงรับทราบ" ใน success-modal
+  onSuccessConfirmed() {
+    this.showSuccessModal = false;
+    this.askAddMore();
   }
 
   async askAddMore() {

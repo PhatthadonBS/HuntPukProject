@@ -1,0 +1,91 @@
+// ============================================================
+//  success-modal.component.scss
+// ============================================================
+
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 20px;
+}
+
+.success-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f9fdfa 100%);
+  border: 1px solid #eef5f0;
+  border-radius: 28px;
+  padding: 40px 32px 32px;
+  width: min(90vw, 380px);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff7e0 0%, #ffedb8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 40px;
+    color: #f5a623;
+  }
+}
+
+.success-title {
+  font-size: 21px;
+  font-weight: 800;
+  color: #27ae60;
+  margin: 0 0 10px;
+  letter-spacing: 0.3px;
+}
+
+.success-status {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+}
+
+.success-detail {
+  font-size: 14px;
+  color: #6b7785;
+  line-height: 1.7;
+  margin: 0 0 28px;
+}
+
+.btn-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  ion-icon {
+    font-size: 19px;
+  }
+
+  &:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+}
