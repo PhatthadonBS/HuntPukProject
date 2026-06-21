@@ -60,6 +60,12 @@
           <div class="menu-item" (click)="navigate('/manage-users')">จัดการบัญชีสมาชิก</div>
           <div class="menu-item" (click)="navigate('/manage-dorm')">จัดการหอพัก</div>
           <div class="menu-item" (click)="navigate('/manage-requests-createdorm')">จัดการคำร้องขอหอพัก</div>
+          <div class="menu-item" (click)="navigate('/facility-management')">
+            <ion-icon name="cube-outline"></ion-icon> จัดการสิ่งอำนวยความสะดวก
+          </div>
+          <div class="menu-item" (click)="navigate('/type-management')">
+            <ion-icon name="cube-outline"></ion-icon> จัดการประเภทหอพัก
+          </div>
         </ng-container>
 
         <div class="menu-item" *ngIf="userRole > 0" (click)="logout()" style="color: #ff6b6b; margin-top: 15px;">

@@ -22,6 +22,7 @@ import { environment } from '../../../environments/environment';
 import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-modal.component';
+import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 
 import {
   menuOutline, caretDownOutline, layersOutline, close,
@@ -44,7 +45,7 @@ import {
     CommonModule, FormsModule, IonicModule, RouterModule,
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
     HeaderComponent, DormDetailPage, MapDirectionsRenderer, MapCircle, MapMarker, MapInfoWindow,
-    WelcomeModalComponent,
+    WelcomeModalComponent, SplashScreenComponent
   ],
 })
 export class HomePage implements OnInit, ViewDidEnter {
@@ -116,6 +117,9 @@ export class HomePage implements OnInit, ViewDidEnter {
   // 🎉 Welcome Modal
   showWelcomeModal = false;
 
+  // ⏳ Splash Screen
+  isInitialLoading = true;
+
   // 🔵 วงกลมครอบโซน
   zoneCircleCenter: google.maps.LatLngLiteral | undefined = undefined;
   zoneCircleRadius: number = 0;
@@ -162,6 +166,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.fetchZones();
     
     this.fetchDorms().then(() => {
+      this.isInitialLoading = false;
       this.checkForNavigationIntent();
     });
 

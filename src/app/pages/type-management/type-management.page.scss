@@ -1,0 +1,128 @@
+ion-content {
+  --background: #f4f6f8;
+}
+
+.ion-padding {
+  padding: 16px 20px;
+}
+
+/* 
+  Make the items look like beautiful modern cards 
+*/
+ion-item {
+  --background: #ffffff;
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* 
+  Divider styling
+*/
+ion-item-divider {
+  --background: transparent;
+  --color: #444;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.3px;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  border-bottom: none;
+  padding-inline-start: 4px;
+}
+
+/*
+  Input fields
+*/
+ion-input {
+  --color: #333;
+  --placeholder-color: #888;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+/*
+  Buttons
+*/
+ion-button {
+  --border-radius: 8px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  --box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.3);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+
+  &[color="danger"] {
+    --box-shadow: none;
+    --background-hover: rgba(var(--ion-color-danger-rgb), 0.1);
+  }
+}
+
+/*
+  Segment control
+*/
+ion-segment {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px;
+  border-radius: 12px;
+  margin: 8px 16px;
+  width: auto;
+}
+
+ion-segment-button {
+  --border-radius: 8px;
+  --color: rgba(255, 255, 255, 0.7);
+  --color-checked: #ffffff;
+  --indicator-color: rgba(255, 255, 255, 0.25);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  min-height: 40px;
+  transition: color 0.3s ease;
+}
+
+/* 
+  Dark mode support 
+*/
+@media (prefers-color-scheme: dark) {
+  ion-content {
+    --background: #121212;
+  }
+  
+  ion-item {
+    --background: #1e1e1e;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --color: #f4f5f8;
+  }
+
+  ion-item-divider {
+    --color: #e0e0e0;
+  }
+
+  ion-input {
+    --color: #fff;
+    --placeholder-color: #666;
+  }
+  
+  ion-segment {
+    background: #1e1e1e;
+  }
+  
+  ion-segment-button {
+    --color: #aaa;
+    --color-checked: #fff;
+    --indicator-color: #333;
+  }
+}

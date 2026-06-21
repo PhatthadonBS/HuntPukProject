@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   home, listOutline, starOutline, person, personCircleOutline, 
-  key, create, business, heartOutline, logOutOutline 
+  key, create, business, heartOutline, logOutOutline, cubeOutline 
 } from 'ionicons/icons';
 @Component({
   selector: 'app-menu',
@@ -36,7 +36,8 @@ export class MenuComponent implements OnInit {
       create, 
       business, 
       heartOutline, 
-      logOutOutline
+      logOutOutline,
+      cubeOutline
     });
   }
 

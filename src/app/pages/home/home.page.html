@@ -7,6 +7,9 @@
     (closed)="showWelcomeModal = false">
   </app-welcome-modal>
 
+  <!-- ✅ Splash Screen -->
+  <app-splash-screen *ngIf="isInitialLoading"></app-splash-screen>
+
   <app-header title="หน้าหลัก" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
 
   <ion-content [fullscreen]="true" [scrollY]="false">

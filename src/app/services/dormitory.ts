@@ -415,4 +415,64 @@ export class DormitoryService {
       throw error;
     }
   }
+
+  // ==========================================
+  // Admin Methods for Type Management
+  // ==========================================
+  getDormTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/dorms/dormTypes`);
+  }
+  addDormType(name: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/dormTypes`, { name });
+  }
+  deleteDormType(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/dorms/dormTypes/${id}`);
+  }
+
+  getRoomTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/dorms/roomTypes`);
+  }
+  addRoomType(name: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/roomTypes`, { name });
+  }
+  deleteRoomType(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/dorms/roomTypes/${id}`);
+  }
+
+  getBedTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/dorms/bedTypes`);
+  }
+  addBedType(name: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/bedTypes`, { name });
+  }
+  deleteBedType(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/dorms/bedTypes/${id}`);
+  }
+
+  getPriceTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/dorms/priceTypes`);
+  }
+  addPriceType(name: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/priceTypes`, { name });
+  }
+  deletePriceType(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/dorms/priceTypes/${id}`);
+  }
+
+  getDormStatuses(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/dorms/dormStatuses`);
+  }
+  addDormStatus(name: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/dormStatuses`, { name });
+  }
+  deleteDormStatus(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/dorms/dormStatuses/${id}`);
+  }
+
+  addZone(name: string, lat: number, lng: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/zones`, { name, lat, lng });
+  }
+  deleteZone(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/dorms/zones/${id}`);
+  }
 }

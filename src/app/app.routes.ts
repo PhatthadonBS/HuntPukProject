@@ -140,4 +140,12 @@ export const routes: Routes = [
     path: 'edit-dorm/:id',
     loadComponent: () => import('./pages/edit-dorm/edit-dorm.page').then( m => m.EditDormPage)
   },
+  {
+    path: 'facility-management',
+    loadComponent: () => import('./pages/facility-management/facility-management.page').then( m => m.FacilityManagementPage)
+  },
+  {
+    path: 'type-management',
+    loadComponent: () => import('./pages/type-management/type-management.page').then( m => m.TypeManagementPage)
+  }
 ];

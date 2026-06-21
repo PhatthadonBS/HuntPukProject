@@ -1,0 +1,77 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>จัดการประเภท</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="selectedSegment" (ionChange)="segmentChanged($event)" scrollable="true">
+      <ion-segment-button *ngFor="let seg of segments" [value]="seg.value">
+        <ion-label>{{ seg.label }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  
+  <div>
+    <!-- Add new item input -->
+    <ion-item>
+      <ion-input [label]="'เพิ่ม' + currentLabel + 'ใหม่'" labelPlacement="floating" [(ngModel)]="newName" placeholder="กรอกชื่อ..."></ion-input>
+    </ion-item>
+
+    <!-- Lat/Lng only for Zone -->
+    <ng-container *ngIf="selectedSegment === 'zone'">
+      <div class="header-row" style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <ion-label style="font-weight: bold;"><ion-icon name="location-outline"></ion-icon> พิกัดโซน</ion-label>
+        <ion-button fill="outline" size="small" color="primary" (click)="getCurrentLocation()">
+          <ion-icon name="locate-outline" slot="start"></ion-icon> พิกัดปัจจุบัน
+        </ion-button>
+      </div>
+
+      <ion-item>
+        <div style="width: 100%; height: 300px; margin-top: 10px; border-radius: 8px; overflow: hidden; position: relative;">
+          <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
+            [options]="mapOptions" (mapClick)="onMapClick($event)">
+            <map-marker [position]="markerPosition" [options]="markerOptions" (mapDragend)="onMarkerDragEnd($event)"></map-marker>
+          </google-map>
+        </div>
+      </ion-item>
+      <p style="font-size: 0.8rem; color: var(--ion-color-danger); text-align: center; margin: 5px 0;">* แตะบนแผนที่เพื่อปักหมุด</p>
+
+      <ion-item>
+        <ion-input label="ละติจูด (Lat)" type="number" labelPlacement="floating" [(ngModel)]="newLat" (ionChange)="onInputCoordChange()"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input label="ลองจิจูด (Lng)" type="number" labelPlacement="floating" [(ngModel)]="newLng" (ionChange)="onInputCoordChange()"></ion-input>
+      </ion-item>
+    </ng-container>
+
+    <ion-button expand="block" class="ion-margin-top" (click)="addType()" [disabled]="!newName.trim()">
+      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+      เพิ่ม{{ currentLabel }}
+    </ion-button>
+    
+    <ion-list class="ion-margin-top">
+      <ion-item-divider>
+        <ion-label>รายการ{{ currentLabel }}ที่มีอยู่</ion-label>
+      </ion-item-divider>
+      
+      <ion-item *ngFor="let item of currentList">
+        <ion-label>
+          {{ item.name || item.ZONE_NAME }}
+          <p *ngIf="item.lat && item.lng" style="font-size: 0.8rem; color: var(--ion-color-medium)">
+            Lat: {{ item.lat }}, Lng: {{ item.lng }}
+          </p>
+        </ion-label>
+        <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item)">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <ion-item *ngIf="currentList?.length === 0">
+        <ion-label color="medium" class="ion-text-center">ไม่มีข้อมูล{{ currentLabel }}</ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+</ion-content>
