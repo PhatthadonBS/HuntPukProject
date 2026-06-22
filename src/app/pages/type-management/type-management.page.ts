@@ -1,11 +1,20 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider, AlertController } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
+import {
+  IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
+  IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
+  IonModal, IonButtons, AlertController
+} from '@ionic/angular/standalone';
 import { DormitoryService } from '../../services/dormitory';
 import { MasterType, DormZone } from '../../model/dorm.model';
 import { addIcons } from 'ionicons';
-import { trashOutline, addCircleOutline, locateOutline, locationOutline } from 'ionicons/icons';
+import {
+  trashOutline, addCircleOutline, locateOutline, locationOutline,
+  closeOutline, chevronForwardOutline, arrowBackOutline,
+  businessOutline, bedOutline, pricetagOutline, checkmarkCircleOutline, mapOutline, homeOutline
+} from 'ionicons/icons';
 import { GoogleMapsModule } from '@angular/google-maps';
 
 @Component({
@@ -13,11 +22,19 @@ import { GoogleMapsModule } from '@angular/google-maps';
   templateUrl: './type-management.page.html',
   styleUrls: ['./type-management.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider, CommonModule, FormsModule, GoogleMapsModule]
+  imports: [
+    IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
+    IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
+    IonModal, IonButtons,
+    CommonModule, FormsModule, GoogleMapsModule
+  ]
 })
 export class TypeManagementPage implements OnInit {
   selectedSegment: string = 'dormType';
-  
+
+  // ✅ ควบคุมการเปิด/ปิด popup modal ของแต่ละหมวด
+  isModalOpen: boolean = false;
+
   lists: { [key: string]: any[] } = {
     dormType: [],
     roomType: [],
@@ -37,20 +54,31 @@ export class TypeManagementPage implements OnInit {
   mapOptions: google.maps.MapOptions = { streetViewControl: false, mapTypeControl: false };
   markerOptions: google.maps.MarkerOptions = { draggable: true };
 
+  // ✅ เพิ่ม icon ให้แต่ละ card แยกแยะง่ายขึ้นด้วยตา
   segments = [
-    { value: 'dormType', label: 'ประเภทหอพัก' },
-    { value: 'roomType', label: 'ประเภทห้องพัก' },
-    { value: 'bedType', label: 'ประเภทเตียง' },
-    { value: 'priceType', label: 'ประเภทราคา' },
-    { value: 'dormStatus', label: 'สถานะหอพัก' },
-    { value: 'zone', label: 'โซนหอพัก' }
+    { value: 'dormType', label: 'ประเภทหอพัก', icon: 'home-outline' },
+    { value: 'roomType', label: 'ประเภทห้องพัก', icon: 'business-outline' },
+    { value: 'bedType', label: 'ประเภทเตียง', icon: 'bed-outline' },
+    { value: 'priceType', label: 'ประเภทราคา', icon: 'pricetag-outline' },
+    { value: 'dormStatus', label: 'สถานะหอพัก', icon: 'checkmark-circle-outline' },
+    { value: 'zone', label: 'โซนหอพัก', icon: 'map-outline' }
   ];
 
   constructor(
     private dormServices: DormitoryService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private router: Router
   ) {
-    addIcons({ trashOutline, addCircleOutline, locateOutline, locationOutline });
+    addIcons({
+      trashOutline, addCircleOutline, locateOutline, locationOutline,
+      closeOutline, chevronForwardOutline, arrowBackOutline,
+      businessOutline, bedOutline, pricetagOutline, checkmarkCircleOutline, mapOutline, homeOutline
+    });
+  }
+
+  // ✅ ปุ่มกลับ — ปรับ path ปลายทางตามที่ต้องการ (เช่น dashboard ของแอดมิน)
+  goBack() {
+    this.router.navigate(['/dashboard']);
   }
 
   ngOnInit() {
@@ -63,15 +91,21 @@ export class TypeManagementPage implements OnInit {
     this.dormServices.getBedTypes().subscribe((res: any) => this.lists['bedType'] = res.data || res);
     this.dormServices.getPriceTypes().subscribe((res: any) => this.lists['priceType'] = res.data || res);
     this.dormServices.getDormStatuses().subscribe((res: any) => this.lists['dormStatus'] = res.data || res);
-    // getZones returns Promise but TypeManagement expects Observable, we'll fix it here
     this.dormServices.getZones().then((res: any) => this.lists['zone'] = res.data || []);
   }
 
-  segmentChanged(event: any) {
-    this.selectedSegment = event.detail.value;
+  // ✅ เปิด popup สำหรับหมวดที่กด พร้อมรีเซ็ตฟอร์ม
+  openSegment(value: string) {
+    this.selectedSegment = value;
     this.newName = '';
     this.newLat = null;
     this.newLng = null;
+    this.isModalOpen = true;
+  }
+
+  // ✅ ปิด popup
+  closeModal() {
+    this.isModalOpen = false;
   }
 
   getCurrentLocation() {
@@ -110,8 +144,6 @@ export class TypeManagementPage implements OnInit {
     }
   }
 
-
-
   get currentList() {
     return this.lists[this.selectedSegment];
   }
@@ -120,9 +152,21 @@ export class TypeManagementPage implements OnInit {
     return this.segments.find(s => s.value === this.selectedSegment)?.label || '';
   }
 
-  addType() {
+  async addType() {
     if (!this.newName.trim()) return;
 
+    const alert = await this.alertController.create({
+      header: 'ยืนยันการเพิ่ม',
+      message: `คุณต้องการเพิ่ม "${this.newName}" ในหมวดหมู่ ${this.currentLabel} ใช่หรือไม่?`,
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        { text: 'เพิ่ม', handler: () => this.executeAddType() }
+      ]
+    });
+    await alert.present();
+  }
+
+  executeAddType() {
     let obs$;
     switch (this.selectedSegment) {
       case 'dormType': obs$ = this.dormServices.addDormType(this.newName); break;
@@ -147,7 +191,6 @@ export class TypeManagementPage implements OnInit {
   }
 
   async confirmDelete(item: any) {
-    // For zone it's ZONE_ID, ZONE_NAME, else id, name
     const id = item.id || item.ZONE_ID;
     const name = item.name || item.ZONE_NAME;
 

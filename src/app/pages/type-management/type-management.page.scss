@@ -1,63 +1,236 @@
+/* ============================================================
+   🎨 Minimal Theme — เหลือง / เทา / ดำ / ขาว
+   ============================================================ */
+$yellow: #FFD600;
+$yellow-dark: #E6C200;
+$black: #1a1a1a;
+$gray-dark: #4a4f57;
+$gray-mid: #8a909a;
+$gray-light: #eef0f2;
+$white: #ffffff;
+
 ion-content {
-  --background: #f4f6f8;
+  --background: #{$yellow}; // ✅ พื้นหลังหน้าเป็นสีเหลืองตามที่ต้องการ
+}
+
+/*
+  ✅ Toolbar ด้านบน — พื้นสีขาว ตัวอักษร/ไอคอนสีดำให้ตัดกันชัด
+*/
+.custom-toolbar {
+  --background: #{$white};
+  --color: #{$black};
+
+  ion-title {
+    color: $black;
+    font-weight: 800;
+  }
+
+  ion-button {
+    --color: #{$black};
+  }
 }
 
 .ion-padding {
   padding: 16px 20px;
 }
 
-/* 
-  Make the items look like beautiful modern cards 
-*/
-ion-item {
-  --background: #ffffff;
-  --border-radius: 12px;
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* ============================================================
+   📝 Page Intro
+   ============================================================ */
+.page-intro {
+  margin-bottom: 20px;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: $black;
+    margin: 0 0 4px;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: $gray-dark;
+    margin: 0;
   }
 }
 
-/* 
-  Divider styling
-*/
-ion-item-divider {
-  --background: transparent;
-  --color: #444;
-  font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: 0.3px;
-  margin-top: 32px;
-  margin-bottom: 16px;
-  border-bottom: none;
-  padding-inline-start: 4px;
+/* ============================================================
+   🗂️ Card Grid (หน้าหลัก) — มินิมอล เหลือง/เทา/ดำ/ขาว
+   ============================================================ */
+.type-list {
+  background: transparent;
+  padding: 0;
+}
+
+.type-item {
+  --background: #{$white};
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 80px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: $yellow;
+  }
+
+  .card-icon-wrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $black;
+    margin-right: 16px;
+
+    ion-icon {
+      font-size: 24px;
+      color: $yellow;
+    }
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $black;
+    margin: 0 0 4px;
+  }
+
+  .count-badge {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: $gray-dark;
+    background: $gray-light;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+}
+
+/* ============================================================
+   🪟 Popup Modal
+   ============================================================ */
+.type-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+
+  @media (min-width: 600px) {
+    --width: 520px;
+    --height: 88%;
+    --border-radius: 18px;
+  }
+}
+
+.modal-content {
+  --background: #{$gray-light};
 }
 
 /*
-  Input fields
+  ✅ Label เล็กๆ ด้านบน input (แทน floating label เดิม)
 */
+.field-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $gray-dark;
+  margin: 0 4px 6px;
+  letter-spacing: 0.2px;
+}
+
+/*
+  Form items inside the modal
+*/
+.form-item {
+  --background: #{$white};
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --color: #{$black};
+  --highlight-color-focused: #{$yellow-dark};
+  margin-bottom: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
 ion-input {
-  --color: #333;
-  --placeholder-color: #888;
-  font-size: 1.05rem;
+  --color: #{$black};
+  --placeholder-color: #{$gray-mid};
+  --placeholder-opacity: 1;
+  font-size: 1.02rem;
   font-weight: 500;
 }
 
 /*
-  Buttons
+  Coordinate row + map
 */
+.header-row {
+  margin-top: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coord-label {
+  font-weight: 700;
+  color: $black;
+  font-size: 0.9rem;
+
+  ion-icon {
+    color: $black;
+    margin-right: 4px;
+  }
+}
+
+.map-wrap {
+  width: 100%;
+  height: 260px;
+  margin-top: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.map-hint {
+  font-size: 0.78rem;
+  color: $gray-mid;
+  text-align: center;
+  margin: 6px 0 16px;
+  font-weight: 600;
+}
+
+/*
+  Buttons — มินิมอล: ปุ่มหลักดำ/เหลือง, ปุ่มรองเทา
+*/
+.btn-add {
+  --background: #{$black};
+  --background-activated: #{$black};
+  --background-hover: #2a2a2a;
+  --color: #{$yellow};
+  --border-radius: 12px;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  --box-shadow: none;
+}
+
 ion-button {
-  --border-radius: 8px;
+  --border-radius: 10px;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0.3px;
-  --box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.3);
   transition: opacity 0.2s ease, transform 0.2s ease;
 
   &:active {
@@ -65,64 +238,112 @@ ion-button {
     transform: scale(0.97);
   }
 
+  &[color="medium"] {
+    --color: #{$gray-dark};
+    --border-color: #{$gray-mid};
+  }
+
   &[color="danger"] {
     --box-shadow: none;
-    --background-hover: rgba(var(--ion-color-danger-rgb), 0.1);
+    --background-hover: rgba(var(--ion-color-danger-rgb), 0.08);
   }
 }
 
 /*
-  Segment control
+  Item list (รายการที่มีอยู่)
 */
-ion-segment {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 6px;
-  border-radius: 12px;
-  margin: 8px 16px;
-  width: auto;
+.item-list {
+  background: transparent;
 }
 
-ion-segment-button {
-  --border-radius: 8px;
-  --color: rgba(255, 255, 255, 0.7);
-  --color-checked: #ffffff;
-  --indicator-color: rgba(255, 255, 255, 0.25);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  min-height: 40px;
-  transition: color 0.3s ease;
+ion-item-divider {
+  --background: transparent;
+  --color: #{$black};
+  font-weight: 700;
+  font-size: 1.0rem;
+  letter-spacing: 0.3px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  border-bottom: none;
+  padding-inline-start: 4px;
 }
 
-/* 
-  Dark mode support 
-*/
+.data-item {
+  --background: #{$white};
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --inner-padding-end: 8px;
+  --color: #{$black};
+  margin-bottom: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.coord-sub {
+  font-size: 0.78rem;
+  color: $gray-mid;
+  margin: 2px 0 0;
+}
+
+/* ============================================================
+   📱 Responsive
+   ============================================================ */
+@media (max-width: 480px) {
+  .type-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .type-card {
+    padding: 16px 12px;
+  }
+}
+
+/* ============================================================
+   🌙 Dark mode — ยังคงธีมเหลือง/เทา/ดำ/ขาว แค่สลับความเข้ม
+   ============================================================ */
 @media (prefers-color-scheme: dark) {
-  ion-content {
-    --background: #121212;
-  }
-  
-  ion-item {
-    --background: #1e1e1e;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    --color: #f4f5f8;
+  // ✅ ไม่ override พื้นหลังเป็นดำแล้ว — คงสีเหลืองไว้เสมอไม่ว่าระบบจะเป็น dark mode หรือไม่
+  // (ตัด ion-content background override ของ dark mode ออก)
+
+  .custom-toolbar {
+    --background: #{$white}; // ✅ toolbar ยังขาวเสมอ ไม่เปลี่ยนเป็นดำตาม dark mode
+    --color: #{$black};
   }
 
-  ion-item-divider {
-    --color: #e0e0e0;
+  .page-intro {
+    h2 { color: $black; }
+    p  { color: $gray-dark; }
+  }
+
+  // ✅ Card ยังคงเป็นสีขาวเหมือน light mode เพื่อให้ contrast ชัดบนพื้นเหลืองเสมอ
+  // (ไม่ override เป็น #1e1e1e แล้ว)
+
+  .modal-content { --background: #121212; }
+
+  .field-label { color: #b8bec7; }
+
+  .form-item, .data-item {
+    --background: #1e1e1e;
+    --color: #f4f5f8;
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   ion-input {
-    --color: #fff;
-    --placeholder-color: #666;
+    --color: #f4f5f8;
+    --placeholder-color: #777;
   }
-  
-  ion-segment {
-    background: #1e1e1e;
+
+  ion-item-divider { --color: #e6e8eb; }
+
+  .coord-label {
+    color: #f4f5f8;
+    ion-icon { color: #f4f5f8; }
   }
-  
-  ion-segment-button {
-    --color: #aaa;
-    --color-checked: #fff;
-    --indicator-color: #333;
+
+  .coord-sub { color: #9aa3ad; }
+
+  .btn-add {
+    --background: #{$yellow};
+    --color: #{$black};
   }
 }
