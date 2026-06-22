@@ -43,9 +43,10 @@
           <ion-icon name="water-outline"></ion-icon>
           <div class="util-text">
             <span class="label">ค่าน้ำ</span>
-            <span class="val" *ngIf="dormData.water_lump || dormData.WATER_LUMP">{{ dormData.water_lump || dormData.WATER_LUMP }} บ./ด. (เหมา)</span>
-            <span class="val" *ngIf="!(dormData.water_lump || dormData.WATER_LUMP) && (dormData.water_unit || dormData.WATER_UNIT)">{{ dormData.water_unit || dormData.WATER_UNIT }} บ./หน่วย</span>
-            <span class="val" *ngIf="!(dormData.water_lump || dormData.WATER_LUMP) && !(dormData.water_unit || dormData.WATER_UNIT)">สอบถาม</span>
+            <div class="val">
+              <div class="rate-line"><span class="sub-label">หน่วย:</span> {{ dormData.water_unit || dormData.WATER_UNIT ? (dormData.water_unit || dormData.WATER_UNIT) + ' บ.' : 'ไม่ระบุ' }}</div>
+              <div class="rate-line"><span class="sub-label">เหมา:</span> {{ dormData.water_lump || dormData.WATER_LUMP ? (dormData.water_lump || dormData.WATER_LUMP) + ' บ./ด.' : 'ไม่ระบุ' }}</div>
+            </div>
           </div>
         </div>
 
@@ -53,7 +54,9 @@
           <ion-icon name="flash-outline"></ion-icon>
           <div class="util-text">
             <span class="label">ค่าไฟ</span>
-            <span class="val">{{ dormData.elect_unit || dormData.ELECT_UNIT ? (dormData.elect_unit || dormData.ELECT_UNIT) + ' บ./หน่วย' : 'สอบถาม' }}</span>
+            <div class="val">
+              <div class="rate-line"><span class="sub-label">หน่วย:</span> {{ dormData.elect_unit || dormData.ELECT_UNIT ? (dormData.elect_unit || dormData.ELECT_UNIT) + ' บ.' : 'ไม่ระบุ' }}</div>
+            </div>
           </div>
         </div>
       </div>
