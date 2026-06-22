@@ -166,8 +166,10 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.fetchZones();
     
     this.fetchDorms().then(() => {
-      this.isInitialLoading = false;
-      this.checkForNavigationIntent();
+      setTimeout(() => {
+        this.isInitialLoading = false;
+        this.checkForNavigationIntent();
+      }, 1500);
     });
 
     this.getCurrentLocation(true);

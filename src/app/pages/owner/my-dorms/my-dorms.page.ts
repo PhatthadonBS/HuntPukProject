@@ -97,6 +97,8 @@ export class MyDormsPage implements OnInit {
   }
 
   getStatusText(statusId: number, reqStatus: number): string {
+    if (statusId === 4) return 'ลบออกจากระบบ';
+    if (reqStatus === 3) return 'ส่งคำร้องใหม่';
     if (reqStatus === 0) return 'รออนุมัติ';
     if (reqStatus === 2) return 'ไม่อนุมัติ';
     if (statusId === 2) return 'ปิดให้บริการ';
@@ -105,6 +107,8 @@ export class MyDormsPage implements OnInit {
   }
 
   getStatusColor(statusId: number, reqStatus: number): string {
+    if (statusId === 4) return 'medium';
+    if (reqStatus === 3) return 'warning';
     if (reqStatus === 0) return 'warning';
     if (reqStatus === 2) return 'danger';
     if (statusId === 2) return 'medium'; 
