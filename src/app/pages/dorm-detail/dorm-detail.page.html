@@ -93,15 +93,9 @@
               </div>
               
               <!-- ฝั่งขวา: ราคา -->
-              <div class="room-prices">
-                <span class="room-price monthly" *ngIf="room.PRICE > 0">
-                  ฿ {{ room.PRICE | number }} /ด.
-                </span>
-                <span class="room-price term" *ngIf="room.perTerm > 0">
-                  ฿ {{ room.perTerm | number }} /เทอม
-                </span>
-                <span class="room-price day" *ngIf="room.perDay > 0">
-                  ฿ {{ room.perDay | number }} /วัน
+              <div class="room-prices-list">
+                <span class="room-price" *ngFor="let p of room.prices" style="background: #f4f4f4; color: #333; border: 1px solid #ddd;">
+                  {{ p.name }}: {{ p.price > 0 ? '฿' + (p.price | number) : 'ไม่ระบุ' }}
                 </span>
               </div>
             </div>

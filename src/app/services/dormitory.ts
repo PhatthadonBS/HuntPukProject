@@ -208,7 +208,7 @@ export class DormitoryService {
         lat:         0,
         lng:         0,
         start_price: Number(item.START_PRICE || item.start_price || 0),
-        zone:        '',
+        zone:        item.ZONE_NAME || '',
       }));
     } catch (error: any) {
       if (error?.status === 404 || error?.status === 400) return [];

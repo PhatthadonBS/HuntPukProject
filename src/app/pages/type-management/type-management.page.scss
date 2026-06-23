@@ -60,19 +60,27 @@ ion-content {
 .type-list {
   background: transparent;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
 }
 
 .type-item {
   --background: #{$white};
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --min-height: 80px;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  --min-height: 130px;
   border-radius: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 
   &:active {
     transform: scale(0.98);
@@ -92,7 +100,7 @@ ion-content {
     align-items: center;
     justify-content: center;
     background: $black;
-    margin-right: 16px;
+    margin: 0 auto 12px auto;
 
     ion-icon {
       font-size: 24px;
@@ -101,14 +109,15 @@ ion-content {
   }
 
   h3 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: $black;
-    margin: 0 0 4px;
+    margin: 0 0 6px;
+    width: 100%;
   }
 
   .count-badge {
-    font-size: 0.76rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: $gray-dark;
     background: $gray-light;

@@ -53,6 +53,7 @@ export class EditDormPage implements OnInit {
   zones: any[] = [];
   facilities: any[] = []; 
   roomTypes: any[] = [];
+  priceTypes: any[] = [];
 
   selectedFiles: any = {
     FRONT_DORM_IMG: null,
@@ -111,6 +112,11 @@ export class EditDormPage implements OnInit {
           checked: false 
         }));
       }
+
+      const priceRes: any = await lastValueFrom(this.dormService.getPriceTypes());
+      if (priceRes && priceRes.success && priceRes.data) {
+        this.priceTypes = priceRes.data;
+      }
     } catch (error) {
       console.error('Error loading initial data:', error);
     }
@@ -145,14 +151,18 @@ export class EditDormPage implements OnInit {
         });
 
         if (d.rooms && d.rooms.length > 0) {
-          this.roomTypes = d.rooms.map((r: any) => ({
-            id: r.ROOM_TYPE_ID,
-            roomType: r.ROOM_TYPE_NAME,
-            bedType: r.bedType === 'Double Bed' ? '2' : '1',
-            perMonth: r.PRICE || null,
-            perTerm: r.perTerm || null,
-            perDay: r.perDay || null
-          }));
+          this.roomTypes = d.rooms.map((r: any) => {
+            const mappedPrices = this.priceTypes.map(pt => {
+              const existing = r.prices?.find((rp: any) => rp.priceTypeId === pt.id);
+              return { priceTypeId: pt.id, name: pt.name, price: existing ? existing.price : null };
+            });
+            return {
+              id: r.ROOM_TYPE_ID,
+              roomType: r.ROOM_TYPE_NAME,
+              bedType: r.bedType === 'Double Bed' ? '2' : '1',
+              prices: mappedPrices
+            };
+          });
         } else {
           this.addRoomType();
         }
@@ -176,9 +186,7 @@ export class EditDormPage implements OnInit {
       id: null,
       roomType: '',
       bedType: '1',
-      perMonth: null,
-      perTerm: null,
-      perDay: null
+      prices: this.priceTypes.map(pt => ({ priceTypeId: pt.id, name: pt.name, price: null }))
     });
   }
 

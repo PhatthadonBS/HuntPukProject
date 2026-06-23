@@ -21,12 +21,15 @@
           <div class="card-content">
             <div class="img-box">
               <ion-icon name="home" class="placeholder-icon" *ngIf="!dorm.image"></ion-icon>
-              <img [src]="dorm.image" *ngIf="dorm.image" onerror="this.src='assets/placeholder.png'" />
+              <img [src]="dorm.image" *ngIf="dorm.image" onerror="this.onerror=null; this.src='assets/dorm-placeholder.jpg'" />
             </div>
 
             <div class="info-box">
               <h3>{{ dorm.DORM_NAME }}</h3>
               
+              <p class="zone-name" *ngIf="dorm.zone || dorm.ZONE_NAME">
+                <ion-icon name="location-outline"></ion-icon> {{ dorm.zone || dorm.ZONE_NAME }}
+              </p>
               <p class="desc">{{ dorm.ADDRESS }}</p>
               
               <div class="score-row" *ngIf="dorm.SCORE">
