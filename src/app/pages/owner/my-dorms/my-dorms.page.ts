@@ -6,9 +6,9 @@ import { Router } from '@angular/router';
 // ✅ แก้ NG0201: ใช้ standalone components แทน IonicModule
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, 
-  IonBackButton, IonButton, IonIcon, IonSpinner,
+  IonBackButton, IonButton, IonIcon, IonSpinner, IonModal, IonList, IonItem, IonLabel,
   AlertController, ToastController, 
-  LoadingController, ActionSheetController, ModalController 
+  LoadingController, ModalController 
 } from '@ionic/angular/standalone';
 
 import { DormitoryService } from '../../../services/dormitory';
@@ -32,7 +32,7 @@ import {
   imports: [
     CommonModule, FormsModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
-    IonBackButton, IonButton, IonIcon, IonSpinner,
+    IonBackButton, IonButton, IonIcon, IonSpinner, IonModal, IonList, IonItem, IonLabel,
     OtpModalComponent
   ] 
 })
@@ -41,6 +41,15 @@ export class MyDormsPage implements OnInit {
   isLoading: boolean = true;
   currentUser: any = null;
 
+  // Status modal
+  isStatusModalOpen: boolean = false;
+  selectedDormForStatus: any = null;
+
+  statusOptions = [
+    { id: 1, label: 'ว่าง / ออนไลน์', desc: 'หอพักเปิดรับนักศึกษา มีห้องว่าง', color: '#22c55e', icon: '🟢' },
+    { id: 3, label: 'ห้องเต็ม', desc: 'เปิดอยู่แต่ไม่มีห้องว่างแล้ว', color: '#ef4444', icon: '🔴' },
+  ];
+
   constructor(
     private router: Router,
     private dormService: DormitoryService,
@@ -48,7 +57,6 @@ export class MyDormsPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private actionSheetCtrl: ActionSheetController,
     private modalCtrl: ModalController
   ) {
     addIcons({ 
@@ -116,17 +124,30 @@ export class MyDormsPage implements OnInit {
     return 'success'; 
   }
 
-  async openStatusSheet(dorm: any) {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: `ปรับสถานะ: ${dorm.DORM_NAME}`,
-      buttons: [
-        { text: '✅ สถานะ: ห้องว่าง (ออนไลน์)', handler: () => { this.changeStatus(dorm.DORM_ID, 1); } },
-        { text: '❌ สถานะ: ห้องเต็ม', handler: () => { this.changeStatus(dorm.DORM_ID, 3); } },
-        { text: 'ยกเลิก', role: 'cancel' }
-      ]
-    });
-    await actionSheet.present();
+  openStatusSheet(dorm: any) {
+    this.selectedDormForStatus = dorm;
+    this.isStatusModalOpen = true;
   }
+
+  closeStatusModal() {
+    this.isStatusModalOpen = false;
+    this.selectedDormForStatus = null;
+  }
+
+  async selectStatus(statusId: number) {
+    this.closeStatusModal();
+    await this.changeStatus(this.selectedDormForStatus?.DORM_ID, statusId);
+  }
+
+  async onStatusChange(event: Event, dorm: any) {
+    const select = event.target as HTMLSelectElement;
+    const newStatusId = Number(select.value);
+    if (newStatusId !== dorm.DORM_STATUS_ID) {
+      await this.changeStatus(dorm.DORM_ID, newStatusId);
+      dorm.DORM_STATUS_ID = newStatusId; // update local immediately
+    }
+  }
+
 
   async changeStatus(dormId: number, statusId: number) {
     const loading = await this.loadingCtrl.create({ message: 'กำลังอัปเดตสถานะ...' });

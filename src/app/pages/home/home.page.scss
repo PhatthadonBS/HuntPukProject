@@ -370,3 +370,29 @@ ion-modal.filter-modal-custom {
 @media (max-width: 380px) {
   .filter-compare-group { flex-direction: column; top: 125px; left: 65px; .chip-button { padding: 6px 10px; font-size: 12px; } }
 }
+
+/* ====== Panel Skeleton ====== */
+.panel-skeleton {
+  padding: 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skel {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: skshimmer 1.4s infinite;
+}
+.skel-title-lg { height: 26px; width: 75%; }
+.skel-line     { height: 14px; }
+.w70           { width: 70%; }
+.w50           { width: 50%; }
+.skel-row      { display: flex; gap: 10px; }
+.skel-badge    { height: 28px; width: 90px; border-radius: 20px; }
+.skel-section  { height: 80px; width: 100%; border-radius: 14px; }
+.skel-section.short { height: 50px; }
+@keyframes skshimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}

@@ -83,6 +83,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   sidePanelTab: 'info' | 'reviews' = 'info';
   reviews: any[] = [];
   isLoadingReviews: boolean = false;
+  isPanelLoading: boolean = false;
   isPanelMinimized: boolean = false;
 
   // ⭕ จุดอ้างอิงและวงกลม
@@ -427,7 +428,8 @@ export class HomePage implements OnInit, ViewDidEnter {
   openInfoWindow(marker: MapMarker, dorm: any) {
     this.selectedDorm = { ...dorm };
     this.sidePanelTab = 'info';
-    this.isPanelMinimized = false; 
+    this.isPanelMinimized = false;
+    this.isPanelLoading = true;
     
     if (this.googleMapComponent?.googleMap) {
       this.googleMapComponent.googleMap.panTo({ lat: dorm.lat, lng: dorm.lng });
@@ -471,12 +473,15 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.walkingDistance = `> ${dist.toFixed(0)} กม.`;
       }
       this.loadReviews(dorm.DORM_ID);
+      this.isPanelLoading = false;
+      this.cdr.detectChanges();
     }, 300); 
   }
 
   closeDetailPanel() { 
     this.selectedDorm = null; 
     this.isPanelMinimized = false; 
+    this.isPanelLoading = false;
     this.directionsResult = undefined; 
     this.altRouteRenderers = []; 
     this.nearbyDorms = [];

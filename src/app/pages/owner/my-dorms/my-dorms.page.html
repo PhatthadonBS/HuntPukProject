@@ -29,7 +29,14 @@
     </div>
 
     <div class="loading-center" *ngIf="isLoading">
-      <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <div class="skeleton-list">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+          <div class="skel skel-status"></div>
+          <div class="skel skel-img"></div>
+          <div class="skel skel-title"></div>
+          <div class="skel skel-sub"></div>
+        </div>
+      </div>
     </div>
 
     <div class="empty-state fade-in" *ngIf="!isLoading && myDorms.length === 0">
@@ -90,9 +97,16 @@
           </ion-button>
           
           <div class="right-btns">
-            <ion-button fill="outline" size="small" color="tertiary" class="action-btn" (click)="openStatusSheet(item)" *ngIf="item.REQ_STATUS === 1 && item.DORM_STATUS_ID !== 2 && item.DORM_STATUS_ID !== 4">
-              <ion-icon name="swap-vertical-outline" slot="icon-only"></ion-icon>
-            </ion-button>
+            <!-- Status Dropdown (แทนปุ่มลูกศร) -->
+            <div class="status-dropdown-wrap" *ngIf="item.REQ_STATUS === 1 && item.DORM_STATUS_ID !== 2 && item.DORM_STATUS_ID !== 4"
+              (click)="$event.stopPropagation()">
+              <select class="status-select"
+                [value]="item.DORM_STATUS_ID"
+                (change)="onStatusChange($event, item)">
+                <option value="1">🟢 ว่าง</option>
+                <option value="3">🔴 ห้องเต็ม</option>
+              </select>
+            </div>
 
             <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 2 && item.DORM_STATUS_ID !== 4">
               <ion-icon name="create-outline" slot="icon-only"></ion-icon>
@@ -115,3 +129,37 @@
   </div>
 
 </ion-content>
+
+<!-- ======================================================= -->
+<!-- 🟢 Status Picker Modal -->
+<!-- ======================================================= -->
+<ion-modal [isOpen]="isStatusModalOpen" (didDismiss)="closeStatusModal()" class="status-modal">
+  <ng-template>
+    <div class="status-sheet">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-header">
+        <div class="sheet-icon">🏠</div>
+        <div>
+          <h3>{{ selectedDormForStatus?.DORM_NAME }}</h3>
+          <p>เลือกสถานะที่ต้องการ</p>
+        </div>
+      </div>
+
+      <div class="status-options">
+        <button class="status-option" *ngFor="let opt of statusOptions"
+          [class.active]="selectedDormForStatus?.DORM_STATUS_ID === opt.id"
+          (click)="selectStatus(opt.id)">
+          <span class="opt-dot" [style.background]="opt.color"></span>
+          <div class="opt-text">
+            <strong>{{ opt.label }}</strong>
+            <small>{{ opt.desc }}</small>
+          </div>
+          <ion-icon name="checkmark-circle" *ngIf="selectedDormForStatus?.DORM_STATUS_ID === opt.id"></ion-icon>
+        </button>
+      </div>
+
+      <button class="btn-cancel" (click)="closeStatusModal()">❌ ยกเลิก</button>
+    </div>
+  </ng-template>
+</ion-modal>

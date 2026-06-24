@@ -76,9 +76,24 @@
 
       <div class="panel-body scrollable-body">
         
-        <div *ngIf="sidePanelTab === 'info'" class="fade-in">
+        <!-- Skeleton Loading Panel -->
+        <div class="panel-skeleton" *ngIf="isPanelLoading">
+          <div class="skel skel-title-lg"></div>
+          <div class="skel skel-line w70"></div>
+          <div class="skel skel-line w50" style="margin-bottom:20px"></div>
+          <div class="skel-row">
+            <div class="skel skel-badge"></div>
+            <div class="skel skel-badge"></div>
+          </div>
+          <div class="skel skel-section"></div>
+          <div class="skel skel-section"></div>
+          <div class="skel skel-section short"></div>
+        </div>
+
+        <div *ngIf="sidePanelTab === 'info' && !isPanelLoading" class="fade-in">
           <h2 class="dorm-title">{{ selectedDorm.DORM_NAME }}</h2>
           <p class="dorm-zone"><ion-icon name="location-sharp"></ion-icon> {{ selectedDorm.zone || selectedDorm.ZONE_NAME || 'ไม่ระบุโซน' }}</p>
+
 
           <div class="rating-box" style="display: flex; align-items: center; gap: 5px; color: #fbc02d; font-weight: bold; font-size: 18px; margin-bottom: 20px;">
             <ion-icon name="star"></ion-icon>
