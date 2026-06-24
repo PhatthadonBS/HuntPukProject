@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
   IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
-  IonModal, IonButtons, AlertController
+  IonModal, IonButtons, IonSpinner, AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { DormitoryService } from '../../services/dormitory';
 import { MasterType, DormZone } from '../../model/dorm.model';
@@ -25,7 +25,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
     IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
-    IonModal, IonButtons,
+    IonModal, IonButtons, IonSpinner,
     CommonModule, FormsModule, GoogleMapsModule
   ]
 })
@@ -34,6 +34,8 @@ export class TypeManagementPage implements OnInit {
 
   // ✅ ควบคุมการเปิด/ปิด popup modal ของแต่ละหมวด
   isModalOpen: boolean = false;
+  isLoading: boolean = false;
+  isSaving: boolean = false;
 
   lists: { [key: string]: any[] } = {
     dormType: [],
@@ -67,6 +69,7 @@ export class TypeManagementPage implements OnInit {
   constructor(
     private dormServices: DormitoryService,
     private alertController: AlertController,
+    private toastCtrl: ToastController,
     private router: Router
   ) {
     addIcons({
@@ -86,12 +89,16 @@ export class TypeManagementPage implements OnInit {
   }
 
   loadAllData() {
-    this.dormServices.getDormTypes().subscribe((res: any) => this.lists['dormType'] = res.data || res);
-    this.dormServices.getRoomTypes().subscribe((res: any) => this.lists['roomType'] = res.data || res);
-    this.dormServices.getBedTypes().subscribe((res: any) => this.lists['bedType'] = res.data || res);
-    this.dormServices.getPriceTypes().subscribe((res: any) => this.lists['priceType'] = res.data || res);
-    this.dormServices.getDormStatuses().subscribe((res: any) => this.lists['dormStatus'] = res.data || res);
-    this.dormServices.getZones().then((res: any) => this.lists['zone'] = res.data || []);
+    this.isLoading = true;
+    const tasks = [
+      new Promise(r => this.dormServices.getDormTypes().subscribe({ next: (res: any) => { this.lists['dormType'] = res.data || res; r(null); }, error: () => r(null) })),
+      new Promise(r => this.dormServices.getRoomTypes().subscribe({ next: (res: any) => { this.lists['roomType'] = res.data || res; r(null); }, error: () => r(null) })),
+      new Promise(r => this.dormServices.getBedTypes().subscribe({ next: (res: any) => { this.lists['bedType'] = res.data || res; r(null); }, error: () => r(null) })),
+      new Promise(r => this.dormServices.getPriceTypes().subscribe({ next: (res: any) => { this.lists['priceType'] = res.data || res; r(null); }, error: () => r(null) })),
+      new Promise(r => this.dormServices.getDormStatuses().subscribe({ next: (res: any) => { this.lists['dormStatus'] = res.data || res; r(null); }, error: () => r(null) })),
+      this.dormServices.getZones().then((res: any) => { this.lists['zone'] = res.data || []; }).catch(() => {})
+    ];
+    Promise.all(tasks).finally(() => this.isLoading = false);
   }
 
   // ✅ เปิด popup สำหรับหมวดที่กด พร้อมรีเซ็ตฟอร์ม
@@ -178,14 +185,19 @@ export class TypeManagementPage implements OnInit {
     }
 
     if (obs$) {
+      this.isSaving = true;
       obs$.subscribe({
         next: () => {
           this.newName = '';
           this.newLat = null;
           this.newLng = null;
           this.loadAllData();
+          this.showToast('เพิ่มข้อมูลสำเร็จ!', 'success');
         },
-        error: (err: any) => console.error(`Failed to add ${this.selectedSegment}`, err)
+        error: (err: any) => {
+          this.showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'danger');
+        },
+        complete: () => this.isSaving = false
       });
     }
   }
@@ -218,9 +230,17 @@ export class TypeManagementPage implements OnInit {
 
     if (obs$) {
       obs$.subscribe({
-        next: () => this.loadAllData(),
-        error: (err: any) => console.error(`Failed to delete ${this.selectedSegment}`, err)
+        next: () => {
+          this.loadAllData();
+          this.showToast('ลบเรียบร้อย!', 'success');
+        },
+        error: (err: any) => this.showToast('ไม่สามารถลบได้ อาจเป็นเพราะข้อมูลถูกใช้งานอยู่', 'warning')
       });
     }
+  }
+
+  async showToast(message: string, color: string = 'dark') {
+    const toast = await this.toastCtrl.create({ message, duration: 2200, color, position: 'bottom' });
+    toast.present();
   }
 }

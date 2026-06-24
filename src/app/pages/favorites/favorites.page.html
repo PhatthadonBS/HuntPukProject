@@ -5,7 +5,7 @@
       <div class="menu-btn" (click)="goBack()">
         <ion-icon name="arrow-back"></ion-icon>
       </div>
-      <h2 style="color:white; margin:0; margin-left:10px; font-weight: bold;">รายการโปรดของฉัน</h2>
+      <h2>รายการโปรดของฉัน</h2>
     </div>
 
     <div class="yellow-container">
@@ -45,13 +45,13 @@
 
       </div>
 
-      <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+      <div class="loading-row" *ngIf="isLoading">
          <ion-spinner name="crescent"></ion-spinner>
       </div>
 
       <ng-template #noData>
         <div class="no-data" *ngIf="!isLoading">
-          <ion-icon name="heart-dislike-outline" style="font-size: 60px; color: #555;"></ion-icon>
+          <ion-icon name="heart-dislike-outline"></ion-icon>
           <p>คุณยังไม่มีรายการโปรด</p>
         </div>
       </ng-template>

@@ -1,7 +1,11 @@
-// Variables
+// ============================================================
+// 🎨 Favorites — เหลือง / ดำ / ขาว มินิมอล
+// ============================================================
 $msu-yellow: #FFD600;
-$msu-dark: #222222;
-$card-bg: #FFFFFF;
+$msu-dark: #1a1a1a;
+$gray-dark: #5a6068;
+$gray-light: #f4f5f7;
+$card-bg: #ffffff;
 
 ion-content {
   --background: #{$msu-dark};
@@ -19,105 +23,130 @@ ion-content {
 .top-bar {
   display: flex;
   align-items: center;
-  margin-bottom: 25px;
-  padding: 10px 0;
+  margin-bottom: 20px;
+  padding: 6px 0;
+  gap: 12px;
 
   .menu-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
     color: $msu-yellow;
-    font-size: 32px;
+    font-size: 22px;
     cursor: pointer;
-    transition: transform 0.3s ease;
-    &:active { transform: scale(0.85); opacity: 0.7; }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+
+    &:active {
+      transform: scale(0.88);
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  h2 {
+    color: #fff;
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: 0.2px;
   }
 }
 
+/*
+  ✅ ปรับ container ให้เบาลง — ใช้เหลืองล้วนแบบทึบเรียบ
+  แทน gradient + inset shadow เดิมที่ดูหนักไปหน่อย
+*/
 .yellow-container {
-  background: linear-gradient(145deg, $msu-yellow, #ffea70);
-  border-radius: 40px;
-  padding: 30px 20px;
+  background: $msu-yellow;
+  border-radius: 28px;
+  padding: 26px 18px;
   min-height: 80vh;
-  box-shadow: inset 0 4px 15px rgba(255,255,255,0.4), 0 -4px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.04) inset;
 }
 
 .dorm-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 16px;
   @media (min-width: 768px) { grid-template-columns: 1fr 1fr; }
 }
 
 .dorm-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 24px;
+  background: $card-bg;
+  border-radius: 18px;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s ease;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
   }
 
   &:active { transform: scale(0.97) translateY(0); }
 
-  // ปุ่มลบ
+  // ปุ่มลบ — เรียบขึ้น ไม่ใช้ gradient ฉูดฉาด
   .delete-btn {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 38px;
-    height: 38px;
-    background: linear-gradient(135deg, #ff6b6b, #ff4757);
-    color: white;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #e03131;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     z-index: 10;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+
     &:hover {
-      transform: scale(1.1) rotate(5deg);
-      box-shadow: 0 6px 15px rgba(255, 71, 87, 0.6);
+      background: #ffe2e2;
+      transform: scale(1.08);
     }
     &:active { transform: scale(0.9); }
-    ion-icon { font-size: 20px; }
+    ion-icon { font-size: 18px; }
   }
 
   .card-content {
     display: flex;
     flex-direction: column;
     padding: 0;
-    gap: 0;
 
     .img-box {
       width: 100%;
-      height: 180px;
-      background: #f0f0f0;
+      height: 170px;
+      background: $gray-light;
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
       img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-      ion-icon { font-size: 50px; color: #ccc; }
+      ion-icon { font-size: 48px; color: #c8ccd1; }
     }
 
     .info-box {
-      padding: 15px;
+      padding: 14px 16px 16px;
       flex: 1;
-      h3 { 
-        margin: 0 0 6px 0; 
-        font-size: 18px; 
-        font-weight: 800; 
-        color: #2c3e50; 
-        line-height: 1.3; 
-        letter-spacing: -0.3px;
+
+      h3 {
+        margin: 0 0 6px 0;
+        font-size: 16.5px;
+        font-weight: 800;
+        color: $msu-dark;
+        line-height: 1.3;
+        letter-spacing: -0.2px;
       }
+
       .zone-name {
-        font-size: 13px;
-        color: #e67e22;
+        font-size: 12.5px;
+        color: $gray-dark;
         font-weight: 700;
         margin: 0 0 4px 0;
         display: flex;
@@ -125,29 +154,32 @@ ion-content {
         gap: 4px;
         ion-icon { font-size: 14px; }
       }
-      .desc { 
-        font-size: 13px; 
-        color: #7f8c8d; 
-        margin: 0 0 8px 0; 
+
+      .desc {
+        font-size: 12.5px;
+        color: #8a909a;
+        margin: 0 0 8px 0;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         line-height: 1.4;
       }
-      .score-row { 
-        font-size: 13px; 
-        font-weight: 600;
-        display: flex; 
-        align-items: center; 
-        gap: 6px; 
-        color: #f39c12; 
+
+      .score-row {
+        font-size: 12.5px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #d68a00;
         margin-bottom: 8px;
-        ion-icon { font-size: 16px; }
+        ion-icon { font-size: 15px; }
       }
-      .price { 
-        font-size: 15px; 
-        font-weight: 800; 
-        color: #27ae60; 
+
+      .price {
+        font-size: 14px;
+        font-weight: 800;
+        color: $msu-dark;
         margin: 0;
-        background: rgba(39, 174, 96, 0.1);
+        background: rgba(255, 214, 0, 0.25);
         padding: 4px 10px;
         border-radius: 8px;
         display: inline-block;
@@ -156,21 +188,47 @@ ion-content {
   }
 
   &:hover .img-box img {
-    transform: scale(1.1);
+    transform: scale(1.08);
   }
 }
 
+/*
+  ✅ Empty State — ปรับให้เป็น card ลอยสวยๆ แทนข้อความลอยกลางพื้นเหลือง
+*/
 .no-data {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 350px;
-  color: #8c7600;
-  font-weight: 700;
-  font-size: 18px;
-  p { margin-top: 15px; }
+  height: 320px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 22px;
+  margin-top: 10px;
+
   ion-icon {
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+    font-size: 56px;
+    color: rgba(26, 26, 26, 0.35);
+    margin-bottom: 14px;
   }
+
+  p {
+    margin: 0;
+    color: $msu-dark;
+    font-weight: 700;
+    font-size: 1rem;
+    opacity: 0.75;
+  }
+}
+
+/*
+  ✅ Loading state ให้ดูสอดคล้องกัน
+*/
+.loading-row {
+  text-align: center;
+  margin-top: 60px;
+}
+
+ion-spinner {
+  --color: #{$msu-dark};
+  transform: scale(1.3);
 }

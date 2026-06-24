@@ -76,6 +76,11 @@
   box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: all 0.3s; position: relative; cursor: pointer;
   border: 3px solid transparent; /* เตรียมพื้นที่ให้ขอบ */
 
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.1);
+  }
+
   /* ✅ เอาเบลอออก แล้วใช้ขอบสีเหลืองทองแบบพรีเมียมแทน */
   &.selected {
     transform: translateY(-5px); 

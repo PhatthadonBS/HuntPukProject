@@ -65,6 +65,34 @@ ion-content {
   gap: 12px;
 }
 
+/* ====== Skeleton Grid ====== */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.skel-card {
+  background: rgba(255,255,255,0.85);
+  border-radius: 16px;
+  padding: 20px 14px;
+  min-height: 130px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.skel {
+  background: linear-gradient(90deg, #e8e8e8 25%, #d4d4d4 50%, #e8e8e8 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: shimmer 1.4s infinite;
+}
+.skel-icon  { width: 46px; height: 46px; border-radius: 12px; }
+.skel-label { width: 80px; height: 14px; }
+.skel-count { width: 50px; height: 22px; border-radius: 20px; }
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
 .type-item {
   --background: #{$white};
   --padding-start: 12px;
@@ -130,6 +158,23 @@ ion-content {
 /* ============================================================
    🪟 Popup Modal
    ============================================================ */
+/*
+  ✅ Toolbar ของ Popup Modal — เปลี่ยนจากสีฟ้า (primary) เป็นเหลืองตามธีม
+*/
+.modal-toolbar {
+  --background: #{$yellow};
+  --color: #{$black};
+
+  ion-title {
+    color: $black;
+    font-weight: 800;
+  }
+
+  ion-button {
+    --color: #{$black};
+  }
+}
+
 .type-modal {
   --width: 100%;
   --height: 100%;
@@ -316,6 +361,11 @@ ion-item-divider {
 
   .custom-toolbar {
     --background: #{$white}; // ✅ toolbar ยังขาวเสมอ ไม่เปลี่ยนเป็นดำตาม dark mode
+    --color: #{$black};
+  }
+
+  .modal-toolbar {
+    --background: #{$yellow}; // ✅ modal toolbar ยังเหลืองเสมอ
     --color: #{$black};
   }
 

@@ -19,7 +19,16 @@
     <p>เลือกหมวดหมู่ที่ต้องการจัดการ</p>
   </div>
 
-  <ion-list class="type-list">
+  <!-- Loading Skeleton -->
+  <div class="skeleton-grid" *ngIf="isLoading">
+    <div class="skel-card" *ngFor="let i of [1,2,3,4,5,6]">
+      <div class="skel skel-icon"></div>
+      <div class="skel skel-label"></div>
+      <div class="skel skel-count"></div>
+    </div>
+  </div>
+
+  <ion-list class="type-list" *ngIf="!isLoading">
     <ion-item class="type-item" *ngFor="let seg of segments" (click)="openSegment(seg.value)" detail="true" lines="none">
       <div slot="start" class="card-icon-wrap">
         <ion-icon [name]="seg.icon"></ion-icon>
@@ -39,7 +48,7 @@
 <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" class="type-modal">
   <ng-template>
     <ion-header>
-      <ion-toolbar color="primary">
+      <ion-toolbar class="modal-toolbar">
         <ion-title>{{ currentLabel }}</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="closeModal()">
@@ -90,9 +99,10 @@
         </ion-item>
       </ng-container>
 
-      <ion-button expand="block" class="ion-margin-top btn-add" (click)="addType()" [disabled]="!newName.trim()">
-        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-        เพิ่ม{{ currentLabel }}
+      <ion-button expand="block" class="ion-margin-top btn-add" (click)="addType()" [disabled]="!newName.trim() || isSaving">
+        <ion-spinner name="crescent" slot="start" *ngIf="isSaving" style="width:18px;height:18px;margin-right:8px;"></ion-spinner>
+        <ion-icon slot="start" name="add-circle-outline" *ngIf="!isSaving"></ion-icon>
+        {{ isSaving ? 'กำลังเพิ่ม...' : 'เพิ่ม' + currentLabel }}
       </ion-button>
 
       <ion-list class="ion-margin-top item-list">
