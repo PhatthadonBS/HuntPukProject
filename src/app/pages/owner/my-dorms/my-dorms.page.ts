@@ -48,6 +48,7 @@ export class MyDormsPage implements OnInit {
   statusOptions = [
     { id: 1, label: 'ว่าง / ออนไลน์', desc: 'หอพักเปิดรับนักศึกษา มีห้องว่าง', color: '#22c55e', icon: '🟢' },
     { id: 3, label: 'ห้องเต็ม', desc: 'เปิดอยู่แต่ไม่มีห้องว่างแล้ว', color: '#ef4444', icon: '🔴' },
+    { id: 2, label: 'ปิดปรับปรุง', desc: 'ปิดให้บริการชั่วคราว กำลังปรับปรุง', color: '#f59e0b', icon: '🟡' },
   ];
 
   constructor(
@@ -95,6 +96,7 @@ export class MyDormsPage implements OnInit {
     try {
       const res = await this.dormService.getMyDorms(userId);
       if (res.success) {
+        // แสดงทุกหอยกเว้น REQ_STATUS=2 (ไม่อนุมัติ)
         this.myDorms = res.data.filter((dorm: any) => dorm.REQ_STATUS !== 2);
       }
     } catch (error) {
@@ -105,11 +107,11 @@ export class MyDormsPage implements OnInit {
   }
 
   getStatusText(statusId: number, reqStatus: number): string {
-    if (statusId === 4) return 'ลบออกจากระบบ';
+    if (statusId === 4) return 'ถูกลบ';
     if (reqStatus === 3) return 'ส่งคำร้องใหม่';
     if (reqStatus === 0) return 'รออนุมัติ';
     if (reqStatus === 2) return 'ไม่อนุมัติ';
-    if (statusId === 2) return 'ปิดให้บริการ';
+    if (statusId === 2) return 'ปิดปรับปรุง';
     if (statusId === 3) return 'ห้องเต็ม';
     return 'ว่าง / ออนไลน์'; 
   }
@@ -119,7 +121,7 @@ export class MyDormsPage implements OnInit {
     if (reqStatus === 3) return 'warning';
     if (reqStatus === 0) return 'warning';
     if (reqStatus === 2) return 'danger';
-    if (statusId === 2) return 'medium'; 
+    if (statusId === 2) return 'warning'; 
     if (statusId === 3) return 'danger'; 
     return 'success'; 
   }
@@ -164,23 +166,45 @@ export class MyDormsPage implements OnInit {
   }
 
   async confirmDelete(dormId: number) {
+    const dorm = this.myDorms.find(d => d.DORM_ID === dormId);
+    const dormName = dorm?.DORM_NAME || 'หอพักนี้';
+    const userEmail = this.currentUser?.email || this.currentUser?.EMAIL || '';
+
     const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการปิดบริการ',
-      message: 'คุณต้องการปิด/ลบหอพักนี้ใช่หรือไม่? (หากต้องการกู้คืน ต้องใช้ OTP)',
+      header: '🗑️ ลบหอพักออกจากระบบ',
+      message: `หอพัก "${dormName}" จะถูกซ่อนออกจากรายการ แต่สามารถกู้คืนได้ภายหลัง\n\nกรุณากรอก Email ของคุณเพื่อยืนยัน:`,
+      inputs: [
+        {
+          name: 'emailConfirm',
+          type: 'email',
+          placeholder: userEmail || 'ระบุ Email ของคุณ',
+        }
+      ],
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
-        { text: 'ปิดบริการ', role: 'destructive', handler: () => this.executeDelete(dormId) }
+        {
+          text: 'ยืนยันลบ',
+          role: 'destructive',
+          handler: (data) => {
+            if (!data.emailConfirm || data.emailConfirm.trim().toLowerCase() !== userEmail.toLowerCase()) {
+              this.showToast('Email ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'danger');
+              return false;
+            }
+            this.executeDelete(dormId);
+            return true;
+          }
+        }
       ]
     });
     await alert.present();
   }
 
   async executeDelete(dormId: number) {
-    const loading = await this.loadingCtrl.create({ message: 'กำลังปิดบริการ...' });
+    const loading = await this.loadingCtrl.create({ message: 'กำลังลบหอพัก...' });
     await loading.present();
     try {
-      await this.dormService.removeDorm(dormId);
-      this.showToast('ปิดให้บริการหอพักเรียบร้อย', 'success');
+      await this.dormService.changeDormStatus(dormId, 4); // soft delete
+      this.showToast('ลบหอพักออกจากระบบแล้ว (กู้คืนได้)', 'success');
       this.loadMyDorms(); 
     } catch (error) {
       this.showToast('ลบไม่สำเร็จ', 'danger');
@@ -191,11 +215,11 @@ export class MyDormsPage implements OnInit {
 
   async confirmRestoreWithOTP(dormId: number) {
     const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการกู้คืน',
-      message: 'ระบบจะส่งรหัส OTP ไปยังอีเมลของคุณ เพื่อยืนยันสิทธิ์ในการกู้คืนหอพัก',
+      header: '🔄 กู้คืนหอพัก',
+      message: 'ต้องการกู้คืนหอพักนี้ให้กลับมาออนไลน์ใช่หรือไม่?',
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
-        { text: 'ส่ง OTP', handler: () => this.openOtpModalForRestore(dormId) }
+        { text: 'กู้คืน', handler: () => this.executeRestore(dormId) }
       ]
     });
     await alert.present();

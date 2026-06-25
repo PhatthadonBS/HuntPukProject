@@ -1,50 +1,79 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar>
+<ion-header class="ion-no-border fac-header">
+  <ion-toolbar class="fac-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/"></ion-back-button>
+      <ion-back-button defaultHref="/" class="back-btn"></ion-back-button>
     </ion-buttons>
-    <ion-title>จัดการสิ่งอำนวยความสะดวก</ion-title>
+    <ion-title class="fac-title">จัดการสิ่งอำนวยความสะดวก</ion-title>
   </ion-toolbar>
-  <ion-toolbar>
-    <ion-segment [value]="currentSegment()" (ionChange)="segmentChanged($event)" mode="md" class="custom-segment">
-      <ion-segment-button value="all">
-        <ion-label>ทั้งหมด</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="requests">
-        <ion-label>คำร้องขอ ({{ facilityRequests().length }})</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-item" [class.active]="currentSegment() === 'all'" (click)="currentSegment.set('all')">
+      <span>ทั้งหมด</span>
+      <span class="tab-count" *ngIf="allFacilities().length > 0">{{ allFacilities().length }}</span>
+    </div>
+    <div class="tab-item" [class.active]="currentSegment() === 'requests'" (click)="currentSegment.set('requests')">
+      <span>คำร้องขอ</span>
+      <span class="tab-count pending" *ngIf="facilityRequests().length > 0">{{ facilityRequests().length }}</span>
+    </div>
+  </div>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  
-  <!-- Tab 1: All Facilities -->
-  <ng-container *ngIf="currentSegment() === 'all'">
-    <div *ngIf="allFacilities().length === 0 && !isLoading()" class="empty-state">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <p>ไม่มีสิ่งอำนวยความสะดวกในระบบ</p>
+<ion-content [fullscreen]="true" class="fac-content">
+
+  <!-- ========== Loading Skeleton ========== -->
+  <div class="skeleton-wrap" *ngIf="isLoading()">
+    <div class="skel-row" *ngFor="let i of [1,2,3,4,5,6]">
+      <div class="skel skel-icon"></div>
+      <div class="skel skel-text"></div>
+    </div>
+  </div>
+
+  <!-- ========== Tab: All Facilities ========== -->
+  <div class="tab-content" *ngIf="!isLoading() && currentSegment() === 'all'">
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="allFacilities().length === 0">
+      <div class="empty-icon">📭</div>
+      <p>ยังไม่มีสิ่งอำนวยความสะดวกในระบบ</p>
     </div>
 
+    <!-- Swipe Tip -->
     <div class="swipe-tip" *ngIf="allFacilities().length > 0">
       <ion-icon name="information-circle-outline"></ion-icon>
       <span>ปัดรายการไปทางซ้ายเพื่อแก้ไขหรือลบ</span>
     </div>
 
-    <ion-list *ngIf="allFacilities().length > 0">
-      <ion-item-sliding *ngFor="let fac of allFacilities()">
-        <ion-item class="facility-item" detail="false">
-          <ion-avatar slot="start" class="fac-avatar">
-            <ion-img [src]="fac.FAC_TYPE_ICON" *ngIf="fac.FAC_TYPE_ICON" (ionError)="handleImageError(fac)"></ion-img>
-            <div class="fallback-icon" *ngIf="!fac.FAC_TYPE_ICON">
-              <ion-icon name="cube-outline"></ion-icon>
-            </div>
-          </ion-avatar>
-          <ion-label>
+    <!-- Facility List -->
+    <ion-list class="fac-list" *ngIf="allFacilities().length > 0">
+      <ion-item-sliding *ngFor="let fac of allFacilities(); let i = index" class="fac-slide">
+        <ion-item class="fac-item" lines="none" detail="false">
+
+          <!-- Index Badge -->
+          <div class="fac-index" slot="start">{{ i + 1 }}</div>
+
+          <!-- Icon -->
+          <div class="fac-icon-box" slot="start">
+            <img *ngIf="fac.FAC_TYPE_ICON" [src]="fac.FAC_TYPE_ICON" class="fac-img" (error)="handleImageError(fac)" alt="">
+            <ion-icon *ngIf="!fac.FAC_TYPE_ICON" name="cube-outline" class="fac-fallback-icon"></ion-icon>
+          </div>
+
+          <ion-label class="fac-label">
             <h2>{{ fac.FAC_TYPE_NAME }}</h2>
           </ion-label>
+
+          <!-- Quick Action Buttons -->
+          <div class="quick-actions" slot="end" (click)="$event.stopPropagation()">
+            <button class="quick-btn edit-btn" (click)="openEditModal(fac)" title="แก้ไข">
+              <ion-icon name="create-outline"></ion-icon>
+            </button>
+            <button class="quick-btn del-btn" (click)="deleteFacility(fac)" title="ลบ">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
         </ion-item>
 
+        <!-- Swipe Actions (backup for swipe gesture) -->
         <ion-item-options side="end">
           <ion-item-option color="primary" (click)="openEditModal(fac)">
             <ion-icon slot="icon-only" name="create-outline"></ion-icon>
@@ -55,80 +84,84 @@
         </ion-item-options>
       </ion-item-sliding>
     </ion-list>
-  </ng-container>
+  </div>
 
-  <!-- Tab 2: Requests -->
-  <ng-container *ngIf="currentSegment() === 'requests'">
-    <div *ngIf="facilityRequests().length === 0 && !isLoading()" class="empty-state">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <p>ไม่มีคำร้องขอสิ่งอำนวยความสะดวกใหม่</p>
+  <!-- ========== Tab: Requests ========== -->
+  <div class="tab-content" *ngIf="!isLoading() && currentSegment() === 'requests'">
+
+    <div class="empty-state" *ngIf="facilityRequests().length === 0">
+      <div class="empty-icon">✅</div>
+      <p>ไม่มีคำร้องขอใหม่</p>
     </div>
 
-    <ion-list *ngIf="facilityRequests().length > 0">
-      <ion-item *ngFor="let fac of facilityRequests()" class="facility-item request-item" lines="none">
-        <ion-avatar slot="start" class="fac-avatar">
-          <ion-img [src]="fac.FAC_TYPE_ICON" *ngIf="fac.FAC_TYPE_ICON" (ionError)="handleImageError(fac)"></ion-img>
-          <div class="fallback-icon" *ngIf="!fac.FAC_TYPE_ICON">
-            <ion-icon name="cube-outline"></ion-icon>
-          </div>
-        </ion-avatar>
-        <ion-label>
+    <ion-list class="fac-list" *ngIf="facilityRequests().length > 0">
+      <ion-item *ngFor="let fac of facilityRequests()" class="fac-item request-card" lines="none">
+
+        <div class="fac-icon-box" slot="start">
+          <img *ngIf="fac.FAC_TYPE_ICON" [src]="fac.FAC_TYPE_ICON" class="fac-img" (error)="handleImageError(fac)" alt="">
+          <ion-icon *ngIf="!fac.FAC_TYPE_ICON" name="cube-outline" class="fac-fallback-icon"></ion-icon>
+        </div>
+
+        <ion-label class="fac-label">
           <h2>{{ fac.FAC_TYPE_NAME }}</h2>
-          <p class="status-badge pending">รออนุมัติ</p>
+          <span class="pending-badge">⏳ รออนุมัติ</span>
         </ion-label>
-        
-        <div slot="end" class="action-buttons">
-          <ion-button fill="clear" color="success" (click)="approveFacility(fac)">
-            <ion-icon slot="icon-only" name="checkmark-circle-outline"></ion-icon>
-          </ion-button>
-          <ion-button fill="clear" color="danger" (click)="rejectFacility(fac)">
-            <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
-          </ion-button>
+
+        <div class="request-actions" slot="end">
+          <button class="req-btn approve" (click)="approveFacility(fac)" title="อนุมัติ">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </button>
+          <button class="req-btn reject" (click)="rejectFacility(fac)" title="ปฏิเสธ">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </button>
         </div>
       </ion-item>
     </ion-list>
-  </ng-container>
+  </div>
 
 </ion-content>
 
-<!-- Edit Modal -->
-<ion-modal [isOpen]="isEditModalOpen()" (didDismiss)="isEditModalOpen.set(false)" class="popup-modal">
+<!-- ========== Edit Modal ========== -->
+<ion-modal [isOpen]="isEditModalOpen()" (didDismiss)="isEditModalOpen.set(false)" class="edit-modal">
   <ng-template>
-    <div class="modal-content">
+    <div class="modal-wrap">
       <div class="modal-header">
-        <h3>แก้ไขสิ่งอำนวยความสะดวก</h3>
-        <ion-button fill="clear" color="medium" (click)="isEditModalOpen.set(false)">
-          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-        </ion-button>
+        <h3>✏️ แก้ไขสิ่งอำนวยความสะดวก</h3>
+        <button class="modal-close" (click)="isEditModalOpen.set(false)">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
       </div>
-      
+
       <div class="modal-body">
-        <ion-item lines="none" class="input-item">
-          <ion-label position="stacked">ชื่อสิ่งอำนวยความสะดวก</ion-label>
-          <ion-input [value]="editFacName()" (ionInput)="editFacName.set($any($event.target).value)" placeholder="ระบุชื่อ"></ion-input>
-        </ion-item>
-        
-        <div class="image-upload-section">
-          <ion-label>ไอคอน</ion-label>
-          <div class="image-upload-box">
-            <input type="file" accept="image/*" (change)="selectNativeImage($event)" style="display: none;" #fileInput>
-            <div class="upload-placeholder" *ngIf="!editPreviewUrl()" (click)="fileInput.click()">
+        <!-- Name Input -->
+        <div class="input-group">
+          <label class="input-label">ชื่อสิ่งอำนวยความสะดวก</label>
+          <input class="text-input"
+            [value]="editFacName()"
+            (input)="editFacName.set($any($event.target).value)"
+            placeholder="ระบุชื่อ">
+        </div>
+
+        <!-- Icon Upload -->
+        <div class="input-group">
+          <label class="input-label">ไอคอน</label>
+          <input type="file" accept="image/*" (change)="selectNativeImage($event)" style="display:none" #fileInput>
+          <div class="icon-upload-area" (click)="fileInput.click()">
+            <img *ngIf="editPreviewUrl()" [src]="editPreviewUrl()" class="icon-preview" alt="preview">
+            <div *ngIf="!editPreviewUrl()" class="icon-placeholder">
               <ion-icon name="image-outline"></ion-icon>
-              <span>เปลี่ยนรูปภาพไอคอน</span>
+              <span>แตะเพื่อเลือกรูป</span>
             </div>
-            <div class="image-preview" *ngIf="editPreviewUrl()" (click)="fileInput.click()">
-              <img [src]="editPreviewUrl()" alt="Preview">
-              <div class="change-overlay">
-                <ion-icon name="camera-outline"></ion-icon>
-                <span>เปลี่ยนรูป</span>
-              </div>
+            <div class="icon-overlay" *ngIf="editPreviewUrl()">
+              <ion-icon name="camera-outline"></ion-icon>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
-        <ion-button expand="block" (click)="saveEditFacility()" color="primary" class="save-btn">บันทึกการเปลี่ยนแปลง</ion-button>
+        <button class="btn-cancel" (click)="isEditModalOpen.set(false)">ยกเลิก</button>
+        <button class="btn-save" (click)="saveEditFacility()">บันทึก</button>
       </div>
     </div>
   </ng-template>

@@ -98,25 +98,26 @@
           
           <div class="right-btns">
             <!-- Status Dropdown (แทนปุ่มลูกศร) -->
-            <div class="status-dropdown-wrap" *ngIf="item.REQ_STATUS === 1 && item.DORM_STATUS_ID !== 2 && item.DORM_STATUS_ID !== 4"
+            <div class="status-dropdown-wrap" *ngIf="item.REQ_STATUS === 1 && item.DORM_STATUS_ID !== 4"
               (click)="$event.stopPropagation()">
               <select class="status-select"
                 [value]="item.DORM_STATUS_ID"
                 (change)="onStatusChange($event, item)">
                 <option value="1">🟢 ว่าง</option>
                 <option value="3">🔴 ห้องเต็ม</option>
+                <option value="2">🟡 ปิดปรับปรุง</option>
               </select>
             </div>
 
-            <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 2 && item.DORM_STATUS_ID !== 4">
+            <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 4">
               <ion-icon name="create-outline" slot="icon-only"></ion-icon>
             </ion-button>
 
-            <ion-button fill="outline" size="small" color="danger" class="action-btn" (click)="confirmDelete(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 2 && item.DORM_STATUS_ID !== 4">
+            <ion-button fill="outline" size="small" color="danger" class="action-btn" (click)="confirmDelete(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 4">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
             </ion-button>
 
-            <ion-button fill="solid" size="small" color="success" class="action-btn" (click)="confirmRestoreWithOTP(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID === 2">
+            <ion-button fill="solid" size="small" color="success" class="action-btn" (click)="confirmRestoreWithOTP(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID === 4">
               <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </div>

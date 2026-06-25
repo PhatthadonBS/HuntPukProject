@@ -32,6 +32,9 @@ export class ComparePage implements OnInit {
   maxSelection: number = 3; 
   isLoggedIn: boolean = false;
 
+  // จุดอ้างอิงระยะทาง (ม.มหาสารคาม มอใหม่ เป็น default)
+  referencePoint = { lat: 16.246, lng: 103.252 };
+
   constructor(
     private dormService: DormitoryService,
     private router: Router,
@@ -44,6 +47,25 @@ export class ComparePage implements OnInit {
       logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle, 
       location, closeCircle, call, chatbubbleEllipsesOutline, trashOutline
     });
+    // โหลด referencePoint จาก localStorage ถ้ามี
+    try {
+      const stored = localStorage.getItem('userLocation');
+      if (stored) {
+        const loc = JSON.parse(stored);
+        if (loc.lat && loc.lng) this.referencePoint = { lat: loc.lat, lng: loc.lng };
+      }
+    } catch(e) {}
+  }
+
+  // คำนวณระยะทาง Haversine (กม.)
+  calcDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
   ngOnInit() {
@@ -140,8 +162,13 @@ export class ComparePage implements OnInit {
          }
       }
 
-      // ✅ 3. สลับหน้าเป็นตารางตอนที่หน้ากาก Loading ยังปิดจออยู่ (ลดอาการค้าง 100%)
-      this.selectedDorms = results;
+      // ✅ 3. คำนวณ distance + สลับหน้าเป็นตาราง
+      this.selectedDorms = results.map((d: any) => ({
+        ...d,
+        calcDistance: (d.lat && d.lng)
+          ? this.calcDistanceKm(this.referencePoint.lat, this.referencePoint.lng, Number(d.lat), Number(d.lng)).toFixed(1)
+          : null
+      }));
       this.isComparing = true;
 
     } catch (error) {
@@ -176,5 +203,12 @@ export class ComparePage implements OnInit {
       cssClass: 'custom-alert'
     });
     await alert.present();
+  }
+
+  getWaterLump(item: any): string {
+    const v = item.WATER_LUMP ?? item.water_lump;
+    if (v === null || v === undefined) return '-';
+    if (Number(v) === 0) return 'ไม่ระบุ';
+    return v + ' บ./ด.';
   }
 }

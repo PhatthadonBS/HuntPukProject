@@ -1,297 +1,419 @@
-ion-content {
-  --background: #ffffff;
+/* ==========================================
+   🎨 Variables — Yellow/Black/White Minimal
+   ========================================== */
+$yellow:  #FFD600;
+$dark:    #1a1a1a;
+$gray:    #f4f5f7;
+$gray2:   #e8eaed;
+$mid:     #888;
+$white:   #ffffff;
+$radius:  16px;
+
+/* ==========================================
+   🏷️ Header
+   ========================================== */
+.fac-header { --background: #{$dark}; }
+
+.fac-toolbar {
+  --background: #{$dark};
+  --color: #{$white};
+  .back-btn { --color: #{$yellow}; }
 }
 
-ion-header {
-  ion-toolbar {
-    --background: #ffffff;
-    --border-width: 0;
-  }
-  
-  ion-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #1a1a1a;
+.fac-title {
+  color: $white;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+/* ==========================================
+   🗂️ Tab Bar
+   ========================================== */
+.tab-bar {
+  display: flex;
+  background: $dark;
+  padding: 0 20px;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+
+  &.active {
+    color: $yellow;
+    border-bottom-color: $yellow;
   }
 }
 
-.custom-segment {
-  background: #ffffff;
-  padding: 0 16px 8px;
-  
-  ion-segment-button {
-    --color: #8c8c8c;
-    --color-checked: #1a1a1a;
-    --indicator-color: #1a1a1a;
-    font-weight: 500;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: -0.2px;
+.tab-count {
+  background: rgba(255,255,255,0.12);
+  color: $white;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+
+  &.pending {
+    background: $yellow;
+    color: $dark;
   }
 }
 
+/* ==========================================
+   📦 Content
+   ========================================== */
+.fac-content { --background: #{$gray}; }
+
+.tab-content {
+  padding: 16px;
+}
+
+/* ==========================================
+   💀 Skeleton Loader
+   ========================================== */
+.skeleton-wrap {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: $white;
+  padding: 14px 16px;
+  border-radius: $radius;
+}
+.skel {
+  background: linear-gradient(90deg, #ebebeb 25%, #d8d8d8 50%, #ebebeb 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: fac-shimmer 1.4s infinite;
+}
+.skel-icon { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; }
+.skel-text  { flex: 1; height: 16px; }
+@keyframes fac-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ==========================================
+   📋 Facility List
+   ========================================== */
+.fac-list {
+  background: transparent;
+  padding: 0;
+}
+
+.fac-slide {
+  margin-bottom: 10px;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.fac-item {
+  --background: #{$white};
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  border-radius: $radius;
+  padding: 12px 14px;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+
+  &:active { box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+
+  &.request-card {
+    border-left: 4px solid $yellow;
+  }
+}
+
+.fac-index {
+  width: 28px;
+  height: 28px;
+  background: $dark;
+  color: $yellow;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.fac-icon-box {
+  width: 44px;
+  height: 44px;
+  background: $gray;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: 14px;
+}
+
+.fac-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fac-fallback-icon {
+  font-size: 22px;
+  color: $mid;
+}
+
+.fac-label {
+  h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: $dark;
+    margin: 0;
+  }
+}
+
+/* Quick Action Buttons */
+.quick-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.quick-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 17px;
+  transition: all 0.15s;
+
+  &:active { transform: scale(0.90); }
+
+  &.edit-btn {
+    background: rgba(26,26,26,0.08);
+    color: $dark;
+    &:hover { background: $dark; color: $yellow; }
+  }
+
+  &.del-btn {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+    &:hover { background: #ef4444; color: $white; }
+  }
+}
+
+/* ==========================================
+   ⏳ Pending Badge
+   ========================================== */
+.pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,214,0,0.2);
+  color: #7a6200;
+  border: 1px solid rgba(255,214,0,0.4);
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-top: 4px;
+}
+
+.request-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.req-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.15s;
+  &:active { transform: scale(0.9); }
+
+  &.approve {
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+    &:hover { background: #22c55e; color: $white; }
+  }
+  &.reject {
+    background: rgba(239,68,68,0.10);
+    color: #ef4444;
+    &:hover { background: #ef4444; color: $white; }
+  }
+}
+
+/* ==========================================
+   💬 Swipe Tip
+   ========================================== */
+.swipe-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $mid;
+  font-weight: 600;
+  padding: 0 4px 12px;
+  ion-icon { font-size: 16px; color: $yellow; }
+}
+
+/* ==========================================
+   🌑 Empty State
+   ========================================== */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60vh;
-  color: #a0a0a0;
-  text-align: center;
-  
-  ion-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.3;
-  }
-  
-  p {
-    font-size: 15px;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: -0.2px;
-  }
+  padding: 60px 20px;
+  gap: 12px;
+  .empty-icon { font-size: 48px; }
+  p { font-size: 14px; color: $mid; font-weight: 600; margin: 0; }
 }
 
-.swipe-tip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  margin: 16px 16px 0;
-  background: rgba(var(--ion-color-primary-rgb), 0.05);
-  border-radius: 8px;
-  color: var(--ion-color-primary);
-  
-  ion-icon {
-    font-size: 18px;
-    margin-right: 8px;
-  }
-  
-  span {
-    font-size: 13px;
-    font-weight: 500;
-    font-family: 'Inter', sans-serif;
-  }
-}
-
-ion-list {
-  background: transparent;
-  padding: 16px;
-}
-
-ion-item-sliding {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.facility-item {
-  --background: #ffffff;
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  font-family: 'Inter', sans-serif;
-  
-  &.request-item {
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  .fac-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    background: #fafafa;
-    border: 1px solid #f0f0f0;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-    
-    ion-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .fallback-icon {
-      font-size: 20px;
-      color: #b0b0b0;
-    }
-  }
-
-  h2 {
-    font-weight: 500;
-    font-size: 15px;
-    color: #262626;
-    letter-spacing: -0.2px;
-  }
-}
-
-.request-item {
-  .status-badge {
-    display: inline-block;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 500;
-    margin-top: 4px;
-    border: 1px solid #e0e0e0;
-    color: #595959;
-    background: #fafafa;
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    
-    ion-button {
-      --padding-start: 4px;
-      --padding-end: 4px;
-      margin: 0;
-      
-      ion-icon {
-        font-size: 24px;
-      }
-    }
-  }
-}
-
-/* Popup Modal Styles */
-.popup-modal {
-  --width: 90%;
-  --max-width: 400px;
+/* ==========================================
+   📝 Edit Modal
+   ========================================== */
+.edit-modal {
   --height: auto;
-  --border-radius: 16px;
+  --border-radius: 24px 24px 0 0;
   --background: transparent;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
 }
 
-.modal-content {
-  background: #ffffff;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  font-family: 'Inter', sans-serif;
+.modal-wrap {
+  background: $white;
+  border-radius: 24px 24px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom);
 }
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  
-  h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-  }
-  
-  ion-button {
-    margin: 0;
-    --padding-start: 0;
-    --padding-end: 0;
-    height: 32px;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+  h3 { font-size: 16px; font-weight: 800; color: $dark; margin: 0; }
+}
+
+.modal-close {
+  width: 36px; height: 36px;
+  background: $gray; border: none; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: $mid; cursor: pointer;
+  &:active { background: $gray2; }
+}
+
+.modal-body { padding: 20px; }
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: $mid;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.text-input {
+  width: 100%;
+  border: 2px solid $gray2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: $dark;
+  background: $gray;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  &:focus {
+    border-color: $yellow;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba(255,214,0,0.15);
   }
 }
 
-.modal-body {
-  padding: 20px;
-  
-  .input-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    --background: transparent;
-    margin-bottom: 24px;
-    
-    ion-label {
-      font-size: 14px;
-      color: #595959;
-      margin-bottom: 8px;
-    }
-    
-    ion-input {
-      --background: #fafafa;
-      --padding-start: 12px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-    }
-  }
+.icon-upload-area {
+  position: relative;
+  width: 90px; height: 90px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: $gray;
+  border: 2px dashed $gray2;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  &:hover { border-color: $yellow; }
 }
 
-.image-upload-section {
-  ion-label {
-    display: block;
-    font-size: 14px;
-    color: #595959;
-    margin-bottom: 12px;
-  }
-  
-  .image-preview {
-    width: 80px;
-    height: 80px;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    cursor: pointer;
-    border: 1px solid #e0e0e0;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .edit-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 28px;
-      
-      ion-icon {
-        color: #ffffff;
-        font-size: 16px;
-      }
-    }
-  }
-  
-  .image-placeholder {
-    width: 100%;
-    height: 100px;
-    border: 2px dashed #d9d9d9;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #8c8c8c;
-    cursor: pointer;
-    background: #fafafa;
-    
-    ion-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-      color: #bfbfbf;
-    }
-    
-    span {
-      font-size: 13px;
-    }
-  }
+.icon-placeholder {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: 6px;
+  ion-icon { font-size: 26px; color: $mid; }
+  span { font-size: 10px; font-weight: 700; color: $mid; text-align: center; }
+}
+
+.icon-preview {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.icon-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+  ion-icon { font-size: 24px; color: $white; }
+  .icon-upload-area:hover & { opacity: 1; }
 }
 
 .modal-footer {
-  padding: 16px 20px;
-  border-top: 1px solid #f0f0f0;
-  
-  .save-btn {
-    margin: 0;
-    --border-radius: 8px;
-    font-weight: 600;
-  }
+  display: flex; gap: 10px; padding: 0 20px 20px;
+}
+
+.btn-cancel {
+  flex: 1; padding: 14px; border-radius: 14px;
+  background: $gray; border: none; font-size: 15px;
+  font-weight: 700; color: $mid; cursor: pointer;
+  &:active { background: $gray2; }
+}
+
+.btn-save {
+  flex: 2; padding: 14px; border-radius: 14px;
+  background: $dark; border: none; font-size: 15px;
+  font-weight: 800; color: $yellow; cursor: pointer;
+  transition: transform 0.15s;
+  &:active { transform: scale(0.97); }
 }

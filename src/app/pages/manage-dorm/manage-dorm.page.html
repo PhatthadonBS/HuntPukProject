@@ -42,6 +42,8 @@
             <div class="col-dorm">
               {{ item.DORM_NAME }}
               <span *ngIf="item.DORM_STATUS_ID === 2" class="status-closed">(ปิดปรับปรุง)</span>
+              <span *ngIf="item.DORM_STATUS_ID === 3" class="status-full">(ห้องเต็ม)</span>
+              <span *ngIf="item.DORM_STATUS_ID === 4" class="status-deleted">(ถูกลบ)</span>
             </div>
 
             <div class="col-owner">
@@ -58,12 +60,12 @@
                 <div class="tiny-pen">✎</div>
               </div>
 
-              <div class="icon-btn delete-btn" *ngIf="item.DORM_STATUS_ID !== 2" (click)="confirmRemove(item)"
-                title="ลบ/ปิดปรับปรุง">
+              <div class="icon-btn delete-btn" *ngIf="item.DORM_STATUS_ID !== 4" (click)="confirmRemove(item)"
+                title="ลบออกจากระบบ">
                 <ion-icon name="trash"></ion-icon>
               </div>
 
-              <div class="icon-btn restore-btn" *ngIf="item.DORM_STATUS_ID === 2" (click)="confirmRestore(item)"
+              <div class="icon-btn restore-btn" *ngIf="item.DORM_STATUS_ID === 2 || item.DORM_STATUS_ID === 4" (click)="confirmRestore(item)"
                 title="กู้คืน">
                 <ion-icon name="refresh"></ion-icon>
               </div>

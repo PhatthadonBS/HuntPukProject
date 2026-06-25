@@ -93,12 +93,12 @@
               </div>
 
               <div class="row-cell distance-text">
-                 {{ (item.DISTANCE !== null && item.DISTANCE !== undefined) ? item.DISTANCE + ' กม.' : ((item.distance !== null && item.distance !== undefined) ? item.distance + ' กม.' : '-') }}
+                 {{ item.calcDistance ? (item.calcDistance + ' กม.') : '-' }}
               </div>
 
               <div class="row-cell utility-text">
-                 <div class="sub-rate">หน่วย: {{ (item.WATER_UNIT !== null && item.WATER_UNIT !== undefined) ? item.WATER_UNIT + ' บ.' : ((item.water_unit !== null && item.water_unit !== undefined) ? item.water_unit + ' บ.' : '-') }}</div>
-                 <div class="sub-rate">เหมา: {{ (item.WATER_LUMP !== null && item.WATER_LUMP !== undefined) ? item.WATER_LUMP + ' บ./ด.' : ((item.water_lump !== null && item.water_lump !== undefined) ? item.water_lump + ' บ./ด.' : '-') }}</div>
+                 <div class="sub-rate">หน่วย: {{ (item.WATER_UNIT != null) ? item.WATER_UNIT + ' บ.' : ((item.water_unit != null) ? item.water_unit + ' บ.' : '-') }}</div>
+                 <div class="sub-rate">เหมา: {{ getWaterLump(item) }}</div>
               </div>
 
               <div class="row-cell utility-text">
@@ -112,7 +112,9 @@
               <div class="row-cell room-row">
                  <div class="inner-scroll-box" *ngIf="item.rooms && item.rooms.length > 0">
                     <div class="list-item" *ngFor="let room of item.rooms">
-                       <span class="label">{{ room.ROOM_TYPE_NAME }}</span>
+                       <span class="label">{{ room.ROOM_TYPE_NAME }}
+                         <span class="bed-type" *ngIf="room.BED_TYPE_NAME"> · {{ room.BED_TYPE_NAME }}</span>
+                       </span>
                        <div class="price-list">
                          <span class="value" *ngFor="let p of room.prices">{{ p.name }}: {{ p.price > 0 ? '฿' + (p.price | number) : '-' }}</span>
                        </div>

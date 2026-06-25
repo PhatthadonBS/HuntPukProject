@@ -74,16 +74,16 @@ export class ManageDormPage implements OnInit {
     }
   }
 
-  // ไปหน้าดูรายละเอียด/แก้ไข
+  // ไปหน้าแก้ไขหอพัก
   goToDetail(dormId: number) {
-    this.router.navigate(['/dorm-detail', dormId]); 
+    this.router.navigate(['/edit-dorm', dormId]); 
   }
 
-  // ฟังก์ชันลบ (ปิดปรับปรุง)
+  // ฟังก์ชันลบ (soft delete — เปลี่ยนสถานะเป็น 4 ยังกู้คืนได้)
   async confirmRemove(dorm: any) {
     const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการลบ',
-      message: `คุณต้องการปิดสถานะหอพัก "${dorm.DORM_NAME}" ใช่หรือไม่?`,
+      header: '🗑️ ลบหอพักออกจากระบบ',
+      message: `หอพัก "${dorm.DORM_NAME}" จะถูกซ่อนออกจากรายการ แต่สามารถกู้คืนได้ภายหลัง\n\nยืนยันการลบ?`,
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
@@ -102,9 +102,9 @@ export class ManageDormPage implements OnInit {
     const loading = await this.loadingCtrl.create({ message: 'กำลังดำเนินการ...' });
     await loading.present();
     try {
-      await this.dormService.removeDorm(id);
-      this.showToast('ลบหอพักเรียบร้อย', 'success');
-      this.loadAllDorms(); // โหลดใหม่เพื่ออัปเดตสถานะในตาราง
+      await this.dormService.changeDormStatus(id, 4); // soft delete
+      this.showToast('ลบหอพักออกจากระบบแล้ว (กู้คืนได้)', 'success');
+      this.loadAllDorms();
     } catch (error) {
       this.showToast('เกิดข้อผิดพลาดในการลบ', 'danger');
     } finally {
