@@ -131,12 +131,12 @@ $text-muted: #6c757d;
     font-size: 13px; font-weight: 900; color: #fff;
     z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     
-    &.full { background: #e74c3c; } 
-    &.available { background: #2ecc71; }
-    &.closed { background: #7f8c8d; }
+    &.full, &.status-3 { background: #e74c3c; } 
+    &.available, &.status-1 { background: #2ecc71; }
+    &.closed, &.status-2 { background: #7f8c8d; }
   }
 
-  &:has(.status-badge.closed) img {
+  &:has(.status-badge.closed) img, &:has(.status-badge.status-2) img {
     filter: grayscale(100%) brightness(80%);
   }
 
@@ -395,4 +395,92 @@ ion-modal.filter-modal-custom {
 @keyframes skshimmer {
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
+}
+
+/* =============================================
+   🗺️ Map Skeleton Overlay — position:fixed
+   z-index 8000 สูงกว่า Google Maps iframe
+   ============================================= */
+.map-skeleton-overlay {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8000;
+  background: #e8edf0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+
+  .map-skel-shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, #e8edf0 30%, #d0d8de 50%, #e8edf0 70%);
+    background-size: 200% 100%;
+    animation: mapShimmer 1.8s infinite ease-in-out;
+  }
+
+  .map-skel-center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+
+    .map-skel-pin {
+      width: 40px;
+      height: 40px;
+      background: #FFD600;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      animation: pinPulse 1.2s ease-in-out infinite;
+    }
+
+    p {
+      font-size: 15px;
+      font-weight: 700;
+      color: #555;
+      letter-spacing: 0.3px;
+    }
+  }
+}
+
+@keyframes mapShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pinPulse {
+  0%, 100% { transform: rotate(-45deg) scale(1); }
+  50%       { transform: rotate(-45deg) scale(1.2); }
+}
+
+/* =============================================
+   🔽 Zone Select Dropdown
+   ============================================= */
+.zone-select {
+  width: 100%;
+  padding: 14px 40px 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  background-color: #f9f9f9;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: #FFD600;
+    box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
+    background-color: #ffffff;
+  }
 }

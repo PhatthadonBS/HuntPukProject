@@ -32,9 +32,12 @@
            <div class="img-wrapper" style="position: relative;">
               <img [src]="topDorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
               
-              <div class="status-badge" [ngClass]="getStatusClass(topDorm.status || topDorm.DORM_STATUS_ID)">
-                {{ getStatusText(topDorm.status || topDorm.DORM_STATUS_ID) }}
-              </div>
+              <ng-container *ngFor="let stat of dormStatusList">
+                <div *ngIf="(topDorm.status || topDorm.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
+                     class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
+                  {{ stat.DORM_STATUS_NAME }}
+                </div>
+              </ng-container>
             </div>
               <div class="info-main">
                 <h2>{{ topDorm.DORM_NAME }}</h2>
@@ -70,9 +73,12 @@
          <div class="img-wrapper-mini" style="position: relative;">
                 <img [src]="item.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                 
-                <div class="status-badge" [ngClass]="getStatusClass(item.status || item.DORM_STATUS_ID)">
-                  {{ getStatusText(item.status || item.DORM_STATUS_ID) }}
-                </div>
+                <ng-container *ngFor="let stat of dormStatusList">
+                  <div *ngIf="(item.status || item.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
+                       class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
+                    {{ stat.DORM_STATUS_NAME }}
+                  </div>
+                </ng-container>
               </div>
                  
                  <div class="info-mini">

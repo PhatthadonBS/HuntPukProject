@@ -429,6 +429,10 @@ export class DormitoryService {
     return this.http.delete<any>(`${this.apiUrl}/dorms/dormTypes/${id}`);
   }
 
+  updateMasterType(type: string, id: number, name: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/type_management/${type}/${id}`, { name });
+  }
+
   getRoomTypes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/dorms/roomTypes`);
   }
@@ -474,5 +478,14 @@ export class DormitoryService {
   }
   deleteZone(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/dorms/zones/${id}`);
+  }
+
+  // ==========================================
+  // Dashboard Stats (Admin)
+  // ==========================================
+  async getDashboardStats(): Promise<any> {
+    return lastValueFrom(
+      this.http.get<any>(`${this.apiUrl}/dashboard/stats`)
+    );
   }
 }

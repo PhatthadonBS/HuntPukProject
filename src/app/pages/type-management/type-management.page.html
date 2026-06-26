@@ -110,16 +110,21 @@
           <ion-label>รายการ{{ currentLabel }}ที่มีอยู่</ion-label>
         </ion-item-divider>
 
-        <ion-item class="data-item" *ngFor="let item of currentList">
+        <ion-item *ngFor="let item of currentList" class="type-list-item">
           <ion-label>
-            {{ item.name || item.ZONE_NAME }}
+            <h2 class="type-name">{{ item.name || item.ZONE_NAME }}</h2>
             <p *ngIf="item.lat && item.lng" class="coord-sub">
               Lat: {{ item.lat }}, Lng: {{ item.lng }}
             </p>
           </ion-label>
-          <ion-button slot="end" color="danger" fill="clear" (click)="confirmDelete(item)">
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-button>
+          <div slot="end" style="display: flex; gap: 4px;">
+            <ion-button color="warning" fill="clear" (click)="editType(item)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button color="danger" fill="clear" (click)="confirmDelete(item)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
         </ion-item>
 
         <ion-item *ngIf="currentList?.length === 0">

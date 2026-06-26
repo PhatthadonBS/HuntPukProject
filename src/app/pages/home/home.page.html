@@ -7,14 +7,31 @@
     (closed)="showWelcomeModal = false">
   </app-welcome-modal>
 
+  <!-- 🗺️ Map Skeleton — position:fixed สูงกว่า Google Maps iframe -->
+  <div class="map-skeleton-overlay" *ngIf="isMapLoading">
+    <div class="map-skel-shimmer"></div>
+    <div class="map-skel-center">
+      <div class="map-skel-pin"></div>
+      <p>กำลังโหลดหมุดหอพัก...</p>
+    </div>
+  </div>
+
   <!-- ✅ Splash Screen -->
   <app-splash-screen *ngIf="isInitialLoading"></app-splash-screen>
 
-  <app-header title="หน้าหลัก" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
+  <app-header 
+    title="หน้าหลัก" 
+    [userData]="currentUser" 
+    [dormList]="allDorms"
+    [hasActiveFilter]="hasActiveFilter()"
+    (searchChange)="onSearch($event)"
+    (dormSelected)="onDormSelected($event)"
+    (searchSubmit)="onSearchSubmit($event)">
+  </app-header>
 
   <ion-content [fullscreen]="true" [scrollY]="false">
     <div class="map-wrapper">
-      
+
       <google-map #mapRef *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
         [options]="mapOptions">
 
@@ -62,9 +79,12 @@
       <div class="panel-header-img">
         <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
         
-        <div class="status-badge" [ngClass]="getStatusClass(selectedDorm.status || selectedDorm.DORM_STATUS_ID)">
-          {{ getStatusText(selectedDorm.status || selectedDorm.DORM_STATUS_ID) }}
-        </div>
+        <ng-container *ngFor="let stat of dormStatusList">
+          <div *ngIf="(selectedDorm.status || selectedDorm.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
+               class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
+            {{ stat.DORM_STATUS_NAME }}
+          </div>
+        </ng-container>
 
         <div class="price-badge">฿ {{ getDormMinPrice(selectedDorm) | number }} / เดือน</div>
       </div>
@@ -155,7 +175,9 @@
           <div class="inline-rooms-box" *ngIf="selectedDorm.rooms && selectedDorm.rooms.length > 0">
             <div class="inline-box-title"><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</div>
             <div class="inline-room-item" *ngFor="let room of selectedDorm.rooms">
-              <span class="r-name">{{ room.ROOM_TYPE_NAME }}</span>
+              <span class="r-name">{{ room.ROOM_TYPE_NAME }}
+                <span style="color: #666; font-size: 0.9em; margin-left: 4px;" *ngIf="room.bedType && room.bedType !== '-'">· {{ room.bedType }}</span>
+              </span>
               <span class="r-price">฿ {{ room.PRICE | number }}.-</span>
             </div>
           </div>
@@ -234,6 +256,16 @@
         </div>
 
         <div class="filter-scrollable-body">
+
+          <!-- โซนอยู่แล้วเปิดลง ย้ายขึ้นด้านบน -->
+          <div class="zone-section" style="margin-bottom: 25px;">
+            <h3>บริเวณหอพัก</h3>
+            <select class="zone-select" [(ngModel)]="selectedZone">
+              <option value="">— ทุกโซน —</option>
+              <option *ngFor="let zone of zoneOptions" [value]="zone.ZONE_NAME">{{ zone.ZONE_NAME }}</option>
+            </select>
+          </div>
+
           <div class="distance-section">
              <div class="section-title">
                <h3>ระยะทาง (กม.)</h3>
@@ -257,10 +289,12 @@
 
           <div style="margin-bottom: 25px;">
              <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">คะแนนรีวิวขั้นต่ำ</h3>
-             <div style="display: flex; gap: 10px;">
-               <div (click)="minScore = 4" [style.background]="minScore === 4 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 4 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">4+ ดาว</div>
-               <div (click)="minScore = 3" [style.background]="minScore === 3 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 3 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">3+ ดาว</div>
-               <div (click)="minScore = null" [style.background]="minScore === null ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === null ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">ทั้งหมด</div>
+             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+               <div (click)="minScore = 1" [style.background]="minScore === 1 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 1 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">1+ ⭐</div>
+               <div (click)="minScore = 2" [style.background]="minScore === 2 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 2 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">2+ ⭐</div>
+               <div (click)="minScore = 3" [style.background]="minScore === 3 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 3 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">3+ ⭐</div>
+               <div (click)="minScore = 4" [style.background]="minScore === 4 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 4 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">4+ ⭐</div>
+               <div (click)="minScore = null" [style.background]="minScore === null ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === null ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">ทั้งหมด</div>
              </div>
           </div>
 
@@ -278,23 +312,11 @@
               </div>
             </div>
           </div>
-
-          <div class="zone-section">
-            <h3>บริเวณหอพัก</h3>
-            <div class="zone-options">
-              <div class="zone-item" *ngFor="let zone of zoneOptions" [class.selected]="selectedZone === zone.ZONE_NAME" (click)="selectZone(zone.ZONE_NAME)">
-                <span>{{ zone.ZONE_NAME }}</span>
-                <ion-icon *ngIf="selectedZone === zone.ZONE_NAME" name="checkmark-circle"></ion-icon>
-                <ion-icon *ngIf="selectedZone !== zone.ZONE_NAME" name="chevron-down-circle-outline" style="opacity: 0.3;"></ion-icon>
-              </div>
-              <div *ngIf="zoneOptions.length === 0" class="loading-zone">กำลังโหลดข้อมูลโซน...</div>
-            </div>
-          </div>
         </div>
 
         <div class="action-section">
           <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
-          <button class="btn-clear" (click)="minPrice=null; maxPrice=null; selectedZone=''; maxDistance=null; minScore=null; maxWater=null; maxElect=null; zoneCircleCenter=undefined; zoneCircleRadius=0; applyFilter()">ล้างตัวกรองทั้งหมด</button>
+          <button class="btn-clear" (click)="clearAllFilters(); applyFilter()">ล้างตัวกรองทั้งหมด</button>
         </div>
       </div>
     </ng-template>

@@ -24,7 +24,7 @@
     <div class="content-body fade-in" *ngIf="!isLoading && dashboardData">
       
       <div class="cards-grid">
-        <div class="stat-card shadow-card">
+        <div class="stat-card shadow-card" style="cursor: pointer;" (click)="goToDorms()">
           <div class="card-icon bg-yellow"><ion-icon name="business"></ion-icon></div>
           <div class="card-info">
             <h3>หอพักทั้งหมด</h3>
@@ -35,7 +35,7 @@
           </div>
         </div>
 
-        <div class="stat-card shadow-card">
+        <div class="stat-card shadow-card" style="cursor: pointer;" (click)="goToUsers()">
           <div class="card-icon bg-dark"><ion-icon name="people" style="color: #FFD600;"></ion-icon></div>
           <div class="card-info">
             <h3>สมาชิกในระบบ</h3>
@@ -46,13 +46,24 @@
           </div>
         </div>
 
-        <div class="stat-card shadow-card">
+        <div class="stat-card shadow-card" style="cursor: pointer;" (click)="openRequestActionSheet()">
           <div class="card-icon bg-light-gray"><ion-icon name="alert-circle" color="danger"></ion-icon></div>
           <div class="card-info">
             <h3>คำขอรออนุมัติ</h3>
             <div class="number-row">
               <span class="big-number">{{ dashboardData.pendingRequests | number }}</span>
               <span class="unit">รายการ</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card shadow-card">
+          <div class="card-icon" style="background: #e3f2fd; color: #2196f3;"><ion-icon name="stats-chart"></ion-icon></div>
+          <div class="card-info">
+            <h3>สถิติผู้เข้าชมเว็บ</h3>
+            <div class="number-row">
+              <span class="big-number">{{ dashboardData.totalVisitors | number }}</span>
+              <span class="unit">ครั้ง</span>
             </div>
           </div>
         </div>
@@ -66,8 +77,50 @@
           <canvas baseChart
             [data]="barChartData"
             [options]="barChartOptions"
-            [type]="'bar'">
+            [type]="'bar'"
+            (chartClick)="onChartClick($event)">
           </canvas>
+        </div>
+      </div>
+
+      <!-- รายการหอพักที่ถูกกรองเมื่อคลิกที่กราฟ -->
+      <div class="table-card shadow-card fade-in" *ngIf="filteredZoneDorms.length > 0">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3><ion-icon name="list-outline"></ion-icon> รายชื่อหอพักโซน: {{ selectedZoneName }}</h3>
+          <ion-button fill="clear" color="medium" (click)="clearZoneFilter()">
+            <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+          </ion-button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ชื่อหอพัก</th>
+                <th>ราคาเริ่มต้น</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dorm of filteredZoneDorms" style="cursor: pointer;" (click)="goToDormDetail(dorm)">
+                <td>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <img [src]="dorm.FRONT_DORM_IMAGE || dorm.image || 'assets/dorm-placeholder.jpg'" 
+                         onerror="this.src='https://placehold.co/40x40?text=No+Image'"
+                         style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                    <strong>{{ dorm.DORM_NAME || dorm.name }}</strong>
+                  </div>
+                </td>
+                <td style="font-weight: 700; color: #1976d2;">
+                  {{ dorm.start_price > 0 ? ('฿' + (dorm.start_price | number)) : '-' }}
+                </td>
+                <td>
+                  <span class="status-badge" [ngClass]="'status-' + (dorm.DORM_STATUS_ID || 1)">
+                    {{ dorm.DORM_STATUS_NAME || 'ไม่ระบุ' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

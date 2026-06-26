@@ -180,13 +180,13 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   
   /* สีตามสถานะต่างๆ */
-  &.available { background: #2ecc71; } /* สีเขียว = ว่าง */
-  &.full { background: #e74c3c; }      /* สีแดง = เต็ม */
-  &.closed { background: #7f8c8d; }    /* สีเทา = ปิดให้บริการ */
+  &.available, &.status-1 { background: #2ecc71; } /* สีเขียว = ว่าง */
+  &.full, &.status-3 { background: #e74c3c; }      /* สีแดง = เต็ม */
+  &.closed, &.status-2 { background: #7f8c8d; }    /* สีเทา = ปิดให้บริการ */
 }
 
 /* ทำให้รูปภาพอันดับ 1 มืดลงนิดนึงถ้าปิดกิจการ (ลูกเล่นเสริม) */
-.img-wrapper:has(.status-badge.closed) img,
-.img-wrapper-mini:has(.status-badge.closed) img {
+.img-wrapper:has(.status-badge.closed) img, .img-wrapper:has(.status-badge.status-2) img,
+.img-wrapper-mini:has(.status-badge.closed) img, .img-wrapper-mini:has(.status-badge.status-2) img {
   filter: grayscale(100%) brightness(80%);
 }

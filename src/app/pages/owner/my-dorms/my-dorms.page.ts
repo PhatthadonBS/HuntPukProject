@@ -45,11 +45,7 @@ export class MyDormsPage implements OnInit {
   isStatusModalOpen: boolean = false;
   selectedDormForStatus: any = null;
 
-  statusOptions = [
-    { id: 1, label: 'ว่าง / ออนไลน์', desc: 'หอพักเปิดรับนักศึกษา มีห้องว่าง', color: '#22c55e', icon: '🟢' },
-    { id: 3, label: 'ห้องเต็ม', desc: 'เปิดอยู่แต่ไม่มีห้องว่างแล้ว', color: '#ef4444', icon: '🔴' },
-    { id: 2, label: 'ปิดปรับปรุง', desc: 'ปิดให้บริการชั่วคราว กำลังปรับปรุง', color: '#f59e0b', icon: '🟡' },
-  ];
+  statusOptions: any[] = [];
 
   constructor(
     private router: Router,
@@ -68,7 +64,21 @@ export class MyDormsPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.dormService.getDormStatuses().subscribe({
+      next: (res: any) => {
+        const list = res.data || res;
+        this.statusOptions = list.map((s: any) => ({
+          id: s.DORM_STATUS_ID,
+          label: s.DORM_STATUS_NAME,
+          desc: '',
+          color: s.DORM_STATUS_ID === 1 ? '#22c55e' : (s.DORM_STATUS_ID === 3 ? '#ef4444' : '#f59e0b'),
+          icon: s.DORM_STATUS_ID === 1 ? '🟢' : (s.DORM_STATUS_ID === 3 ? '🔴' : '🟡')
+        }));
+      },
+      error: () => console.error('Failed to load statuses')
+    });
+  }
 
   ionViewWillEnter() {
     this.checkLoginAndLoadData();
@@ -111,9 +121,13 @@ export class MyDormsPage implements OnInit {
     if (reqStatus === 3) return 'ส่งคำร้องใหม่';
     if (reqStatus === 0) return 'รออนุมัติ';
     if (reqStatus === 2) return 'ไม่อนุมัติ';
-    if (statusId === 2) return 'ปิดปรับปรุง';
-    if (statusId === 3) return 'ห้องเต็ม';
-    return 'ว่าง / ออนไลน์'; 
+    
+    const foundStatus = this.statusOptions.find(s => s.id === statusId);
+    if (foundStatus) {
+      if (statusId === 1) return 'ว่าง / ออนไลน์';
+      return foundStatus.label;
+    }
+    return 'ไม่ทราบสถานะ'; 
   }
 
   getStatusColor(statusId: number, reqStatus: number): string {

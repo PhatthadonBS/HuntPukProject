@@ -10,9 +10,12 @@
       <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
       <div class="hero-overlay"></div>
       
-      <div class="status-badge" [ngClass]="getStatusClass(dormData.status || dormData.DORM_STATUS_ID)">
-        {{ getStatusText(dormData.status || dormData.DORM_STATUS_ID) }}
-      </div>
+      <ng-container *ngFor="let stat of dormStatusList">
+        <div *ngIf="(dormData.status || dormData.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
+             class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
+          {{ stat.DORM_STATUS_NAME }}
+        </div>
+      </ng-container>
     </div>
 
     <div class="main-info-card">

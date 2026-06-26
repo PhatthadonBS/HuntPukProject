@@ -24,6 +24,7 @@ export class DormPopularPage implements OnInit {
   otherDorms: any[] = [];
   compareError: string = '';
   currentUserId: number = 0;
+  dormStatusList: any[] = [];
   
   constructor(
     private dormService: DormitoryService,
@@ -42,7 +43,15 @@ export class DormPopularPage implements OnInit {
 
   ngOnInit() {
     this.checkLoginStatus();
+    this.fetchDormStatuses();
     this.fetchPopularDorms();
+  }
+
+  fetchDormStatuses() {
+    this.dormService.getDormStatuses().subscribe({
+      next: (res: any) => this.dormStatusList = res.data || res,
+      error: () => console.error('Failed to load dorm statuses')
+    });
   }
 
   checkLoginStatus() {
@@ -168,19 +177,4 @@ export class DormPopularPage implements OnInit {
     await toast.present();
   }
 
-  // 🌟 ฟังก์ชันแปลงตัวเลขสถานะ เป็น "ข้อความ"
-  getStatusText(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'ห้องเต็ม';
-    if (s === 2) return 'ปิดให้บริการ'; // สำหรับกรณีหอพักปิด
-    return 'ว่าง';
-  }
-
-  // 🌟 ฟังก์ชันแปลงตัวเลขสถานะ เป็น "คลาส CSS (สี)"
-  getStatusClass(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'full';
-    if (s === 2) return 'closed';
-    return 'available';
-  }
 }

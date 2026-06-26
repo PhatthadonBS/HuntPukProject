@@ -40,6 +40,7 @@ export class DormDetailPage implements OnInit {
   currentUserRole: number = 0; 
   hasReviewed: boolean = false;
   ownerInfo: any = null;
+  dormStatusList: any[] = [];
 
   constructor(
     private router: Router,
@@ -66,6 +67,7 @@ export class DormDetailPage implements OnInit {
   }
 
   ngOnInit() {
+    this.fetchDormStatuses();
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
       try {
@@ -90,6 +92,13 @@ export class DormDetailPage implements OnInit {
       this.prepareOwnerInfo();
       this.loadReviews();
     }
+  }
+
+  fetchDormStatuses() {
+    this.dormService.getDormStatuses().subscribe({
+      next: (res: any) => this.dormStatusList = res.data || res,
+      error: () => console.error('Failed to load dorm statuses')
+    });
   }
 
   get waterDetail(): string {
@@ -266,7 +275,13 @@ export class DormDetailPage implements OnInit {
     return parseFloat(rawScore);
   }
 
-  goBack() { this.navCtrl.back(); }
+  goBack() {
+    if (this.isPopup) {
+      this.navCtrl.back();
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
 
   retryLoad() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -278,20 +293,6 @@ export class DormDetailPage implements OnInit {
   async showToast(msg: string, color: string, duration: number = 2000) {
     const toast = await this.toastCtrl.create({ message: msg, duration: duration, color: color, position: 'bottom' });
     toast.present();
-  }
-
-  getStatusText(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'ห้องเต็ม';
-    if (s === 2) return 'ปิดให้บริการ';
-    return 'ว่าง';
-  }
-
-  getStatusClass(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'full';
-    if (s === 2) return 'closed';
-    return 'available';
   }
 
   goToNavigate() {

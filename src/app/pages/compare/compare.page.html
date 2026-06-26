@@ -112,9 +112,9 @@
               <div class="row-cell room-row">
                  <div class="inner-scroll-box" *ngIf="item.rooms && item.rooms.length > 0">
                     <div class="list-item" *ngFor="let room of item.rooms">
-                       <span class="label">{{ room.ROOM_TYPE_NAME }}
-                         <span class="bed-type" *ngIf="room.BED_TYPE_NAME"> · {{ room.BED_TYPE_NAME }}</span>
-                       </span>
+                         <span class="label">{{ room.ROOM_TYPE_NAME }}
+                           <span class="bed-type" *ngIf="room.bedType && room.bedType !== '-'"> · {{ room.bedType }}</span>
+                         </span>
                        <div class="price-list">
                          <span class="value" *ngFor="let p of room.prices">{{ p.name }}: {{ p.price > 0 ? '฿' + (p.price | number) : '-' }}</span>
                        </div>

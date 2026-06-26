@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { search, personCircle, personCircleOutline, logOutOutline } from 'ionicons/icons'; // ✅ นำเข้าทั้งแบบทึบและแบบเส้น
+import { search, personCircle, personCircleOutline, logOutOutline, closeCircle } from 'ionicons/icons';
 
 @Component({
   selector: 'app-header',
@@ -16,43 +16,78 @@ import { search, personCircle, personCircleOutline, logOutOutline } from 'ionico
 export class HeaderComponent implements OnInit {
 
   @Input() title: string = '';
-  
-  // ✅ ตัวแปรรับข้อมูล User จากหน้า Home
-  @Input() userData: any = null; 
-  
-  @Output() searchChange = new EventEmitter<string>();
+  @Input() userData: any = null;
+  @Input() dormList: any[] = [];       // รายชื่อหอพักทั้งหมด สำหรับ autocomplete
+  @Input() hasActiveFilter: boolean = false; // มีตัวกรอง active อยู่หรือไม่
+
+  @Output() searchChange = new EventEmitter<string>();          // real-time update markers
+  @Output() dormSelected = new EventEmitter<any>();             // กดเลือกหอพักจาก dropdown
+  @Output() searchSubmit = new EventEmitter<{ text: string; keepFilter: boolean }>(); // กดปุ่มค้นหา
 
   searchText: string = '';
+  suggestions: any[] = [];  // รายการ dropdown ที่กรองแล้ว
+  showSuggestions: boolean = false;
 
   constructor(private router: Router) {
-    // ✅ ลงทะเบียนไอคอนแบบ shorthand (ลบเครื่องหมายคำพูดและคอลอนออกทั้งหมด)
-    // การเขียนแบบนี้ทำให้ Ionic เข้าใจและจับคู่ไอคอนให้กับ HTML ได้สมบูรณ์ที่สุดทั้งแบบ person-circle และ person-circle-outline ครับ
-    addIcons({ 
-      search, 
-      personCircle, 
-      personCircleOutline, 
-      logOutOutline 
-    });
+    addIcons({ search, personCircle, personCircleOutline, logOutOutline, closeCircle });
   }
 
   ngOnInit() {}
 
-  onSearchInput() {
+  // พิมพ์ตัวอักษร → filter suggestions + อัปเดต markers real-time
+  onInput() {
+    const val = this.searchText.trim();
+    if (val.length >= 1) {
+      this.suggestions = this.dormList
+        .filter(d => (d.DORM_NAME || '').toLowerCase().includes(val.toLowerCase()))
+        .slice(0, 8);
+      this.showSuggestions = this.suggestions.length > 0;
+    } else {
+      this.suggestions = [];
+      this.showSuggestions = false;
+    }
+    // อัปเดต markers real-time
     this.searchChange.emit(this.searchText);
+  }
+
+  // กดเลือกหอพักจาก dropdown
+  selectSuggestion(dorm: any) {
+    this.searchText = dorm.DORM_NAME;
+    this.showSuggestions = false;
+    this.suggestions = [];
+    this.dormSelected.emit(dorm);
+  }
+
+  // กด Enter หรือปุ่มค้นหา
+  onSearchSubmit() {
+    this.showSuggestions = false;
+    this.searchSubmit.emit({ text: this.searchText, keepFilter: this.hasActiveFilter });
+  }
+
+  clearSearch() {
+    this.searchText = '';
+    this.suggestions = [];
+    this.showSuggestions = false;
+    this.searchChange.emit('');
+  }
+
+  // ปิด dropdown เมื่อคลิกนอก
+  @HostListener('document:click', ['$event'])
+  onDocClick(e: Event) {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.search-section')) {
+      this.showSuggestions = false;
+    }
   }
 
   goToLogin() { this.router.navigate(['/login']); }
   goToRegister() { this.router.navigate(['/register']); }
 
-  // ✅ ฟังก์ชัน Logout
   logout() {
-    // ลบข้อมูลการล็อกอิน
     localStorage.removeItem('loggedIn');
-    // รีโหลดหน้าจอเพื่อให้กลับสู่สถานะยังไม่ล็อกอิน
-    window.location.reload(); 
+    window.location.reload();
   }
 
-  // ✅ ฟังก์ชันไปหน้าบัญชีของฉัน
   goToMyAccount() {
     this.router.navigate(['/my-account']);
   }

@@ -24,6 +24,7 @@ export class ListPage implements OnInit {
   currentUserId: number = 0;
   currentUser: any = null; 
   isLoading: boolean = true; 
+  dormStatusList: any[] = [];
 
   constructor(
     private router: Router, 
@@ -39,7 +40,15 @@ export class ListPage implements OnInit {
 
   ngOnInit() {
     this.checkLoginStatus(); 
+    this.fetchDormStatuses();
     this.loadDorms();
+  }
+
+  fetchDormStatuses() {
+    this.dormService.getDormStatuses().subscribe({
+      next: (res: any) => this.dormStatusList = res.data || res,
+      error: () => console.error('Failed to load dorm statuses')
+    });
   }
 
   checkLoginStatus() {
@@ -159,19 +168,4 @@ export class ListPage implements OnInit {
 
   // 🌟 ฟังก์ชันเปิดเมนูด้านข้าง
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
-
-  // 🌟 ฟังก์ชันแปลงสถานะ
-  getStatusText(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'ห้องเต็ม';
-    if (s === 2) return 'ปิดให้บริการ';
-    return 'ว่าง';
-  }
-
-  getStatusClass(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'full';
-    if (s === 2) return 'closed';
-    return 'available';
-  }
 }

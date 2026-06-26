@@ -101,13 +101,13 @@ ion-content.custom-content {
       font-size: 12px; font-weight: 900; color: #fff;
       z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       
-      &.full { background: #e74c3c; } 
-      &.available { background: #2ecc71; } 
-      &.closed { background: #7f8c8d; } /* 👈 เพิ่มสีเทาสำหรับห้องปิด */
+      &.full, &.status-3 { background: #e74c3c; } 
+      &.available, &.status-1 { background: #2ecc71; } 
+      &.closed, &.status-2 { background: #7f8c8d; } /* 👈 เพิ่มสีเทาสำหรับห้องปิด */
     }
 
     /* 👈 เพิ่มลูกเล่น: รูปมืดลงถ้าหอปิด */
-    &:has(.status-badge.closed) img {
+    &:has(.status-badge.closed) img, &:has(.status-badge.status-2) img {
       filter: grayscale(100%) brightness(80%);
     }
 

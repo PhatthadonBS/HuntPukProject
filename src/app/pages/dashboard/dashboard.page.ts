@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   menuOutline, homeOutline, listOutline, starOutline, logOutOutline, person,
   business, people, documentText, map, time, businessOutline,
   peopleOutline, personCircleOutline, documentTextOutline, statsChart, alertCircle,
-  shieldCheckmark
+  shieldCheckmark, closeCircle
 } from 'ionicons/icons';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
@@ -31,6 +31,10 @@ export class DashboardPage implements OnInit {
   dashboardData: any = null;
   showWelcomeModal = false; // ✅ ควบคุม welcome modal
 
+  allDormsRaw: any[] = [];
+  filteredZoneDorms: any[] = [];
+  selectedZoneName: string = '';
+
   public barChartOptions: ChartConfiguration['options'] = {
     responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false } },
@@ -48,14 +52,15 @@ export class DashboardPage implements OnInit {
   constructor(
     public router: Router,
     private dormService: DormitoryService,
-    private userService: UserService
+    private userService: UserService,
+    private actionSheetCtrl: ActionSheetController
   ) {
     Chart.register(...registerables);
     addIcons({
       menuOutline, homeOutline, listOutline, starOutline, logOutOutline, person,
       business, people, documentText, map, time, businessOutline,
       peopleOutline, personCircleOutline, documentTextOutline, statsChart, alertCircle,
-      shieldCheckmark
+      shieldCheckmark, closeCircle
     });
   }
 
@@ -93,22 +98,67 @@ export class DashboardPage implements OnInit {
   async loadDashboardData() {
     this.isLoading = true;
     try {
-      const dormsRes = await this.dormService.getAllDormsAdmin();
-      const allDorms = dormsRes.success ? dormsRes.data : [];
-      const usersRes = await this.userService.getAllUsers();
-      const totalUsers = Array.isArray(usersRes) ? usersRes.length : 0;
-      const reqRes = await this.dormService.getPendingRequests();
-      const pendingReqs = reqRes.success ? reqRes.data.length : 0;
+      // ✅ ดึงข้อมูลทั้งหมดจาก API เดียว (Dashboard Stats)
+      const statsRes = await this.dormService.getDashboardStats();
+      if (statsRes?.success && statsRes?.data) {
+        const d = statsRes.data;
+        
+        // ✅ ดึง Pending Requests แยก (ใช้ API เดิม)
+        const reqRes = await this.dormService.getPendingRequests();
+        const pendingReqs = reqRes.success ? reqRes.data.length : 0;
 
-      this.dashboardData = {
-        totalDorms: allDorms.length,
-        totalUsers,
-        pendingRequests: pendingReqs,
-        recentDorms: allDorms.slice(0, 5)
-      };
-      this.prepareChartData(allDorms);
+        this.dashboardData = {
+          totalDorms: d.dormCount || 0,
+          totalUsers: (d.memberCount || 0) + (d.ownerCount || 0),
+          pendingRequests: pendingReqs,
+          totalVisitors: d.totalWebsiteViews || 0,  // ✅ จาก WEB_VIEW_LOGS จริง
+          recentDorms: d.topPopularDorms?.slice(0, 5) || []
+        };
+
+        // ✅ เตรียม Chart จาก zone breakdown (API)
+        this.prepareChartDataFromZones(d.zoneBreakdown || []);
+
+        // ✅ โหลดหอพักทั้งหมดมาเก็บไว้ (สำหรับ Filter ตอนคลิกกราฟ) โดยไม่ต้องรอให้เสร็จก่อนจบ LoadDashboard
+        this.dormService.getAllDormsAdmin().then(res => {
+          if(res.success && res.data) {
+            this.allDormsRaw = res.data;
+          }
+        });
+
+      } else {
+        // Fallback: ใช้ API เก่าถ้า stats API ล้มเหลว
+        const dormsRes = await this.dormService.getAllDormsAdmin();
+        const allDorms = dormsRes.success ? dormsRes.data : [];
+        this.allDormsRaw = allDorms;
+        const usersRes = await this.userService.getAllUsers();
+        const totalUsers = Array.isArray(usersRes) ? usersRes.length : 0;
+        const reqRes = await this.dormService.getPendingRequests();
+        const pendingReqs = reqRes.success ? reqRes.data.length : 0;
+
+        this.dashboardData = {
+          totalDorms: allDorms.length,
+          totalUsers,
+          pendingRequests: pendingReqs,
+          totalVisitors: 0,
+          recentDorms: allDorms.slice(0, 5)
+        };
+        this.prepareChartData(allDorms);
+      }
     } catch (error) { console.error('Load Dashboard Failed', error); }
     finally { this.isLoading = false; }
+  }
+
+  prepareChartDataFromZones(zoneBreakdown: any[]) {
+    const colors = ['#FFD600', '#FF5722', '#4CAF50', '#2196F3', '#9C27B0', '#00BCD4', '#E91E63'];
+    this.barChartData = {
+      labels: zoneBreakdown.map(z => z.zoneName || 'ไม่ระบุ'),
+      datasets: [{
+        data: zoneBreakdown.map(z => z.dormCount || 0),
+        label: 'จำนวนหอพัก',
+        backgroundColor: colors.slice(0, zoneBreakdown.length),
+        borderRadius: 6
+      }]
+    };
   }
 
   prepareChartData(dorms: any[]) {
@@ -132,6 +182,46 @@ export class DashboardPage implements OnInit {
   onSearch(event: any) {
     const keyword = (typeof event === 'string' ? event : event?.target?.value || '').trim();
     if (keyword) this.router.navigate(['/list']);
+  }
+
+  // ✅ Chart Interactivity
+  onChartClick(event: any) {
+    if (event.active && event.active.length > 0) {
+      const index = event.active[0].index;
+      const label = this.barChartData.labels![index] as string;
+      this.selectedZoneName = label;
+      this.filteredZoneDorms = this.allDormsRaw.filter((d: any) => 
+        (d.ZONE_NAME || d.zone || 'ไม่ระบุ') === label
+      );
+      
+      // เลื่อนหน้าจอลงมาที่ตารางหอพักโซน
+      setTimeout(() => {
+        window.scrollBy({ top: 400, behavior: 'smooth' });
+      }, 100);
+    }
+  }
+
+  clearZoneFilter() {
+    this.filteredZoneDorms = [];
+    this.selectedZoneName = '';
+  }
+
+  // ✅ Navigation Handlers
+  goToDorms() { this.router.navigate(['/manage-dorm']); }
+  goToUsers() { this.router.navigate(['/manage-users']); }
+  goToDormDetail(dorm: any) { this.router.navigate(['/dorm-detail', dorm.DORM_ID || dorm.id]); }
+
+  async openRequestActionSheet() {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'เลือกหน้าจัดการคำขอรออนุมัติ',
+      buttons: [
+        { text: 'คำขอเพิ่มหอพัก', icon: 'business', handler: () => { this.router.navigate(['/manage-request-createdorm']); } },
+        { text: 'คำขอสิทธิ์เจ้าของหอพัก', icon: 'person-circle', handler: () => { this.router.navigate(['/manage-request-dormowner']); } },
+        { text: 'คำขออื่นๆ (Requests)', icon: 'document-text', handler: () => { this.router.navigate(['/requests']); } },
+        { text: 'ยกเลิก', icon: 'close', role: 'cancel' }
+      ]
+    });
+    await actionSheet.present();
   }
 
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }

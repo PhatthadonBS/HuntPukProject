@@ -8,18 +8,41 @@
         <span class="header-title">HuntPuk</span>
       </div>
 
+      <!-- Search Section with Autocomplete -->
       <div class="search-section">
-        <div class="search-box">
-          <input 
-            type="text" 
-            placeholder="ค้นหาหอพัก..." 
-            [(ngModel)]="searchText" 
-            (keyup.enter)="onSearchInput()"
-          >
+        <div class="search-wrap">
+          <div class="search-box">
+            <input 
+              type="text" 
+              id="main-search-input"
+              placeholder="ค้นหาหอพัก..." 
+              [(ngModel)]="searchText" 
+              (input)="onInput()"
+              (keyup.enter)="onSearchSubmit()"
+              autocomplete="off"
+            >
+            <button class="clear-btn" *ngIf="searchText" (click)="clearSearch()">
+              <ion-icon name="close-circle"></ion-icon>
+            </button>
+          </div>
+          <button class="btn-search-action" (click)="onSearchSubmit()">
+            <span>ค้นหา</span> <ion-icon name="search"></ion-icon>
+          </button>
+
+          <!-- Autocomplete Dropdown -->
+          <div class="suggestions-dropdown" *ngIf="showSuggestions">
+            <div class="suggestion-item" 
+                 *ngFor="let dorm of suggestions"
+                 (click)="selectSuggestion(dorm)">
+              <ion-icon name="location-outline" class="sug-icon"></ion-icon>
+              <div class="sug-text">
+                <span class="sug-name">{{ dorm.DORM_NAME }}</span>
+                <span class="sug-zone">{{ dorm.ZONE_NAME || dorm.zone || 'ไม่ระบุโซน' }}</span>
+              </div>
+              <ion-icon name="chevron-forward-outline" class="sug-arrow"></ion-icon>
+            </div>
+          </div>
         </div>
-        <button class="btn-search-action" (click)="onSearchInput()">
-          <span>ค้นหา</span> <ion-icon name="search"></ion-icon>
-        </button>
       </div>
 
       <div class="auth-buttons">

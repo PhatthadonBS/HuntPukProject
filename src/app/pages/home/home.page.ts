@@ -74,11 +74,15 @@ export class HomePage implements OnInit, ViewDidEnter {
   maxWater: number | null = null;
   maxElect: number | null = null;
 
+  // 🗺️ Map loading state
+  isMapLoading: boolean = true;
+
   // 🏢 ข้อมูลหอพัก และ Side Panel
   selectedDormDetail: Dormitory | null = null;
   selectedDorm: any = null;
   currentUser: any = null;
   nearbyDorms: any[] = [];  
+  dormStatusList: any[] = [];
   
   sidePanelTab: 'info' | 'reviews' = 'info';
   reviews: any[] = [];
@@ -165,15 +169,25 @@ export class HomePage implements OnInit, ViewDidEnter {
   ngOnInit() {
     this.checkLoginStatus();
     this.fetchZones();
+    this.fetchDormStatuses();
     
     this.fetchDorms().then(() => {
+      this.isMapLoading = false;
       setTimeout(() => {
         this.isInitialLoading = false;
         this.checkForNavigationIntent();
+        this.cdr.detectChanges();
       }, 1500);
     });
 
     this.getCurrentLocation(true);
+  }
+
+  fetchDormStatuses() {
+    this.dormService.getDormStatuses().subscribe({
+      next: (res: any) => this.dormStatusList = res.data || res,
+      error: () => console.error('Failed to load dorm statuses')
+    });
   }
 
   ionViewDidEnter() {
@@ -330,7 +344,67 @@ export class HomePage implements OnInit, ViewDidEnter {
   onSearch(text: any) {
     const searchValue = (typeof text === 'string' ? text : text?.target?.value || '').trim();
     this.searchText = searchValue;
-    this.performSearch();
+    // real-time marker filter while typing
+    if (searchValue) {
+      this.dorms = this.allDorms.filter(d =>
+        (d.DORM_NAME || '').toLowerCase().includes(searchValue.toLowerCase())
+      ) as any[];
+    } else {
+      this.dorms = [...this.allDorms];
+    }
+    this.cdr.detectChanges();
+  }
+
+  // กดเลือกหอพักจาก autocomplete dropdown
+  onDormSelected(dorm: any) {
+    this.searchText = dorm.DORM_NAME;
+    const target = this.allDorms.find(d =>
+      Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id)
+    ) || dorm;
+    this.openInfoWindow(null as any, target);
+  }
+
+  // กดปุ่มค้นหา — ถาม filter ใน alert ถ้ามีตัวกรอง active
+  async onSearchSubmit(payload: { text: string; keepFilter: boolean }) {
+    this.searchText = payload.text;
+    if (payload.keepFilter && this.hasActiveFilter()) {
+      const alert = await this.alertCtrl.create({
+        header: '🔍 ค้นหา "' + payload.text + '"',
+        message: 'คุณตั้งตัวกรองไว้ ต้องการใช้ตัวกรองนั้นร่วมด้วยหรือไม่?',
+        buttons: [
+          {
+            text: 'ค้นหาตรงๆ (ล้างตัวกรอง)',
+            role: 'cancel',
+            handler: () => {
+              this.clearAllFilters();
+              this.performSearch();
+            }
+          },
+          {
+            text: 'ใช้ตัวกรองด้วย ✔️',
+            handler: () => { this.performSearch(); }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+      this.performSearch();
+    }
+  }
+
+  get hasActiveFilterComputed(): boolean { return this.hasActiveFilter(); }
+
+  hasActiveFilter(): boolean {
+    return !!(this.minPrice || this.maxPrice || this.selectedZone ||
+      this.maxDistance || this.minScore || this.maxWater || this.maxElect);
+  }
+
+  clearAllFilters() {
+    this.minPrice = null; this.maxPrice = null; this.selectedZone = '';
+    this.maxDistance = null; this.minScore = null; this.maxWater = null;
+    this.maxElect = null;
+    this.zoneCircleCenter = undefined; this.zoneCircleRadius = 0;
+    this.circleCenter = undefined;
   }
 
   applyFilter() { this.setOpen(false); this.performSearch(); }
@@ -577,17 +651,9 @@ export class HomePage implements OnInit, ViewDidEnter {
     }
   }
 
-  getStatusText(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'ห้องเต็ม';
-    if (s === 2) return 'ปิดให้บริการ';
-    return 'ว่าง';
-  }
 
-  getStatusClass(status: any): string {
-    const s = Number(status);
-    if (s === 3) return 'full';
-    if (s === 2) return 'closed';
-    return 'available';
+
+  goToManageDorm(dormId: number) {
+    this.router.navigate(['/edit-dorm', dormId]);
   }
 }

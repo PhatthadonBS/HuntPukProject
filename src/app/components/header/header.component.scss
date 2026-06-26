@@ -1,8 +1,9 @@
 /* [แก้ไขสำคัญ] ยก Header ให้ลอยเหนือ Map และรับการกดได้ */
 ion-header {
   position: relative;
-  z-index: 5000 !important; /* ต้องสูงกว่า Map (0) */
+  z-index: 99999 !important; /* ✅ บังคับให้อยู่เหนือสุด (เหนือ Map Skeleton ที่ 8000) */
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: visible !important;
 }
 
 .custom-toolbar {
@@ -11,6 +12,7 @@ ion-header {
   /* บังคับให้พื้นที่ Toolbar รับการกด */
   pointer-events: auto !important; 
   min-height: 60px;
+  overflow: visible !important;
 }
 
 .main-header-container {
@@ -256,4 +258,122 @@ ion-header {
       ion-icon { font-size: 16px; }
     }
   }
+}
+/* ==========================================
+   ?? Autocomplete Dropdown Styles
+   ========================================== */
+.search-section {
+  position: relative;
+}
+
+.search-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  max-width: 600px;
+
+  .search-box {
+    flex: 1;
+    background: white;
+    border-radius: 25px 0 0 25px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px 0 20px;
+    height: 42px;
+    border: 2px solid #1a1a1a;
+    border-right: none;
+    gap: 6px;
+
+    input {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      font-size: 15px;
+      color: #333;
+      font-weight: 700;
+
+      &::placeholder {
+        color: #888;
+        font-weight: 500;
+      }
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #bbb;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      padding: 0;
+      flex-shrink: 0;
+      &:hover { color: #666; }
+    }
+  }
+
+  .suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    z-index: 99999;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+    animation: suggFadeIn 0.15s ease;
+  }
+
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.15s;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: #fffde7; }
+
+    .sug-icon {
+      font-size: 18px;
+      color: #FFD600;
+      flex-shrink: 0;
+    }
+
+    .sug-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .sug-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+
+      .sug-zone {
+        font-size: 12px;
+        color: #888;
+        font-weight: 500;
+      }
+    }
+
+    .sug-arrow {
+      font-size: 16px;
+      color: #ccc;
+      flex-shrink: 0;
+    }
+  }
+}
+
+@keyframes suggFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

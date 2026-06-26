@@ -217,6 +217,72 @@ export class TypeManagementPage implements OnInit {
     await alert.present();
   }
 
+  async editType(item: any) {
+    const id = item.id || item.ZONE_ID;
+    const oldName = item.name || item.ZONE_NAME;
+
+    const alert = await this.alertController.create({
+      header: 'แก้ไขข้อมูล',
+      inputs: [
+        {
+          name: 'newName',
+          type: 'text',
+          value: oldName,
+          placeholder: 'ชื่อใหม่'
+        }
+      ],
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        { text: 'บันทึก', handler: (data) => {
+            if (data.newName && data.newName.trim() !== oldName) {
+              this.executeEditType(id, data.newName.trim());
+            }
+          } 
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  executeEditType(id: number, newName: string) {
+    let apiType = '';
+    switch (this.selectedSegment) {
+      case 'dormType': apiType = 'dorm'; break;
+      case 'roomType': apiType = 'room'; break;
+      case 'bedType': apiType = 'bed'; break;
+      case 'priceType': apiType = 'price'; break;
+      case 'dormStatus': apiType = 'status'; break;
+      case 'zone': apiType = 'zone'; break;
+    }
+    
+    if (!apiType) return;
+
+    this.isSaving = true;
+    this.dormServices.updateMasterType(apiType, id, newName).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.loadAllData();
+          this.newName = '';
+        } else {
+          this.alertController.create({
+            header: 'ข้อผิดพลาด',
+            message: res.message || 'ไม่สามารถแก้ไขข้อมูลได้',
+            buttons: ['ตกลง']
+          }).then(a => a.present());
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.alertController.create({
+          header: 'เกิดข้อผิดพลาด',
+          message: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้',
+          buttons: ['ตกลง']
+        }).then(a => a.present());
+      },
+      complete: () => this.isSaving = false
+    });
+  }
+
   deleteType(id: number) {
     let obs$;
     switch (this.selectedSegment) {

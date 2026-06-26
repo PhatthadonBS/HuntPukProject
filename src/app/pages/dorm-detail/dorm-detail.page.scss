@@ -285,9 +285,9 @@ $text-dark: #1a1a1a;
   position: absolute; bottom: 20px; left: 20px; z-index: 10;
   padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: 900; color: #fff;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  &.available { background: #2ecc71; }
-  &.full { background: #e74c3c; }
-  &.closed { background: #7f8c8d; }
+  &.available, &.status-1 { background: #2ecc71; }
+  &.full, &.status-3 { background: #e74c3c; }
+  &.closed, &.status-2 { background: #7f8c8d; }
 }
 
 /* 🌟 CSS โซนราคา (รองรับรายเดือนและรายเทอม) */
