@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { search, personCircle, personCircleOutline, logOutOutline, closeCircle } from 'ionicons/icons';
+import { search, personCircle, personCircleOutline, logOutOutline, closeCircle, personAddOutline, logInOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-header',
@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit {
   showSuggestions: boolean = false;
 
   constructor(private router: Router) {
-    addIcons({ search, personCircle, personCircleOutline, logOutOutline, closeCircle });
+    addIcons({ search, personCircle, personCircleOutline, logOutOutline, closeCircle, personAddOutline, logInOutline });
   }
 
   ngOnInit() {}
@@ -82,6 +82,8 @@ export class HeaderComponent implements OnInit {
 
   goToLogin() { this.router.navigate(['/login']); }
   goToRegister() { this.router.navigate(['/register']); }
+
+  goToHome() { this.router.navigate(['/home']); }
 
   logout() {
     localStorage.removeItem('loggedIn');

@@ -141,9 +141,10 @@
               </div>
 
               <div class="row-cell contact-row">
-                 <div class="social-links">
-                    <a [href]="hasContact(item, 'phone', 'OWNER_PHONE') ? getContactHref(item, 'phone', 'OWNER_PHONE', true) : null"
-                       (click)="!hasContact(item, 'phone', 'OWNER_PHONE') && $event.preventDefault()"
+                 <div class="inner-scroll-box">
+                   <div class="social-links">
+                      <a [href]="hasContact(item, 'phone', 'OWNER_PHONE') ? getContactHref(item, 'phone', 'OWNER_PHONE', true) : null"
+                         (click)="!hasContact(item, 'phone', 'OWNER_PHONE') && $event.preventDefault()"
                        class="social-btn phone" [class.disabled]="!hasContact(item, 'phone', 'OWNER_PHONE')">
                       <ion-icon name="call"></ion-icon>
                       <span>{{ hasContact(item, 'phone', 'OWNER_PHONE') ? 'โทรศัพท์' : 'ไม่ได้ระบุ' }}</span>
@@ -178,6 +179,7 @@
                       <ion-icon name="paper-plane-outline"></ion-icon>
                       <span>{{ hasContact(item, 'telegram', 'OWNER_TELEGRAM') ? 'Telegram' : 'ไม่ได้ระบุ' }}</span>
                     </a>
+                 </div>
                  </div>
               </div>
 

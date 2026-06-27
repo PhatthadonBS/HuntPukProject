@@ -3,7 +3,7 @@
     
     <div class="main-header-container">
       
-      <div class="logo-section">
+      <div class="logo-section" (click)="goToHome()">
         <img src="assets/logo1.jpg" class="header-logo" alt="Logo" onerror="this.src='https://placehold.co/40x40'">
         <span class="header-title">HuntPuk</span>
       </div>
@@ -47,8 +47,12 @@
 
       <div class="auth-buttons">
         <ng-container *ngIf="!userData">
-          <button class="btn-register" (click)="goToRegister()">สมัคร</button>
-          <button class="btn-login" (click)="goToLogin()">เข้าสู่ระบบ</button>
+          <button class="btn-register" (click)="goToRegister()">
+            <ion-icon name="person-add-outline"></ion-icon> <span>สมัคร</span>
+          </button>
+          <button class="btn-login" (click)="goToLogin()">
+            <ion-icon name="log-in-outline"></ion-icon> <span>เข้าสู่ระบบ</span>
+          </button>
         </ng-container>
 
         <ng-container *ngIf="userData">

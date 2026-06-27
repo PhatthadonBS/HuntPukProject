@@ -469,6 +469,15 @@ export class HomePage implements OnInit, ViewDidEnter {
         if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms as any[];
+  
+        if (this.dorms.length === 0 && this.hasActiveFilter()) {
+          const alert = await this.alertCtrl.create({
+            header: 'ไม่พบหอพัก',
+            message: 'หอพักไม่ขึ้นกรุณาลองอีกครั้ง (ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้)',
+            buttons: ['ตกลง']
+          });
+          await alert.present();
+        }
 
         if (!this.selectedZone && this.dorms.length > 0) {
           if (this.maxDistance === null || this.maxDistance === undefined) {
