@@ -110,8 +110,8 @@ export class DormitoryService {
 
     if (keyword) params = params.set('search', keyword);
     if (zone) params = params.set('zone', zone);
-    if (min) params = params.set('minPrice', min.toString());
-    if (max) params = params.set('maxPrice', max.toString());
+    if (min !== undefined && min !== null) params = params.set('minPrice', min.toString());
+    if (max !== undefined && max !== null) params = params.set('maxPrice', max.toString());
 
     try {
       const res = await lastValueFrom(

@@ -4,6 +4,7 @@ ion-header {
   z-index: 99999 !important; /* ✅ บังคับให้อยู่เหนือสุด (เหนือ Map Skeleton ที่ 8000) */
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   overflow: visible !important;
+  contain: none !important;
 }
 
 .custom-toolbar {
@@ -13,6 +14,7 @@ ion-header {
   pointer-events: auto !important; 
   min-height: 60px;
   overflow: visible !important;
+  contain: none !important;
 }
 
 .main-header-container {

@@ -19,7 +19,17 @@
 
     <div class="yellow-card" *ngIf="!isLoading">
 
-      <div class="top-bar">
+      <div class="top-bar" style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="search-box" style="flex: 1; min-width: 200px;">
+          <ion-searchbar 
+            placeholder="ค้นหาชื่อหอพัก หรือ ชื่อเจ้าของ..."
+            [ngModel]="searchQuery"
+            (ngModelChange)="onSearchChange($event)"
+            mode="ios"
+            class="custom-searchbar"
+            style="padding: 0;">
+          </ion-searchbar>
+        </div>
         <div class="add-btn" (click)="goToAddDorm()">
           เพิ่มข้อมูลหอพัก
         </div>
@@ -34,8 +44,8 @@
           <div class="col-action">จัดการ</div>
         </div>
 
-        <ng-container *ngIf="dorms.length > 0; else noData">
-          <div class="table-row" *ngFor="let item of dorms; let i = index">
+        <ng-container *ngIf="filteredDorms.length > 0; else noData">
+          <div class="table-row" *ngFor="let item of filteredDorms; let i = index">
 
             <div class="col-id">{{ i + 1 }}</div>
 

@@ -142,14 +142,41 @@
 
               <div class="row-cell contact-row">
                  <div class="social-links">
-                    <a *ngIf="item.phone && item.phone !== '-'" [href]="'tel:' + item.phone" class="social-btn phone">
-                      <ion-icon name="call"></ion-icon> <span>โทรศัพท์</span>
+                    <a [href]="hasContact(item, 'phone', 'OWNER_PHONE') ? getContactHref(item, 'phone', 'OWNER_PHONE', true) : null"
+                       (click)="!hasContact(item, 'phone', 'OWNER_PHONE') && $event.preventDefault()"
+                       class="social-btn phone" [class.disabled]="!hasContact(item, 'phone', 'OWNER_PHONE')">
+                      <ion-icon name="call"></ion-icon>
+                      <span>{{ hasContact(item, 'phone', 'OWNER_PHONE') ? 'โทรศัพท์' : 'ไม่ได้ระบุ' }}</span>
                     </a>
-                    <a *ngIf="item.line && item.line !== '-'" [href]="item.line" target="_blank" class="social-btn line">
-                      <ion-icon name="chatbubble-ellipses-outline"></ion-icon> <span>LINE</span>
+                    <a [href]="hasContact(item, 'line', 'OWNER_LINE') ? getContact(item, 'line', 'OWNER_LINE') : null"
+                       (click)="!hasContact(item, 'line', 'OWNER_LINE') && $event.preventDefault()"
+                       target="_blank" class="social-btn line" [class.disabled]="!hasContact(item, 'line', 'OWNER_LINE')">
+                      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                      <span>{{ hasContact(item, 'line', 'OWNER_LINE') ? 'LINE' : 'ไม่ได้ระบุ' }}</span>
                     </a>
-                    <a *ngIf="item.facebook && item.facebook !== '-'" [href]="item.facebook" target="_blank" class="social-btn fb">
-                      <ion-icon name="logo-facebook"></ion-icon> <span>Facebook</span>
+                    <a [href]="hasContact(item, 'facebook', 'OWNER_FACEBOOK') ? getContact(item, 'facebook', 'OWNER_FACEBOOK') : null"
+                       (click)="!hasContact(item, 'facebook', 'OWNER_FACEBOOK') && $event.preventDefault()"
+                       target="_blank" class="social-btn fb" [class.disabled]="!hasContact(item, 'facebook', 'OWNER_FACEBOOK')">
+                      <ion-icon name="logo-facebook"></ion-icon>
+                      <span>{{ hasContact(item, 'facebook', 'OWNER_FACEBOOK') ? 'Facebook' : 'ไม่ได้ระบุ' }}</span>
+                    </a>
+                    <a [href]="hasContact(item, 'instagram', 'OWNER_INSTAGRAM') ? getContact(item, 'instagram', 'OWNER_INSTAGRAM') : null"
+                       (click)="!hasContact(item, 'instagram', 'OWNER_INSTAGRAM') && $event.preventDefault()"
+                       target="_blank" class="social-btn ig" [class.disabled]="!hasContact(item, 'instagram', 'OWNER_INSTAGRAM')">
+                      <ion-icon name="logo-instagram"></ion-icon>
+                      <span>{{ hasContact(item, 'instagram', 'OWNER_INSTAGRAM') ? 'Instagram' : 'ไม่ได้ระบุ' }}</span>
+                    </a>
+                    <a [href]="hasContact(item, 'x', 'OWNER_X') ? getContact(item, 'x', 'OWNER_X') : null"
+                       (click)="!hasContact(item, 'x', 'OWNER_X') && $event.preventDefault()"
+                       target="_blank" class="social-btn x" [class.disabled]="!hasContact(item, 'x', 'OWNER_X')">
+                      <ion-icon name="logo-twitter"></ion-icon>
+                      <span>{{ hasContact(item, 'x', 'OWNER_X') ? 'X (Twitter)' : 'ไม่ได้ระบุ' }}</span>
+                    </a>
+                    <a [href]="hasContact(item, 'telegram', 'OWNER_TELEGRAM') ? getContact(item, 'telegram', 'OWNER_TELEGRAM') : null"
+                       (click)="!hasContact(item, 'telegram', 'OWNER_TELEGRAM') && $event.preventDefault()"
+                       target="_blank" class="social-btn telegram" [class.disabled]="!hasContact(item, 'telegram', 'OWNER_TELEGRAM')">
+                      <ion-icon name="paper-plane-outline"></ion-icon>
+                      <span>{{ hasContact(item, 'telegram', 'OWNER_TELEGRAM') ? 'Telegram' : 'ไม่ได้ระบุ' }}</span>
                     </a>
                  </div>
               </div>
@@ -177,5 +204,3 @@
   </div>
 
 </ion-content>
-
- 

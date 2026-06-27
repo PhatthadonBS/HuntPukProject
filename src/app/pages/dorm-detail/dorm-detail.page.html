@@ -11,11 +11,11 @@
       <div class="hero-overlay"></div>
       
       <ng-container *ngFor="let stat of dormStatusList">
-        <div *ngIf="(dormData.status || dormData.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
-             class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
-          {{ stat.DORM_STATUS_NAME }}
-        </div>
-      </ng-container>
+          <div *ngIf="(dormData.status || dormData.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
+               class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
+            {{ stat.DORM_STATUS_NAME }}
+          </div>
+        </ng-container>
     </div>
 
     <div class="main-info-card">

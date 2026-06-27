@@ -58,7 +58,7 @@
         <div class="card-header">
           <div class="status-indicator" [ngClass]="getStatusColor(item.DORM_STATUS_ID, item.REQ_STATUS)">
             <ion-icon name="ellipse"></ion-icon>
-            {{ getStatusText(item.DORM_STATUS_ID, item.REQ_STATUS) }}
+            {{ getStatusText(item.DORM_STATUS_ID, item.REQ_STATUS, item.DORM_STATUS_NAME) }}
           </div>
           <div class="zone-badge">
             <ion-icon name="location-outline"></ion-icon>

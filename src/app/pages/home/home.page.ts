@@ -395,8 +395,13 @@ export class HomePage implements OnInit, ViewDidEnter {
   get hasActiveFilterComputed(): boolean { return this.hasActiveFilter(); }
 
   hasActiveFilter(): boolean {
-    return !!(this.minPrice || this.maxPrice || this.selectedZone ||
-      this.maxDistance || this.minScore || this.maxWater || this.maxElect);
+    return (this.minPrice !== null && this.minPrice !== undefined) || 
+           (this.maxPrice !== null && this.maxPrice !== undefined) || 
+           !!this.selectedZone ||
+           (this.maxDistance !== null && this.maxDistance !== undefined) || 
+           (this.minScore !== null && this.minScore !== undefined) || 
+           (this.maxWater !== null && this.maxWater !== undefined) || 
+           (this.maxElect !== null && this.maxElect !== undefined);
   }
 
   clearAllFilters() {
@@ -411,7 +416,12 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   async performSearch() {
     try {
-      const res = await this.dormService.searchDorms(this.searchText, this.selectedZone, this.minPrice || undefined, this.maxPrice || undefined);
+      const res = await this.dormService.searchDorms(
+        this.searchText, 
+        this.selectedZone, 
+        this.minPrice !== null ? this.minPrice : undefined, 
+        this.maxPrice !== null ? this.maxPrice : undefined
+      );
       if (res.success && res.data) {
         let tempDorms = res.data.map((d: any) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) })) as any[];
         
@@ -444,7 +454,7 @@ export class HomePage implements OnInit, ViewDidEnter {
           this.zoneCircleRadius = 0;
         }
 
-        if (this.maxDistance) {
+        if (this.maxDistance !== null && this.maxDistance !== undefined) {
           this.circleCenter = this.referencePoint;
           this.circleRadius = this.maxDistance * 1000;
           tempDorms = tempDorms.filter((dorm: any) =>
@@ -454,14 +464,14 @@ export class HomePage implements OnInit, ViewDidEnter {
           this.circleCenter = undefined;
         }
 
-        if (this.minScore) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
-        if (this.maxWater) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT <= this.maxWater! || dorm.WATER_LUMP <= this.maxWater!);
-        if (this.maxElect) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
+        if (this.minScore !== null && this.minScore !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
+        if (this.maxWater !== null && this.maxWater !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT <= this.maxWater! || dorm.WATER_LUMP <= this.maxWater!);
+        if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms as any[];
 
         if (!this.selectedZone && this.dorms.length > 0) {
-          if (!this.maxDistance) {
+          if (this.maxDistance === null || this.maxDistance === undefined) {
             const firstDorm = this.dorms[0];
             if (firstDorm) this.center = { lat: firstDorm.lat, lng: firstDorm.lng };
           }

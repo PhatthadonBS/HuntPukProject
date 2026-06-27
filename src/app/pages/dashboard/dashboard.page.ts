@@ -215,9 +215,8 @@ export class DashboardPage implements OnInit {
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'เลือกหน้าจัดการคำขอรออนุมัติ',
       buttons: [
-        { text: 'คำขอเพิ่มหอพัก', icon: 'business', handler: () => { this.router.navigate(['/manage-request-createdorm']); } },
-        { text: 'คำขอสิทธิ์เจ้าของหอพัก', icon: 'person-circle', handler: () => { this.router.navigate(['/manage-request-dormowner']); } },
-        { text: 'คำขออื่นๆ (Requests)', icon: 'document-text', handler: () => { this.router.navigate(['/requests']); } },
+        { text: 'คำขอเพิ่มหอพัก', icon: 'business', handler: () => { this.router.navigate(['/manage-requests-createdorm']); } },
+        { text: 'คำขอสิทธิ์เจ้าของหอพัก', icon: 'person-circle', handler: () => { this.router.navigate(['/manage-requests-dorm-owner']); } },
         { text: 'ยกเลิก', icon: 'close', role: 'cancel' }
       ]
     });

@@ -116,27 +116,34 @@ export class MyDormsPage implements OnInit {
     }
   }
 
-  getStatusText(statusId: number, reqStatus: number): string {
-    if (statusId === 4) return 'ถูกลบ';
-    if (reqStatus === 3) return 'ส่งคำร้องใหม่';
-    if (reqStatus === 0) return 'รออนุมัติ';
-    if (reqStatus === 2) return 'ไม่อนุมัติ';
+  getStatusText(statusId: any, reqStatus: any, statusName?: string): string {
+    const sId = Number(statusId);
+    const rStatus = Number(reqStatus);
+
+    if (sId === 4) return 'ถูกลบ';
+    if (rStatus === 3) return 'ส่งคำร้องใหม่';
+    if (rStatus === 0) return 'รออนุมัติ';
+    if (rStatus === 2) return 'ไม่อนุมัติ';
     
-    const foundStatus = this.statusOptions.find(s => s.id === statusId);
+    if (statusName) return statusName;
+
+    const foundStatus = this.statusOptions.find(s => Number(s.id) === sId);
     if (foundStatus) {
-      if (statusId === 1) return 'ว่าง / ออนไลน์';
       return foundStatus.label;
     }
     return 'ไม่ทราบสถานะ'; 
   }
 
-  getStatusColor(statusId: number, reqStatus: number): string {
-    if (statusId === 4) return 'medium';
-    if (reqStatus === 3) return 'warning';
-    if (reqStatus === 0) return 'warning';
-    if (reqStatus === 2) return 'danger';
-    if (statusId === 2) return 'warning'; 
-    if (statusId === 3) return 'danger'; 
+  getStatusColor(statusId: any, reqStatus: any): string {
+    const sId = Number(statusId);
+    const rStatus = Number(reqStatus);
+
+    if (sId === 4) return 'medium';
+    if (rStatus === 3) return 'warning';
+    if (rStatus === 0) return 'warning';
+    if (rStatus === 2) return 'danger';
+    if (sId === 2) return 'warning'; 
+    if (sId === 3) return 'danger'; 
     return 'success'; 
   }
 

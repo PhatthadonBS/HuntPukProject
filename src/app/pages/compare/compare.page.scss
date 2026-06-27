@@ -174,14 +174,33 @@
 
 .tag { font-size: 11px; background: #f8f9fa; color: #333; padding: 5px 10px; border-radius: 8px; display: flex; align-items: center; gap: 4px; font-weight: 700; border: 1px solid var(--border-color); ion-icon { font-size: 14px; color: var(--success-color); } }
 
-.social-links {
-  display: flex; flex-direction: column; gap: 8px; width: 100%;
-  .social-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 800; color: white; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    &.phone { background: var(--success-color); } &.line { background: #00c300; } &.fb { background: #1877F2; }
-    ion-icon { font-size: 16px; }
+  .social-links {
+    display: flex; flex-direction: column; gap: 8px; width: 100%;
+    .social-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 800; color: white; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: opacity 0.2s ease, transform 0.15s ease;
+      &.phone { background: var(--success-color); } 
+      &.line { background: #00c300; } 
+      &.fb { background: #1877F2; }
+      &.ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+      &.x { background: #0f1419; }
+      &.telegram { background: #0088cc; }
+      ion-icon { font-size: 16px; }
+
+      &:active { transform: scale(0.96); }
+
+      /* ✅ สถานะไม่มีข้อมูล — เทาจาง กดไม่ได้ ไม่มีเงา */
+      &.disabled {
+        background: #e9ecef !important;
+        color: #adb5bd !important;
+        box-shadow: none;
+        cursor: default;
+        pointer-events: none;
+        opacity: 0.75;
+
+        &:active { transform: none; }
+      }
+    }
   }
-}
-.no-data { color: #adb5bd; font-style: italic; font-weight: 500;}
+.no-data { color: #adb5bd; font-style: italic; font-weight: 500; text-align: center; width: 100%;}
 
 /* Floating Button */
 .fixed-bottom-btn { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 9999;}

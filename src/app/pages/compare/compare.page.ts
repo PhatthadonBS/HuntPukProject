@@ -211,4 +211,31 @@ export class ComparePage implements OnInit {
     if (Number(v) === 0) return 'ไม่ระบุ';
     return v + ' บ./ด.';
   }
+
+  // ✅ ฟังก์ชันรวม: ดึงค่าช่องทางติดต่อแบบ normalize ทุกกรณี
+  // กัน null, undefined, '', '-', 'null' (string) ที่หลุดมาจาก backend/DB
+  // และรองรับทั้งชื่อ field ตัวเล็ก (phone) และ OWNER_* (ตัวใหญ่)
+  private normalizeContact(value: any): string {
+    if (value === null || value === undefined) return '';
+    const str = String(value).trim();
+    if (str === '' || str === '-' || str.toLowerCase() === 'null') return '';
+    return str;
+  }
+
+  getContact(item: any, lowerKey: string, ownerKey: string): string {
+    return (
+      this.normalizeContact(item?.[lowerKey]) ||
+      this.normalizeContact(item?.[ownerKey])
+    );
+  }
+
+  hasContact(item: any, lowerKey: string, ownerKey: string): boolean {
+    return this.getContact(item, lowerKey, ownerKey) !== '';
+  }
+
+  // ✅ ใส่ tel: ให้เบอร์โทรอัตโนมัติ ส่วนลิงก์อื่นใช้ตรงๆ
+  getContactHref(item: any, lowerKey: string, ownerKey: string, isPhone: boolean = false): string {
+    const value = this.getContact(item, lowerKey, ownerKey);
+    return isPhone ? `tel:${value}` : value;
+  }
 }

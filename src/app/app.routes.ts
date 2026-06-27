@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard, authGuard, ownerGuard, userOrAdminGuard } from './guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,7 @@ export const routes: Routes = [
   },
   {
     path: 'edit-profile',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/edit-profile/edit-profile.page').then(
         (m) => m.EditProfilePage
@@ -28,8 +30,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/home/home.page').then((m) => m.HomePage),
   },
-
-{
+  {
     path: 'dorm-detail/:id',
     loadComponent: () => import('./pages/dorm-detail/dorm-detail.page').then( m => m.DormDetailPage)
   },
@@ -40,16 +41,19 @@ export const routes: Routes = [
   },
   {
     path: 'favorites',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/favorites/favorites.page').then((m) => m.FavoritesPage),
   },
   {
     path: 'my-dorms',
+    canActivate: [ownerGuard],
     loadComponent: () =>
       import('./pages/owner/my-dorms/my-dorms.page').then((m) => m.MyDormsPage),
   },
   {
     path: 'dorm-form',
+    canActivate: [ownerGuard],
     loadComponent: () =>
       import('./pages/owner/dorm-form/dorm-form.page').then(
         (m) => m.DormFormPage
@@ -69,6 +73,7 @@ export const routes: Routes = [
   },
   {
     path: 'manage-dorm',
+    canActivate: [adminGuard],
     loadComponent: () =>
       import('./pages/manage-dorm/manage-dorm.page').then(
         (m) => m.ManageDormPage
@@ -76,6 +81,7 @@ export const routes: Routes = [
   },
   {
     path: 'manage-users',
+    canActivate: [adminGuard],
     loadComponent: () =>
       import('./pages/manage-users/manage-users.page').then(
         (m) => m.ManageUsersPage
@@ -83,21 +89,25 @@ export const routes: Routes = [
   },
   {
     path: 'requests',
+    canActivate: [userOrAdminGuard],
     loadComponent: () =>
       import('./pages/requests/requests.page').then((m) => m.RequestsPage),
   },
   {
     path: 'dashboard',
+    canActivate: [adminGuard],
     loadComponent: () =>
       import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
   },
   {
     path: 'my-account',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/my-account/my-account.page').then((m) => m.MyAccountPage),
   },
   {
     path: 'my-account/:id',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/my-account/my-account.page').then((m) => m.MyAccountPage),
   },
@@ -110,6 +120,7 @@ export const routes: Routes = [
   },
   {
     path: 'manage-requests-dorm-owner',
+    canActivate: [adminGuard],
     loadComponent: () =>
       import(
         './pages/manage-requests-dorm-owner/manage-requests-dorm-owner.page'
@@ -117,6 +128,7 @@ export const routes: Routes = [
   },
   {
     path: 'manage-requests-createdorm',
+    canActivate: [adminGuard],
     loadComponent: () =>
       import(
         './pages/manage-requests-createdorm/manage-requests-createdorm.page'
@@ -124,6 +136,7 @@ export const routes: Routes = [
   },
   {
     path: 'manage-reviews/:id',
+    canActivate: [ownerGuard],
     loadComponent: () =>
       import('./pages/manage-reviews/manage-reviews.page').then(
         (m) => m.ManageReviewsPage
@@ -138,14 +151,17 @@ export const routes: Routes = [
   },
   {
     path: 'edit-dorm/:id',
+    canActivate: [ownerGuard],
     loadComponent: () => import('./pages/edit-dorm/edit-dorm.page').then( m => m.EditDormPage)
   },
   {
     path: 'facility-management',
+    canActivate: [adminGuard],
     loadComponent: () => import('./pages/facility-management/facility-management.page').then( m => m.FacilityManagementPage)
   },
   {
     path: 'type-management',
+    canActivate: [adminGuard],
     loadComponent: () => import('./pages/type-management/type-management.page').then( m => m.TypeManagementPage)
   }
 ];

@@ -43,12 +43,12 @@
                   {{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : 'New' }}
                </div>
                
-               <ng-container *ngFor="let stat of dormStatusList">
-                 <div *ngIf="(dorm.status || dorm.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
-                      class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
-                   {{ stat.DORM_STATUS_NAME }}
-                 </div>
-               </ng-container>
+                <ng-container *ngFor="let stat of dormStatusList">
+                  <div *ngIf="(dorm.status || dorm.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
+                       class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
+                    {{ stat.DORM_STATUS_NAME }}
+                  </div>
+                </ng-container>
                
                <div class="bookmark-ribbon" [class.active]="dorm.isChecked" (click)="toggleFavorite($event, dorm)">
                   <ion-icon [name]="dorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>

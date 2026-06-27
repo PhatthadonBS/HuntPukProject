@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, 
-  IonButtons, IonButton, IonIcon, IonSpinner,
+  IonButtons, IonButton, IonIcon, IonSpinner, IonSearchbar,
   AlertController, ToastController, LoadingController 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -19,13 +19,15 @@ import { chatbubbleEllipses } from 'ionicons/icons';
   standalone: true,
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, 
-    IonButtons, IonButton, IonIcon, IonSpinner,
+    IonButtons, IonButton, IonIcon, IonSpinner, IonSearchbar,
     CommonModule, FormsModule
   ]
 })
 export class ManageDormPage implements OnInit {
 
   dorms: any[] = []; 
+  filteredDorms: any[] = [];
+  searchQuery: string = '';
   isLoading = false;
 
   constructor(
@@ -65,12 +67,29 @@ export class ManageDormPage implements OnInit {
       
       if (res && res.data) {
         this.dorms = res.data;
+        this.filteredDorms = res.data;
+        this.onSearchChange(this.searchQuery); // Apply existing search if any
       }
     } catch (error) {
       console.error('Load Error:', error);
       this.showToast('ไม่สามารถโหลดข้อมูลได้', 'danger');
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  onSearchChange(event: any) {
+    this.searchQuery = (typeof event === 'string' ? event : event?.target?.value || '').trim().toLowerCase();
+    
+    if (!this.searchQuery) {
+      this.filteredDorms = [...this.dorms];
+    } else {
+      this.filteredDorms = this.dorms.filter(d => 
+        (d.DORM_NAME && d.DORM_NAME.toLowerCase().includes(this.searchQuery)) ||
+        (d.owner_name && d.owner_name.toLowerCase().includes(this.searchQuery)) ||
+        (d.FIRST_NAME && d.FIRST_NAME.toLowerCase().includes(this.searchQuery)) ||
+        (d.LAST_NAME && d.LAST_NAME.toLowerCase().includes(this.searchQuery))
+      );
     }
   }
 
