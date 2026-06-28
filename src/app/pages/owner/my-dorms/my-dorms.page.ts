@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, 
   IonBackButton, IonButton, IonIcon, IonSpinner, IonModal, IonList, IonItem, IonLabel,
+  IonSegment, IonSegmentButton,
   AlertController, ToastController, 
   LoadingController, ModalController 
 } from '@ionic/angular/standalone';
@@ -33,11 +34,16 @@ import {
     CommonModule, FormsModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
     IonBackButton, IonButton, IonIcon, IonSpinner, IonModal, IonList, IonItem, IonLabel,
+    IonSegment, IonSegmentButton,
     OtpModalComponent
   ] 
 })
 export class MyDormsPage implements OnInit {
   myDorms: any[] = [];
+  approvedDorms: any[] = [];
+  pendingDorms: any[] = [];
+  currentSegment: string = 'approved';
+  
   isLoading: boolean = true;
   currentUser: any = null;
 
@@ -102,14 +108,14 @@ export class MyDormsPage implements OnInit {
   async loadMyDorms() {
     this.isLoading = true;
     const userId = this.currentUser.id || this.currentUser.USER_ID;
-    
-    try {
-      const res = await this.dormService.getMyDorms(userId);
-      if (res.success) {
-        // แสดงทุกหอยกเว้น REQ_STATUS=2 (ไม่อนุมัติ)
-        this.myDorms = res.data.filter((dorm: any) => dorm.REQ_STATUS !== 2);
-      }
-    } catch (error) {
+        try {
+        const res = await this.dormService.getMyDorms(userId);
+        if (res.success) {
+          this.myDorms = res.data;
+          this.approvedDorms = this.myDorms.filter((dorm: any) => dorm.REQ_STATUS === 1);
+          this.pendingDorms = this.myDorms.filter((dorm: any) => dorm.REQ_STATUS === 0 || dorm.REQ_STATUS === 2 || dorm.REQ_STATUS === 3);
+        }
+      } catch (error) {
       console.error('Error loadMyDorms:', error);
     } finally {
       this.isLoading = false;
