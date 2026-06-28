@@ -8,7 +8,8 @@ import { addIcons } from 'ionicons';
 // ✅ Import Icons ให้ครบตามที่ใช้ใน HTML
 import { 
   close, checkmarkCircle, closeCircle, location, call, mail, 
-  person, home, images, documentText, bed, checkmarkCircleOutline
+  person, home, images, documentText, bed, checkmarkCircleOutline,
+  water, flash
 } from 'ionicons/icons';
 
 @Component({
@@ -26,11 +27,16 @@ export class DormRequestModalComponent implements OnInit {
 
   @Input() dorm: any;
 
+  // ✅ Lightbox สำหรับขยายดูรูปหน้าหอ/ใบอนุญาต/แกลเลอรี
+  isLightboxOpen: boolean = false;
+  lightboxImage: string = '';
+
   constructor(private modalCtrl: ModalController) { 
     // ✅ ลงทะเบียน Icons ให้ครบ
     addIcons({ 
       close, checkmarkCircle, closeCircle, location, call, mail, 
-      person, home, images, documentText, bed, checkmarkCircleOutline
+      person, home, images, documentText, bed, checkmarkCircleOutline,
+      water, flash
     });
   }
 
@@ -46,8 +52,14 @@ export class DormRequestModalComponent implements OnInit {
     });
   }
 
+  // ✅ เปิด Lightbox ขยายรูป — ใช้ดูรูปหน้าหอ/ใบอนุญาต/แกลเลอรีได้ทุกจุด
   viewImage(src: string) {
-    // Logic ขยายรูปภาพ (ถ้ามี)
-    console.log('View Image:', src);
+    if (!src) return;
+    this.lightboxImage = src;
+    this.isLightboxOpen = true;
+  }
+
+  closeLightbox() {
+    this.isLightboxOpen = false;
   }
 }

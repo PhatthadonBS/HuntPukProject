@@ -1,0 +1,25 @@
+<div class="confirm-overlay" *ngIf="isVisible" (click)="onOverlayClick($event)">
+  <div class="confirm-card" [@popIn]>
+
+    <div class="icon-circle">
+      <ion-icon name="help-circle-outline"></ion-icon>
+    </div>
+
+    <h2 class="confirm-title">{{ title }}</h2>
+
+    <p class="confirm-message">{{ message }}</p>
+
+    <p class="confirm-note" *ngIf="note">{{ note }}</p>
+
+    <div class="confirm-actions">
+      <button class="btn-cancel" (click)="cancel()">
+        <span>{{ cancelText }}</span>
+      </button>
+      <button class="btn-confirm" (click)="confirm()">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>{{ confirmText }}</span>
+      </button>
+    </div>
+
+  </div>
+</div>

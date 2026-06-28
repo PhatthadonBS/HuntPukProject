@@ -7,9 +7,16 @@
         <ion-icon name="arrow-back"></ion-icon>
       </div>
 
-      <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+      <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'"
+           onerror="this.src='https://placehold.co/600x400?text=No+Image'"
+           (click)="viewImage(dormData.image || 'assets/dorm-placeholder.jpg')">
       <div class="hero-overlay"></div>
-      
+
+      <!-- ✅ ปุ่มขยายรูป — บอกผู้ใช้ว่ารูปนี้กดดูขยายได้ -->
+      <div class="hero-expand-hint" (click)="viewImage(dormData.image || 'assets/dorm-placeholder.jpg')">
+        <ion-icon name="expand-outline"></ion-icon>
+      </div>
+
       <ng-container *ngFor="let stat of dormStatusList">
           <div *ngIf="(dormData.status || dormData.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
                class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
@@ -234,6 +241,33 @@
        <ion-spinner name="crescent"></ion-spinner>
        <p>กำลังโหลด...</p>
      </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- 🖼️ Lightbox — ขยายดูรูปภาพ (หน้าหอ + แกลเลอรี) -->
+  <!-- ============================================ -->
+  <div class="lightbox-overlay" *ngIf="isLightboxOpen" (click)="closeLightbox()">
+
+    <div class="lightbox-close" (click)="closeLightbox()">
+      <ion-icon name="close"></ion-icon>
+    </div>
+
+    <div class="lightbox-counter" *ngIf="lightboxImages.length > 1">
+      {{ lightboxIndex + 1 }} / {{ lightboxImages.length }}
+    </div>
+
+    <div class="lightbox-nav prev" *ngIf="lightboxImages.length > 1" (click)="prevLightboxImage($event)">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </div>
+
+    <div class="lightbox-image-wrap" (click)="$event.stopPropagation()">
+      <img [src]="lightboxCurrentImage" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+    </div>
+
+    <div class="lightbox-nav next" *ngIf="lightboxImages.length > 1" (click)="nextLightboxImage($event)">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </div>
+
   </div>
 
 </ion-content>

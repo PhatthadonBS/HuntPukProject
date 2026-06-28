@@ -19,6 +19,7 @@ import { DormitoryService } from '../../../services/dormitory';
 import { lastValueFrom } from 'rxjs';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
+import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-dorm-form',
@@ -30,7 +31,7 @@ import { SuccessModalComponent } from '../../../components/success-modal/success
     IonButtons, IonBackButton, IonButton, IonIcon,
     IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
     IonCheckbox, IonList, CommonModule, FormsModule, GoogleMapsModule,
-    SuccessModalComponent
+    SuccessModalComponent, ConfirmModalComponent
   ]
 })
 export class DormFormPage implements OnInit {
@@ -38,6 +39,9 @@ export class DormFormPage implements OnInit {
 
   // ✅ ควบคุมการแสดง popup สำเร็จแบบ custom (แทน alertCtrl ที่ไม่ render HTML)
   showSuccessModal: boolean = false;
+
+  // ✅ ควบคุมการแสดง popup ยืนยันก่อนบันทึก (แทน alertCtrl เดิมที่มี <p> โผล่เป็น text ดิบ)
+  showSaveConfirmModal: boolean = false;
 
 
   // ✅ เก็บข้อมูล user เต็มๆ ไว้ใช้ตลอด
@@ -57,6 +61,12 @@ export class DormFormPage implements OnInit {
   zones: any[] = [];
   facilities: any[] = [];
   roomTypes: any[] = [];
+  
+  // ✅ สำหรับตัวเลือกจาก Database
+  dormTypesDB: any[] = [];
+  roomTypesDB: any[] = [];
+  bedTypesDB: any[] = [];
+  currentZoneName: string = 'กำลังคำนวณ...';
 
   selectedFiles: any = {
     FRONT_DORM_IMG: null, LICENSE_IMG: null,
@@ -151,6 +161,16 @@ export class DormFormPage implements OnInit {
       const zoneRes = await this.dormService.getZones();
       if (zoneRes.success) this.zones = zoneRes.data;
 
+      // ✅ โหลดตัวเลือกอื่นๆ จาก DB
+      const dtRes: any = await lastValueFrom(this.dormService.getDormTypes());
+      this.dormTypesDB = Array.isArray(dtRes) ? dtRes : (dtRes?.data || []);
+      
+      const rtRes: any = await lastValueFrom(this.dormService.getRoomTypes());
+      this.roomTypesDB = Array.isArray(rtRes) ? rtRes : (rtRes?.data || []);
+
+      const btRes: any = await lastValueFrom(this.dormService.getBedTypes());
+      this.bedTypesDB = Array.isArray(btRes) ? btRes : (btRes?.data || []);
+
       // ✅ FIX: รองรับทั้ง array ตรงๆ และแบบห่อ {data: [...]}
       const facRes: any = await lastValueFrom(this.dormService.getFacilities());
       const facArray = Array.isArray(facRes) ? facRes : (facRes?.data || []);
@@ -170,6 +190,8 @@ export class DormFormPage implements OnInit {
         console.log('✅ Facilities loaded:', this.facilities.length, 'items');
         console.log('🔍 Sample:', this.facilities[0]?.name, '→', this.facilities[0]?.icon, '(FA:', this.facilities[0]?.isFontAwesome, ')');
       }
+
+      // (No longer auto-calculating zone)
     } catch (error) {
       console.error('❌ loadInitialData error:', error);
     }
@@ -184,14 +206,17 @@ export class DormFormPage implements OnInit {
       water_unit: null, water_lump: null, elect_unit: null, detail: '',
       new_facilities: []
     };
+    
+    if (this.dormTypesDB.length > 0) this.formData.type_id = this.dormTypesDB[0].id || this.dormTypesDB[0].DORM_TYPE_ID;
+
     this.facilities.forEach(f => f.checked = false);
 
     // ✅ ห้องเริ่มต้น 1 ห้อง
     this.roomTypes = [{
       id: null,
-      selectedType: 'ห้องพัดลม',
-      roomType: 'ห้องพัดลม',
-      bedType: '1',
+      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1',
       perMonth: null, perTerm: null, perDay: null
     }];
 
@@ -212,6 +237,57 @@ export class DormFormPage implements OnInit {
     this.markerPosition = { lat: 16.245279, lng: 103.250106 };
   }
 
+  // ==========================
+  // Auto Zone Calculation
+  // ==========================
+  calculateNearestZone(lat: number, lng: number) {
+    if (!this.zones || this.zones.length === 0) return;
+    
+    let minDistance = Infinity;
+    let nearestZone = this.zones[0];
+    
+    for (const zone of this.zones) {
+      if (zone.lat != null && zone.lng != null) {
+        const dist = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestZone = zone;
+        }
+      }
+    }
+    this.formData.zone_id = nearestZone.ZONE_ID;
+    this.currentZoneName = nearestZone.ZONE_NAME;
+  }
+
+  getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371; // Radius of the earth in km
+    const dLat = this.deg2rad(lat2-lat1);
+    const dLon = this.deg2rad(lon2-lon1); 
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c; 
+  }
+
+  deg2rad(deg: number) { return deg * (Math.PI/180); }
+
+  // ==========================
+  // Zone & Map Logic
+  // ==========================
+
+  onZoneChange() {
+    if (this.formData.zone_id) {
+      const selectedZone = this.zones.find((z: any) => z.ZONE_ID == this.formData.zone_id);
+      if (selectedZone && selectedZone.lat && selectedZone.lng) {
+        this.formData.lat = selectedZone.lat;
+        this.formData.lng = selectedZone.lng;
+        this.center = { lat: this.formData.lat, lng: this.formData.lng };
+        this.markerPosition = { ...this.center };
+      }
+    }
+  }
   // ==========================
   // Step Navigation
   // ==========================
@@ -276,6 +352,7 @@ export class DormFormPage implements OnInit {
     if (this.formData.lat && this.formData.lng) {
       this.markerPosition = { lat: Number(this.formData.lat), lng: Number(this.formData.lng) };
       this.center = { ...this.markerPosition };
+      this.calculateNearestZone(this.markerPosition.lat, this.markerPosition.lng);
     }
   }
 
@@ -284,8 +361,11 @@ export class DormFormPage implements OnInit {
   // ==========================
   addRoomType() {
     this.roomTypes.push({
-      id: null, selectedType: 'ห้องแอร์', roomType: 'ห้องแอร์',
-      bedType: '1', perMonth: null, perTerm: null, perDay: null
+      id: null, 
+      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1', 
+      perMonth: null, perTerm: null, perDay: null
     });
   }
 
@@ -401,16 +481,23 @@ export class DormFormPage implements OnInit {
       return;
     }
 
-    const confirmAlert = await this.alertCtrl.create({
-      header: 'ยืนยันการบันทึกหอพัก',
-      message: '<p>คุณตรวจสอบข้อมูลถูกต้องแล้วใช่หรือไม่?</p><p style="color:var(--ion-color-medium);font-size:0.9em;margin-top:10px;">หมายเหตุ: ข้อมูลจะถูกส่งไปให้ผู้ดูแลระบบตรวจสอบก่อนแสดงผลบนเว็บไซต์</p>',
-      cssClass: 'minimal-confirm-alert',
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel', cssClass: 'alert-btn-cancel' },
-        { text: 'ยืนยันส่งข้อมูล', cssClass: 'alert-btn-confirm', handler: () => { this.processSaveData(); } }
-      ]
-    });
-    await confirmAlert.present();
+    // ✅ ใช้ custom modal แทน alertCtrl — กัน <p> tag โผล่เป็น text ดิบ
+    this.showSaveConfirmModal = true;
+  }
+
+  getCheckedFacilitiesCount(): number {
+    return this.facilities?.filter((fac: any) => fac.checked).length ?? 0;
+  }
+
+  // ✅ เรียกตอนกด "ยืนยันส่งข้อมูล" ใน confirm-modal
+  onSaveConfirmed() {
+    this.showSaveConfirmModal = false;
+    this.processSaveData();
+  }
+
+  // ✅ เรียกตอนกด "ยกเลิก" ใน confirm-modal
+  onSaveCancelled() {
+    this.showSaveConfirmModal = false;
   }
 
   async processSaveData() {

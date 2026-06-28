@@ -53,9 +53,14 @@
         <ion-item class="custom-input">
           <ion-label position="stacked">ประเภทหอพัก <span class="req">*</span></ion-label>
           <ion-select [(ngModel)]="formData.type_id" interface="popover">
-            <ion-select-option [value]="1">หอพักชาย</ion-select-option>
-            <ion-select-option [value]="2">หอพักหญิง</ion-select-option>
-            <ion-select-option [value]="3">หอพักรวม</ion-select-option>
+            <ion-select-option *ngFor="let dt of dormTypesDB" [value]="dt.id || dt.DORM_TYPE_ID">{{ dt.name || dt.DORM_TYPE_NAME }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="custom-input">
+          <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
+          <ion-select [(ngModel)]="formData.zone_id" (ionChange)="onZoneChange()" interface="popover">
+            <ion-select-option *ngFor="let z of zones" [value]="z.ZONE_ID">{{ z.ZONE_NAME }}</ion-select-option>
           </ion-select>
         </ion-item>
 
@@ -88,8 +93,9 @@
         </div>
         <p class="hint-text text-danger">* แตะบนแผนที่เพื่อปักหมุดตำแหน่งหอพัก</p>
         <div class="coord-display">
-          <span>📍 Lat: {{ formData.lat | number:'1.6-6' }}</span>
-          <span>Lng: {{ formData.lng | number:'1.6-6' }}</span>
+          <div style="font-size: 0.9em; color: var(--ion-color-medium);">
+            พิกัด: {{ formData.lat | number:'1.6-6' }}, {{ formData.lng | number:'1.6-6' }}
+          </div>
         </div>
       </div>
 
@@ -143,7 +149,7 @@
 
         <!-- แสดงจำนวนที่เลือก -->
         <div class="selected-count" *ngIf="facilities.length > 0">
-          เลือกแล้ว {{ facilities | countChecked }} / {{ facilities.length }} รายการ
+          เลือกแล้ว {{ getCheckedFacilitiesCount() }} / {{ facilities.length }} รายการ
         </div>
 
         <!-- ปุ่มเสนอสิ่งอำนวยความสะดวกใหม่ -->
@@ -188,9 +194,7 @@
           <ion-item class="custom-input">
             <ion-label position="stacked">ชื่อประเภทห้อง <span class="req">*</span></ion-label>
             <ion-select [(ngModel)]="room.selectedType" (ionChange)="onRoomTypeChange(room)" interface="popover">
-              <ion-select-option value="ห้องแอร์">ห้องแอร์</ion-select-option>
-              <ion-select-option value="ห้องพัดลม">ห้องพัดลม</ion-select-option>
-              <ion-select-option value="ห้องสตูดิโอ">ห้องสตูดิโอ</ion-select-option>
+              <ion-select-option *ngFor="let rt of roomTypesDB" [value]="rt.name || rt.ROOM_TYPE_NAME">{{ rt.name || rt.ROOM_TYPE_NAME }}</ion-select-option>
               <ion-select-option value="custom">อื่นๆ (พิมพ์ชื่อเอง)</ion-select-option>
             </ion-select>
           </ion-item>
@@ -204,10 +208,7 @@
           <ion-item class="custom-input">
             <ion-label position="stacked">ประเภทเตียง <span class="req">*</span></ion-label>
             <ion-select [(ngModel)]="room.bedType" interface="popover">
-              <ion-select-option value="1">เตียงเดี่ยว 3.5 ฟุต (1 เตียง)</ion-select-option>
-              <ion-select-option value="2">เตียงเดี่ยว 5-6 ฟุต (1 เตียงใหญ่)</ion-select-option>
-              <ion-select-option value="3">เตียงคู่ 3.5 ฟุต (2 เตียง)</ion-select-option>
-              <ion-select-option value="4">เตียงคู่ 5-6 ฟุต (2 เตียงใหญ่)</ion-select-option>
+              <ion-select-option *ngFor="let bt of bedTypesDB" [value]="(bt.id || bt.BED_TYPE_ID).toString()">{{ bt.name || bt.BED_TYPE_NAME }}</ion-select-option>
             </ion-select>
           </ion-item>
 
@@ -376,3 +377,21 @@
     <ion-icon name="save-outline" slot="start"></ion-icon> บันทึกข้อมูล
   </ion-button>
 </div>
+
+<!-- ✅ Popup ยืนยันก่อนส่งข้อมูล — custom component แทน alertCtrl (ไม่มี HTML ดิบโผล่) -->
+<app-confirm-modal
+  *ngIf="showSaveConfirmModal"
+  title="ยืนยันการบันทึกหอพัก"
+  message="คุณตรวจสอบข้อมูลถูกต้องแล้วใช่หรือไม่?"
+  note="หมายเหตุ: ข้อมูลจะถูกส่งไปให้ผู้ดูแลระบบตรวจสอบก่อนแสดงผลบนเว็บไซต์"
+  confirmText="ยืนยันส่งข้อมูล"
+  cancelText="ยกเลิก"
+  (confirmed)="onSaveConfirmed()"
+  (cancelled)="onSaveCancelled()">
+</app-confirm-modal>
+
+<!-- ✅ Popup ส่งข้อมูลสำเร็จ -->
+<app-success-modal
+  *ngIf="showSuccessModal"
+  (confirmed)="onSuccessConfirmed()">
+</app-success-modal>

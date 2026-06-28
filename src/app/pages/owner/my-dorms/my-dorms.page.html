@@ -19,13 +19,25 @@
 
     <div class="page-header">
       <div>
-        <h2>รายการหอพัก</h2>
+        <h2>จัดการหอพัก</h2>
         <p>ทั้งหมด {{ myDorms.length }} รายการ</p>
       </div>
       <div class="user-badge" *ngIf="myDorms.length > 0">
         <ion-icon name="business-outline"></ion-icon>
         <span>เจ้าของหอพัก</span>
       </div>
+    </div>
+
+    <!-- Segments -->
+    <div class="segment-container" style="padding: 0 16px; margin-bottom: 15px;">
+      <ion-segment [(ngModel)]="currentSegment" mode="ios">
+        <ion-segment-button value="approved">
+          <ion-label>อนุมัติแล้ว ({{ approvedDorms.length }})</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="pending">
+          <ion-label>คำขอ/รอตรวจสอบ ({{ pendingDorms.length }})</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
 
     <div class="loading-center" *ngIf="isLoading">
@@ -39,21 +51,22 @@
       </div>
     </div>
 
-    <div class="empty-state fade-in" *ngIf="!isLoading && myDorms.length === 0">
+    <div class="empty-state fade-in" *ngIf="!isLoading && ((currentSegment === 'approved' && approvedDorms.length === 0) || (currentSegment === 'pending' && pendingDorms.length === 0))">
       <div class="empty-icon">
         <ion-icon name="home-outline"></ion-icon>
       </div>
-      <h3>ยังไม่มีหอพัก</h3>
-      <p>คุณยังไม่ได้ลงทะเบียนหอพักใดๆ ในระบบ<br>กดปุ่มด้านล่างเพื่อเพิ่มหอพักใหม่</p>
-      <ion-button expand="block" class="add-btn" (click)="goToAddDorm()">
+      <h3 *ngIf="currentSegment === 'approved'">ยังไม่มีหอพักที่อนุมัติ</h3>
+      <h3 *ngIf="currentSegment === 'pending'">ไม่มีคำขอที่รอตรวจสอบ</h3>
+      <p *ngIf="currentSegment === 'approved'">คุณยังไม่มีหอพักที่พร้อมให้บริการในระบบ<br>กดปุ่มด้านล่างเพื่อเพิ่มหอพักใหม่</p>
+      <ion-button expand="block" class="add-btn" (click)="goToAddDorm()" *ngIf="currentSegment === 'approved'">
         <ion-icon name="add-circle" slot="start"></ion-icon>
         เพิ่มหอพักใหม่
       </ion-button>
     </div>
 
-    <div class="dorm-list" *ngIf="!isLoading && myDorms.length > 0">
+    <div class="dorm-list" *ngIf="!isLoading && ((currentSegment === 'approved' && approvedDorms.length > 0) || (currentSegment === 'pending' && pendingDorms.length > 0))">
       
-      <div class="dorm-card fade-in" *ngFor="let item of myDorms" (click)="goToDetail(item.DORM_ID)">
+      <div class="dorm-card fade-in" *ngFor="let item of (currentSegment === 'approved' ? approvedDorms : pendingDorms)" (click)="currentSegment === 'pending' ? goToEdit(item.DORM_ID) : goToDetail(item.DORM_ID)">
         
         <div class="card-header">
           <div class="status-indicator" [ngClass]="getStatusColor(item.DORM_STATUS_ID, item.REQ_STATUS)">

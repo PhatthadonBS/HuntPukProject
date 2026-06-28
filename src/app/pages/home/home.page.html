@@ -271,9 +271,10 @@
                <h3>ระยะทาง (กม.)</h3>
                <span>จากจุดอ้างอิง(หมุดสีน้ำเงิน)</span>
              </div>
-             <div class="input-capsule">
+             <div class="input-capsule" style="display: flex; align-items: center;">
                <ion-icon name="location" class="icon-yellow"></ion-icon>
-               <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20">
+               <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20" style="flex: 1;">
+               <ion-icon name="close-circle" *ngIf="maxDistance" (click)="maxDistance = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
              </div>
              <p class="hint-text">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
           </div>
@@ -281,9 +282,21 @@
           <div class="price-section">
             <h3>ช่วงราคา</h3>
             <div class="price-inputs">
-              <div class="price-col"><span class="label">ต่ำสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="minPrice" placeholder="0"></div></div>
+              <div class="price-col">
+                <span class="label">ต่ำสุด</span>
+                <div class="input-capsule" style="display: flex; align-items: center;">
+                  <input type="number" [(ngModel)]="minPrice" placeholder="0" style="flex: 1;">
+                  <ion-icon name="close-circle" *ngIf="minPrice" (click)="minPrice = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                </div>
+              </div>
               <div class="dash">-</div>
-              <div class="price-col"><span class="label">สูงสุด</span><div class="input-capsule"><input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด"></div></div>
+              <div class="price-col">
+                <span class="label">สูงสุด</span>
+                <div class="input-capsule" style="display: flex; align-items: center;">
+                  <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด" style="flex: 1;">
+                  <ion-icon name="close-circle" *ngIf="maxPrice" (click)="maxPrice = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -301,14 +314,16 @@
           <div style="margin-bottom: 25px; display: flex; gap: 10px;">
             <div style="flex: 1;">
               <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าน้ำสูงสุด</h3>
-              <div class="input-capsule">
-                <input type="number" [(ngModel)]="maxWater" placeholder="บาท">
+              <div class="input-capsule" style="display: flex; align-items: center;">
+                <input type="number" [(ngModel)]="maxWater" placeholder="บาท" style="flex: 1;">
+                <ion-icon name="close-circle" *ngIf="maxWater" (click)="maxWater = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
               </div>
             </div>
             <div style="flex: 1;">
               <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าไฟสูงสุด</h3>
-              <div class="input-capsule">
-                <input type="number" [(ngModel)]="maxElect" placeholder="บาท">
+              <div class="input-capsule" style="display: flex; align-items: center;">
+                <input type="number" [(ngModel)]="maxElect" placeholder="บาท" style="flex: 1;">
+                <ion-icon name="close-circle" *ngIf="maxElect" (click)="maxElect = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
               </div>
             </div>
           </div>

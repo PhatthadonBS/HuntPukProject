@@ -471,12 +471,15 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.dorms = tempDorms as any[];
   
         if (this.dorms.length === 0 && this.hasActiveFilter()) {
-          const alert = await this.alertCtrl.create({
-            header: 'ไม่พบหอพัก',
-            message: 'หอพักไม่ขึ้นกรุณาลองอีกครั้ง (ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้)',
-            buttons: ['ตกลง']
-          });
-          await alert.present();
+          setTimeout(async () => {
+            const alert = await this.alertCtrl.create({
+              header: 'ไม่พบหอพัก',
+              message: 'หอพักไม่ขึ้นกรุณาลองอีกครั้ง (ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้)',
+              cssClass: 'top-alert',
+              buttons: ['ตกลง']
+            });
+            await alert.present();
+          }, 300);
         }
 
         if (!this.selectedZone && this.dorms.length > 0) {

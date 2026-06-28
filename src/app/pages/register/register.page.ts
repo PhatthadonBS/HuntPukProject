@@ -115,6 +115,24 @@ export class RegisterPage implements OnInit {
     this.isSubmitting = true;
 
     try {
+      console.log('🔍 กำลังตรวจสอบข้อมูลอีเมลและเบอร์โทรศัพท์...');
+      // ✅ Step 1: เรียก registerSec1 เพื่อเช็คซ้ำและรับ hashed password กลับมา
+      let hashedData: any = null;
+      try {
+        hashedData = await this.authService.register(this.tempUserData);
+      } catch (err: any) {
+        const msg = err?.error?.message || err?.message || 'อีเมลหรือเบอร์โทรนี้ถูกใช้งานแล้ว';
+        this.showAlert('สมัครไม่สำเร็จ', msg);
+        this.isSubmitting = false;
+        return;
+      }
+
+      const rawSec1 = hashedData?.data || hashedData;
+      const bcryptRegex = /^\$2b\$10\$.{20,}/;
+      const isHashed = bcryptRegex.test(rawSec1?.password || '');
+      // Update tempUserData with hashed password so we don't have to hash it again
+      this.tempUserData = isHashed ? { ...this.tempUserData, password: rawSec1.password } : this.tempUserData;
+
       console.log('🚀 โค้ดวิ่งทะลุไปยิง API ส่งอีเมลแล้ว (ไม่มี Loading กวนใจ!)...');
       await this.authService.reqOTP_Register(this.email);
       console.log('✅ API ส่งอีเมลสำเร็จ!');
@@ -175,35 +193,8 @@ export class RegisterPage implements OnInit {
     try {
        if (!this.tempUserData) throw new Error('ไม่พบข้อมูลผู้ใช้ชั่วคราว');
 
-       // ✅ Step 1: เรียก registerSec1 เพื่อเช็คซ้ำและรับ hashed password กลับมา
-       let hashedData: any = null;
-       try {
-         hashedData = await this.authService.register(this.tempUserData);
-       } catch (err: any) {
-         // กรณี email/phone ซ้ำ — sec1 return error
-         const msg = err?.error?.message || err?.message || 'อีเมลหรือเบอร์โทรนี้ถูกใช้งานแล้ว';
-         this.showAlert('สมัครไม่สำเร็จ', msg);
-         this.isSubmitting = false;
-         return;
-       }
-
-       // ✅ sec1 return {username, email, password(hashed), phone} ตรงๆ
-       // registerSec2 รับ { userData: {...}, verify: true }
-       // ต้องเช็คว่า hashedData เป็น response ตรงๆ หรือห่อใน .data
-       const rawSec1 = hashedData?.data || hashedData;
-       
-       // ตรวจสอบว่าได้ hashed password จริง (bcrypt format)
-       const bcryptRegex = /^\$2b\$10\$.{20,}/;
-       const isHashed = bcryptRegex.test(rawSec1?.password || '');
-       
-       console.log('🔐 Sec1 response:', rawSec1);
-       console.log('🔐 Is password hashed:', isHashed);
-       
-       // ถ้า hashed ให้ใช้ของ sec1 ถ้าไม่ใช้ original (backend จะ hash เอง)
-       const dataForSec2 = isHashed ? rawSec1 : this.tempUserData;
-
        // ✅ Step 2: ส่ง hashed data ไปบันทึกจริงที่ sec2
-       await this.authService.registerSec2(dataForSec2, true);
+       await this.authService.registerSec2(this.tempUserData, true);
 
        console.log('🎉 บันทึกสำเร็จ!');
        const alert = await this.alertController.create({

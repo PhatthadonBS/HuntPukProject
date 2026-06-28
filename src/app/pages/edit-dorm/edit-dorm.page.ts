@@ -54,18 +54,35 @@ export class EditDormPage implements OnInit {
   facilities: any[] = []; 
   roomTypes: any[] = [];
   priceTypes: any[] = [];
+  
+  // ✅ สำหรับตัวเลือกจาก Database
+  dormTypesDB: any[] = [];
+  roomTypesDB: any[] = [];
+  bedTypesDB: any[] = [];
+  currentZoneName: string = 'กำลังคำนวณ...';
+  
+  reqStatus: number = 1;
+  isWaitingForAdmin: boolean = false;
 
   selectedFiles: any = {
     FRONT_DORM_IMG: null,
     BED_IMG: null,
+    WALL_IMG: null,
+    CEILING_IMG: null,
+    FLOOR_IMG: null,
     BATHROOM_IMG: null,
+    BALCONY_IMG: null,
     OTHER_IMG: []
   };
 
   previews: any = {
     FRONT_DORM_IMG: null,
     BED_IMG: null,
+    WALL_IMG: null,
+    CEILING_IMG: null,
+    FLOOR_IMG: null,
     BATHROOM_IMG: null,
+    BALCONY_IMG: null,
     OTHER_IMG: []
   };
 
@@ -103,13 +120,28 @@ export class EditDormPage implements OnInit {
         this.zones = zoneRes.data;
       }
 
+      // ✅ โหลดตัวเลือกอื่นๆ จาก DB
+      const dtRes: any = await lastValueFrom(this.dormService.getDormTypes());
+      this.dormTypesDB = Array.isArray(dtRes) ? dtRes : (dtRes?.data || []);
+      
+      const rtRes: any = await lastValueFrom(this.dormService.getRoomTypes());
+      this.roomTypesDB = Array.isArray(rtRes) ? rtRes : (rtRes?.data || []);
+
+      const btRes: any = await lastValueFrom(this.dormService.getBedTypes());
+      this.bedTypesDB = Array.isArray(btRes) ? btRes : (btRes?.data || []);
+
       const facRes: any = await lastValueFrom(this.dormService.getFacilities());
-      if (facRes && facRes.length > 0) {
-        this.facilities = facRes.map((f: any) => ({
+      const facArray = Array.isArray(facRes) ? facRes : (facRes?.data || []);
+      if (facArray.length > 0) {
+        this.facilities = facArray.map((f: any) => ({
           id: f.FAC_TYPE_ID,
           name: f.FAC_TYPE_NAME,
-          icon: f.FAC_TYPE_ICON || f.icon || '',
-          checked: false 
+          icon: f.FAC_TYPE_ICON || '',
+          isFontAwesome: f.FAC_TYPE_ICON &&
+            !f.FAC_TYPE_ICON.startsWith('http') &&
+            !f.FAC_TYPE_ICON.startsWith('/') &&
+            !f.FAC_TYPE_ICON.startsWith('assets'),
+          checked: false
         }));
       }
 
@@ -130,6 +162,10 @@ export class EditDormPage implements OnInit {
       const res = await this.dormService.getDormById(id);
       if (res.success) {
         const d = res.data;
+        
+        this.reqStatus = Number(d.REQ_STATUS) || 0;
+        this.isWaitingForAdmin = (this.reqStatus === 0 || this.reqStatus === 3);
+
         this.formData = {
           name: d.DORM_NAME,
           address: d.ADDRESS,
@@ -156,10 +192,27 @@ export class EditDormPage implements OnInit {
               const existing = r.prices?.find((rp: any) => rp.priceTypeId === pt.id);
               return { priceTypeId: pt.id, name: pt.name, price: existing ? existing.price : null };
             });
+            
+            const isStandardRoom = this.roomTypesDB.some(rt => (rt.name || rt.ROOM_TYPE_NAME) === r.ROOM_TYPE_NAME);
+            const selectedType = isStandardRoom ? r.ROOM_TYPE_NAME : 'custom';
+            
+            let matchedBedId = '1';
+            const bedNameLower = (r.bedType || '').toLowerCase();
+            if (bedNameLower.includes('double') || bedNameLower.includes('คู่')) {
+               matchedBedId = '2'; // or search in bedTypesDB
+               // More robust matching:
+               const bmatch = this.bedTypesDB.find(bt => (bt.name || bt.BED_TYPE_NAME || '').toLowerCase().includes('คู่'));
+               if(bmatch) matchedBedId = (bmatch.id || bmatch.BED_TYPE_ID).toString();
+            } else {
+               const bmatch = this.bedTypesDB.find(bt => (bt.name || bt.BED_TYPE_NAME || '').toLowerCase().includes('เดี่ยว'));
+               if(bmatch) matchedBedId = (bmatch.id || bmatch.BED_TYPE_ID).toString();
+            }
+
             return {
               id: r.ROOM_TYPE_ID,
+              selectedType: selectedType,
               roomType: r.ROOM_TYPE_NAME,
-              bedType: r.bedType === 'Double Bed' ? '2' : '1',
+              bedType: matchedBedId,
               prices: mappedPrices
             };
           });
@@ -184,11 +237,70 @@ export class EditDormPage implements OnInit {
   addRoomType() {
     this.roomTypes.push({
       id: null,
-      roomType: '',
-      bedType: '1',
+      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1',
       prices: this.priceTypes.map(pt => ({ priceTypeId: pt.id, name: pt.name, price: null }))
     });
   }
+
+  onZoneChange() {
+    if (this.formData.zone_id && !this.isWaitingForAdmin) {
+      const selectedZone = this.zones.find((z: any) => z.ZONE_ID == this.formData.zone_id);
+      if (selectedZone && selectedZone.lat && selectedZone.lng) {
+        this.formData.lat = selectedZone.lat;
+        this.formData.lng = selectedZone.lng;
+      }
+    }
+  }
+
+  onCoordChange() {
+    // ไม่คำนวณโซนอัตโนมัติแล้ว ให้ผู้ใช้เลือกเองจาก Dropdown ตามที่ร้องขอ
+  }
+
+  onRoomTypeChange(room: any) {
+    if (room.selectedType !== 'custom') {
+      room.roomType = room.selectedType;
+    } else {
+      room.roomType = '';
+    }
+  }
+
+  // ==========================
+  // Auto Zone Calculation
+  // ==========================
+  calculateNearestZone(lat: number, lng: number) {
+    if (!this.zones || this.zones.length === 0) return;
+    
+    let minDistance = Infinity;
+    let nearestZone = this.zones[0];
+    
+    for (const zone of this.zones) {
+      if (zone.lat != null && zone.lng != null) {
+        const dist = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestZone = zone;
+        }
+      }
+    }
+    this.formData.zone_id = nearestZone.ZONE_ID;
+    this.currentZoneName = nearestZone.ZONE_NAME;
+  }
+
+  getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371; // Radius of the earth in km
+    const dLat = this.deg2rad(lat2-lat1);
+    const dLon = this.deg2rad(lon2-lon1); 
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c; 
+  }
+
+  deg2rad(deg: number) { return deg * (Math.PI/180); }
 
   removeRoomType(index: number) {
     if (this.roomTypes.length > 1) {
@@ -234,7 +346,11 @@ export class EditDormPage implements OnInit {
   }
 
   async onSubmit() {
-    if (!this.formData.name || !this.formData.zone_id) {
+    if (this.isWaitingForAdmin) {
+      this.showToast('กำลังรอแอดมินตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้', 'warning');
+      return;
+    }
+    if (!this.formData.name || !this.formData.address || !this.formData.lat || !this.formData.lng || !this.formData.zone_id) {
       this.showToast('กรุณากรอกข้อมูลสำคัญให้ครบถ้วน', 'warning');
       return;
     }
@@ -265,7 +381,11 @@ const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any
 
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
       if (this.selectedFiles.BED_IMG) form.append('BED_IMG', this.selectedFiles.BED_IMG);
+      if (this.selectedFiles.WALL_IMG) form.append('WALL_IMG', this.selectedFiles.WALL_IMG);
+      if (this.selectedFiles.CEILING_IMG) form.append('CEILING_IMG', this.selectedFiles.CEILING_IMG);
+      if (this.selectedFiles.FLOOR_IMG) form.append('FLOOR_IMG', this.selectedFiles.FLOOR_IMG);
       if (this.selectedFiles.BATHROOM_IMG) form.append('BATHROOM_IMG', this.selectedFiles.BATHROOM_IMG);
+      if (this.selectedFiles.BALCONY_IMG) form.append('BALCONY_IMG', this.selectedFiles.BALCONY_IMG);
       
       if (this.selectedFiles.OTHER_IMG && this.selectedFiles.OTHER_IMG.length > 0) {
         this.selectedFiles.OTHER_IMG.forEach((file: any) => {

@@ -10,7 +10,8 @@ import {
   person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp,
   navigateCircleOutline, waterOutline, flashOutline, 
   logoTwitter, paperPlane,
-  documentTextOutline, call, alertCircleOutline 
+  documentTextOutline, call, alertCircleOutline,
+  close, chevronBackOutline, chevronForwardOutline, expandOutline
 } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
 
@@ -42,6 +43,15 @@ export class DormDetailPage implements OnInit {
   ownerInfo: any = null;
   dormStatusList: any[] = [];
 
+  // ✅ Lightbox สำหรับขยายรูป — ใช้ได้ทั้งรูปหน้าหอและรูปแกลเลอรี
+  isLightboxOpen: boolean = false;
+  lightboxImages: string[] = [];
+  lightboxIndex: number = 0;
+
+  get lightboxCurrentImage(): string {
+    return this.lightboxImages[this.lightboxIndex] || '';
+  }
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -62,7 +72,9 @@ export class DormDetailPage implements OnInit {
       'navigate-circle-outline': navigateCircleOutline, 'water-outline': waterOutline, 'flash-outline': flashOutline,
       'logo-twitter': logoTwitter, 'paper-plane': paperPlane,
       'document-text-outline': documentTextOutline, call,
-      'alert-circle-outline': alertCircleOutline 
+      'alert-circle-outline': alertCircleOutline,
+      close, 'chevron-back-outline': chevronBackOutline, 'chevron-forward-outline': chevronForwardOutline,
+      'expand-outline': expandOutline
     });
   }
 
@@ -264,7 +276,39 @@ export class DormDetailPage implements OnInit {
     }
   }
 
-  viewImage(imgUrl: string) { console.log('View full image:', imgUrl); }
+  // ✅ เปิด Lightbox ขยายรูป — รองรับทั้งรูปหน้าหอ (เดี่ยว) และรูปแกลเลอรี (เลื่อนซ้าย-ขวาได้)
+  viewImage(imgUrl: string) {
+    const gallery: string[] = (this.dormData?.gallery && this.dormData.gallery.length > 0)
+      ? this.dormData.gallery
+      : [];
+
+    const heroImg = this.dormData?.image || 'assets/dorm-placeholder.jpg';
+
+    // รวมรูปหน้าหอ + แกลเลอรีเป็นชุดเดียว ไม่ซ้ำกัน เพื่อเลื่อนดูต่อเนื่องได้
+    const allImages = [heroImg, ...gallery].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
+
+    this.lightboxImages = allImages.length > 0 ? allImages : [imgUrl];
+    const foundIndex = this.lightboxImages.indexOf(imgUrl);
+    this.lightboxIndex = foundIndex >= 0 ? foundIndex : 0;
+    this.isLightboxOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeLightbox() {
+    this.isLightboxOpen = false;
+  }
+
+  nextLightboxImage(event?: Event) {
+    event?.stopPropagation();
+    if (this.lightboxImages.length === 0) return;
+    this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxImages.length;
+  }
+
+  prevLightboxImage(event?: Event) {
+    event?.stopPropagation();
+    if (this.lightboxImages.length === 0) return;
+    this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxImages.length) % this.lightboxImages.length;
+  }
 
   getStarsArray(score: number): number[] {
     return Array(5).fill(0).map((_, i) => i < Math.round(score) ? 1 : 0);
