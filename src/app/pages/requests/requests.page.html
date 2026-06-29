@@ -59,7 +59,7 @@
         <div class="input-group">
           <label>เบอร์โทร <span class="req">*</span></label>
           <div class="input-wrapper" [class.error-border]="isSubmitted && !formData.phone_number">
-            <ion-input [(ngModel)]="formData.phone_number" name="phone_number" type="tel" maxlength="10" placeholder="0xxxxxxxxx"></ion-input>
+            <ion-input [(ngModel)]="formData.phone_number" name="phone_number" type="tel" maxlength="10" placeholder="0xxxxxxxxx" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) ? true : $event.preventDefault()"></ion-input>
             <ion-icon name="call-outline"></ion-icon>
           </div>
         </div>
@@ -70,14 +70,14 @@
            <div class="input-group">
              <div class="input-wrapper social-input">
                <ion-icon name="logo-facebook" class="fb-color"></ion-icon>
-               <ion-input [(ngModel)]="formData.facebook" name="facebook" placeholder="Facebook"></ion-input>
+               <ion-input [(ngModel)]="formData.facebook" name="facebook" placeholder="Facebook URL"></ion-input>
              </div>
            </div>
            
            <div class="input-group">
              <div class="input-wrapper social-input">
                <ion-icon name="chatbubbles" class="line-color"></ion-icon>
-               <ion-input [(ngModel)]="formData.line" name="line" placeholder="Line ID"></ion-input>
+               <ion-input [(ngModel)]="formData.line" name="line" placeholder="Line ID / URL"></ion-input>
              </div>
            </div>
         </div>
@@ -86,14 +86,14 @@
            <div class="input-group">
              <div class="input-wrapper social-input">
                <ion-icon name="logo-instagram" class="ig-color"></ion-icon>
-               <ion-input [(ngModel)]="formData.instagram" name="instagram" placeholder="Instagram"></ion-input>
+               <ion-input [(ngModel)]="formData.instagram" name="instagram" placeholder="Instagram URL"></ion-input>
              </div>
            </div>
 
            <div class="input-group">
              <div class="input-wrapper social-input">
                <ion-icon name="logo-twitter" class="x-color"></ion-icon>
-               <ion-input [(ngModel)]="formData.x" name="x" placeholder="X (Twitter)"></ion-input>
+               <ion-input [(ngModel)]="formData.x" name="x" placeholder="X (Twitter) URL"></ion-input>
              </div>
            </div>
         </div>
@@ -101,7 +101,7 @@
         <div class="input-group">
            <div class="input-wrapper social-input">
              <ion-icon name="paper-plane" class="tg-color"></ion-icon>
-             <ion-input [(ngModel)]="formData.telegram" name="telegram" placeholder="Telegram"></ion-input>
+             <ion-input [(ngModel)]="formData.telegram" name="telegram" placeholder="Telegram URL"></ion-input>
            </div>
         </div>
 

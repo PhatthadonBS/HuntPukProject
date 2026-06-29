@@ -63,7 +63,7 @@ export class RegisterPage implements OnInit {
   }
 
   isValidPhone(phone: string): boolean {
-    const re = /^[0-9]{10}$/;
+    const re = /^0[0-9]{9}$/;
     return re.test(phone);
   }
 

@@ -113,6 +113,11 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     if (!this.formData.first_name || !this.formData.last_name || !this.formData.phone_number) {
       this.errorMessage = 'กรุณากรอกข้อมูลที่จำเป็น (*) ให้ครบถ้วน'; return;
     }
+    
+    const phoneRe = /^0[0-9]{9}$/;
+    if (!phoneRe.test(this.formData.phone_number)) {
+      this.errorMessage = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก เริ่มต้นด้วย 0)'; return;
+    }
     if (!this.selectedFile) {
       this.errorMessage = 'กรุณาอัปโหลดรูปโปรไฟล์'; return;
     }

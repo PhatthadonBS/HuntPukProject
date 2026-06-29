@@ -31,7 +31,7 @@
           </ion-searchbar>
         </div>
         <div class="add-btn" (click)="goToAddDorm()">
-          เพิ่มข้อมูลหอพัก
+          <ion-icon name="add"></ion-icon> เพิ่มข้อมูลหอพัก
         </div>
       </div>
 
@@ -49,11 +49,14 @@
 
             <div class="col-id">{{ i + 1 }}</div>
 
-            <div class="col-dorm">
-              {{ item.DORM_NAME }}
-              <span *ngIf="item.DORM_STATUS_ID === 2" class="status-closed">(ปิดปรับปรุง)</span>
-              <span *ngIf="item.DORM_STATUS_ID === 3" class="status-full">(ห้องเต็ม)</span>
-              <span *ngIf="item.DORM_STATUS_ID === 4" class="status-deleted">(ถูกลบ)</span>
+            <div class="col-dorm" style="display:flex; flex-direction:column; gap:5px; align-items:flex-start;">
+              <span>{{ item.DORM_NAME }}</span>
+              <select class="status-dropdown" [ngModel]="item.DORM_STATUS_ID" (ngModelChange)="changeStatus(item, $event)">
+                <option [ngValue]="1">เปิดบริการ</option>
+                <option [ngValue]="2">ปิดปรับปรุง</option>
+                <option [ngValue]="3">ห้องเต็ม</option>
+                <option [ngValue]="4" *ngIf="item.DORM_STATUS_ID === 4">ถูกลบ</option>
+              </select>
             </div>
 
             <div class="col-owner">

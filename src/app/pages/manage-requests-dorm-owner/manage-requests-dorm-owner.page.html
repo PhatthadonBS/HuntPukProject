@@ -89,39 +89,51 @@
           <div class="divider">ช่องทางติดต่อ</div>
       <div class="social-links">
             
-            <div *ngIf="selectedReq.facebook" class="social-row">
-               <a [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
+            <div class="social-row">
+               <a *ngIf="selectedReq.facebook" [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
                  <ion-icon name="logo-facebook"></ion-icon> Facebook
                </a>
-               <span class="social-text">{{ selectedReq.facebook }}</span>
+               <div *ngIf="!selectedReq.facebook" class="social-btn fb" style="opacity: 0.5; filter: grayscale(1);">
+                 <ion-icon name="logo-facebook"></ion-icon> Facebook
+               </div>
+               <span class="social-text">{{ selectedReq.facebook || 'ไม่ระบุ' }}</span>
             </div>
 
-            <div *ngIf="selectedReq.line" class="social-row">
-               <div class="social-btn line">
+            <div class="social-row">
+               <div class="social-btn line" [ngStyle]="!selectedReq.line ? {'opacity': '0.5', 'filter': 'grayscale(1)'} : {}">
                  <ion-icon name="chatbubbles"></ion-icon> Line
                </div>
-               <span class="social-text">{{ selectedReq.line }}</span>
+               <span class="social-text">{{ selectedReq.line || 'ไม่ระบุ' }}</span>
             </div>
 
-            <div *ngIf="selectedReq.instagram" class="social-row">
-              <a [href]="selectedReq.instagram" target="_blank" class="social-btn ig">
+            <div class="social-row">
+              <a *ngIf="selectedReq.instagram" [href]="selectedReq.instagram" target="_blank" class="social-btn ig">
                 <ion-icon name="logo-instagram"></ion-icon> Instagram
               </a>
-              <span class="social-text">{{ selectedReq.instagram }}</span>
+              <div *ngIf="!selectedReq.instagram" class="social-btn ig" style="opacity: 0.5; filter: grayscale(1);">
+                <ion-icon name="logo-instagram"></ion-icon> Instagram
+              </div>
+              <span class="social-text">{{ selectedReq.instagram || 'ไม่ระบุ' }}</span>
             </div>
             
-            <div *ngIf="selectedReq.x" class="social-row">
-              <a [href]="selectedReq.x" target="_blank" class="social-btn x-tw">
+            <div class="social-row">
+              <a *ngIf="selectedReq.x" [href]="selectedReq.x" target="_blank" class="social-btn x-tw">
                 <ion-icon name="logo-twitter"></ion-icon> X
               </a>
-              <span class="social-text">{{ selectedReq.x }}</span>
+              <div *ngIf="!selectedReq.x" class="social-btn x-tw" style="opacity: 0.5; filter: grayscale(1);">
+                <ion-icon name="logo-twitter"></ion-icon> X
+              </div>
+              <span class="social-text">{{ selectedReq.x || 'ไม่ระบุ' }}</span>
             </div>
 
-            <div *ngIf="selectedReq.telegram" class="social-row">
-              <a [href]="selectedReq.telegram" target="_blank" class="social-btn tg">
+            <div class="social-row">
+              <a *ngIf="selectedReq.telegram" [href]="selectedReq.telegram" target="_blank" class="social-btn tg">
                 <ion-icon name="paper-plane"></ion-icon> Telegram
               </a>
-              <span class="social-text">{{ selectedReq.telegram }}</span>
+              <div *ngIf="!selectedReq.telegram" class="social-btn tg" style="opacity: 0.5; filter: grayscale(1);">
+                <ion-icon name="paper-plane"></ion-icon> Telegram
+              </div>
+              <span class="social-text">{{ selectedReq.telegram || 'ไม่ระบุ' }}</span>
             </div>
 
           </div>

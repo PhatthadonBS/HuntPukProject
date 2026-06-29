@@ -80,9 +80,9 @@
         <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
         
         <ng-container *ngFor="let stat of dormStatusList">
-          <div *ngIf="(selectedDorm.status || selectedDorm.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
-               class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
-            {{ stat.DORM_STATUS_NAME }}
+          <div *ngIf="(selectedDorm.status || selectedDorm.DORM_STATUS_ID) == stat.id" 
+               class="status-badge" [ngClass]="'status-' + stat.id">
+            {{ stat.name }}
           </div>
         </ng-container>
 

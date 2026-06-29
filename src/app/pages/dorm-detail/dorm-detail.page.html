@@ -18,9 +18,9 @@
       </div>
 
       <ng-container *ngFor="let stat of dormStatusList">
-          <div *ngIf="(dormData.status || dormData.DORM_STATUS_ID) === stat.DORM_STATUS_ID && stat.DORM_STATUS_ID !== 1" 
-               class="status-badge" [ngClass]="'status-' + stat.DORM_STATUS_ID">
-            {{ stat.DORM_STATUS_NAME }}
+          <div *ngIf="(dormData.status || dormData.DORM_STATUS_ID) == stat.id" 
+               class="status-badge" [ngClass]="'status-' + stat.id">
+            {{ stat.name }}
           </div>
         </ng-container>
     </div>

@@ -65,7 +65,8 @@
           type="tel" 
           placeholder="เบอร์โทรศัพท์" 
           [(ngModel)]="phone" 
-          maxlength="10">
+          maxlength="10"
+          (keypress)="($event.charCode >= 48 && $event.charCode <= 57) ? true : $event.preventDefault()">
         <ion-icon name="call" color="medium"></ion-icon>
       </div>
 

@@ -12,7 +12,7 @@ import {
   saveOutline, imageOutline, homeOutline, wifi,
   bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle,
   locateOutline, documentTextOutline, arrowBackOutline, arrowForwardOutline, imagesOutline,
-  personOutline, bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
+  personOutline, personAddOutline, bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
@@ -20,6 +20,7 @@ import { lastValueFrom } from 'rxjs';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
 import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
+import { UserService } from '../../../services/user';
 
 @Component({
   selector: 'app-dorm-form',
@@ -68,6 +69,10 @@ export class DormFormPage implements OnInit {
   bedTypesDB: any[] = [];
   currentZoneName: string = 'กำลังคำนวณ...';
 
+  // ✅ สำหรับแอดมินเลือกเจ้าของหอพัก
+  dormOwners: any[] = [];
+  selectedOwnerId: number | null = null;
+
   selectedFiles: any = {
     FRONT_DORM_IMG: null, LICENSE_IMG: null,
     BED_IMG: null, WALL_IMG: null, CEILING_IMG: null,
@@ -90,6 +95,7 @@ export class DormFormPage implements OnInit {
   constructor(
     private router: Router,
     private dormService: DormitoryService,
+    private userService: UserService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
@@ -98,7 +104,7 @@ export class DormFormPage implements OnInit {
       saveOutline, homeOutline, locationOutline, wifi,
       bedOutline, addCircleOutline, trashOutline, imageOutline,
       cloudUploadOutline, closeCircle, locateOutline, documentTextOutline,
-      arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline,
+      arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline, personAddOutline,
       bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
     });
   }
@@ -145,6 +151,10 @@ export class DormFormPage implements OnInit {
         this.router.navigate(['/home']);
         return;
       }
+      
+      if (this.isAdmin) {
+        this.loadDormOwners();
+      }
     } catch (e) {
       console.error('❌ Parse localStorage error:', e);
       this.showToast('ข้อมูล Session ผิดพลาด กรุณา Login ใหม่', 'danger');
@@ -154,6 +164,13 @@ export class DormFormPage implements OnInit {
 
     await this.loadInitialData();
     this.resetForm();
+  }
+
+  async loadDormOwners() {
+    this.dormOwners = await this.userService.getDormOwners();
+    if (this.dormOwners.length > 0) {
+      this.selectedOwnerId = this.ownerId; // ค่าเริ่มต้นคือตัวแอดมินเอง
+    }
   }
 
   async loadInitialData() {
@@ -297,20 +314,28 @@ export class DormFormPage implements OnInit {
         this.showToast('กรุณากรอกชื่อหอพัก', 'warning');
         return;
       }
-      if (!this.formData.water_unit && this.formData.water_unit !== 0) {
-        this.showToast('กรุณากรอกค่าน้ำ (บาท/หน่วย)', 'warning');
+      if (this.formData.water_unit === null || this.formData.water_unit === '' || this.formData.water_unit < 0) {
+        this.showToast('กรุณากรอกค่าน้ำ (บาท/หน่วย) ให้ถูกต้อง (ห้ามติดลบ)', 'warning');
         return;
       }
-      if (!this.formData.elect_unit && this.formData.elect_unit !== 0) {
-        this.showToast('กรุณากรอกค่าไฟ (บาท/หน่วย)', 'warning');
+      if (this.formData.water_lump < 0) {
+        this.showToast('ค่าน้ำเหมาจ่ายห้ามติดลบ', 'warning');
+        return;
+      }
+      if (this.formData.elect_unit === null || this.formData.elect_unit === '' || this.formData.elect_unit < 0) {
+        this.showToast('กรุณากรอกค่าไฟ (บาท/หน่วย) ให้ถูกต้อง (ห้ามติดลบ)', 'warning');
         return;
       }
     }
     if (this.currentStep === 3) {
-      // ตรวจสอบว่าแต่ละห้องมีราคาอย่างน้อย 1 ช่อง
+      // ตรวจสอบว่าแต่ละห้องมีราคาอย่างน้อย 1 ช่อง และห้ามติดลบ
       for (const room of this.roomTypes) {
         if (!room.perMonth && !room.perTerm && !room.perDay) {
           this.showToast('กรุณากรอกราคาอย่างน้อย 1 ช่อง (เดือน/เทอม/วัน) ในทุกประเภทห้อง', 'warning');
+          return;
+        }
+        if (room.perMonth < 0 || room.perTerm < 0 || room.perDay < 0) {
+          this.showToast('ราคาห้องพักห้ามติดลบ', 'warning');
           return;
         }
       }
@@ -429,43 +454,16 @@ export class DormFormPage implements OnInit {
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'ถัดไป',
+          text: 'เพิ่ม',
           handler: (data) => {
             if (!data.facName || data.facName.trim() === '') return false;
-            this.chooseFacilityIcon(data.facName.trim());
+            this.formData.new_facilities.push({ name: data.facName.trim(), icon: 'cube-outline' });
+            return true;
           }
         }
       ]
     });
     await alertName.present();
-  }
-
-  async chooseFacilityIcon(facName: string) {
-    const alertIcon = await this.alertCtrl.create({
-      header: '2. เลือกไอคอนที่ตรงกัน',
-      inputs: [
-        { type: 'radio', label: '❄️ แอร์/ความเย็น', value: 'snow-outline', checked: true },
-        { type: 'radio', label: '💧 น้ำ/ซักล้าง', value: 'water-outline' },
-        { type: 'radio', label: '👕 เสื้อผ้า', value: 'shirt-outline' },
-        { type: 'radio', label: '🛡️ ความปลอดภัย/คีย์การ์ด', value: 'shield-checkmark-outline' },
-        { type: 'radio', label: '⚡ ไฟฟ้า/อิเล็กทรอนิกส์', value: 'flash-outline' },
-        { type: 'radio', label: '🚗 ที่จอดรถ/พาหนะ', value: 'car-outline' },
-        { type: 'radio', label: '🐾 สัตว์เลี้ยง', value: 'paw-outline' },
-        { type: 'radio', label: '🏋️ ฟิตเนส/ออกกำลังกาย', value: 'barbell-outline' },
-        { type: 'radio', label: '🍳 ห้องครัว', value: 'restaurant-outline' },
-        { type: 'radio', label: '🛋️ เฟอร์นิเจอร์/อื่นๆ', value: 'cube-outline' }
-      ],
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'เพิ่ม',
-          handler: (iconName) => {
-            this.formData.new_facilities.push({ name: facName, icon: iconName });
-          }
-        }
-      ]
-    });
-    await alertIcon.present();
   }
 
   removeNewFacility(index: number) {
@@ -513,7 +511,8 @@ export class DormFormPage implements OnInit {
       // ✅ FIX: ส่ง user_id (USER_ID จาก USERS table)
       // Backend จะไป lookup DORM_OWNER_ID เอง
       // ถ้า Admin ยังไม่มี DORM_OWNERS record → Backend ต้อง auto-create
-      form.append('user_id', this.ownerId.toString());
+      const finalOwnerId = (this.isAdmin && this.selectedOwnerId) ? this.selectedOwnerId : this.ownerId;
+      form.append('user_id', finalOwnerId.toString());
       form.append('name', this.formData.name?.trim() || '');
       form.append('address', this.formData.address?.trim() || '');
       form.append('lat', (this.formData.lat || 16.245279).toString());

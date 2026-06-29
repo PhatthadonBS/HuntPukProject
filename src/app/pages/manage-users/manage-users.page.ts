@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 // ✅ เพิ่ม IonButtons และ IonBackButton เข้ามาครับ
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, IonButton, 
-  IonModal, IonButtons, IonBackButton, // <--- เพิ่มตรงนี้
-  AlertController, ToastController 
+  IonModal, IonButtons, IonBackButton, 
+  AlertController, ToastController, ModalController 
 } from '@ionic/angular/standalone';
 import { UserService, UserRegPostReq } from '../../services/user';
+import { DormitoryService } from '../../services/dormitory';
 import { Router, RouterModule } from '@angular/router';
+import { DormRequestModalComponent } from '../../components/dorm-request-modal/dorm-request-modal.component';
 import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
@@ -21,7 +23,7 @@ import {
   styleUrls: ['./manage-users.page.scss'],
   standalone: true,
   // ✅ อย่าลืมใส่ IonModal ในนี้ด้วย
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, IonButton, IonModal, CommonModule, FormsModule, IonButtons, IonBackButton, RouterModule]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, IonIcon, IonButton, IonModal, CommonModule, FormsModule, IonButtons, IonBackButton, RouterModule, DormRequestModalComponent]
 })
 export class ManageUsersPage implements OnInit {
   
@@ -48,9 +50,11 @@ export class ManageUsersPage implements OnInit {
 
   constructor(
     private userService: UserService,
+    private dormService: DormitoryService,
     private router: Router,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController
   ) { 
     addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline, 'warning-outline': warningOutline, 'refresh-outline': refreshOutline });
   }
@@ -124,7 +128,37 @@ export class ManageUsersPage implements OnInit {
     if (user.role_id === 2 || user.role_id === '2') {
       const profile = await this.userService.getUserProfile(user.id);
       this.selectedOwner = profile ? profile : user;
+
+      try {
+        const response = await this.dormService.getMyDorms(user.id);
+        if (response && response.success && response.data) {
+          this.selectedOwner.dorms = response.data;
+        }
+      } catch (e) {
+        console.error('Error fetching dorms for owner:', e);
+      }
+
       this.isOwnerModalOpen = true;
+    }
+  }
+
+  async viewDormDetail(dorm: any) {
+    try {
+      const res = await this.dormService.getDormById(dorm.DORM_ID);
+      if (res && res.success && res.data) {
+        const fullDorm = res.data;
+        const modal = await this.modalCtrl.create({
+          component: DormRequestModalComponent,
+          componentProps: {
+            dorm: fullDorm,
+            isViewOnly: true
+          },
+          cssClass: 'custom-modal'
+        });
+        await modal.present();
+      }
+    } catch (e) {
+      console.error('Error fetching full dorm details:', e);
     }
   }
 

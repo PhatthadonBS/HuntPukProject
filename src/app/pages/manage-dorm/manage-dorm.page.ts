@@ -163,6 +163,23 @@ export class ManageDormPage implements OnInit {
     }
   }
 
+  async changeStatus(dorm: any, newStatusId: number) {
+    if (dorm.DORM_STATUS_ID === newStatusId) return;
+
+    const loading = await this.loadingCtrl.create({ message: 'กำลังเปลี่ยนสถานะ...' });
+    await loading.present();
+    try {
+      await this.dormService.changeDormStatus(dorm.DORM_ID, newStatusId);
+      dorm.DORM_STATUS_ID = newStatusId;
+      this.showToast('เปลี่ยนสถานะสำเร็จ', 'success');
+    } catch (error) {
+      this.showToast('เกิดข้อผิดพลาดในการเปลี่ยนสถานะ', 'danger');
+      this.loadAllDorms();
+    } finally {
+      loading.dismiss();
+    }
+  }
+
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({
       message: msg, duration: 2000, color: color, position: 'bottom'

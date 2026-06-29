@@ -172,7 +172,7 @@
       </ion-row>
     </ion-grid>
 
-    <div class="action-section">
+    <div class="action-section" *ngIf="!isViewOnly">
       <ion-button class="btn-approve" expand="block" (click)="action(true)">
         <ion-icon name="checkmark-circle" slot="start"></ion-icon>
         อนุมัติคำขอ

@@ -42,6 +42,21 @@
         <span>กำลังลงทะเบียนในฐานะ <b>Admin</b></span>
       </div>
 
+      <!-- สำหรับแอดมิน: เลือกเจ้าของหอพัก -->
+      <div class="section-card" *ngIf="isAdmin">
+        <h3><ion-icon name="person-add-outline"></ion-icon> เลือกเจ้าของหอพัก</h3>
+        <p class="hint-text">กรณีสร้างหอพักแทนเจ้าของหอ ให้เลือกชื่อเจ้าของหอจากรายชื่อ (ถ้าไม่มีให้เว้นไว้ ข้อมูลจะผูกกับบัญชีแอดมินแทน)</p>
+        <ion-item class="custom-input">
+          <ion-label position="stacked">เจ้าของหอพัก</ion-label>
+          <ion-select [(ngModel)]="selectedOwnerId" interface="popover" placeholder="เลือกเจ้าของหอพัก (หรือตัวคุณเอง)">
+            <ion-select-option [value]="ownerId">ฉันเอง (แอดมิน)</ion-select-option>
+            <ion-select-option *ngFor="let owner of dormOwners" [value]="owner.USER_ID">
+              {{ owner.FIRST_NAME }} {{ owner.LAST_NAME }} ({{ owner.USERNAME }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
       <div class="section-card">
         <h3><ion-icon name="home-outline"></ion-icon> ข้อมูลพื้นฐาน</h3>
 
@@ -59,9 +74,7 @@
 
         <ion-item class="custom-input">
           <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
-          <ion-select [(ngModel)]="formData.zone_id" (ionChange)="onZoneChange()" interface="popover">
-            <ion-select-option *ngFor="let z of zones" [value]="z.ZONE_ID">{{ z.ZONE_NAME }}</ion-select-option>
-          </ion-select>
+          <ion-input [value]="currentZoneName" readonly placeholder="โซนหอพัก (อ้างอิงจากแผนที่)"></ion-input>
         </ion-item>
 
         <ion-item class="custom-input">
@@ -105,18 +118,18 @@
           <ion-item class="custom-input">
             <ion-label position="stacked">ค่าน้ำ (บาท/หน่วย) <span class="req">*</span></ion-label>
             <ion-input type="number" [(ngModel)]="formData.water_unit"
-              placeholder="เช่น 15" [clearOnEdit]="false"></ion-input>
+              placeholder="เช่น 15" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
           </ion-item>
           <ion-item class="custom-input">
             <ion-label position="stacked">ค่าน้ำเหมาจ่าย (บาท/เดือน)</ion-label>
             <ion-input type="number" [(ngModel)]="formData.water_lump"
-              placeholder="ถ้ามี" [clearOnEdit]="false"></ion-input>
+              placeholder="ถ้ามี" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
           </ion-item>
         </div>
         <ion-item class="custom-input">
           <ion-label position="stacked">ค่าไฟ (บาท/หน่วย) <span class="req">*</span></ion-label>
           <ion-input type="number" [(ngModel)]="formData.elect_unit"
-            placeholder="เช่น 8" [clearOnEdit]="false"></ion-input>
+            placeholder="เช่น 8" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
         </ion-item>
       </div>
     </div>
@@ -162,8 +175,7 @@
           <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list">
             <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item">
               <ion-icon name="checkmark-circle" color="success" style="vertical-align: middle;"></ion-icon> 
-              <ion-icon [name]="newFac.icon" style="margin-left:5px; vertical-align: middle;"></ion-icon>
-              <span style="vertical-align: middle; margin-left:5px;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
+              <span style="vertical-align: middle; margin-left:5px; color: #333;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
               <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="vertical-align: middle; margin-left: 5px; --padding-start: 0; --padding-end: 0; height: 24px;">
                 <ion-icon name="close-circle" slot="icon-only"></ion-icon>
               </ion-button>
@@ -217,17 +229,17 @@
             <ion-item class="custom-input">
               <ion-label position="stacked">รายเดือน (บาท)</ion-label>
               <ion-input type="number" [(ngModel)]="room.perMonth"
-                placeholder="เช่น 3000" [clearOnEdit]="false"></ion-input>
+                placeholder="เช่น 3000" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
             </ion-item>
             <ion-item class="custom-input">
               <ion-label position="stacked">รายเทอม (บาท)</ion-label>
               <ion-input type="number" [(ngModel)]="room.perTerm"
-                placeholder="เช่น 8000" [clearOnEdit]="false"></ion-input>
+                placeholder="เช่น 8000" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
             </ion-item>
             <ion-item class="custom-input">
               <ion-label position="stacked">รายวัน (บาท)</ion-label>
               <ion-input type="number" [(ngModel)]="room.perDay"
-                placeholder="เช่น 200" [clearOnEdit]="false"></ion-input>
+                placeholder="เช่น 200" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
             </ion-item>
           </div>
         </div>

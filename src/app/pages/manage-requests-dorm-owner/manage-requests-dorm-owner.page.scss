@@ -127,6 +127,9 @@ ion-modal.detail-modal {
     display: flex; align-items: center; gap: 5px; padding: 8px 12px; border-radius: 20px; font-size: 12px; text-decoration: none; color: white;
     &.fb { background: #1877F2; }
     &.line { background: #06C755; }
+    &.ig { background: #E1306C; }
+    &.x-tw { background: #000000; }
+    &.tg { background: #0088cc; }
   }
 }
 
