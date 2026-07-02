@@ -157,6 +157,19 @@ export class DormDetailPage implements OnInit {
       if (res && res.data) {
         const apiData = res.data;
         this.dormData = Array.isArray(apiData) ? apiData[0] : apiData;
+
+        // ✅ รวมรูปส่วนต่างๆ ของห้องพักเข้าไปใน gallery เพื่อให้แสดงผลในหน้า detail
+        const roomImages = [
+          this.dormData.ceiling_img, 
+          this.dormData.wall_img, 
+          this.dormData.floor_img, 
+          this.dormData.bathroom_img, 
+          this.dormData.balcony_img
+        ].filter(img => img);
+        
+        if (!this.dormData.gallery) this.dormData.gallery = [];
+        this.dormData.gallery = [...this.dormData.gallery, ...roomImages];
+
         this.prepareOwnerInfo();
         this.loadReviews();
       } else {

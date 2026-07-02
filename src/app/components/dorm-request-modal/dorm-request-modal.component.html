@@ -170,6 +170,59 @@
           </div>
         </ion-col>
       </ion-row>
+
+      <!-- ✅ แยกรูปส่วนต่างๆ ของห้องพักเป็นหมวดหมู่ -->
+      <div *ngIf="dorm.ceiling_img || dorm.wall_img || dorm.floor_img || dorm.bathroom_img || dorm.balcony_img">
+        <div class="section-header" style="margin-top: 15px;">
+          <div class="icon-box" style="background: var(--ion-color-secondary);">
+            <ion-icon name="bed"></ion-icon>
+          </div>
+          <div class="header-text">รูปภาพภายในห้องพัก</div>
+        </div>
+
+        <ion-row>
+          <ion-col size="6" *ngIf="dorm.ceiling_img" style="padding: 2px;">
+            <div class="img-card" (click)="viewImage(dorm.ceiling_img)">
+              <div class="img-header">เพดาน</div>
+              <div class="img-wrapper" style="height: 100px;">
+                <img [src]="dorm.ceiling_img" />
+              </div>
+            </div>
+          </ion-col>
+          <ion-col size="6" *ngIf="dorm.wall_img" style="padding: 2px;">
+            <div class="img-card" (click)="viewImage(dorm.wall_img)">
+              <div class="img-header">ผนัง</div>
+              <div class="img-wrapper" style="height: 100px;">
+                <img [src]="dorm.wall_img" />
+              </div>
+            </div>
+          </ion-col>
+          <ion-col size="6" *ngIf="dorm.floor_img" style="padding: 2px;">
+            <div class="img-card" (click)="viewImage(dorm.floor_img)">
+              <div class="img-header">พื้น</div>
+              <div class="img-wrapper" style="height: 100px;">
+                <img [src]="dorm.floor_img" />
+              </div>
+            </div>
+          </ion-col>
+          <ion-col size="6" *ngIf="dorm.bathroom_img" style="padding: 2px;">
+            <div class="img-card" (click)="viewImage(dorm.bathroom_img)">
+              <div class="img-header">ห้องน้ำ</div>
+              <div class="img-wrapper" style="height: 100px;">
+                <img [src]="dorm.bathroom_img" />
+              </div>
+            </div>
+          </ion-col>
+          <ion-col size="6" *ngIf="dorm.balcony_img" style="padding: 2px;">
+            <div class="img-card" (click)="viewImage(dorm.balcony_img)">
+              <div class="img-header">ระเบียง</div>
+              <div class="img-wrapper" style="height: 100px;">
+                <img [src]="dorm.balcony_img" />
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </div>
     </ion-grid>
 
     <div class="action-section" *ngIf="!isViewOnly">

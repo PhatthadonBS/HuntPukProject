@@ -40,6 +40,23 @@
 
       <form (ngSubmit)="onSubmit()">
         
+        <!-- แอดมินเลือกว่าจะสร้างคำขอแทนใคร -->
+        <div class="input-group" *ngIf="isAdmin">
+          <label>เลือกผู้ใช้งานที่ต้องการส่งคำขอแทน <span class="req">*</span></label>
+          <div class="input-wrapper">
+            <ion-select placeholder="เลือกบัญชีผู้ใช้ (Member)" 
+                        (ionChange)="onMemberSelect($event)" 
+                        [value]="selectedMemberId" 
+                        cancelText="ยกเลิก" 
+                        okText="ตกลง">
+              <ion-select-option *ngFor="let m of membersList" [value]="m.id">
+                {{ m.username }} ({{ m.email }})
+              </ion-select-option>
+            </ion-select>
+            <ion-icon name="person-circle-outline"></ion-icon>
+          </div>
+        </div>
+
         <div class="input-group">
           <label>ชื่อ <span class="req">*</span></label>
           <div class="input-wrapper" [class.error-border]="isSubmitted && !formData.first_name">

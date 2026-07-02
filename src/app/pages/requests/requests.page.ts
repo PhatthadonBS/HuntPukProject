@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, ViewWillEnter, AlertController } from '@ionic/angular'; // 🌟 เอา LoadingController ออกแล้ว
 import { addIcons } from 'ionicons'; 
 
-import { personOutline, callOutline, arrowBack, logoFacebook, chatbubbles, arrowForward, logoInstagram, logoTwitter, paperPlane, alertCircle, time, checkmarkCircle, image, cloudUploadOutline, camera, heartDislikeOutline } from 'ionicons/icons'; 
+import { personOutline, callOutline, arrowBack, logoFacebook, chatbubbles, arrowForward, logoInstagram, logoTwitter, paperPlane, alertCircle, time, checkmarkCircle, image, cloudUploadOutline, camera, heartDislikeOutline, personCircleOutline } from 'ionicons/icons'; 
 
 import { OwnerRequestService, UserDormOwnerReqPostReq } from '../../services/owner-request'; 
+import { UserService } from '../../services/user';
 import { Router } from '@angular/router';
 
 @Component({
@@ -31,13 +32,18 @@ export class RequestsPage implements OnInit, ViewWillEnter {
   isSuccess: boolean = false; 
   isSubmitting: boolean = false; 
 
+  isAdmin: boolean = false;
+  membersList: any[] = [];
+  selectedMemberId: number | null = null;
+
   constructor(
     private ownerRequestService: OwnerRequestService,
+    private userService: UserService,
     private router: Router,
     private alertCtrl: AlertController
     // 🌟 เอา private loadingCtrl ออกไปแล้วครับ
   ) {
-    addIcons({ personOutline, callOutline, arrowBack, logoFacebook, chatbubbles, arrowForward, logoInstagram, logoTwitter, paperPlane, alertCircle, time, checkmarkCircle, image, cloudUploadOutline, camera, heartDislikeOutline });
+    addIcons({ personOutline, callOutline, arrowBack, logoFacebook, chatbubbles, arrowForward, logoInstagram, logoTwitter, paperPlane, alertCircle, time, checkmarkCircle, image, cloudUploadOutline, camera, heartDislikeOutline, personCircleOutline });
   }
 
   ngOnInit() {}
@@ -68,14 +74,38 @@ export class RequestsPage implements OnInit, ViewWillEnter {
       try {
         const user = JSON.parse(storedData);
         const userId = user.id || user.user_id || user.USER_ID;
+        const roleId = user.role_id || user.ROLE_TYPE_ID;
+        
         if (userId) {
              this.formData.user_id = userId; 
              if (user.phone || user.phone_number || user.PHONE_NUMBER) {
                  this.formData.phone_number = user.phone || user.phone_number || user.PHONE_NUMBER;
              }
+             
+             if (roleId === 3) {
+                 this.isAdmin = true;
+                 this.loadMembers();
+             }
         } else { this.forceLogout(); }
       } catch (e) { this.forceLogout(); }
     } else { this.forceLogout(); }
+  }
+
+  async loadMembers() {
+    try {
+      const allUsers = await this.userService.getAllUsers();
+      // Filter only members (Role 1)
+      this.membersList = allUsers.filter(u => u.role_id === 1);
+    } catch (e) {
+      console.error('Failed to load members', e);
+    }
+  }
+
+  onMemberSelect(event: any) {
+    const selectedId = event.detail.value;
+    if (selectedId) {
+       this.formData.user_id = selectedId;
+    }
   }
 
   async forceLogout() {

@@ -201,6 +201,21 @@
                     <span *ngIf="dorm.DORM_STATUS === 2 || dorm.DORM_STATUS_ID === 2" class="status-badge closed">ปิด</span>
                     <span *ngIf="dorm.DORM_STATUS === 3 || dorm.DORM_STATUS_ID === 3" class="status-badge full">เต็ม</span>
                   </div>
+                  <!-- แสดงรูปหน้าหอ และใบอนุญาต -->
+                  <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex: 1; text-align: center;">
+                      <div style="font-size: 11px; color: #888; margin-bottom: 4px;">หน้าหอพัก</div>
+                      <img [src]="dorm.FRONT_DORM_IMAGE || dorm.FRONT_DORM_IMG || 'assets/no-image.png'" 
+                           onerror="this.src='https://placehold.co/100x100?text=No+Image'"
+                           style="width: 100%; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                      <div style="font-size: 11px; color: #888; margin-bottom: 4px;">ใบอนุญาต</div>
+                      <img [src]="dorm.DORM_LICENSE || dorm.LICENSE_IMG || dorm.LICENSE || 'assets/no-doc.png'" 
+                           onerror="this.src='https://placehold.co/100x100?text=No+Document'"
+                           style="width: 100%; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

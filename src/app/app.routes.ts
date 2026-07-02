@@ -163,5 +163,9 @@ export const routes: Routes = [
     path: 'type-management',
     canActivate: [adminGuard],
     loadComponent: () => import('./pages/type-management/type-management.page').then( m => m.TypeManagementPage)
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found/not-found.page').then( m => m.NotFoundPage)
   }
 ];

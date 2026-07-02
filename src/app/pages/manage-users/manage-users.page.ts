@@ -146,7 +146,7 @@ export class ManageUsersPage implements OnInit {
     try {
       const res = await this.dormService.getDormById(dorm.DORM_ID);
       if (res && res.success && res.data) {
-        const fullDorm = res.data;
+        const fullDorm = Array.isArray(res.data) ? res.data[0] : res.data;
         const modal = await this.modalCtrl.create({
           component: DormRequestModalComponent,
           componentProps: {
