@@ -21,7 +21,8 @@ import {
   add, createOutline, trashOutline, eyeOutline, star, home, 
   alertCircleOutline, arrowBackOutline, businessOutline, 
   homeOutline, addCircleOutline, addCircle, locationOutline,
-  chatboxEllipsesOutline, ellipse, eye, swapVerticalOutline, refreshOutline 
+  chatboxEllipsesOutline, ellipse, eye, swapVerticalOutline, refreshOutline,
+  sendOutline, pencilOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -66,7 +67,8 @@ export class MyDormsPage implements OnInit {
       add, createOutline, trashOutline, eyeOutline, star, home, 
       alertCircleOutline, arrowBackOutline, businessOutline, 
       homeOutline, addCircleOutline, addCircle, locationOutline,
-      chatboxEllipsesOutline, ellipse, eye, swapVerticalOutline, refreshOutline 
+      chatboxEllipsesOutline, ellipse, eye, swapVerticalOutline, refreshOutline,
+      sendOutline, pencilOutline
     });
   }
 
@@ -113,7 +115,8 @@ export class MyDormsPage implements OnInit {
         if (res.success) {
           this.myDorms = res.data;
           this.approvedDorms = this.myDorms.filter((dorm: any) => dorm.REQ_STATUS === 1);
-          this.pendingDorms = this.myDorms.filter((dorm: any) => dorm.REQ_STATUS === 0 || dorm.REQ_STATUS === 2 || dorm.REQ_STATUS === 3);
+          // REQ_STATUS: 0=รอ, 2=ปฏิเสธ, 3=reassign, 4=ส่งกลับให้แก้ไข
+          this.pendingDorms = this.myDorms.filter((dorm: any) => dorm.REQ_STATUS === 0 || dorm.REQ_STATUS === 2 || dorm.REQ_STATUS === 3 || dorm.REQ_STATUS === 4);
         }
       } catch (error) {
       console.error('Error loadMyDorms:', error);
@@ -127,6 +130,7 @@ export class MyDormsPage implements OnInit {
     const rStatus = Number(reqStatus);
 
     if (sId === 4) return 'ถูกลบ';
+    if (rStatus === 4) return 'ส่งกลับแก้ไข';
     if (rStatus === 3) return 'ส่งคำร้องใหม่';
     if (rStatus === 0) return 'รออนุมัติ';
     if (rStatus === 2) return 'ไม่อนุมัติ';
@@ -145,6 +149,7 @@ export class MyDormsPage implements OnInit {
     const rStatus = Number(reqStatus);
 
     if (sId === 4) return 'medium';
+    if (rStatus === 4) return 'tertiary'; // ส่งกลับแก้ไข = สีม่วง
     if (rStatus === 3) return 'warning';
     if (rStatus === 0) return 'warning';
     if (rStatus === 2) return 'danger';
@@ -292,4 +297,15 @@ export class MyDormsPage implements OnInit {
   goToAddDorm() { this.router.navigate(['/dorm-form']); }
   goToEdit(id: number) { this.router.navigate(['/edit-dorm', id]); }
   goToReviews(id: number) { this.router.navigate(['/manage-reviews'], { queryParams: { dorm_id: id }}); }
+  
+  // สำหรับดูหอพักที่รออนุมัติ (REQ_STATUS=0) หรือแก้ไขส่งใหม่ (REQ_STATUS=4)
+  goToPendingView(dorm: any) {
+    if (dorm.REQ_STATUS === 4) {
+      // ส่งกลับแก้ไข: ไปหน้า edit-dorm พร้อม resubmit mode
+      this.router.navigate(['/edit-dorm', dorm.DORM_ID], { queryParams: { mode: 'resubmit' } });
+    } else {
+      // รออนุมัติ: ไปดูแบบ view-only
+      this.router.navigate(['/edit-dorm', dorm.DORM_ID], { queryParams: { mode: 'view' } });
+    }
+  }
 }

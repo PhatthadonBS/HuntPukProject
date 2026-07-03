@@ -1,0 +1,104 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🏠 ตัวอย่างหอพักของคุณ</h2>
+      <ion-button fill="clear" color="dark" (click)="onCancel()" class="close-btn">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- ===== Card Preview ===== -->
+      <div class="preview-section-title">📱 ตัวอย่างการ์ดบนหน้าหลัก</div>
+      <div class="dorm-card">
+        <div class="img-container">
+          <img [src]="coverImage || 'assets/placeholder-landscape.png'" alt="Dorm Cover">
+          <div class="price-badge">
+            <div class="price-amount">{{ minPrice | number }} ฿</div>
+            <div class="price-label">เริ่มต้น / เดือน</div>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="dorm-title">{{ formData.name }}</h3>
+          <div class="info-row text-muted">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ formData.address || 'ยังไม่ได้ระบุที่อยู่' }}</span>
+          </div>
+          <div class="facilities-preview">
+            <div class="fac-chip" *ngFor="let fac of checkedFacilities.slice(0, 3)">
+              <ion-icon [name]="fac.icon" *ngIf="!fac.isFontAwesome && fac.icon && fac.icon.includes('outline')"></ion-icon>
+              <i *ngIf="fac.isFontAwesome" [class]="fac.icon"></i>
+              <span>{{ fac.name }}</span>
+            </div>
+            <div class="fac-chip more" *ngIf="checkedFacilities.length > 3">
+              +{{ checkedFacilities.length - 3 }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Full Info ===== -->
+      <div class="preview-section-title" style="margin-top: 20px;">📋 ข้อมูลทั้งหมดที่จะส่ง</div>
+
+      <div class="info-group">
+        <div class="info-label">ชื่อหอพัก</div>
+        <div class="info-value">{{ formData.name || '-' }}</div>
+      </div>
+      <div class="info-group">
+        <div class="info-label">ที่อยู่</div>
+        <div class="info-value">{{ formData.address || '-' }}</div>
+      </div>
+      <div class="info-group">
+        <div class="info-label">รายละเอียด</div>
+        <div class="info-value">{{ formData.detail || '-' }}</div>
+      </div>
+      <div class="info-row-2">
+        <div class="info-group">
+          <div class="info-label">ค่าน้ำ (บาท/หน่วย)</div>
+          <div class="info-value">{{ formData.water_unit ?? '-' }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">ค่าน้ำเหมาจ่าย</div>
+          <div class="info-value">{{ formData.water_lump || 'ไม่มี' }}</div>
+        </div>
+        <div class="info-group">
+          <div class="info-label">ค่าไฟ (บาท/หน่วย)</div>
+          <div class="info-value">{{ formData.elect_unit ?? '-' }}</div>
+        </div>
+      </div>
+
+      <!-- Facilities -->
+      <div class="info-group" *ngIf="checkedFacilities.length > 0">
+        <div class="info-label">สิ่งอำนวยความสะดวก ({{ checkedFacilities.length }} รายการ)</div>
+        <div class="fac-wrap">
+          <span class="fac-tag" *ngFor="let fac of checkedFacilities">{{ fac.name }}</span>
+        </div>
+      </div>
+      <div class="info-group" *ngIf="formData.new_facilities && formData.new_facilities.length > 0">
+        <div class="info-label">สิ่งอำนวยฯ เพิ่มเติม (รออนุมัติ)</div>
+        <div class="fac-wrap">
+          <span class="fac-tag pending" *ngFor="let nf of formData.new_facilities">✨ {{ nf.name }}</span>
+        </div>
+      </div>
+
+      <!-- Room Types -->
+      <div class="info-group" *ngFor="let room of roomTypes; let i = index">
+        <div class="info-label">ห้องแบบที่ {{ i + 1 }}: {{ room.roomType || room.selectedType }}</div>
+        <div class="room-prices">
+          <span class="price-tag" *ngFor="let p of room.prices" [class.has-price]="p.price > 0">
+            <span *ngIf="p.price > 0">{{ p.name }}: <strong>{{ p.price | number }} ฿</strong></span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <ion-button expand="block" fill="outline" color="medium" (click)="onCancel()">← กลับไปแก้ไข</ion-button>
+      <ion-button expand="block" color="success" (click)="onConfirm()">
+        <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon> ยืนยันส่งข้อมูล
+      </ion-button>
+    </div>
+  </div>
+</div>

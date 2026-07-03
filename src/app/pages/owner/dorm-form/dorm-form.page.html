@@ -7,7 +7,7 @@
   </ion-toolbar>
 
   <!-- Step Indicator -->
-  <div class="step-indicator">
+  <div class="step-indicator" *ngIf="formState === 'editing'">
     <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
       <span class="step-num">1</span>
       <span class="step-label">ทั่วไป</span>
@@ -31,7 +31,7 @@
 </ion-header>
 
 <ion-content class="ion-padding bg-light">
-  <div class="form-container">
+  <div class="form-container" *ngIf="formState === 'editing'">
 
     <!-- ==================== STEP 1: ข้อมูลพื้นฐาน ==================== -->
     <div *ngIf="currentStep === 1" class="fade-in">
@@ -72,10 +72,6 @@
           </ion-select>
         </ion-item>
 
-        <ion-item class="custom-input">
-          <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
-          <ion-input [value]="currentZoneName" readonly placeholder="โซนหอพัก (อ้างอิงจากแผนที่)"></ion-input>
-        </ion-item>
 
         <ion-item class="custom-input">
           <ion-label position="stacked">รายละเอียดเพิ่มเติม</ion-label>
@@ -93,6 +89,11 @@
         </div>
 
         <ion-item class="custom-input">
+          <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
+          <ion-input [value]="currentZoneName" readonly placeholder="ปักหมุดบนแผนที่เพื่อเลือกโซน" [class.zone-selected]="formData.zone_id"></ion-input>
+        </ion-item>
+
+        <ion-item class="custom-input">
           <ion-label position="stacked">ที่อยู่</ion-label>
           <ion-textarea [(ngModel)]="formData.address" rows="2"
             placeholder="บ้านเลขที่, ถนน, ตำบล..."></ion-textarea>
@@ -101,10 +102,15 @@
         <div class="map-wrapper">
           <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
             [options]="mapOptions" (mapClick)="onMapClick($event)">
-            <map-marker [position]="markerPosition" [options]="markerOptions"></map-marker>
+            <map-marker [position]="markerPosition" [options]="markerOptions">
+              <map-info-window [infoWindow]="infoWindow" [options]="{content: currentZoneName}"></map-info-window>
+            </map-marker>
+            <map-circle *ngIf="zoneCenter" [center]="zoneCenter" [radius]="zoneRadius" [options]="circleOptions"></map-circle>
+            <!-- Marker สำหรับศูนย์กลางโซน -->
+            <map-marker *ngIf="zoneCenter" [position]="zoneCenter" [options]="zoneMarkerOptions"></map-marker>
           </google-map>
         </div>
-        <p class="hint-text text-danger">* แตะบนแผนที่เพื่อปักหมุดตำแหน่งหอพัก</p>
+        <p class="hint-text text-danger">* แตะบนแผนที่เพื่อปักหมุดตำแหน่งหอพัก (ที่อยู่จะถูกดึงอัตโนมัติ)</p>
         <div class="coord-display">
           <div style="font-size: 0.9em; color: var(--ion-color-medium);">
             พิกัด: {{ formData.lat | number:'1.6-6' }}, {{ formData.lng | number:'1.6-6' }}
@@ -169,7 +175,7 @@
         <div class="suggest-fac-container" style="text-align: center; margin-top: 15px;">
           <ion-button fill="outline" shape="round" color="secondary" (click)="suggestNewFacility()" *ngIf="formData.new_facilities.length < 3">
             <ion-icon slot="start" name="bulb-outline"></ion-icon>
-            เพิ่มสิ่งอำนวยความสะดวกเพิ่มเติม
+            เพิ่มสิ่งอำนวยความสะดวกเพิ่มเติม (เหลือ {{ 3 - formData.new_facilities.length }} ครั้ง)
           </ion-button>
           
           <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list">
@@ -225,21 +231,11 @@
           </ion-item>
 
           <p class="hint-text" style="margin-top: 10px;">💰 ราคา (กรอกอย่างน้อย 1 ช่อง) <span class="req">*</span></p>
-          <div class="row-3-col">
-            <ion-item class="custom-input">
-              <ion-label position="stacked">รายเดือน (บาท)</ion-label>
-              <ion-input type="number" [(ngModel)]="room.perMonth"
+          <div class="price-grid">
+            <ion-item class="custom-input" *ngFor="let p of room.prices">
+              <ion-label position="stacked">{{ p.name }} (บาท)</ion-label>
+              <ion-input type="number" [(ngModel)]="p.price"
                 placeholder="เช่น 3000" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
-            </ion-item>
-            <ion-item class="custom-input">
-              <ion-label position="stacked">รายเทอม (บาท)</ion-label>
-              <ion-input type="number" [(ngModel)]="room.perTerm"
-                placeholder="เช่น 8000" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
-            </ion-item>
-            <ion-item class="custom-input">
-              <ion-label position="stacked">รายวัน (บาท)</ion-label>
-              <ion-input type="number" [(ngModel)]="room.perDay"
-                placeholder="เช่น 200" [clearOnEdit]="false" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.charCode == 46 ? true : $event.preventDefault()"></ion-input>
             </ion-item>
           </div>
         </div>
@@ -252,7 +248,7 @@
       <!-- เอกสารยืนยันตัวตน -->
       <div class="section-card">
         <h3><ion-icon name="document-text-outline"></ion-icon> เอกสารยืนยันตัวตน <span class="req">*</span></h3>
-        <p class="hint-text">รูปใบอนุญาตประกอบกิจการหอพัก หรือรูปเจ้าของถ่ายคู่กับบัตรประชาชน</p>
+        <p class="hint-text">รูปใบอนุญาตประกอบกิจการหอพัก หรือรูปเจ้าของถ่ายคู่กับบัตรประชาชน <br> <span class="text-danger">(ถ้าแอดมินตรวจสอบเสร็จระบบจะทำการลบออกจากระบบทันที)</span></p>
         <div class="img-upload-box" (click)="licenseInput.click()" [class.has-image]="previews.LICENSE_IMG">
           <img [src]="previews.LICENSE_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
           <div class="overlay">
@@ -348,7 +344,7 @@
       <!-- อัลบั้มรูปอื่นๆ -->
       <div class="section-card">
         <h3><ion-icon name="images-outline"></ion-icon> อัลบั้มรูปภายในห้องพัก (อื่นๆ)</h3>
-        <p class="hint-text">เลือกภาพมุมอื่นๆ ได้พร้อมกันหลายรูป (ถ้ามีจะดีกว่า)</p>
+        <p class="hint-text">เลือกภาพมุมอื่นๆ ได้พร้อมกันหลายรูป (ถ้ามีจะดีกว่า) &bull; <strong>สูงสุด 5 ภาพ</strong></p>
         <input #galleryInput type="file" (change)="onGallerySelect($event)" accept="image/*" multiple hidden>
         <ion-button expand="block" fill="outline" color="primary" (click)="galleryInput.click()">
           <ion-icon name="images-outline" slot="start"></ion-icon> เพิ่มรูปภาพมุมอื่นๆ
@@ -373,34 +369,86 @@
   <div style="height: 100px;"></div>
 </ion-content>
 
-<!-- Bottom Action Bar -->
-<div class="bottom-action-bar">
-  <ion-button fill="outline" color="medium" class="nav-btn" (click)="prevStep()" *ngIf="currentStep > 1">
-    <ion-icon name="arrow-back-outline" slot="start"></ion-icon> ย้อนกลับ
-  </ion-button>
+<!-- ==================== STATE: EDITING ==================== -->
+<div *ngIf="formState === 'editing'">
+  <!-- Bottom Action Bar -->
+  <div class="bottom-action-bar">
+    <ion-button fill="outline" color="medium" class="nav-btn" (click)="prevStep()" *ngIf="currentStep > 1">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon> ย้อนกลับ
+    </ion-button>
 
-  <div class="spacer"></div>
+    <div class="spacer"></div>
 
-  <ion-button color="warning" class="nav-btn" (click)="nextStep()" *ngIf="currentStep < 4">
-    ถัดไป <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-  </ion-button>
+    <ion-button color="warning" class="nav-btn" (click)="nextStep()" *ngIf="currentStep < 4">
+      ถัดไป <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+    </ion-button>
 
-  <ion-button color="success" class="nav-btn submit-btn" (click)="onSubmit()" *ngIf="currentStep === 4">
-    <ion-icon name="save-outline" slot="start"></ion-icon> บันทึกข้อมูล
-  </ion-button>
+    <ion-button color="success" class="nav-btn submit-btn" (click)="onSubmit()" *ngIf="currentStep === 4">
+      <ion-icon name="save-outline" slot="start"></ion-icon> บันทึกข้อมูล
+    </ion-button>
+  </div>
 </div>
 
-<!-- ✅ Popup ยืนยันก่อนส่งข้อมูล — custom component แทน alertCtrl (ไม่มี HTML ดิบโผล่) -->
-<app-confirm-modal
-  *ngIf="showSaveConfirmModal"
-  title="ยืนยันการบันทึกหอพัก"
-  message="คุณตรวจสอบข้อมูลถูกต้องแล้วใช่หรือไม่?"
-  note="หมายเหตุ: ข้อมูลจะถูกส่งไปให้ผู้ดูแลระบบตรวจสอบก่อนแสดงผลบนเว็บไซต์"
-  confirmText="ยืนยันส่งข้อมูล"
-  cancelText="ยกเลิก"
-  (confirmed)="onSaveConfirmed()"
-  (cancelled)="onSaveCancelled()">
-</app-confirm-modal>
+<!-- ==================== STATE: PENDING / REJECTED ==================== -->
+<div *ngIf="formState === 'pending' || formState === 'rejected'" class="status-page-wrapper">
+  <div class="status-page">
+
+    <!-- Pending -->
+    <div *ngIf="formState === 'pending'" class="status-hero pending-hero">
+      <div class="status-icon-wrap">
+        <div class="status-ring"></div>
+        <ion-icon name="time-outline" class="status-ion-icon"></ion-icon>
+      </div>
+      <h1 class="status-title">ส่งรายการเรียบร้อยแล้ว ✨</h1>
+      <p class="status-subtitle">ผู้ดูแลระบบกำลังตรวจสอบข้อมูลหอพักของคุณ<br>โปรดรอการอนุมัติเพื่อแสดงผลบนเว็บไซต์</p>
+
+      <div class="status-steps">
+        <div class="step-item done">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>กรอกข้อมูลเรียบร้อย</span>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step-item active">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>รอตรวจสอบ</span>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item">
+          <ion-icon name="home-outline"></ion-icon>
+          <span>เผยแพร่สู่เว็บไซต์</span>
+        </div>
+      </div>
+
+      <ion-button expand="block" color="primary" fill="outline" class="go-mydorms-btn" [routerLink]="['/my-dorms']">
+        <ion-icon name="list-outline" slot="start"></ion-icon> ไปที่หอพักของฉัน &rarr;
+      </ion-button>
+    </div>
+
+    <!-- Rejected -->
+    <div *ngIf="formState === 'rejected'" class="status-hero rejected-hero">
+      <div class="status-icon-wrap rejected">
+        <ion-icon name="close-circle" class="status-ion-icon"></ion-icon>
+      </div>
+      <h1 class="status-title">การลงทะเบียนถูกปฏิเสธ</h1>
+      <p class="status-subtitle text-danger">เหตุผล: <strong>{{ rejectReason || 'ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง' }}</strong></p>
+      <ion-button expand="block" color="warning" (click)="submitAgain()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon> แก้ไขและส่งอีกครั้ง
+      </ion-button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ✅ Popup ยืนยันก่อนส่งข้อมูล (Preview) -->
+<app-dorm-preview-modal
+  *ngIf="showPreviewModal"
+  [formData]="formData"
+  [coverImage]="previews.FRONT_DORM_IMG"
+  [facilities]="facilities"
+  [roomTypes]="roomTypes"
+  (confirmed)="onPreviewConfirmed()"
+  (cancelled)="onPreviewCancelled()">
+</app-dorm-preview-modal>
 
 <!-- ✅ Popup ส่งข้อมูลสำเร็จ -->
 <app-success-modal

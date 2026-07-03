@@ -253,6 +253,43 @@ export class DormitoryService {
   }
 
   /**
+   * 7b. ส่งกลับให้แก้ไข (REQ_STATUS = 4)
+   */
+  public async sendBackForRevision(
+    dormId: number,
+    message: string = ''
+  ): Promise<any> {
+    const url = `${this.apiUrl}/dorms/approve`;
+    const body = {
+      dorm_id: dormId,
+      approve_status: 4,
+      msg: message,
+    };
+
+    try {
+      const res = await lastValueFrom(this.http.post<any>(url, body));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  /**
+   * 7c. ลบ pending request ออกจากระบบ (admin เท่านั้น)
+   */
+  public async deletePendingRequest(dormId: number): Promise<any> {
+    const url = `${this.apiUrl}/spec/dorm/${dormId}`;
+    try {
+      const res = await lastValueFrom(this.http.delete<any>(url));
+      return res;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+
+
+  /**
    * 8. ลบหอพัก (ปิดปรับปรุง / Soft Delete)
    */
   public async removeDorm(dormId: number) {

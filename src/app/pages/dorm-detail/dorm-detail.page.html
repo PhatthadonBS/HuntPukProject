@@ -43,6 +43,11 @@
   <p>{{ dormData.ADDRESS || dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
 </div>
 
+<div class="update-date-row" *ngIf="dormData.UPDATE_AT || dormData.updated_at">
+  <ion-icon name="time-outline"></ion-icon>
+  <span>อัปเดตข้อมูล: <strong>{{ (dormData.UPDATE_AT || dormData.updated_at) | date:'dd/MM/yyyy HH:mm' }}</strong></span>
+</div>
+
       <ion-button expand="block" class="nav-btn" (click)="goToNavigate()">
         <ion-icon name="navigate-circle-outline" slot="start"></ion-icon>
         นำทางไปหอพักนี้

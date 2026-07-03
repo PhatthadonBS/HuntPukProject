@@ -129,38 +129,6 @@ export class EditProfilePage implements OnInit {
     }
   }
 
-  async deleteAccount() {
-    const alert = await this.alertController.create({
-      header: 'ยืนยันการปิดบัญชี',
-      message: 'บัญชีของคุณจะถูกระงับการใช้งาน คุณแน่ใจหรือไม่?',
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'ยืนยันปิดบัญชี',
-          role: 'destructive',
-          cssClass: 'alert-btn-delete',
-          handler: () => {
-            this.performDeactivation();
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async performDeactivation() {
-    try {
-      await this.authService.deactivateUser(this.userId);
-      localStorage.clear(); 
-      const toast = await this.toastController.create({ message: 'ปิดบัญชีเรียบร้อยแล้ว', duration: 2000, color: 'dark' });
-      await toast.present();
-      this.router.navigate(['/login']);
-    } catch (error: any) {
-      console.error(error);
-      await this.showToast('เกิดข้อผิดพลาด ไม่สามารถปิดบัญชีได้', 'danger');
-    }
-  }
-
   async showToast(msg: string, color: string) {
     const toast = await this.toastController.create({ message: msg, duration: 2000, color: color, position: 'top' });
     await toast.present();

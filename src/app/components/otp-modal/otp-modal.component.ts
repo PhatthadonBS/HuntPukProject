@@ -17,7 +17,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
 
   @Input() email: string = '';
 
-  otp: string[] = ['', '', '', '', '', ''];
+  otp: string = '';
   timeLeft: number = 60;
   interval: any;
   isLoading: boolean = false;
@@ -33,7 +33,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.startTimer();
     setTimeout(() => {
-      document.getElementById('otp-0')?.focus();
+      document.getElementById('otp-input')?.focus();
     }, 500);
   }
 
@@ -41,40 +41,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
     this.stopTimer();
   }
 
-  // ✅ 1. แก้ปัญหา *ngFor เด้งมั่ว (สำคัญมาก)
-  trackByIndex(index: number, obj: any): any {
-    return index;
-  }
 
-  // ✅ 2. จัดการการพิมพ์ (ใช้กับ event input)
-  handleInput(event: any, index: number) {
-    const value = event.target.value;
-    
-    // ถ้าพิมพ์ตัวเลขลงไป
-    if (value.length >= 1) {
-      // ถ้าไม่ใช่ช่องสุดท้าย ให้ย้ายไปช่องถัดไป
-      if (index < 5) {
-        document.getElementById(`otp-${index + 1}`)?.focus();
-      } else {
-        // ถ้าช่องสุดท้ายแล้ว ให้ลองยืนยันเลย
-        this.verify(); 
-      }
-    }
-  }
-
-  // ✅ 3. จัดการการลบ (ใช้กับ event keydown)
-  handleDelete(event: any, index: number) {
-    if (event.key === 'Backspace') {
-      const input = event.target as HTMLInputElement;
-      
-      // ถ้าช่องนี้ว่าง และไม่ใช่ช่องแรก -> ถอยไปโฟกัสช่องก่อนหน้า
-      if (input.value === '' && index > 0) {
-        event.preventDefault(); // กันไม่ให้ลบซ้ำซ้อน
-        const prev = document.getElementById(`otp-${index - 1}`);
-        prev?.focus();
-      }
-    }
-  }
 
   startTimer() {
     this.stopTimer();
@@ -103,7 +70,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   }
 
   async verify() {
-    const otpCode = this.otp.join('');
+    const otpCode = this.otp;
     if (otpCode.length < 6) return;
 
     this.isLoading = true;
@@ -115,8 +82,8 @@ export class OtpModalComponent implements OnInit, OnDestroy {
       console.error(error);
       this.showToast('รหัส OTP ไม่ถูกต้อง', 'danger');
       // เคลียร์ค่า
-      this.otp = ['', '', '', '', '', ''];
-      setTimeout(() => document.getElementById('otp-0')?.focus(), 100);
+      this.otp = '';
+      setTimeout(() => document.getElementById('otp-input')?.focus(), 100);
     } finally {
       this.isLoading = false;
     }

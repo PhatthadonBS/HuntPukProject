@@ -32,32 +32,28 @@ p {
   font-size: 14px;
 }
 
-.otp-inputs {
-  display: flex;
-  gap: 8px;
+.otp-input-wrapper {
   margin-bottom: 30px;
-  justify-content: center;
   width: 100%;
-  max-width: 350px;
+  max-width: 280px;
 
-  .otp-box {
-    flex: 1; /* ✅ ยืดหดตามจอ */
-    max-width: 50px; 
-    height: 55px; 
+  .custom-otp-input {
+    --background: #fff;
+    --border-radius: 12px;
+    --padding-start: 10px;
+    --padding-end: 10px;
     border: 2px solid #e0e0e0;
     border-radius: 12px;
-    font-size: 22px;
+    font-size: 32px;
+    letter-spacing: 12px;
     font-weight: 800;
     text-align: center;
-    background: white;
     color: #333;
-    outline: none;
+    height: 60px;
     transition: all 0.2s ease;
-    padding: 0; 
 
-    &:focus {
+    &.ion-focused {
       border-color: #FFD600;
-      transform: translateY(-3px);
       box-shadow: 0 5px 15px rgba(255, 214, 0, 0.25);
     }
   }

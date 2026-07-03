@@ -1,25 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent, IonHeader, IonTitle, IonToolbar,
   IonButtons, IonBackButton, IonButton, IonIcon,
   IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-  IonCheckbox, IonList, LoadingController, ToastController, AlertController
+  IonCheckbox, IonList, LoadingController, ToastController, AlertController, ActionSheetController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   saveOutline, imageOutline, homeOutline, wifi,
   bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle,
   locateOutline, documentTextOutline, arrowBackOutline, arrowForwardOutline, imagesOutline,
-  personOutline, personAddOutline, bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
+  personOutline, personAddOutline, bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline,
+  refreshOutline, listOutline, homeOutline as homeOutlineIcon
 } from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
 import { lastValueFrom } from 'rxjs';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle } from '@angular/google-maps';
 import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
-import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
+import { DormPreviewModalComponent } from '../../../components/dorm-preview-modal/dorm-preview-modal.component';
 import { UserService } from '../../../services/user';
 
 @Component({
@@ -31,18 +32,25 @@ import { UserService } from '../../../services/user';
     IonContent, IonHeader, IonTitle, IonToolbar,
     IonButtons, IonBackButton, IonButton, IonIcon,
     IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-    IonCheckbox, IonList, CommonModule, FormsModule, GoogleMapsModule,
-    SuccessModalComponent, ConfirmModalComponent
+    IonCheckbox, IonList, CommonModule, FormsModule, GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle,
+    SuccessModalComponent, DormPreviewModalComponent, RouterModule
   ]
 })
 export class DormFormPage implements OnInit {
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
+  @ViewChild(MapMarker) marker!: MapMarker;
+
   currentStep: number = 1;
 
   // ✅ ควบคุมการแสดง popup สำเร็จแบบ custom (แทน alertCtrl ที่ไม่ render HTML)
   showSuccessModal: boolean = false;
 
-  // ✅ ควบคุมการแสดง popup ยืนยันก่อนบันทึก (แทน alertCtrl เดิมที่มี <p> โผล่เป็น text ดิบ)
-  showSaveConfirmModal: boolean = false;
+  // ✅ แสดง Preview ก่อนส่งข้อมูล
+  showPreviewModal: boolean = false;
+
+  formState: 'editing' | 'pending' | 'rejected' = 'editing';
+  rejectReason: string = '';
+
 
 
   // ✅ เก็บข้อมูล user เต็มๆ ไว้ใช้ตลอด
@@ -62,12 +70,14 @@ export class DormFormPage implements OnInit {
   zones: any[] = [];
   facilities: any[] = [];
   roomTypes: any[] = [];
+  priceTypes: any[] = [];
   
   // ✅ สำหรับตัวเลือกจาก Database
   dormTypesDB: any[] = [];
   roomTypesDB: any[] = [];
   bedTypesDB: any[] = [];
-  currentZoneName: string = 'กำลังคำนวณ...';
+  currentZoneName: string = 'กรุณาปักหมุดเพื่อเลือกตำแหน่งหอพักและโซน';
+  overlappingZones: any[] = [];
 
   // ✅ สำหรับแอดมินเลือกเจ้าของหอพัก
   dormOwners: any[] = [];
@@ -91,6 +101,17 @@ export class DormFormPage implements OnInit {
   markerPosition: google.maps.LatLngLiteral = { lat: 16.245279, lng: 103.250106 };
   mapOptions: google.maps.MapOptions = { streetViewControl: false, mapTypeControl: false };
   markerOptions: google.maps.MarkerOptions = { draggable: true };
+  
+  zoneCenter: google.maps.LatLngLiteral | null = null;
+  zoneRadius: number = 500; // 500 meters
+  circleOptions: google.maps.CircleOptions = { fillColor: '#4285F4', fillOpacity: 0.2, strokeColor: '#4285F4', strokeOpacity: 0.8, strokeWeight: 2 };
+  zoneMarkerOptions: google.maps.MarkerOptions = { 
+    icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
+  };
+  
+  allDorms: any[] = [];
+  geocoder = new google.maps.Geocoder();
+
 
   constructor(
     private router: Router,
@@ -98,14 +119,17 @@ export class DormFormPage implements OnInit {
     private userService: UserService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private actionSheetCtrl: ActionSheetController
   ) {
     addIcons({
       saveOutline, homeOutline, locationOutline, wifi,
       bedOutline, addCircleOutline, trashOutline, imageOutline,
       cloudUploadOutline, closeCircle, locateOutline, documentTextOutline,
       arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline, personAddOutline,
-      bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline
+      bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline,
+      shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline,
+      restaurantOutline, cubeOutline, refreshOutline, listOutline
     });
   }
 
@@ -204,8 +228,18 @@ export class DormFormPage implements OnInit {
             !f.FAC_TYPE_ICON.startsWith('assets'),
           checked: false
         }));
-        console.log('✅ Facilities loaded:', this.facilities.length, 'items');
-        console.log('🔍 Sample:', this.facilities[0]?.name, '→', this.facilities[0]?.icon, '(FA:', this.facilities[0]?.isFontAwesome, ')');
+      }
+
+      // โหลด priceTypes
+      const priceRes: any = await lastValueFrom(this.dormService.getPriceTypes());
+      if (priceRes && priceRes.success && priceRes.data) {
+        this.priceTypes = priceRes.data;
+      }
+      
+      // Load all dorms for duplicate check
+      const dormsRes: any = await this.dormService.getAllDorms();
+      if (dormsRes && dormsRes.data) {
+        this.allDorms = dormsRes.data;
       }
 
       // (No longer auto-calculating zone)
@@ -234,7 +268,7 @@ export class DormFormPage implements OnInit {
       selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
       roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
       bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1',
-      perMonth: null, perTerm: null, perDay: null
+      prices: this.priceTypes.map(pt => ({ priceTypeId: pt.id, name: pt.name, price: null }))
     }];
 
     this.selectedFiles = {
@@ -255,25 +289,60 @@ export class DormFormPage implements OnInit {
   }
 
   // ==========================
-  // Auto Zone Calculation
+  // Multi-Zone Detection & Selection
   // ==========================
-  calculateNearestZone(lat: number, lng: number) {
+  async detectAndSelectZone(lat: number, lng: number) {
     if (!this.zones || this.zones.length === 0) return;
-    
-    let minDistance = Infinity;
-    let nearestZone = this.zones[0];
-    
-    for (const zone of this.zones) {
-      if (zone.lat != null && zone.lng != null) {
-        const dist = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng);
-        if (dist < minDistance) {
-          minDistance = dist;
-          nearestZone = zone;
+
+    // Find all zones whose radius covers this pin
+    const matchingZones = this.zones.filter((zone: any) => {
+      if (zone.lat == null || zone.lng == null) return false;
+      const distM = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng) * 1000;
+      return distM <= (zone.ZONE_RADIUS || this.zoneRadius);
+    });
+
+    if (matchingZones.length === 0) {
+      // No zone covers the pin — fall back to nearest
+      let minDistance = Infinity;
+      let nearestZone = this.zones[0];
+      for (const zone of this.zones) {
+        if (zone.lat != null && zone.lng != null) {
+          const dist = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng);
+          if (dist < minDistance) { minDistance = dist; nearestZone = zone; }
         }
       }
+      this.applyZone(nearestZone);
+      this.showToast(`ไม่อยู่ในรัศมีโซนใด — เลือกโซนใกล้ที่สุด: ${nearestZone.ZONE_NAME}`, 'warning');
+    } else if (matchingZones.length === 1) {
+      this.applyZone(matchingZones[0]);
+    } else {
+      // Multiple overlapping zones — let user choose
+      const buttons = matchingZones.map((zone: any) => ({
+        text: zone.ZONE_NAME,
+        handler: () => { this.applyZone(zone); }
+      }));
+      buttons.push({ text: 'ยกเลิก', handler: () => {} } as any);
+
+      const sheet = await this.actionSheetCtrl.create({
+        header: '🗺️ ตำแหน่งนี้อยู่ใน ' + matchingZones.length + ' โซน — กรุณาเลือกโซน',
+        buttons
+      });
+      await sheet.present();
     }
-    this.formData.zone_id = nearestZone.ZONE_ID;
-    this.currentZoneName = nearestZone.ZONE_NAME;
+  }
+
+  applyZone(zone: any) {
+    this.formData.zone_id = zone.ZONE_ID;
+    this.currentZoneName = zone.ZONE_NAME;
+    if (zone.lat && zone.lng) {
+      this.zoneCenter = { lat: zone.lat, lng: zone.lng };
+      this.zoneRadius = zone.ZONE_RADIUS || 500;
+    }
+  }
+
+  /** @deprecated use detectAndSelectZone instead */
+  calculateNearestZone(lat: number, lng: number) {
+    this.detectAndSelectZone(lat, lng);
   }
 
   getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -298,10 +367,11 @@ export class DormFormPage implements OnInit {
     if (this.formData.zone_id) {
       const selectedZone = this.zones.find((z: any) => z.ZONE_ID == this.formData.zone_id);
       if (selectedZone && selectedZone.lat && selectedZone.lng) {
-        this.formData.lat = selectedZone.lat;
-        this.formData.lng = selectedZone.lng;
-        this.center = { lat: this.formData.lat, lng: this.formData.lng };
-        this.markerPosition = { ...this.center };
+        this.zoneCenter = { lat: selectedZone.lat, lng: selectedZone.lng };
+        this.currentZoneName = selectedZone.ZONE_NAME;
+        // Do not change marker or center unless they want to jump there.
+        // Usually, changing zone jumps the map there. Let's jump.
+        this.center = { ...this.zoneCenter };
       }
     }
   }
@@ -330,13 +400,16 @@ export class DormFormPage implements OnInit {
     if (this.currentStep === 3) {
       // ตรวจสอบว่าแต่ละห้องมีราคาอย่างน้อย 1 ช่อง และห้ามติดลบ
       for (const room of this.roomTypes) {
-        if (!room.perMonth && !room.perTerm && !room.perDay) {
-          this.showToast('กรุณากรอกราคาอย่างน้อย 1 ช่อง (เดือน/เทอม/วัน) ในทุกประเภทห้อง', 'warning');
+        const hasPrice = room.prices.some((p: any) => p.price !== null && p.price !== '' && Number(p.price) > 0);
+        if (!hasPrice) {
+          this.showToast('กรุณากรอกราคาอย่างน้อย 1 ช่อง ในทุกประเภทห้อง', 'warning');
           return;
         }
-        if (room.perMonth < 0 || room.perTerm < 0 || room.perDay < 0) {
-          this.showToast('ราคาห้องพักห้ามติดลบ', 'warning');
-          return;
+        for (const p of room.prices) {
+          if (p.price !== null && p.price !== '' && Number(p.price) < 0) {
+            this.showToast('ราคาห้องพักห้ามติดลบ', 'warning');
+            return;
+          }
         }
       }
     }
@@ -370,6 +443,42 @@ export class DormFormPage implements OnInit {
       this.formData.lat = event.latLng.lat();
       this.formData.lng = event.latLng.lng();
       this.markerPosition = { lat: this.formData.lat, lng: this.formData.lng };
+      this.detectAndSelectZone(this.formData.lat, this.formData.lng);
+      this.geocodeAddress(this.formData.lat, this.formData.lng);
+      this.checkDuplicateLocation(this.formData.lat, this.formData.lng);
+
+      // Open InfoWindow after zone resolves
+      setTimeout(() => {
+        if (this.infoWindow && this.marker) {
+          this.infoWindow.open(this.marker);
+        }
+      }, 400);
+    }
+  }
+
+  geocodeAddress(lat: number, lng: number) {
+    this.geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        this.formData.address = results[0].formatted_address;
+      }
+    });
+  }
+
+  async checkDuplicateLocation(lat: number, lng: number) {
+    if (this.allDorms.length === 0) return;
+    for (const dorm of this.allDorms) {
+      if (dorm.lat && dorm.lng) {
+        const dist = this.getDistanceFromLatLonInKm(lat, lng, dorm.lat, dorm.lng);
+        if (dist < 0.02) { // less than 20 meters
+          const alert = await this.alertCtrl.create({
+            header: 'พบตำแหน่งที่ซ้ำกัน',
+            message: `พิกัดนี้อยู่ใกล้เคียงกับหอพัก <b>${dorm.DORM_NAME || dorm.DORMNAME}</b> มาก (ระยะห่างประมาณ ${Math.round(dist * 1000)} เมตร) คุณต้องการใช้พิกัดนี้จริงๆ ใช่หรือไม่?`,
+            buttons: ['ตกลง']
+          });
+          await alert.present();
+          break; // alert once
+        }
+      }
     }
   }
 
@@ -378,6 +487,7 @@ export class DormFormPage implements OnInit {
       this.markerPosition = { lat: Number(this.formData.lat), lng: Number(this.formData.lng) };
       this.center = { ...this.markerPosition };
       this.calculateNearestZone(this.markerPosition.lat, this.markerPosition.lng);
+      this.geocodeAddress(this.formData.lat, this.formData.lng);
     }
   }
 
@@ -390,7 +500,7 @@ export class DormFormPage implements OnInit {
       selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
       roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
       bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1', 
-      perMonth: null, perTerm: null, perDay: null
+      prices: this.priceTypes.map(pt => ({ priceTypeId: pt.id, name: pt.name, price: null }))
     });
   }
 
@@ -429,11 +539,61 @@ export class DormFormPage implements OnInit {
     const files = event.target.files;
     if (!files) return;
     for (let i = 0; i < files.length; i++) {
+      if (this.selectedFiles.OTHER_IMG.length >= 5) {
+        this.showToast('อัปโหลดรูปภาพเพิ่มเติมได้สูงสุด 5 รูป', 'warning');
+        break;
+      }
       if (files[i].size > 10 * 1024 * 1024) continue; // ข้ามไฟล์ใหญ่เกิน
       this.selectedFiles.OTHER_IMG.push(files[i]);
       const reader = new FileReader();
       reader.onload = () => { this.previews.OTHER_IMG.push(reader.result); };
       reader.readAsDataURL(files[i]);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(e: ClipboardEvent) {
+    if (this.currentStep !== 4) return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item && item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          if (!this.selectedFiles.FRONT_DORM_IMG) {
+            this.handlePastedFile(file, 'FRONT_DORM_IMG');
+          } else if (!this.selectedFiles.LICENSE_IMG) {
+            this.handlePastedFile(file, 'LICENSE_IMG');
+          } else if (this.selectedFiles.OTHER_IMG.length < 5) {
+            this.handlePastedFile(file, 'OTHER_IMG');
+          } else {
+            this.showToast('รูปภาพเต็มแล้ว', 'warning');
+          }
+        }
+      }
+    }
+  }
+
+  handlePastedFile(file: File, field: string) {
+    if (file.size > 10 * 1024 * 1024) {
+      this.showToast('ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', 'warning');
+      return;
+    }
+    const newFile = new File([file], `pasted_image_${new Date().getTime()}.png`, { type: file.type });
+    if (field === 'OTHER_IMG') {
+      this.selectedFiles.OTHER_IMG.push(newFile);
+      const reader = new FileReader();
+      reader.onload = () => { this.previews.OTHER_IMG.push(reader.result); };
+      reader.readAsDataURL(newFile);
+      this.showToast('วางรูปภาพเพิ่มเติมสำเร็จ', 'success');
+    } else {
+      this.selectedFiles[field] = newFile;
+      const reader = new FileReader();
+      reader.onload = () => { this.previews[field] = reader.result; };
+      reader.readAsDataURL(newFile);
+      this.showToast(field === 'FRONT_DORM_IMG' ? 'วางรูปหน้าปกสำเร็จ' : 'วางรูปใบอนุญาตสำเร็จ', 'success');
     }
   }
 
@@ -456,8 +616,30 @@ export class DormFormPage implements OnInit {
         {
           text: 'เพิ่ม',
           handler: (data) => {
-            if (!data.facName || data.facName.trim() === '') return false;
-            this.formData.new_facilities.push({ name: data.facName.trim(), icon: 'cube-outline' });
+            const trimmedName = data.facName ? data.facName.trim() : '';
+            if (!trimmedName) return false;
+            
+            // 1. Check existing facilities
+            const existsInMain = this.facilities.some(f => f.name.toLowerCase() === trimmedName.toLowerCase());
+            const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
+            
+            if (existsInMain || existsInNew) {
+              this.showToast('สิ่งอำนวยความสะดวกนี้มีอยู่แล้ว', 'warning');
+              return false; // Prevent closing the alert if they want to try again, or return true to just close it.
+            }
+            
+            // 2. Auto-map icon
+            let autoIcon = 'cube-outline';
+            if (trimmedName.includes('น้ำ')) autoIcon = 'water-outline';
+            else if (trimmedName.includes('ซัก')) autoIcon = 'shirt-outline';
+            else if (trimmedName.includes('ข้าว') || trimmedName.includes('อาหาร')) autoIcon = 'restaurant-outline';
+            else if (trimmedName.includes('รถ')) autoIcon = 'car-outline';
+            else if (trimmedName.includes('ออกกำลัง') || trimmedName.includes('ฟิตเนส')) autoIcon = 'barbell-outline';
+            else if (trimmedName.includes('สัตว์') || trimmedName.includes('หมา') || trimmedName.includes('แมว')) autoIcon = 'paw-outline';
+            else if (trimmedName.includes('แอร์') || trimmedName.includes('เย็น')) autoIcon = 'snow-outline';
+            else if (trimmedName.includes('ปลอดภัย') || trimmedName.includes('รปภ')) autoIcon = 'shield-checkmark-outline';
+            
+            this.formData.new_facilities.push({ name: trimmedName, icon: autoIcon });
             return true;
           }
         }
@@ -479,23 +661,23 @@ export class DormFormPage implements OnInit {
       return;
     }
 
-    // ✅ ใช้ custom modal แทน alertCtrl — กัน <p> tag โผล่เป็น text ดิบ
-    this.showSaveConfirmModal = true;
+    // Show Preview Modal instead of generic confirm modal
+    this.showPreviewModal = true;
   }
 
   getCheckedFacilitiesCount(): number {
     return this.facilities?.filter((fac: any) => fac.checked).length ?? 0;
   }
 
-  // ✅ เรียกตอนกด "ยืนยันส่งข้อมูล" ใน confirm-modal
-  onSaveConfirmed() {
-    this.showSaveConfirmModal = false;
+  // ✅ เรียกตอนกด "ยืนยันส่งข้อมูล" ใน preview-modal
+  onPreviewConfirmed() {
+    this.showPreviewModal = false;
     this.processSaveData();
   }
 
-  // ✅ เรียกตอนกด "ยกเลิก" ใน confirm-modal
-  onSaveCancelled() {
-    this.showSaveConfirmModal = false;
+  // ✅ เรียกตอนกด "กลับไปแก้ไข" ใน preview-modal
+  onPreviewCancelled() {
+    this.showPreviewModal = false;
   }
 
   async processSaveData() {
@@ -528,9 +710,7 @@ export class DormFormPage implements OnInit {
       const roomTypesFormatted = this.roomTypes.map(r => ({
         roomType: r.selectedType === 'custom' ? (r.roomType || 'อื่นๆ') : r.selectedType,
         bedType: r.bedType || '1',
-        perMonth: Number(r.perMonth) || 0,
-        perTerm: Number(r.perTerm) || 0,
-        perDay: Number(r.perDay) || 0
+        prices: r.prices
       }));
       form.append('roomTypes', JSON.stringify(roomTypesFormatted));
 
@@ -582,27 +762,18 @@ export class DormFormPage implements OnInit {
   }
 
   async showSuccessFlow() {
-    // ✅ ใช้ custom modal component แทน alertCtrl
-    // เพราะ AlertController ไม่ render <ion-icon>/<div> ใน message — โผล่เป็น HTML ดิบ
     this.showSuccessModal = true;
   }
 
   // ✅ เรียกตอนกด "ตกลงรับทราบ" ใน success-modal
   onSuccessConfirmed() {
     this.showSuccessModal = false;
-    this.askAddMore();
+    this.formState = 'pending';
   }
 
-  async askAddMore() {
-    const alert = await this.alertCtrl.create({
-      header: 'จัดการหอพัก',
-      message: 'ต้องการลงทะเบียนหอพักเพิ่มอีกหรือไม่?',
-      buttons: [
-        { text: 'ไม่, กลับไปหน้ารายการ', role: 'cancel', handler: () => { this.router.navigate(['/my-dorms']); } },
-        { text: 'ใช่, เพิ่มหอพักอีก', handler: () => { this.resetForm(); } }
-      ]
-    });
-    await alert.present();
+  submitAgain() {
+    this.formState = 'editing';
+    this.rejectReason = '';
   }
 
   async showToast(msg: string, color: string) {

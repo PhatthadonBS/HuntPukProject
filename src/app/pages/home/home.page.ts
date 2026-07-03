@@ -33,7 +33,7 @@ import {
   locate, navigate, createOutline, star, lockClosedOutline,
   bedOutline, checkmarkCircleOutline, locationSharp, chevronForwardOutline,
   listOutline, starOutline, arrowForwardOutline, gitBranchOutline, logoTwitter, chatbubblesOutline, location, closeCircle,
-  personCircleOutline, alertCircleOutline
+  personCircleOutline, alertCircleOutline, bookmark, bookmarkOutline, pinOutline, pin
 } from 'ionicons/icons';
 
 @Component({
@@ -58,6 +58,17 @@ export class HomePage implements OnInit, ViewDidEnter {
   mapOptions: google.maps.MapOptions = {
     disableDefaultUI: false, zoomControl: false, mapTypeControl: false,
     streetViewControl: false, fullscreenControl: false,
+    styles: [
+      {
+        featureType: 'poi.business',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
+      }
+    ]
+  };
+
+  dormMarkerIcon: any = {
+    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="#fbc02d" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path fill="#fbc02d" d="M12 6l-5 4v7h3v-4h4v4h3v-7l-5-4z"/></svg>')
   };
 
   // 🔍 ระบบ Filter ค้นหา
@@ -68,7 +79,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
-  maxDistance: number | null = null;
+  maxDistance: number | null = 0.5;
   zoneOptions: any[] = [];
   minScore: number | null = null;
   maxWater: number | null = null;
@@ -91,13 +102,13 @@ export class HomePage implements OnInit, ViewDidEnter {
   isPanelMinimized: boolean = false;
 
   // ⭕ จุดอ้างอิงและวงกลม
-  circleCenter: google.maps.LatLngLiteral | undefined = undefined;
-  circleRadius: number = 0;
+  referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
+  circleCenter: google.maps.LatLngLiteral | undefined = this.referencePoint;
+  circleRadius: number = 500;
   circleOptions: google.maps.CircleOptions = {
     fillColor: '#FFD600', fillOpacity: 0.2, strokeColor: '#FFD600',
     strokeOpacity: 0.8, strokeWeight: 2, clickable: false,
   };
-  referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   userLocationGranted: boolean = false;
 
   // 🧭 ระบบนำทาง
@@ -137,6 +148,25 @@ export class HomePage implements OnInit, ViewDidEnter {
     clickable: false,
   };
 
+  get zoneMarkerOptions(): google.maps.MarkerOptions {
+    const canUseGoogle = typeof google === 'object' && typeof google.maps === 'object';
+    return {
+      icon: canUseGoogle ? {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#2196F3" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/><path fill="#fff" d="M12 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm0-5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm0 3c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>'),
+        scaledSize: new google.maps.Size(40, 40),
+        labelOrigin: new google.maps.Point(20, -15)
+      } as google.maps.Icon : null,
+      label: {
+        text: this.selectedZone || '',
+        color: '#1976d2',
+        fontWeight: 'bold',
+        fontSize: '15px',
+        className: 'map-zone-label'
+      },
+      zIndex: 998
+    };
+  }
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -148,7 +178,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     private alertCtrl: AlertController 
   ) {
     addIcons({
-      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline, 'close': close, 'close-circle': closeCircle, 'location': location, 'location-outline': locationOutline, 'location-sharp': locationSharp, 'checkmark-circle': checkmarkCircle, 'checkmark-circle-outline': checkmarkCircleOutline, 'chevron-down-circle-outline': chevronDownCircleOutline, 'chevron-forward-outline': chevronForwardOutline, 'call': call, 'chatbubbles-outline': chatbubblesOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'logo-twitter': logoTwitter, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline, 'time-outline': timeOutline, 'walk-outline': walkOutline, 'car-outline': carOutline, 'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star, 'star-outline': starOutline, 'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline, 'list-outline': listOutline, 'arrow-forward-outline': arrowForwardOutline, 'git-branch-outline': gitBranchOutline, 'person-circle-outline': personCircleOutline, 'alert-circle-outline': alertCircleOutline 
+      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline, 'close': close, 'close-circle': closeCircle, 'location': location, 'location-outline': locationOutline, 'location-sharp': locationSharp, 'checkmark-circle': checkmarkCircle, 'checkmark-circle-outline': checkmarkCircleOutline, 'chevron-down-circle-outline': chevronDownCircleOutline, 'chevron-forward-outline': chevronForwardOutline, 'call': call, 'chatbubbles-outline': chatbubblesOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'logo-twitter': logoTwitter, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline, 'time-outline': timeOutline, 'walk-outline': walkOutline, 'car-outline': carOutline, 'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star, 'star-outline': starOutline, 'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline, 'list-outline': listOutline, 'arrow-forward-outline': arrowForwardOutline, 'git-branch-outline': gitBranchOutline, 'person-circle-outline': personCircleOutline, 'alert-circle-outline': alertCircleOutline, 'bookmark': bookmark, 'bookmark-outline': bookmarkOutline, 'pin-outline': pinOutline, 'pin': pin 
     });
 
     if (typeof google === 'object' && typeof google.maps === 'object') {
@@ -164,6 +194,15 @@ export class HomePage implements OnInit, ViewDidEnter {
           }),
         );
     }
+
+    this.apiLoaded.subscribe((loaded) => {
+      if (loaded && typeof google === 'object' && typeof google.maps === 'object') {
+        this.dormMarkerIcon = {
+    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="#ea4335" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path fill="#ea4335" d="M12 6l-5 4v7h3v-4h4v4h3v-7l-5-4z"/></svg>'),
+    scaledSize: new google.maps.Size(36, 36)
+  };
+      }
+    });
   }
 
   ngOnInit() {
@@ -263,6 +302,10 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   getCurrentLocation(isSilent = false) {
+    if (this.selectedZone) {
+      if (!isSilent) this.showToast('คุณกำลังเลือกโซนอยู่ กรุณาล้างตัวกรองโซนก่อนใช้ตำแหน่งปัจจุบัน', 'warning', 'alert-circle-outline');
+      return;
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -271,10 +314,6 @@ export class HomePage implements OnInit, ViewDidEnter {
           this.referencePoint = newPos;
           this.center = newPos;
           this.zoom = 15;
-          if (!this.selectedDorm) {
-            this.circleCenter = newPos;
-            this.circleRadius = 1000;
-          }
           
           this.directionsResult = undefined;
           this.altRouteRenderers = [];
@@ -288,6 +327,8 @@ export class HomePage implements OnInit, ViewDidEnter {
           if (this.selectedDorm) {
             this.calculateActiveTravelMode(this.selectedDorm.lat, this.selectedDorm.lng);
           }
+          
+          this.performSearch();
           
           if (!isSilent) this.showToast('ดึงตำแหน่งปัจจุบันสำเร็จ', 'success', 'location-outline');
         },
@@ -324,7 +365,40 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
 
-  onMapClick(event: google.maps.MapMouseEvent) { if (this.infoWindow) this.infoWindow.close(); }
+  pinMode: boolean = false;
+  togglePinMode() {
+    if (this.selectedZone) {
+      this.showToast('คุณกำลังเลือกโซนอยู่ กรุณาล้างตัวกรองโซนก่อนย้ายตำแหน่ง', 'warning', 'alert-circle-outline');
+      return;
+    }
+    this.pinMode = !this.pinMode;
+    if (this.pinMode) {
+      this.showToast('คลิกบนแผนที่เพื่อปักหมุดจุดอ้างอิง', 'warning', 'pin');
+    } else {
+      this.showToast('ยกเลิกโหมดปักหมุดแล้ว', 'medium', 'close');
+    }
+  }
+
+  onMapClick(event: google.maps.MapMouseEvent) { 
+    if (this.infoWindow) this.infoWindow.close(); 
+    
+    if (this.pinMode && event.latLng) {
+      if (this.selectedZone) {
+        this.showToast('คุณกำลังเลือกโซนอยู่ กรุณาล้างตัวกรองโซนก่อนย้ายตำแหน่ง', 'warning', 'alert-circle-outline');
+        this.pinMode = false;
+        return;
+      }
+      this.referencePoint = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+      this.center = this.referencePoint;
+      
+      this.showToast('อัปเดตจุดอ้างอิงสำเร็จ', 'success', 'location-sharp');
+      
+      // Auto toggle off pin mode after clicking
+      this.pinMode = false;
+      
+      this.performSearch();
+    }
+  }
 
   async fetchZones() {
     try { const res = await this.dormService.getZones(); if (res.success) this.zoneOptions = res.data; } 
@@ -337,6 +411,8 @@ export class HomePage implements OnInit, ViewDidEnter {
       if (res.success && res.data) {
         this.allDorms = res.data.map((d: any) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) })) as any[];        
         this.dorms = [...this.allDorms];
+        // ✅ Call performSearch to apply initial radius filter
+        this.performSearch();
       }
     } catch (err) { console.error('Fetch Dorms Error:', err); }
   }
@@ -538,8 +614,6 @@ export class HomePage implements OnInit, ViewDidEnter {
       this.zoom = 16;
     }
 
-    this.circleCenter = { lat: dorm.lat, lng: dorm.lng };
-    this.circleRadius = 1000;
     this.directionsResult = undefined;
     this.altRouteRenderers = [];
     this.walkingTime = '-';
@@ -547,7 +621,10 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.drivingTime = '-';
     this.drivingDistance = '-';
 
-    this.nearbyDorms = this.allDorms.filter((d: any) => Number(d.DORM_ID) !== Number(dorm.DORM_ID) && this.calculateDistance(dorm.lat, dorm.lng, d.lat, d.lng) <= 1).slice(0, 5);
+    this.nearbyDorms = this.dorms
+      .filter((d: any) => Number(d.DORM_ID) !== Number(dorm.DORM_ID))
+      .sort((a: any, b: any) => this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, a.lat, a.lng) - this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, b.lat, b.lng))
+      .slice(0, 5);
     this.cdr.detectChanges(); 
 
     setTimeout(async () => {
@@ -587,8 +664,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   selectNearbyDorm(dorm: any) { this.openInfoWindow(null as any, dorm); }
 
   getDistanceText(dorm: any): string {
-    if (!this.selectedDorm) return '';
-    const dist = this.calculateDistance(this.selectedDorm.lat, this.selectedDorm.lng, dorm.lat, dorm.lng);
+    const dist = this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng);
     return dist < 1 ? `${Math.round(dist * 1000)} ม.` : `${dist.toFixed(1)} กม.`;
   }
 
@@ -677,5 +753,78 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   goToManageDorm(dormId: number) {
     this.router.navigate(['/edit-dorm', dormId]);
+  }
+
+  async toggleFavorite(event: Event, dorm: any) {
+    event.stopPropagation(); 
+    event.preventDefault(); 
+
+    if (!this.currentUser || !(this.currentUser.id || this.currentUser.USER_ID)) {
+        const alert = await this.alertCtrl.create({
+            header: 'แจ้งเตือน',
+            message: 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อเลือกหอพักที่คุณสนใจครับ',
+            buttons: [
+                { text: 'ยกเลิก', role: 'cancel' },
+                { text: 'เข้าสู่ระบบ', handler: () => this.router.navigate(['/login']) }
+            ]
+        });
+        await alert.present();
+        return;
+    }
+
+    const currentUserId = Number(this.currentUser.id || this.currentUser.USER_ID);
+
+    if (dorm.isChecked) {
+        const alert = await this.alertCtrl.create({
+            header: 'ยกเลิกการสนใจ',
+            message: 'คุณต้องการยกเลิกการสนใจหอพักนี้ใช่หรือไม่?',
+            buttons: [
+                { text: 'ไม่', role: 'cancel' },
+                { 
+                  text: 'ใช่, ยกเลิก', 
+                  handler: async () => {
+                    try {
+                        await this.dormService.removeFavorite(currentUserId, dorm.DORM_ID || dorm.id);
+                        dorm.isChecked = false;
+                        this.showToast('ยกเลิกการสนใจเรียบร้อย', 'medium', 'bookmark-outline');
+                        this.cdr.detectChanges();
+                    } catch (error) {
+                        this.showToast('เกิดข้อผิดพลาดในการยกเลิก', 'danger', 'alert-circle-outline');
+                    }
+                  }
+                }
+            ]
+        });
+        await alert.present();
+        return;
+    }
+
+    const alert = await this.alertCtrl.create({
+        header: 'ยืนยัน',
+        message: 'คุณสนใจหอพักนี้ใช่หรือไม่?',
+        buttons: [
+            { text: 'ยกเลิก', role: 'cancel' },
+            { 
+              text: 'ใช่, สนใจ', 
+              handler: async () => {
+                try {
+                  await this.dormService.addFavorite(currentUserId, dorm.DORM_ID || dorm.id);
+                  dorm.isChecked = true; 
+                  this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการสนใจเรียบร้อย!`, 'success', 'bookmark');
+                  this.cdr.detectChanges();
+                } catch (error: any) {
+                  if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
+                     dorm.isChecked = true;
+                     this.showToast('หอพักนี้มีในรายการสนใจแล้วครับ', 'warning', 'bookmark');
+                     this.cdr.detectChanges();
+                  } else {
+                     this.showToast('เกิดข้อผิดพลาดในการบันทึก', 'danger', 'alert-circle-outline');
+                  }
+                }
+              }
+            }
+        ]
+    });
+    await alert.present();
   }
 }

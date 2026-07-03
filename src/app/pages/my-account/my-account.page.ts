@@ -6,7 +6,7 @@ import { addIcons } from 'ionicons';
 import { 
   person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, 
   close, alertCircle, business, chatbubbleEllipses, logoFacebook, logoInstagram, 
-  documentTextOutline, personCircle 
+  documentTextOutline, personCircle, createOutline, lockClosedOutline, trashOutline 
 } from 'ionicons/icons';
 import { UserService } from '../../services/user'; 
 import { DormitoryService } from '../../services/dormitory';
@@ -42,7 +42,8 @@ export class MyAccountPage implements OnInit {
       person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, 
       close, alertCircle, business, 'chatbubble-ellipses': chatbubbleEllipses, 
       'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 
-      'document-text-outline': documentTextOutline, 'person-circle': personCircle 
+      'document-text-outline': documentTextOutline, 'person-circle': personCircle,
+      'create-outline': createOutline, 'lock-closed-outline': lockClosedOutline, 'trash-outline': trashOutline 
     });
   }
 
@@ -270,35 +271,36 @@ export class MyAccountPage implements OnInit {
     this.isDormModalOpen = false;
   }
 
-  async deactivateAccount() {
+  async deleteAccount() {
     const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการปิดใช้งานบัญชี',
-      message: 'กรุณากรอกอีเมลของคุณเพื่อยืนยันการปิดบัญชีอย่างถาวร',
+      header: 'ยืนยันการลบบัญชี',
+      message: 'พิมพ์คำว่า "DELETE" เพื่อยืนยันการลบบัญชีของคุณ',
       inputs: [
         {
-          name: 'email',
-          type: 'email',
-          placeholder: 'กรอกอีเมลของคุณ...'
+          name: 'confirmText',
+          type: 'text',
+          placeholder: 'พิมพ์ DELETE'
         }
       ],
       buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
+        { text: 'ยกเลิก', role: 'cancel', cssClass: 'secondary' },
         {
-          text: 'ยืนยัน',
+          text: 'ลบบัญชี',
+          cssClass: 'danger',
           handler: async (data) => {
-            if (data.email !== this.user.email) {
-              this.showToast('อีเมลไม่ถูกต้อง', 'danger');
-              return false; // ไม่ปิด alert
-            }
-
-            try {
-              await this.authService.deactivateUser(this.user.id);
-              this.showToast('ปิดบัญชีสำเร็จ', 'success');
-              localStorage.removeItem('loggedIn');
-              this.router.navigate(['/login']);
-              return true;
-            } catch (err: any) {
-              this.showToast(err.error?.message || 'เกิดข้อผิดพลาดในการปิดบัญชี', 'danger');
+            if (data.confirmText === 'DELETE') {
+              try {
+                await this.authService.deactivateUser(this.user.id);
+                this.showToast('ลบบัญชีสำเร็จ', 'success');
+                localStorage.removeItem('loggedIn');
+                this.router.navigate(['/login']);
+                return true;
+              } catch (err: any) {
+                this.showToast(err.error?.message || 'เกิดข้อผิดพลาดในการลบบัญชี', 'danger');
+                return false;
+              }
+            } else {
+              this.showToast('คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE เพื่อยืนยัน', 'warning');
               return false;
             }
           }
@@ -307,5 +309,32 @@ export class MyAccountPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  async logout() {
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการออกจากระบบ',
+      message: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          cssClass: 'secondary',
+        },
+        {
+          text: 'ออกจากระบบ',
+          handler: () => {
+            localStorage.removeItem('loggedIn');
+            this.router.navigate(['/login']);
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  resetPasswd() {
+    this.router.navigate(['/forgot-password']);
   }
 }

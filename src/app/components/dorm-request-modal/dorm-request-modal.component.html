@@ -106,9 +106,18 @@
           <span class="room-bed" *ngIf="(room.bedType || room.BED_TYPE_NAME) && (room.bedType || room.BED_TYPE_NAME) !== '-'">({{ room.bedType || room.BED_TYPE_NAME }})</span>
         </div>
         <div class="room-prices" style="display:flex; flex-direction:column; align-items:flex-end;">
-          <span class="room-price" *ngIf="room.PRICE > 0 || room.perMonth > 0">฿ {{ room.PRICE || room.perMonth }} /ด.</span>
-          <span class="room-price" *ngIf="room.perTerm > 0">฿ {{ room.perTerm }} /เทอม</span>
-          <span class="room-price" *ngIf="room.perDay > 0">฿ {{ room.perDay }} /วัน</span>
+          <ng-container *ngIf="room.prices?.length > 0">
+            <span class="room-price" *ngFor="let p of room.prices">
+              <ng-container *ngIf="p.price > 0">
+                ฿ {{ p.price | number }} /{{ p.name }}
+              </ng-container>
+            </span>
+          </ng-container>
+          <ng-container *ngIf="!room.prices?.length">
+            <span class="room-price" *ngIf="room.PRICE > 0 || room.perMonth > 0">฿ {{ room.PRICE || room.perMonth }} /ด.</span>
+            <span class="room-price" *ngIf="room.perTerm > 0">฿ {{ room.perTerm }} /เทอม</span>
+            <span class="room-price" *ngIf="room.perDay > 0">฿ {{ room.perDay }} /วัน</span>
+          </ng-container>
         </div>
       </div>
     </div>

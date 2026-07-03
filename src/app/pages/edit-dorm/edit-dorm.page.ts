@@ -6,7 +6,7 @@ import {
   IonButtons, IonBackButton, IonButton, IonIcon, 
   IonSegment, IonSegmentButton, IonLabel, 
   IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-  IonCheckbox, IonList, IonListHeader,
+  IonCheckbox, IonList, IonListHeader, IonModal,
   LoadingController, ToastController, AlertController, IonImg
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -17,7 +17,11 @@ import {
 } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory';
-import { lastValueFrom } from 'rxjs'; 
+import { lastValueFrom, Observable, of } from 'rxjs'; 
+import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
+import { GoogleMapsModule, MapMarker } from '@angular/google-maps';
+import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-edit-dorm',
@@ -29,13 +33,19 @@ import { lastValueFrom } from 'rxjs';
     IonButtons, IonBackButton, IonButton, IonIcon, 
     IonSegment, IonSegmentButton, IonLabel,
     IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-    IonCheckbox, IonList, IonListHeader, IonImg,
-    CommonModule, FormsModule
+    IonCheckbox, IonList, IonListHeader, IonImg, IonModal,
+    CommonModule, FormsModule,
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker
   ]
 })
 export class EditDormPage implements OnInit {
   dormId: number = 0;
   activeSegment: string = 'general';
+  
+  apiLoaded: Observable<boolean>;
+  isMapModalOpen: boolean = false;
+  mapCenter: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
+  tempPin: google.maps.LatLngLiteral | null = null;
   
   formData: any = {
     name: '',
@@ -47,7 +57,8 @@ export class EditDormPage implements OnInit {
     water_unit: null,
     water_lump: null,
     elect_unit: null,
-    detail: ''
+    detail: '',
+    new_facilities: [] // { name: string, icon: string }
   };
 
   zones: any[] = [];
@@ -63,6 +74,9 @@ export class EditDormPage implements OnInit {
   
   reqStatus: number = 1;
   isWaitingForAdmin: boolean = false;
+  pageMode: 'view' | 'edit' | 'resubmit' = 'edit'; // view=ดูอย่างเดียว, resubmit=แก้ไขและส่งใหม่, edit=ปกติ
+  get isViewOnly() { return this.pageMode === 'view'; }
+  get isResubmitMode() { return this.pageMode === 'resubmit'; }
 
   selectedFiles: any = {
     FRONT_DORM_IMG: null,
@@ -94,7 +108,8 @@ export class EditDormPage implements OnInit {
     private dormService: DormitoryService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private httpClient: HttpClient
   ) {
     addIcons({
       saveOutline, homeOutline, locationOutline, wifi, 
@@ -103,10 +118,27 @@ export class EditDormPage implements OnInit {
       'checkmark-circle': checkmarkCircle,
       'checkmark-circle-outline': checkmarkCircleOutline
     });
+
+    if (typeof google === 'object' && typeof google.maps === 'object') {
+      this.apiLoaded = of(true);
+    } else {
+      this.apiLoaded = this.httpClient
+        .jsonp(`https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 'callback')
+        .pipe(
+          map(() => true),
+          catchError(() => of(false))
+        );
+    }
   }
 
   async ngOnInit() {
     this.dormId = Number(this.route.snapshot.paramMap.get('id'));
+    // อ่าน mode จาก query param
+    const mode = this.route.snapshot.queryParamMap.get('mode');
+    if (mode === 'view') this.pageMode = 'view';
+    else if (mode === 'resubmit') this.pageMode = 'resubmit';
+    else this.pageMode = 'edit';
+    
     if (this.dormId) {
       await this.loadInitialData(); 
       await this.loadDormData(this.dormId);
@@ -165,6 +197,12 @@ export class EditDormPage implements OnInit {
         
         this.reqStatus = Number(d.REQ_STATUS) || 0;
         this.isWaitingForAdmin = (this.reqStatus === 0 || this.reqStatus === 3);
+        // ถ้าไม่ได้ระบุ mode มาจาก URL ให้ auto-detect จาก REQ_STATUS
+        if (!this.route.snapshot.queryParamMap.get('mode')) {
+          if (this.reqStatus === 4) this.pageMode = 'resubmit';
+          else if (this.reqStatus === 0) this.pageMode = 'view';
+          else this.pageMode = 'edit';
+        }
 
         this.formData = {
           name: d.DORM_NAME,
@@ -220,8 +258,31 @@ export class EditDormPage implements OnInit {
           this.addRoomType();
         }
 
-        this.previews.FRONT_DORM_IMG = d.image;
+        // ✅ Fix: Load cover image correctly
+        this.previews.FRONT_DORM_IMG = d.image || null;
+        
+        // ✅ Fix: Load room images correctly
+        if (d.room_images) {
+          this.previews.BED_IMG = d.room_images.BED_IMG || null;
+          this.previews.WALL_IMG = d.room_images.WALL_IMG || null;
+          this.previews.CEILING_IMG = d.room_images.CEILING_IMG || null;
+          this.previews.FLOOR_IMG = d.room_images.FLOOR_IMG || null;
+          this.previews.BATHROOM_IMG = d.room_images.BATHROOM_IMG || null;
+          this.previews.BALCONY_IMG = d.room_images.BALCONY_IMG || null;
+        }
+        
+        // ✅ Fix: Gallery = everything that is NOT the cover
         this.existingGallery = d.gallery || [];
+        
+        // ✅ Load existing custom (new) facilities
+        if (d.new_facilities && Array.isArray(d.new_facilities)) {
+          this.formData.new_facilities = d.new_facilities.map((nf: any) => ({
+            name: nf.name || nf.FAC_NAME || '',
+            icon: nf.icon || nf.FAC_ICON || 'cube-outline'
+          }));
+        } else {
+          this.formData.new_facilities = [];
+        }
       }
     } catch (error) {
       this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
@@ -256,6 +317,31 @@ export class EditDormPage implements OnInit {
 
   onCoordChange() {
     // ไม่คำนวณโซนอัตโนมัติแล้ว ให้ผู้ใช้เลือกเองจาก Dropdown ตามที่ร้องขอ
+  }
+
+  openMapModal() {
+    if (this.isWaitingForAdmin) return;
+    this.isMapModalOpen = true;
+    this.tempPin = { lat: this.formData.lat, lng: this.formData.lng };
+    this.mapCenter = { lat: this.formData.lat, lng: this.formData.lng };
+  }
+
+  closeMapModal() {
+    this.isMapModalOpen = false;
+  }
+
+  onMapClick(event: google.maps.MapMouseEvent) {
+    if (event.latLng) {
+      this.tempPin = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+    }
+  }
+
+  confirmMapPin() {
+    if (this.tempPin) {
+      this.formData.lat = this.tempPin.lat;
+      this.formData.lng = this.tempPin.lng;
+    }
+    this.isMapModalOpen = false;
   }
 
   onRoomTypeChange(room: any) {
@@ -326,6 +412,11 @@ export class EditDormPage implements OnInit {
     const files = event.target.files;
     if (files) {
       for (let i = 0; i < files.length; i++) {
+        const totalCount = this.existingGallery.length + this.selectedFiles.OTHER_IMG.length;
+        if (totalCount >= 5) {
+          this.showToast('อัปโหลดรูปภาพเพิ่มเติมได้สูงสุด 5 รูป', 'warning');
+          break;
+        }
         this.selectedFiles.OTHER_IMG.push(files[i]);
         const reader = new FileReader();
         reader.onload = () => {
@@ -346,8 +437,12 @@ export class EditDormPage implements OnInit {
   }
 
   async onSubmit() {
-    if (this.isWaitingForAdmin) {
+    if (this.isWaitingForAdmin && !this.isResubmitMode) {
       this.showToast('กำลังรอแอดมินตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้', 'warning');
+      return;
+    }
+    if (this.isViewOnly) {
+      this.showToast('โหมดดูข้อมูล ไม่สามารถบันทึกได้', 'warning');
       return;
     }
     if (!this.formData.name || !this.formData.address || !this.formData.lat || !this.formData.lng || !this.formData.zone_id) {
@@ -377,6 +472,7 @@ export class EditDormPage implements OnInit {
       
 const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any) => f.id);
       form.append('facilities', JSON.stringify(selectedFacIds));
+      form.append('new_facilities', JSON.stringify(this.formData.new_facilities || []));
       form.append('roomTypes', JSON.stringify(this.roomTypes));
 
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);

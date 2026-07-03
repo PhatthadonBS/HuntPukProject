@@ -179,6 +179,13 @@
   ion-item { flex: 1; margin-bottom: 10px; }
 }
 
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  ion-item { margin-bottom: 10px; }
+}
+
 /* ============================================================
    Coordinate Display
    ============================================================ */
@@ -451,10 +458,139 @@
 @media (max-width: 480px) {
   .row-2-col { flex-direction: column; gap: 0; }
   .row-3-col { flex-direction: column; gap: 0; }
+  .price-grid { grid-template-columns: 1fr; gap: 0; }
   .grid-3-col { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .img-upload-box { height: 140px; }
   .facilities-grid { grid-template-columns: 1fr !important; }
   .step .step-label { font-size: 10px; }
+}
+
+
+
+/* ============================================================
+   Status Page (Pending / Rejected)  – Premium Design
+   ============================================================ */
+.status-page-wrapper {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+
+.status-page {
+  width: 100%;
+  max-width: 440px;
+}
+
+.status-hero {
+  text-align: center;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.status-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
+
+  .status-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(#ffd600 60%, transparent 60%);
+    animation: spin 3s linear infinite;
+    mask: radial-gradient(circle, transparent 48px, black 49px);
+    -webkit-mask: radial-gradient(circle, transparent 48px, black 49px);
+  }
+
+  .status-ion-icon {
+    font-size: 60px;
+    color: #ffd600;
+    z-index: 1;
+  }
+
+  &.rejected .status-ion-icon { color: #f44336; }
+  &.rejected .status-ring { background: conic-gradient(#f44336 80%, transparent 80%); animation: none; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.status-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 12px 0;
+}
+
+.status-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  margin-bottom: 32px;
+
+  &.text-danger { color: #ff8a80; }
+}
+
+/* Progress Steps */
+.status-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 32px;
+  padding: 0 16px;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.35;
+  transition: all 0.3s;
+
+  ion-icon { font-size: 24px; color: #fff; }
+  span { font-size: 11px; color: rgba(255,255,255,0.8); white-space: nowrap; }
+
+  &.done { opacity: 1; ion-icon { color: #69f0ae; } }
+  &.active { opacity: 1; ion-icon { color: #ffd600; animation: pulse 1.5s ease-in-out infinite; } }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.15);
+  margin: 0 8px;
+  margin-bottom: 18px;
+  border-radius: 2px;
+
+  &.done { background: #69f0ae; }
+}
+
+.go-mydorms-btn {
+  margin-top: 8px;
+  --border-color: rgba(255,255,255,0.4);
+  --color: rgba(255,255,255,0.9);
+  font-weight: 600;
 }
 

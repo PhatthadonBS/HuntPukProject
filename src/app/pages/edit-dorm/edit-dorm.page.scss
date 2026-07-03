@@ -59,6 +59,13 @@
   ion-item { flex: 1; margin-bottom: 10px;  }
 }
 
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  ion-item { margin-bottom: 10px; }
+}
+
 /* --- Facilities Card Grid (New) --- */
 .facilities-checkbox-grid {
   display: grid;
@@ -225,6 +232,10 @@
 @media (max-width: 768px) {
   .row-2-col {
     flex-direction: column;
+    gap: 0;
+  }
+  .price-grid {
+    grid-template-columns: 1fr;
     gap: 0;
   }
   .grid-2-col {

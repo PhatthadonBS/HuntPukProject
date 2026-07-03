@@ -8,17 +8,16 @@
     <h2>ยืนยันตัวตน</h2>
     <p>รหัส OTP 6 หลักถูกส่งไปที่<br><strong>{{ email }}</strong></p>
 
-    <div class="otp-inputs">
-      <input type="text" 
-             *ngFor="let digit of otp; let i = index; trackBy: trackByIndex"
-             [(ngModel)]="otp[i]"
-             (input)="handleInput($event, i)"
-             (keydown)="handleDelete($event, i)"
-             maxlength="1"
-             class="otp-box"
-             id="otp-{{i}}"
+    <div class="otp-input-wrapper">
+      <ion-input type="text"
+             [(ngModel)]="otp"
+             maxlength="6"
+             class="custom-otp-input"
+             id="otp-input"
+             placeholder="______"
              inputmode="numeric"
              autocomplete="one-time-code">
+      </ion-input>
     </div>
 
     <ion-button 

@@ -19,6 +19,14 @@
   <!-- ✅ Splash Screen -->
   <app-splash-screen *ngIf="isInitialLoading"></app-splash-screen>
 
+  <!-- 📍 Pin Mode Overlay -->
+  <div class="pin-mode-overlay" *ngIf="pinMode">
+    <div class="pin-instruction fade-in">
+      <ion-icon name="pin"></ion-icon>
+      <span>คลิกบนแผนที่เพื่อปักหมุดจุดอ้างอิง</span>
+    </div>
+  </div>
+
   <app-header 
     title="หน้าหลัก" 
     [userData]="currentUser" 
@@ -33,19 +41,23 @@
     <div class="map-wrapper">
 
       <google-map #mapRef *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
-        [options]="mapOptions">
+        [options]="mapOptions" (mapClick)="onMapClick($event)">
 
         <!-- วงกลมระยะทาง / หอพักที่เลือก -->
         <map-circle *ngIf="circleCenter" [center]="circleCenter" [radius]="circleRadius" [options]="circleOptions"></map-circle>
 
         <!-- ✅ วงกลมครอบโซนที่เลือก -->
         <map-circle *ngIf="zoneCircleCenter" [center]="zoneCircleCenter" [radius]="zoneCircleRadius" [options]="zoneCircleOptions"></map-circle>
+        
+        <!-- หมุดแสดงชื่อโซน -->
+        <map-marker *ngIf="zoneCircleCenter" [position]="zoneCircleCenter" [options]="zoneMarkerOptions"></map-marker>
 
         <map-marker [position]="referencePoint" title="ตำแหน่งของคุณ" 
           [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 999 }">
         </map-marker>
 
         <map-marker *ngFor="let dorm of dorms" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
+          [options]="{ icon: dormMarkerIcon }"
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
 
@@ -57,6 +69,12 @@
       <div class="gps-fab-btn" (click)="getCurrentLocation()">
         <ion-icon name="locate"></ion-icon>
       </div>
+
+      <div class="pin-fab-btn" (click)="togglePinMode()" [class.active]="pinMode">
+        <ion-icon name="pin"></ion-icon>
+        <span *ngIf="!pinMode">ย้ายตำแหน่งของคุณ</span>
+        <span *ngIf="pinMode">คลิกบนแผนที่</span>
+      </div>
     </div>
   </ion-content>
 
@@ -64,6 +82,17 @@
   <div class="filter-compare-group">
     <div class="chip-button" (click)="openFilter()"><ion-icon name="options-outline"></ion-icon> กรอง</div>
     <div class="chip-button compare-btn" (click)="goToCompare()"><ion-icon name="layers-outline"></ion-icon> เปรียบเทียบ</div>
+    
+    <div class="chip-button" style="padding: 0 10px; background: white;">
+      <select [(ngModel)]="maxDistance" (change)="performSearch()" style="border: none; outline: none; background: transparent; font-weight: bold; font-size: 14px; padding: 6px; cursor: pointer; color: #1976d2;">
+        <option [ngValue]="0.5">500 เมตร</option>
+        <option [ngValue]="1">1 กม.</option>
+        <option [ngValue]="2">2 กม.</option>
+        <option [ngValue]="3">3 กม.</option>
+        <option [ngValue]="4">4 กม.</option>
+        <option [ngValue]="5">5 กม.</option>
+      </select>
+    </div>
   </div>
     
   <div class="dorm-side-panel" [class.open]="selectedDorm != null" [class.minimized]="isPanelMinimized">
@@ -79,6 +108,9 @@
       <div class="panel-header-img">
         <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
         
+        <div class="panel-fav-btn" (click)="toggleFavorite($event, selectedDorm)">
+          <ion-icon [name]="selectedDorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+        </div>
         <ng-container *ngFor="let stat of dormStatusList">
           <div *ngIf="(selectedDorm.status || selectedDorm.DORM_STATUS_ID) == stat.id" 
                class="status-badge" [ngClass]="'status-' + stat.id">
@@ -113,6 +145,11 @@
         <div *ngIf="sidePanelTab === 'info' && !isPanelLoading" class="fade-in">
           <h2 class="dorm-title">{{ selectedDorm.DORM_NAME }}</h2>
           <p class="dorm-zone"><ion-icon name="location-sharp"></ion-icon> {{ selectedDorm.zone || selectedDorm.ZONE_NAME || 'ไม่ระบุโซน' }}</p>
+
+          <div *ngIf="selectedDorm.UPDATE_AT || selectedDorm.updated_at" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; margin-bottom: 10px;">
+            <ion-icon name="time-outline" style="font-size: 14px;"></ion-icon>
+            <span>อัปเดตข้อมูล: <strong style="color: #555;">{{ (selectedDorm.UPDATE_AT || selectedDorm.updated_at) | date:'dd/MM/yyyy HH:mm' }}</strong></span>
+          </div>
 
 
           <div class="rating-box" style="display: flex; align-items: center; gap: 5px; color: #fbc02d; font-weight: bold; font-size: 18px; margin-bottom: 20px;">
@@ -194,7 +231,7 @@
           </div>
 
           <div class="nearby-section" *ngIf="nearbyDorms.length > 0">
-            <div class="inline-box-title"><ion-icon name="location-outline"></ion-icon> หอพักใกล้เคียง (ภายใน 1 กม.)</div>
+            <div class="inline-box-title"><ion-icon name="location-outline"></ion-icon> หอพักใกล้เคียง</div>
             <div class="nearby-list">
               <div class="nearby-item" *ngFor="let nb of nearbyDorms" (click)="selectNearbyDorm(nb)">
                 <img [src]="nb.image || nb.FRONT_DORM_IMAGE" onerror="this.src='https://placehold.co/80x60?text=No+Image'" />
@@ -268,15 +305,20 @@
 
           <div class="distance-section">
              <div class="section-title">
-               <h3>ระยะทาง (กม.)</h3>
-               <span>จากจุดอ้างอิง(หมุดสีน้ำเงิน)</span>
+               <h3>ระยะทางจากจุดอ้างอิง</h3>
+               <span>(รอบหมุดสีน้ำเงิน)</span>
              </div>
              <div class="input-capsule" style="display: flex; align-items: center;">
                <ion-icon name="location" class="icon-yellow"></ion-icon>
-               <input type="number" [(ngModel)]="maxDistance" placeholder="เช่น 5, 10, 20" style="flex: 1;">
-               <ion-icon name="close-circle" *ngIf="maxDistance" (click)="maxDistance = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+               <select [(ngModel)]="maxDistance" style="flex: 1; border: none; outline: none; background: transparent; font-size: 16px; font-weight: bold; color: #1a1a1a;">
+                 <option [ngValue]="0.5">500 เมตร</option>
+                 <option [ngValue]="1">1 กิโลเมตร</option>
+                 <option [ngValue]="2">2 กิโลเมตร</option>
+                 <option [ngValue]="3">3 กิโลเมตร</option>
+                 <option [ngValue]="4">4 กิโลเมตร</option>
+                 <option [ngValue]="5">5 กิโลเมตร</option>
+               </select>
              </div>
-             <p class="hint-text">*เว้นว่างไว้หากไม่จำกัดระยะทาง</p>
           </div>
 
           <div class="price-section">
@@ -286,7 +328,7 @@
                 <span class="label">ต่ำสุด</span>
                 <div class="input-capsule" style="display: flex; align-items: center;">
                   <input type="number" [(ngModel)]="minPrice" placeholder="0" style="flex: 1;">
-                  <ion-icon name="close-circle" *ngIf="minPrice" (click)="minPrice = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                  <ion-icon name="close-circle" *ngIf="minPrice" (click)="minPrice = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
                 </div>
               </div>
               <div class="dash">-</div>
@@ -294,7 +336,7 @@
                 <span class="label">สูงสุด</span>
                 <div class="input-capsule" style="display: flex; align-items: center;">
                   <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด" style="flex: 1;">
-                  <ion-icon name="close-circle" *ngIf="maxPrice" (click)="maxPrice = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                  <ion-icon name="close-circle" *ngIf="maxPrice" (click)="maxPrice = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
                 </div>
               </div>
             </div>
@@ -316,14 +358,14 @@
               <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าน้ำสูงสุด</h3>
               <div class="input-capsule" style="display: flex; align-items: center;">
                 <input type="number" [(ngModel)]="maxWater" placeholder="บาท" style="flex: 1;">
-                <ion-icon name="close-circle" *ngIf="maxWater" (click)="maxWater = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                <ion-icon name="close-circle" *ngIf="maxWater" (click)="maxWater = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
               </div>
             </div>
             <div style="flex: 1;">
               <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าไฟสูงสุด</h3>
               <div class="input-capsule" style="display: flex; align-items: center;">
                 <input type="number" [(ngModel)]="maxElect" placeholder="บาท" style="flex: 1;">
-                <ion-icon name="close-circle" *ngIf="maxElect" (click)="maxElect = undefined" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                <ion-icon name="close-circle" *ngIf="maxElect" (click)="maxElect = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
               </div>
             </div>
           </div>

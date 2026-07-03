@@ -59,6 +59,31 @@
 
 
   <div *ngIf="isComparing" class="comparison-wrapper fade-in">
+
+     <!-- 📍 ตั้งจุดอ้างอิงระยะทาง -->
+     <div class="ref-point-bar">
+       <div class="ref-point-label">
+         <ion-icon name="location"></ion-icon>
+         <span>จุดอ้างอิงระยะทาง:</span>
+       </div>
+       <div class="ref-point-chips">
+         <div class="ref-chip" [class.active]="refMode === 'manual'" (click)="setRefMode('manual')">
+           <ion-icon name="navigate-circle-outline"></ion-icon> ตำแหน่งของฉัน
+         </div>
+         <div class="ref-chip" (click)="openMapModal()" style="background: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb;">
+           <ion-icon name="location"></ion-icon> กำหนดจุดอ้างอิง
+         </div>
+         <div class="ref-chip" *ngFor="let d of selectedDorms; let i = index"
+              [class.active]="refMode === 'dorm' && refDormIndex === i"
+              (click)="setRefToDorm(i)">
+           <ion-icon name="pin"></ion-icon> {{ d.DORM_NAME | slice:0:10 }}...
+         </div>
+       </div>
+       <div class="ref-point-current" *ngIf="refMode === 'dorm'">
+         📍 อ้างอิงจาก: <strong>{{ selectedDorms[refDormIndex]?.DORM_NAME }}</strong>
+       </div>
+     </div>
+
      <div class="compare-table">
         
         <div class="column-labels">
@@ -69,10 +94,10 @@
              <div class="row-cell">ค่าน้ำ</div>
              <div class="row-cell">ค่าไฟ</div>
              <div class="row-cell">โซน/ที่ตั้ง</div>
+             <div class="row-cell">ประเภทหอพัก</div>
              <div class="row-cell room-row">ประเภทห้องพัก</div>
              <div class="row-cell fac-row">สิ่งอำนวยความสะดวก</div>
              <div class="row-cell desc-row">รายละเอียด</div>
-             <div class="row-cell contact-row">ช่องทางติดต่อ</div>
         </div>
 
         <div class="scroll-container">
@@ -109,6 +134,10 @@
                  {{ item.ZONE_NAME || item.address || '-' }}
               </div>
 
+              <div class="row-cell">
+                 <span class="type-badge">{{ item.DORM_TYPE_NAME || item.dormType || item.DORM_TYPE || 'ไม่ระบุประเภท' }}</span>
+              </div>
+
               <div class="row-cell room-row">
                  <div class="inner-scroll-box" *ngIf="item.rooms && item.rooms.length > 0">
                     <div class="list-item" *ngFor="let room of item.rooms">
@@ -140,49 +169,6 @@
                 </div>
               </div>
 
-              <div class="row-cell contact-row">
-                 <div class="inner-scroll-box">
-                   <div class="social-links">
-                      <a [href]="hasContact(item, 'phone', 'OWNER_PHONE') ? getContactHref(item, 'phone', 'OWNER_PHONE', true) : null"
-                         (click)="!hasContact(item, 'phone', 'OWNER_PHONE') && $event.preventDefault()"
-                       class="social-btn phone" [class.disabled]="!hasContact(item, 'phone', 'OWNER_PHONE')">
-                      <ion-icon name="call"></ion-icon>
-                      <span>{{ hasContact(item, 'phone', 'OWNER_PHONE') ? 'โทรศัพท์' : 'ไม่ได้ระบุ' }}</span>
-                    </a>
-                    <a [href]="hasContact(item, 'line', 'OWNER_LINE') ? getContact(item, 'line', 'OWNER_LINE') : null"
-                       (click)="!hasContact(item, 'line', 'OWNER_LINE') && $event.preventDefault()"
-                       target="_blank" class="social-btn line" [class.disabled]="!hasContact(item, 'line', 'OWNER_LINE')">
-                      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
-                      <span>{{ hasContact(item, 'line', 'OWNER_LINE') ? 'LINE' : 'ไม่ได้ระบุ' }}</span>
-                    </a>
-                    <a [href]="hasContact(item, 'facebook', 'OWNER_FACEBOOK') ? getContact(item, 'facebook', 'OWNER_FACEBOOK') : null"
-                       (click)="!hasContact(item, 'facebook', 'OWNER_FACEBOOK') && $event.preventDefault()"
-                       target="_blank" class="social-btn fb" [class.disabled]="!hasContact(item, 'facebook', 'OWNER_FACEBOOK')">
-                      <ion-icon name="logo-facebook"></ion-icon>
-                      <span>{{ hasContact(item, 'facebook', 'OWNER_FACEBOOK') ? 'Facebook' : 'ไม่ได้ระบุ' }}</span>
-                    </a>
-                    <a [href]="hasContact(item, 'instagram', 'OWNER_INSTAGRAM') ? getContact(item, 'instagram', 'OWNER_INSTAGRAM') : null"
-                       (click)="!hasContact(item, 'instagram', 'OWNER_INSTAGRAM') && $event.preventDefault()"
-                       target="_blank" class="social-btn ig" [class.disabled]="!hasContact(item, 'instagram', 'OWNER_INSTAGRAM')">
-                      <ion-icon name="logo-instagram"></ion-icon>
-                      <span>{{ hasContact(item, 'instagram', 'OWNER_INSTAGRAM') ? 'Instagram' : 'ไม่ได้ระบุ' }}</span>
-                    </a>
-                    <a [href]="hasContact(item, 'x', 'OWNER_X') ? getContact(item, 'x', 'OWNER_X') : null"
-                       (click)="!hasContact(item, 'x', 'OWNER_X') && $event.preventDefault()"
-                       target="_blank" class="social-btn x" [class.disabled]="!hasContact(item, 'x', 'OWNER_X')">
-                      <ion-icon name="logo-twitter"></ion-icon>
-                      <span>{{ hasContact(item, 'x', 'OWNER_X') ? 'X (Twitter)' : 'ไม่ได้ระบุ' }}</span>
-                    </a>
-                    <a [href]="hasContact(item, 'telegram', 'OWNER_TELEGRAM') ? getContact(item, 'telegram', 'OWNER_TELEGRAM') : null"
-                       (click)="!hasContact(item, 'telegram', 'OWNER_TELEGRAM') && $event.preventDefault()"
-                       target="_blank" class="social-btn telegram" [class.disabled]="!hasContact(item, 'telegram', 'OWNER_TELEGRAM')">
-                      <ion-icon name="paper-plane-outline"></ion-icon>
-                      <span>{{ hasContact(item, 'telegram', 'OWNER_TELEGRAM') ? 'Telegram' : 'ไม่ได้ระบุ' }}</span>
-                    </a>
-                 </div>
-                 </div>
-              </div>
-
            </div>
         </div>
      </div>
@@ -204,5 +190,31 @@
       <p>กำลังเตรียมข้อมูลตาราง...</p>
     </div>
   </div>
+
+  <ion-modal [isOpen]="isMapModalOpen" (didDismiss)="closeMapModal()" class="filter-modal-custom">
+    <ng-template>
+      <div class="filter-wrapper" style="height: 100%; display: flex; flex-direction: column;">
+        <div class="filter-head">
+          <h2>กำหนดจุดอ้างอิงบนแผนที่</h2>
+          <ion-icon name="close-circle" (click)="closeMapModal()" class="close-modal-btn"></ion-icon>
+        </div>
+        <div style="flex: 1; position: relative;">
+          <google-map *ngIf="apiLoaded | async" height="100%" width="100%" 
+            [center]="mapCenter" [zoom]="15" (mapClick)="onCompareMapClick($event)"
+            [options]="{disableDefaultUI: false, zoomControl: false, mapTypeControl: false, streetViewControl: false, fullscreenControl: false}">
+             <map-marker *ngIf="tempPin" [position]="tempPin"
+              [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', zIndex: 999 }">
+            </map-marker>
+          </google-map>
+          <div *ngIf="!tempPin" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; pointer-events: none; z-index: 1000;">
+            คลิกบนแผนที่เพื่อปักหมุด
+          </div>
+        </div>
+        <div class="action-section" style="padding: 15px;">
+          <button class="btn-confirm" (click)="confirmMapPin()" [disabled]="!tempPin" style="width: 100%; background: #FFD600; color: #333; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">ยืนยันจุดอ้างอิง</button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>

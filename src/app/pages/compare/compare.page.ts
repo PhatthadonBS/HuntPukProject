@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular'; // ❌ เอา LoadingController ออก
 import { Router, RouterModule } from '@angular/router';
+import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
+import { GoogleMapsModule, MapMarker } from '@angular/google-maps';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 import { DormitoryService } from '../../services/dormitory'; 
 import { addIcons } from 'ionicons';
 import { 
@@ -17,9 +22,17 @@ import {
   templateUrl: './compare.page.html',
   styleUrls: ['./compare.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule] 
+  imports: [
+    CommonModule, FormsModule, IonicModule, RouterModule,
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker
+  ]
 })
 export class ComparePage implements OnInit {
+  apiLoaded: Observable<boolean>;
+  
+  isMapModalOpen: boolean = false;
+  mapCenter: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
+  tempPin: google.maps.LatLngLiteral | null = null;
 
   allDorms: any[] = []; 
   selectedDorms: any[] = []; 
@@ -35,11 +48,16 @@ export class ComparePage implements OnInit {
   // จุดอ้างอิงระยะทาง (ม.มหาสารคาม มอใหม่ เป็น default)
   referencePoint = { lat: 16.246, lng: 103.252 };
 
+  // 📍 Mode การเลือกจุดอ้างอิง: 'manual' = ตำแหน่งผู้ใช้, 'dorm' = จากหอที่เลือก
+  refMode: 'manual' | 'dorm' = 'manual';
+  refDormIndex: number = 0;
+
   constructor(
     private dormService: DormitoryService,
     private router: Router,
     private alertCtrl: AlertController,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private httpClient: HttpClient
   ) { 
     addIcons({ 
       checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
@@ -55,6 +73,17 @@ export class ComparePage implements OnInit {
         if (loc.lat && loc.lng) this.referencePoint = { lat: loc.lat, lng: loc.lng };
       }
     } catch(e) {}
+
+    if (typeof google === 'object' && typeof google.maps === 'object') {
+      this.apiLoaded = of(true);
+    } else {
+      this.apiLoaded = this.httpClient
+        .jsonp(`https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 'callback')
+        .pipe(
+          map(() => true),
+          catchError(() => of(false))
+        );
+    }
   }
 
   // คำนวณระยะทาง Haversine (กม.)
@@ -80,7 +109,7 @@ export class ComparePage implements OnInit {
       this.maxSelection = 5; 
     } else {
       this.isLoggedIn = false;
-      this.maxSelection = 3; 
+      this.maxSelection = 2; 
     }
   }
 
@@ -124,7 +153,7 @@ export class ComparePage implements OnInit {
       let header = 'เกินจำนวนที่กำหนด';
       let msg = this.isLoggedIn 
         ? 'สมาชิกเปรียบเทียบได้สูงสุด 5 หอพักครับ' 
-        : 'บุคคลทั่วไปเปรียบเทียบได้สูงสุด 3 หอพัก\n(เข้าสู่ระบบเพื่อเปรียบเทียบได้มากขึ้น)';
+        : 'บุคคลทั่วไปเปรียบเทียบได้สูงสุด 2 หอพัก\n(เข้าสู่ระบบเพื่อเปรียบเทียบได้มากขึ้น)';
 
       const alert = await this.alertCtrl.create({
         header: header,
@@ -184,7 +213,76 @@ export class ComparePage implements OnInit {
   cancelCompare() {
     this.isComparing = false;
     this.selectedDorms = [];
+    this.refMode = 'manual';
     this.cdr.detectChanges();
+  }
+
+  // 📍 เปลี่ยนจุดอ้างอิงกลับเป็นตำแหน่งผู้ใช้
+  setRefMode(mode: 'manual') {
+    this.refMode = mode;
+    // โหลด referencePoint จาก localStorage
+    try {
+      const stored = localStorage.getItem('userLocation');
+      if (stored) {
+        const loc = JSON.parse(stored);
+        if (loc.lat && loc.lng) this.referencePoint = { lat: loc.lat, lng: loc.lng };
+      }
+    } catch(e) {}
+    this.recalcDistances();
+    this.cdr.detectChanges();
+  }
+
+  openMapModal() {
+    this.isMapModalOpen = true;
+    this.tempPin = { ...this.referencePoint };
+    this.mapCenter = { ...this.referencePoint };
+    this.cdr.detectChanges();
+  }
+
+  closeMapModal() {
+    this.isMapModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  onCompareMapClick(event: google.maps.MapMouseEvent) {
+    if (event.latLng) {
+      this.tempPin = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+      this.cdr.detectChanges();
+    }
+  }
+
+  confirmMapPin() {
+    if (this.tempPin) {
+      this.referencePoint = { ...this.tempPin };
+      this.refMode = 'manual';
+      this.recalcDistances();
+    }
+    this.isMapModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  // 📍 เปลี่ยนจุดอ้างอิงเป็นหอพักที่เลือก
+  setRefToDorm(index: number) {
+    const dorm = this.selectedDorms[index];
+    if (!dorm || !dorm.lat || !dorm.lng) {
+      alert('หอพักนี้ไม่มีผังเดิน GPS ไม่สามารถใช้เป็นจุดอ้างอิงได้');
+      return;
+    }
+    this.refMode = 'dorm';
+    this.refDormIndex = index;
+    this.referencePoint = { lat: Number(dorm.lat), lng: Number(dorm.lng) };
+    this.recalcDistances();
+    this.cdr.detectChanges();
+  }
+
+  // 🔄 คำนวณระยะทางใหม่ทุกหอจากจุดอ้างอิงปัจจุบัน
+  recalcDistances() {
+    this.selectedDorms = this.selectedDorms.map((d: any) => ({
+      ...d,
+      calcDistance: (d.lat && d.lng)
+        ? this.calcDistanceKm(this.referencePoint.lat, this.referencePoint.lng, Number(d.lat), Number(d.lng)).toFixed(1)
+        : null
+    }));
   }
 
   goBack() {
@@ -212,30 +310,4 @@ export class ComparePage implements OnInit {
     return v + ' บ./ด.';
   }
 
-  // ✅ ฟังก์ชันรวม: ดึงค่าช่องทางติดต่อแบบ normalize ทุกกรณี
-  // กัน null, undefined, '', '-', 'null' (string) ที่หลุดมาจาก backend/DB
-  // และรองรับทั้งชื่อ field ตัวเล็ก (phone) และ OWNER_* (ตัวใหญ่)
-  private normalizeContact(value: any): string {
-    if (value === null || value === undefined) return '';
-    const str = String(value).trim();
-    if (str === '' || str === '-' || str.toLowerCase() === 'null') return '';
-    return str;
-  }
-
-  getContact(item: any, lowerKey: string, ownerKey: string): string {
-    return (
-      this.normalizeContact(item?.[lowerKey]) ||
-      this.normalizeContact(item?.[ownerKey])
-    );
-  }
-
-  hasContact(item: any, lowerKey: string, ownerKey: string): boolean {
-    return this.getContact(item, lowerKey, ownerKey) !== '';
-  }
-
-  // ✅ ใส่ tel: ให้เบอร์โทรอัตโนมัติ ส่วนลิงก์อื่นใช้ตรงๆ
-  getContactHref(item: any, lowerKey: string, ownerKey: string, isPhone: boolean = false): string {
-    const value = this.getContact(item, lowerKey, ownerKey);
-    return isPhone ? `tel:${value}` : value;
-  }
 }
