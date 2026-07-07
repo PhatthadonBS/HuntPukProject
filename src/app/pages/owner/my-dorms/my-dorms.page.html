@@ -138,6 +138,10 @@
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
             </ion-button>
 
+            <ion-button fill="outline" size="small" color="secondary" class="action-btn" (click)="$event.stopPropagation(); goToPreview(item.DORM_ID)" *ngIf="item.REQ_STATUS === 1">
+              <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+
             <ion-button fill="outline" size="small" color="primary" class="action-btn" (click)="goToEdit(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 4 && item.REQ_STATUS === 1">
               <ion-icon name="create-outline" slot="icon-only"></ion-icon>
             </ion-button>

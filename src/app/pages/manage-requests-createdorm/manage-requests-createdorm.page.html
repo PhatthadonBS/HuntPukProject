@@ -213,40 +213,40 @@
 
               <!-- รูปภายในห้อง -->
               <div class="room-imgs-grid">
-                <div class="room-img-item" *ngIf="expandedDormData.CEILING_IMG || expandedDormData.ceiling_img">
+                <div class="room-img-item" *ngIf="expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img">
                   <div class="img-label">เพดาน</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.CEILING_IMG || expandedDormData.ceiling_img)">
-                    <img [src]="expandedDormData.CEILING_IMG || expandedDormData.ceiling_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img)">
+                    <img [src]="expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.WALL_IMG || expandedDormData.wall_img">
+                <div class="room-img-item" *ngIf="expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img">
                   <div class="img-label">ผนัง</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.WALL_IMG || expandedDormData.wall_img)">
-                    <img [src]="expandedDormData.WALL_IMG || expandedDormData.wall_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img)">
+                    <img [src]="expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.FLOOR_IMG || expandedDormData.floor_img">
+                <div class="room-img-item" *ngIf="expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img">
                   <div class="img-label">พื้น</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.FLOOR_IMG || expandedDormData.floor_img)">
-                    <img [src]="expandedDormData.FLOOR_IMG || expandedDormData.floor_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img)">
+                    <img [src]="expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.BED_IMG || expandedDormData.bed_img">
+                <div class="room-img-item" *ngIf="expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img">
                   <div class="img-label">เตียง</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.BED_IMG || expandedDormData.bed_img)">
-                    <img [src]="expandedDormData.BED_IMG || expandedDormData.bed_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img)">
+                    <img [src]="expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img">
+                <div class="room-img-item" *ngIf="expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img">
                   <div class="img-label">ห้องน้ำ</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img)">
-                    <img [src]="expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img)">
+                    <img [src]="expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.BALCONY_IMG || expandedDormData.balcony_img">
+                <div class="room-img-item" *ngIf="expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img">
                   <div class="img-label">ระเบียง</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.BALCONY_IMG || expandedDormData.balcony_img)">
-                    <img [src]="expandedDormData.BALCONY_IMG || expandedDormData.balcony_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img)">
+                    <img [src]="expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
               </div>
@@ -273,41 +273,11 @@
 
               <!-- Reject with reason -->
               <div class="reason-section">
-                <ion-button expand="block" color="danger" fill="outline" (click)="toggleRejectInput(item.DORM_ID)">
+                <ion-button expand="block" color="danger" fill="outline" (click)="reject(item)">
                   <ion-icon name="close-circle" slot="start"></ion-icon>
                   ปฏิเสธคำขอ
-                  <ion-icon [name]="showRejectInputMap[item.DORM_ID] ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
                 </ion-button>
-                <div class="reason-input-wrap" *ngIf="showRejectInputMap[item.DORM_ID]">
-                  <textarea class="reason-textarea" [(ngModel)]="rejectReasonMap[item.DORM_ID]" 
-                            placeholder="ระบุเหตุผลการปฏิเสธ (จำเป็น)..." rows="3"></textarea>
-                  <ion-button expand="block" color="danger" (click)="reject(item)" [disabled]="!rejectReasonMap[item.DORM_ID]?.trim()">
-                    ยืนยันปฏิเสธ
-                  </ion-button>
-                </div>
               </div>
-
-              <!-- Send back for revision -->
-              <div class="reason-section">
-                <ion-button expand="block" color="tertiary" fill="outline" (click)="toggleSendBackInput(item.DORM_ID)">
-                  <ion-icon name="send-outline" slot="start"></ion-icon>
-                  ส่งกลับให้แก้ไข
-                  <ion-icon [name]="showSendBackInputMap[item.DORM_ID] ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
-                </ion-button>
-                <div class="reason-input-wrap" *ngIf="showSendBackInputMap[item.DORM_ID]">
-                  <textarea class="reason-textarea" [(ngModel)]="sendBackReasonMap[item.DORM_ID]" 
-                            placeholder="หมายเหตุถึงเจ้าของหอ (ไม่จำเป็น)..." rows="3"></textarea>
-                  <ion-button expand="block" color="tertiary" (click)="sendBack(item)">
-                    ยืนยันส่งกลับ
-                  </ion-button>
-                </div>
-              </div>
-
-              <!-- Delete -->
-              <ion-button expand="block" color="medium" fill="clear" size="small" (click)="deleteRequest(item)">
-                <ion-icon name="trash-outline" slot="start"></ion-icon>
-                ลบคำขอนี้
-              </ion-button>
             </div>
 
             <!-- ===== Actions for approved/rejected/sendback ===== -->
@@ -317,8 +287,16 @@
                 {{ getReqStatusLabel(item.REQ_STATUS) }}
               </div>
 
+              <!-- Send back for revision (เฉพาะกรณีปฏิเสธแล้ว แอดมินสามารถเปลี่ยนใจส่งให้แก้ไขได้) -->
+              <ion-button expand="block" color="tertiary" fill="outline" class="ion-margin-top"
+                          *ngIf="item.REQ_STATUS === 2"
+                          (click)="sendBack(item)">
+                <ion-icon name="send-outline" slot="start"></ion-icon>
+                ส่งกลับให้แก้ไข (แทนการปฏิเสธ)
+              </ion-button>
+
               <!-- Delete button for rejected/sendback -->
-              <ion-button expand="block" color="medium" fill="outline" size="small" 
+              <ion-button expand="block" color="medium" fill="outline" size="small" class="ion-margin-top"
                           *ngIf="item.REQ_STATUS === 2 || item.REQ_STATUS === 4"
                           (click)="deleteRequest(item)">
                 <ion-icon name="trash-outline" slot="start"></ion-icon>

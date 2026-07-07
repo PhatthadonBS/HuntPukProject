@@ -296,6 +296,7 @@ export class MyDormsPage implements OnInit {
   goToDetail(id: number) { this.router.navigate(['/dorm-detail', id]); }
   goToAddDorm() { this.router.navigate(['/dorm-form']); }
   goToEdit(id: number) { this.router.navigate(['/edit-dorm', id]); }
+  goToPreview(id: number) { this.router.navigate(['/dorm-preview', id]); }
   goToReviews(id: number) { this.router.navigate(['/manage-reviews'], { queryParams: { dorm_id: id }}); }
   
   // สำหรับดูหอพักที่รออนุมัติ (REQ_STATUS=0) หรือแก้ไขส่งใหม่ (REQ_STATUS=4)
@@ -304,8 +305,8 @@ export class MyDormsPage implements OnInit {
       // ส่งกลับแก้ไข: ไปหน้า edit-dorm พร้อม resubmit mode
       this.router.navigate(['/edit-dorm', dorm.DORM_ID], { queryParams: { mode: 'resubmit' } });
     } else {
-      // รออนุมัติ: ไปดูแบบ view-only
-      this.router.navigate(['/edit-dorm', dorm.DORM_ID], { queryParams: { mode: 'view' } });
+      // รออนุมัติ: ไปหน้า dorm-preview แบบ read-only
+      this.router.navigate(['/dorm-preview', dorm.DORM_ID]);
     }
   }
 }

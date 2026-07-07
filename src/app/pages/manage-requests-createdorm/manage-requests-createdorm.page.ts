@@ -41,17 +41,10 @@ export class ManageRequestsCreatedormPage implements OnInit {
   // Expanded detail state
   expandedDormId: number | null = null;
   expandedDormData: any = null;
-  isLoadingDetail = false;
-
-  // Lightbox
-  isLightboxOpen = false;
-  lightboxImage = '';
-
-  // Reject reason input
-  rejectReasonMap: { [dormId: number]: string } = {};
-  showRejectInputMap: { [dormId: number]: boolean } = {};
-  showSendBackInputMap: { [dormId: number]: boolean } = {};
+  isLoadingDetail: boolean = false;
   sendBackReasonMap: { [dormId: number]: string } = {};
+  isLightboxOpen = false;
+  lightboxImage: string | null = null;
 
   constructor(
     private dormService: DormitoryService,
@@ -179,47 +172,53 @@ export class ManageRequestsCreatedormPage implements OnInit {
     await alert.present();
   }
 
-  toggleRejectInput(dormId: number) {
-    this.showRejectInputMap[dormId] = !this.showRejectInputMap[dormId];
-    if (!this.rejectReasonMap[dormId]) this.rejectReasonMap[dormId] = '';
-  }
-
   async reject(item: any) {
-    const reason = (this.rejectReasonMap[item.DORM_ID] || '').trim();
-    if (!reason) {
-      this.showToast('กรุณาระบุเหตุผลที่ปฏิเสธ', 'warning');
-      return;
-    }
     const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการปฏิเสธ',
-      message: `คุณต้องการปฏิเสธคำขอของ "${item.DORM_NAME}" ใช่หรือไม่?`,
+      header: 'ปฏิเสธคำขอ',
+      message: `ระบุเหตุผลการปฏิเสธคำขอของหอพัก "${item.DORM_NAME}"`,
+      inputs: [
+        {
+          name: 'reason',
+          type: 'textarea',
+          placeholder: 'ระบุเหตุผล (จำเป็น)...',
+        }
+      ],
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'ยืนยันปฏิเสธ',
-          role: 'destructive',
-          handler: () => { this.processRequest(item.DORM_ID, false, reason); }
+          text: 'ยืนยัน',
+          handler: (data) => {
+            if (!data.reason || !data.reason.trim()) {
+              this.showToast('กรุณาระบุเหตุผลการปฏิเสธ', 'warning');
+              return false; // ไม่ให้ปิด alert
+            }
+            this.processRequest(item.DORM_ID, false, data.reason.trim());
+            return true;
+          }
         }
       ]
     });
     await alert.present();
   }
 
-  toggleSendBackInput(dormId: number) {
-    this.showSendBackInputMap[dormId] = !this.showSendBackInputMap[dormId];
-    if (!this.sendBackReasonMap[dormId]) this.sendBackReasonMap[dormId] = '';
-  }
-
   async sendBack(item: any) {
-    const reason = (this.sendBackReasonMap[item.DORM_ID] || '').trim();
     const alert = await this.alertCtrl.create({
       header: 'ส่งกลับให้แก้ไข',
-      message: `ส่งหอพัก "${item.DORM_NAME}" กลับให้เจ้าของแก้ไขและส่งใหม่${reason ? `\n\nหมายเหตุ: ${reason}` : ''}`,
+      message: `ระบุหมายเหตุถึงเจ้าของหอพัก "${item.DORM_NAME}" (ถ้ามี)`,
+      inputs: [
+        {
+          name: 'reason',
+          type: 'textarea',
+          placeholder: 'หมายเหตุเพิ่มเติม...',
+        }
+      ],
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'ยืนยัน',
-          handler: () => { this.processSendBack(item.DORM_ID, reason); }
+          text: 'ส่งกลับ',
+          handler: (data) => {
+            this.processSendBack(item.DORM_ID, data.reason?.trim() || '');
+          }
         }
       ]
     });
@@ -250,8 +249,6 @@ export class ManageRequestsCreatedormPage implements OnInit {
       this.showToast(isApprove ? '✅ อนุมัติสำเร็จ' : '🚫 ปฏิเสธคำขอเรียบร้อย', 'success');
       this.expandedDormId = null;
       this.expandedDormData = null;
-      this.rejectReasonMap[dormId] = '';
-      this.showRejectInputMap[dormId] = false;
       await this.loadAllRequests();
     } catch (error: any) {
       const errMsg = error.error?.message || 'เกิดข้อผิดพลาด';
@@ -265,11 +262,9 @@ export class ManageRequestsCreatedormPage implements OnInit {
     this.isLoading = true;
     try {
       await this.dormService.sendBackForRevision(dormId, reason);
-      this.showToast('📩 ส่งกลับให้แก้ไขเรียบร้อย', 'success');
+      this.showToast('📩 ส่งกลับแก้ไขเรียบร้อย', 'success');
       this.expandedDormId = null;
       this.expandedDormData = null;
-      this.sendBackReasonMap[dormId] = '';
-      this.showSendBackInputMap[dormId] = false;
       await this.loadAllRequests();
     } catch (error: any) {
       const errMsg = error.error?.message || 'เกิดข้อผิดพลาด';

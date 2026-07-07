@@ -24,9 +24,9 @@ import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Component({
-  selector: 'app-edit-dorm',
-  templateUrl: './edit-dorm.page.html',
-  styleUrls: ['./edit-dorm.page.scss'],
+  selector: 'app-dorm-preview',
+  templateUrl: './dorm-preview.page.html',
+  styleUrls: ['./dorm-preview.page.scss'],
   standalone: true,
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, 
@@ -38,7 +38,7 @@ import { environment } from '../../../environments/environment';
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker, MapCircle, MapInfoWindow
   ]
 })
-export class EditDormPage implements OnInit {
+export class DormPreviewPage implements OnInit {
   dormId: number = 0;
   activeSegment: string = 'general';
   
@@ -85,10 +85,10 @@ export class EditDormPage implements OnInit {
   currentZoneName: string = 'กำลังคำนวณ...';
   
   reqStatus: number = 1;
-  isWaitingForAdmin: boolean = false;
+  isWaitingForAdmin: boolean = true;
   pageMode: 'view' | 'edit' | 'resubmit' = 'edit'; // view=ดูอย่างเดียว, resubmit=แก้ไขและส่งใหม่, edit=ปกติ
-  get isViewOnly() { return this.pageMode === 'view'; }
-  get isResubmitMode() { return this.pageMode === 'resubmit'; }
+  get isViewOnly() { return true; }
+  get isResubmitMode() { return false; }
 
   selectedFiles: any = {
     FRONT_DORM_IMG: null,
@@ -462,6 +462,11 @@ export class EditDormPage implements OnInit {
     }
   }
 
+  
+  goEdit() {
+    this.router.navigate(['/edit-dorm', this.dormId]);
+  }
+
   async onSubmit() {
     if (this.isWaitingForAdmin && !this.isResubmitMode) {
       this.showToast('กำลังรอแอดมินตรวจสอบ ไม่สามารถแก้ไขได้ในขณะนี้', 'warning');
@@ -542,3 +547,4 @@ const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any
     toast.present();
   }
 }
+

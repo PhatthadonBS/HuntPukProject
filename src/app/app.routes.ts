@@ -155,6 +155,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/edit-dorm/edit-dorm.page').then( m => m.EditDormPage)
   },
   {
+    path: 'dorm-preview/:id',
+    canActivate: [ownerGuard],
+    loadComponent: () => import('./pages/dorm-preview/dorm-preview.page').then( m => m.DormPreviewPage)
+  },
+  {
     path: 'facility-management',
     canActivate: [adminGuard],
     loadComponent: () => import('./pages/facility-management/facility-management.page').then( m => m.FacilityManagementPage)

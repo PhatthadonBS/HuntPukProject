@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -104,7 +104,11 @@ export class DormFormPage implements OnInit {
   
   zoneCenter: google.maps.LatLngLiteral | null = null;
   zoneRadius: number = 500; // 500 meters
-  circleOptions: google.maps.CircleOptions = { fillColor: '#4285F4', fillOpacity: 0.2, strokeColor: '#4285F4', strokeOpacity: 0.8, strokeWeight: 2 };
+  circleOptions: google.maps.CircleOptions = {
+    fillColor: '#4285F4', fillOpacity: 0.15,
+    strokeColor: '#4285F4', strokeOpacity: 0.6, strokeWeight: 2,
+    clickable: false  // ✅ ทำให้คลิกผ่านวงกลมไปยังแผนที่ได้
+  };
   zoneMarkerOptions: google.maps.MarkerOptions = { 
     icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
   };
@@ -551,51 +555,8 @@ export class DormFormPage implements OnInit {
     }
   }
 
-  @HostListener('window:paste', ['$event'])
-  onPaste(e: ClipboardEvent) {
-    if (this.currentStep !== 4) return;
-    const items = e.clipboardData?.items;
-    if (!items) return;
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item && item.type.indexOf('image') !== -1) {
-        const file = item.getAsFile();
-        if (file) {
-          if (!this.selectedFiles.FRONT_DORM_IMG) {
-            this.handlePastedFile(file, 'FRONT_DORM_IMG');
-          } else if (!this.selectedFiles.LICENSE_IMG) {
-            this.handlePastedFile(file, 'LICENSE_IMG');
-          } else if (this.selectedFiles.OTHER_IMG.length < 5) {
-            this.handlePastedFile(file, 'OTHER_IMG');
-          } else {
-            this.showToast('รูปภาพเต็มแล้ว', 'warning');
-          }
-        }
-      }
-    }
-  }
-
-  handlePastedFile(file: File, field: string) {
-    if (file.size > 10 * 1024 * 1024) {
-      this.showToast('ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', 'warning');
-      return;
-    }
-    const newFile = new File([file], `pasted_image_${new Date().getTime()}.png`, { type: file.type });
-    if (field === 'OTHER_IMG') {
-      this.selectedFiles.OTHER_IMG.push(newFile);
-      const reader = new FileReader();
-      reader.onload = () => { this.previews.OTHER_IMG.push(reader.result); };
-      reader.readAsDataURL(newFile);
-      this.showToast('วางรูปภาพเพิ่มเติมสำเร็จ', 'success');
-    } else {
-      this.selectedFiles[field] = newFile;
-      const reader = new FileReader();
-      reader.onload = () => { this.previews[field] = reader.result; };
-      reader.readAsDataURL(newFile);
-      this.showToast(field === 'FRONT_DORM_IMG' ? 'วางรูปหน้าปกสำเร็จ' : 'วางรูปใบอนุญาตสำเร็จ', 'success');
-    }
-  }
+  // ✅ Paste handler removed - caused confusion (pasted to wrong field)
+  // Users should click the upload button for each field instead.
 
   removeGalleryImage(index: number) {
     this.previews.OTHER_IMG.splice(index, 1);
