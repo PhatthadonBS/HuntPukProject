@@ -144,6 +144,7 @@
 
         <div *ngIf="sidePanelTab === 'info' && !isPanelLoading" class="fade-in">
           <h2 class="dorm-title">{{ selectedDorm.DORM_NAME }}</h2>
+          <p class="dorm-zone" style="margin-bottom: 5px;"><ion-icon name="layers-outline"></ion-icon> ประเภท: {{ selectedDorm.DORM_TYPE_NAME || selectedDorm.dorm_type_name || 'ไม่ระบุ' }}</p>
           <p class="dorm-zone"><ion-icon name="location-sharp"></ion-icon> {{ selectedDorm.zone || selectedDorm.ZONE_NAME || 'ไม่ระบุโซน' }}</p>
 
           <div *ngIf="selectedDorm.UPDATE_AT || selectedDorm.updated_at" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; margin-bottom: 10px;">
@@ -349,6 +350,7 @@
                <div (click)="minScore = 2" [style.background]="minScore === 2 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 2 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">2+ ⭐</div>
                <div (click)="minScore = 3" [style.background]="minScore === 3 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 3 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">3+ ⭐</div>
                <div (click)="minScore = 4" [style.background]="minScore === 4 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 4 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">4+ ⭐</div>
+               <div (click)="minScore = 5" [style.background]="minScore === 5 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 5 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">5 ⭐</div>
                <div (click)="minScore = null" [style.background]="minScore === null ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === null ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">ทั้งหมด</div>
              </div>
           </div>

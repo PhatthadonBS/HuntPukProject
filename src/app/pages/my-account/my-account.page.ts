@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; 
 import { addIcons } from 'ionicons';
 import { 
-  person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, 
+  person, mail, create, arrowBack, arrowForward, call, shieldCheckmark, home, documentText, 
   close, alertCircle, business, chatbubbleEllipses, logoFacebook, logoInstagram, 
   documentTextOutline, personCircle, createOutline, lockClosedOutline, trashOutline 
 } from 'ionicons/icons';
@@ -28,6 +28,7 @@ export class MyAccountPage implements OnInit {
   
   myDorms: any[] = [];
   isDormModalOpen: boolean = false;
+  ownerData: any = null; // เก็บข้อมูลเจ้าของหอพัก (ชื่อ, โซเชียล) สำหรับส่งไป edit-profile
 
   constructor(
     private router: Router,
@@ -39,7 +40,7 @@ export class MyAccountPage implements OnInit {
     private alertCtrl: AlertController
   ) { 
     addIcons({ 
-      person, mail, create, arrowBack, call, shieldCheckmark, home, documentText, 
+      person, mail, create, arrowBack, 'arrow-forward': arrowForward, call, shieldCheckmark, home, documentText, 
       close, alertCircle, business, 'chatbubble-ellipses': chatbubbleEllipses, 
       'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 
       'document-text-outline': documentTextOutline, 'person-circle': personCircle,
@@ -214,7 +215,14 @@ export class MyAccountPage implements OnInit {
   }
 
   goToEditProfile() {
-    this.router.navigate(['/edit-profile']); 
+    this.router.navigate(['/edit-profile'], {
+      state: { user: this.user, ownerData: this.ownerData }
+    });
+  }
+
+  goToMyDorms() {
+    this.closeDormModal();
+    this.router.navigate(['/my-dorms']);
   }
   
   goBack() {
@@ -238,6 +246,18 @@ export class MyAccountPage implements OnInit {
             const detailRes: any = await this.dormService.getDormById(dorm.DORM_ID || dorm.id);
             if (detailRes && detailRes.data) {
               const fullDorm = Array.isArray(detailRes.data) ? detailRes.data[0] : detailRes.data;
+              // เก็บข้อมูลเจ้าของหอพักครั้งแรกที่พบ (สำหรับส่งไป edit-profile)
+              if (!this.ownerData) {
+                this.ownerData = {
+                  first_name: fullDorm.FIRST_NAME || fullDorm.OWNER_FIRST_NAME || dorm.FIRST_NAME || this.user.first_name || '',
+                  last_name: fullDorm.LAST_NAME || fullDorm.OWNER_LAST_NAME || dorm.LAST_NAME || this.user.last_name || '',
+                  facebook: fullDorm.FACEBOOK || dorm.FACEBOOK || '',
+                  line: fullDorm.LINE || dorm.LINE || '',
+                  instagram: fullDorm.INSTAGRAM || dorm.INSTAGRAM || '',
+                  x: fullDorm.X || dorm.X || '',
+                  telegram: fullDorm.TELEGRAM || dorm.TELEGRAM || ''
+                };
+              }
               return { 
                 ...dorm, 
                 ...fullDorm,

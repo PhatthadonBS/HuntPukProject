@@ -133,10 +133,22 @@ export class Auth {
   // ==========================================
   // 🌟 4. ส่วนแก้ไขโปรไฟล์และลบบัญชี
   // ==========================================
-  public async updateProfile(userId: number, username: string, phoneNumber: string) {
+  public async updateProfile(userId: number, username: string, phoneNumber: string, ownerData?: {
+    first_name?: string; last_name?: string;
+    facebook?: string; line?: string; instagram?: string; x?: string; telegram?: string;
+  }) {
     const url = this.endpoint.API_ENDPOINT + '/spec/user/' + userId;
     try {
-      const body = { username, phone_number: phoneNumber };
+      const body: any = { username, phone_number: phoneNumber };
+      if (ownerData) {
+        if (ownerData.first_name !== undefined) body.first_name = ownerData.first_name;
+        if (ownerData.last_name !== undefined) body.last_name = ownerData.last_name;
+        if (ownerData.facebook !== undefined) body.facebook = ownerData.facebook;
+        if (ownerData.line !== undefined) body.line = ownerData.line;
+        if (ownerData.instagram !== undefined) body.instagram = ownerData.instagram;
+        if (ownerData.x !== undefined) body.x = ownerData.x;
+        if (ownerData.telegram !== undefined) body.telegram = ownerData.telegram;
+      }
       const res = await lastValueFrom(this.http.put(url, body));
       return res;
     } catch (error: any) {

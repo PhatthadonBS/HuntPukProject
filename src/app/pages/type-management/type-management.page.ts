@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
   IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
@@ -66,11 +66,15 @@ export class TypeManagementPage implements OnInit {
     { value: 'zone', label: 'โซนหอพัก', icon: 'map-outline' }
   ];
 
+  highlightItem: string = '';
+  existingZoneMarkers: { position: google.maps.LatLngLiteral; title: string; }[] = [];
+
   constructor(
     private dormServices: DormitoryService,
     private alertController: AlertController,
     private toastCtrl: ToastController,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     addIcons({
       trashOutline, addCircleOutline, locateOutline, locationOutline,
@@ -85,6 +89,17 @@ export class TypeManagementPage implements OnInit {
   }
 
   ngOnInit() {
+    // Read queryParams from dashboard (tab + highlight)
+    const params = this.route.snapshot.queryParams;
+    if (params['tab']) {
+      this.selectedSegment = params['tab'];
+      setTimeout(() => {
+        this.openSegment(this.selectedSegment);
+      }, 500);
+    }
+    if (params['highlight']) {
+      this.highlightItem = params['highlight'];
+    }
     this.loadAllData();
   }
 
@@ -108,11 +123,36 @@ export class TypeManagementPage implements OnInit {
     this.newLat = null;
     this.newLng = null;
     this.isModalOpen = true;
+    // Load existing zones as markers when opening zone segment
+    if (value === 'zone') {
+      this.loadExistingZoneMarkers();
+    }
   }
 
   // ✅ ปิด popup
   closeModal() {
     this.isModalOpen = false;
+    this.existingZoneMarkers = [];
+  }
+
+  // Load zone markers (existing zones) so admin sees them on map
+  async loadExistingZoneMarkers() {
+    try {
+      const res = await this.dormServices.getZones();
+      if (res?.success && res?.data?.length) {
+        this.existingZoneMarkers = res.data
+          .filter((z: any) => z.lat && z.lng)
+          .map((z: any) => ({
+            position: { lat: parseFloat(z.lat), lng: parseFloat(z.lng) },
+            title: z.ZONE_NAME || z.name || 'ไม่ระบุชื่อ'
+          }));
+        if (this.existingZoneMarkers.length > 0) {
+          this.center = { ...(this.existingZoneMarkers[0]!.position) };
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load existing zone markers', e);
+    }
   }
 
   getCurrentLocation() {

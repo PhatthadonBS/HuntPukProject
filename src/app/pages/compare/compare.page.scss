@@ -116,7 +116,7 @@
 /* =========================================
    📊 โหมดตารางเปรียบเทียบ (จัดระเบียบ 100%)
    ========================================= */
-.comparison-wrapper { padding: 15px; min-height: calc(100vh - 60px); }
+.comparison-wrapper { position: relative; z-index: 1; padding: 15px; min-height: calc(100vh - 60px); }
 .compare-table { display: flex; width: 100%; position: relative; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid var(--border-color); overflow: hidden; }
 
 .column-labels {

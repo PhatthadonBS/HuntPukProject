@@ -1,6 +1,6 @@
-<div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
+<div class="ion-page" style="height: 100vh; width: 100%; position: relative; overflow: hidden;">
 
-  <!-- ✅ Welcome Modal Component -->
+  <!-- ✅ Welcome Modal -->
   <app-welcome-modal
     *ngIf="showWelcomeModal"
     [user]="currentUser"
@@ -9,388 +9,382 @@
 
   <app-header title="Dashboard ภาพรวม" [userData]="currentUser" (searchChange)="onSearch($event)"></app-header>
 
-  <ion-content class="bg-light ion-padding">
-    
+  <ion-content class="dashboard-content">
+
     <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
 
-    <div class="page-actions" style="margin-bottom: 10px;">
-      <button class="action-btn dark-btn" (click)="openMenu()">
-        <ion-icon name="menu-outline"></ion-icon> เมนูผู้ดูแลระบบ
-      </button>
+    <!-- ✅ Loading State -->
+    <div class="loading-overlay" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <p>กำลังโหลดข้อมูล...</p>
     </div>
 
-    <!-- ✅ Welcome Banner -->
-    <div class="welcome-banner" *ngIf="!isLoading">
-      <div class="welcome-text">
-        <span class="greeting">สวัสดี, <strong>{{ currentUser?.FIRSTNAME || currentUser?.username || 'Admin' }}</strong> 👋</span>
-        <span class="sub">ข้อมูล ณ วันที่ {{ today | date:'dd/MM/yyyy HH:mm' }}</span>
-      </div>
-      <div class="admin-badge"><ion-icon name="shield-checkmark"></ion-icon> Admin</div>
-    </div>
-
-    <!-- Loading Skeleton -->
-    <ng-container *ngIf="isLoading">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12" size-md="6" *ngFor="let i of [1,2,3,4]">
-            <ion-card class="stat-card skeleton-card">
-              <ion-card-content>
-                <ion-skeleton-text animated style="width: 40px; height: 40px; border-radius: 50%"></ion-skeleton-text>
-                <ion-skeleton-text animated style="width: 50%; margin-top: 10px"></ion-skeleton-text>
-                <ion-skeleton-text animated style="width: 80%; height: 24px; margin-top: 5px"></ion-skeleton-text>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ng-container>
-
-    <!-- Error State -->
+    <!-- ✅ Error State -->
     <div class="error-container" *ngIf="!isLoading && error">
-      <ion-icon name="warning-outline" color="danger"></ion-icon>
+      <div class="error-icon">⚠️</div>
       <h3>ไม่สามารถโหลดข้อมูลสถิติได้</h3>
       <p>กรุณาลองใหม่อีกครั้ง</p>
+      <button class="retry-btn" (click)="fetchStats()">ลองใหม่</button>
     </div>
 
-    <div class="content-body fade-in" *ngIf="!isLoading && !error && stats">
-      
-      <h2 class="section-title" style="margin-top: 20px;">สถิติระบบ</h2>
-      <ion-grid>
-        <ion-row>
-          <!-- Dorm Count -->
-          <ion-col size="12" size-md="4">
-            <ion-card class="stat-card gradient-primary clickable-card" (click)="openDormModal()">
-              <ion-card-content>
-                <div class="icon-wrapper"><ion-icon name="business-outline"></ion-icon></div>
-                <div class="stat-info">
-                  <span class="stat-label">หอพักทั้งหมด</span>
-                  <h3 class="stat-value">{{ stats.dormCount | number }} แห่ง</h3>
-                </div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
+    <!-- ✅ Main Dashboard -->
+    <div class="dashboard-grid fade-in" *ngIf="!isLoading && !error && stats">
 
-          <!-- Total Users -->
-          <ion-col size="12" size-md="4">
-            <ion-card class="stat-card gradient-secondary clickable-card" (click)="openUserModal()">
-              <ion-card-content>
-                <div class="icon-wrapper"><ion-icon name="people-outline"></ion-icon></div>
-                <div class="stat-info">
-                  <span class="stat-label">สมาชิกในระบบ</span>
-                  <h3 class="stat-value">{{ (stats.memberCount + stats.ownerCount) | number }} บัญชี</h3>
-                </div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-
-          <!-- Zone Count -->
-          <ion-col size="12" size-md="4">
-            <ion-card class="stat-card gradient-quaternary clickable-card" (click)="openZoneModal()">
-              <ion-card-content>
-                <div class="icon-wrapper"><ion-icon name="location-outline"></ion-icon></div>
-                <div class="stat-info">
-                  <span class="stat-label">จำนวนโซนทั้งหมด</span>
-                  <h3 class="stat-value">{{ stats.zoneCount | number }} โซน</h3>
-                </div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-
-          <ion-col size="12" size-md="4">
-            <ion-card class="stat-card clickable-card" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);" (click)="openRequestActionSheet()">
-              <ion-card-content>
-                <div class="icon-wrapper" style="background: rgba(99, 102, 241, 0.2); color: #4f46e5;"><ion-icon name="alert-circle-outline"></ion-icon></div>
-                <div class="stat-info">
-                  <span class="stat-label">คำขอรออนุมัติ</span>
-                  <h3 class="stat-value">{{ pendingRequests | number }} รายการ</h3>
-                </div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-
-        <!-- Second Row for Global Stats -->
-        <ion-row class="mt-4">
-          <!-- Total Website Views -->
-          <ion-col size="12">
-            <ion-card class="stat-card gradient-quinary clickable-card" (click)="openViewModal()">
-              <ion-card-content class="horizontal-card-content">
-                <div class="icon-wrapper"><ion-icon name="globe-outline"></ion-icon></div>
-                <div class="stat-info">
-                  <span class="stat-label">ยอดผู้เข้าชมเว็บไซต์ทั้งหมด</span>
-                  <h3 class="stat-value" style="font-size: 2.2rem; color: #1e293b;">
-                    {{ stats.totalWebsiteViews | number }}
-                  </h3>
-                </div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-
-      <h2 class="section-title mt-4">ได้รับความนิยมสูงสุด</h2>
-      <ion-grid class="mb-[1rem]">
-        <ion-row>
-          <!-- Popular Dorm Name -->
-          <ion-col size="12" size-md="12">
-            <ion-card class="stat-card pop-card clickable-card" (click)="openPopularModal()">
-              <ion-card-content class="horizontal-card-content">
-                <div class="icon-wrapper star-wrapper">
-                  <ion-icon name="star-outline"></ion-icon>
-                </div>
-                <div class="stat-info">
-                  <span class="stat-label">หอพักยอดนิยม (กดเพื่อดู Top 5)</span>
-                  <h3 class="stat-value text-ellipsis">
-                    {{ stats.popularDormName || 'ไม่มีข้อมูล' }}
-                  </h3>
-                </div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-
-      <footer class="footer">
-        <div class="copyright">© 2568 By Ammanat & Patthadon</div>
-        <div class="contact-info"><span>Admin Contact: 099-9999999</span></div>
-      </footer>
-    </div>
-
-    <!-- Dorm Custom Modal -->
-    <div class="custom-modal-backdrop" *ngIf="isDormModalOpen">
-      <div class="custom-modal-dialog">
-        <div class="modal-header">
-          <h2>สถิติหอพัก</h2>
-          <button class="close-btn" (click)="closeDormModal()">
-            <ion-icon name="close"></ion-icon>
-          </button>
+      <!-- Row 1: Welcome Banner + Quick Actions -->
+      <div class="top-row">
+        <div class="welcome-banner">
+          <div class="welcome-left">
+            <div class="avatar-circle">
+              {{ (currentUser?.FIRSTNAME || currentUser?.username || 'A')[0].toUpperCase() }}
+            </div>
+            <div class="welcome-text">
+              <span class="greeting">สวัสดี, <strong>{{ currentUser?.FIRSTNAME || currentUser?.username || 'Admin' }}</strong> 👋</span>
+              <span class="sub">{{ today | date:'EEEE dd MMMM yyyy' }} · {{ today | date:'HH:mm' }} น.</span>
+            </div>
+          </div>
+          <div class="admin-badge">
+            <ion-icon name="shield-checkmark"></ion-icon>
+            Admin
+          </div>
         </div>
-        <div class="modal-content">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="12" size-md="6">
-                <ion-card>
-                  <ion-card-header>
-                    <ion-card-title class="ion-text-center" style="font-size: 16px;">แยกตามสถานะ</ion-card-title>
-                  </ion-card-header>
-                  <ion-card-content>
-                    <canvas #dormStatusCanvas></canvas>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="12" size-md="6">
-                <ion-card>
-                  <ion-card-header>
-                    <ion-card-title class="ion-text-center" style="font-size: 16px;">แยกตามประเภท</ion-card-title>
-                  </ion-card-header>
-                  <ion-card-content>
-                    <canvas #dormTypeCanvas></canvas>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+        <button class="menu-btn" (click)="openMenu()">
+          <ion-icon name="menu-outline"></ion-icon>
+          <span>เมนูผู้ดูแล</span>
+        </button>
+      </div>
+
+      <!-- Row 2: Stat Cards Grid -->
+      <div class="stat-cards-grid">
+
+        <!-- Dormitory Card -->
+        <div class="stat-card card-blue clickable" (click)="openDormModal()" id="dorm-card">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrap">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+          <div class="card-body">
+            <span class="card-label">หอพักทั้งหมด</span>
+            <div class="card-value-row">
+              <span class="card-value">{{ stats.dormCount | number }}</span>
+              <span class="card-unit">แห่ง</span>
+            </div>
+            <div class="card-hint">กดเพื่อดูสถิติ</div>
+          </div>
+          <ion-icon name="arrow-forward-outline" class="card-arrow"></ion-icon>
         </div>
+
+        <!-- Users Card -->
+        <div class="stat-card card-purple clickable" (click)="goToManageUsers()" id="user-card">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrap">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <div class="card-body">
+            <span class="card-label">สมาชิกในระบบ</span>
+            <div class="card-value-row">
+              <span class="card-value">{{ (stats.memberCount + stats.ownerCount) | number }}</span>
+              <span class="card-unit">บัญชี</span>
+            </div>
+            <div class="card-hint">Member + Owner</div>
+          </div>
+          <ion-icon name="arrow-forward-outline" class="card-arrow"></ion-icon>
+        </div>
+
+        <!-- Zone Card -->
+        <div class="stat-card card-green clickable" (click)="openZoneModal()" id="zone-card">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrap">
+            <ion-icon name="location-outline"></ion-icon>
+          </div>
+          <div class="card-body">
+            <span class="card-label">โซนทั้งหมด</span>
+            <div class="card-value-row">
+              <span class="card-value">{{ stats.zoneCount | number }}</span>
+              <span class="card-unit">โซน</span>
+            </div>
+            <div class="card-hint">กดเพื่อดูแผนที่โซน</div>
+          </div>
+          <ion-icon name="arrow-forward-outline" class="card-arrow"></ion-icon>
+        </div>
+
+        <!-- Pending Requests Card -->
+        <div class="stat-card card-orange clickable" (click)="openRequestActionSheet()" id="req-card">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrap">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+          </div>
+          <div class="card-body">
+            <span class="card-label">คำขอรออนุมัติ</span>
+            <div class="card-value-row">
+              <span class="card-value">{{ pendingRequests | number }}</span>
+              <span class="card-unit">รายการ</span>
+            </div>
+            <div class="card-hint">กดเพื่อดำเนินการ</div>
+          </div>
+          <div class="pending-badge" *ngIf="pendingRequests > 0">!</div>
+          <ion-icon name="arrow-forward-outline" class="card-arrow"></ion-icon>
+        </div>
+
+        <!-- Website Views Card (full width) -->
+        <div class="stat-card card-yellow clickable wide-card" (click)="openViewModal()" id="view-card">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrap">
+            <ion-icon name="globe-outline"></ion-icon>
+          </div>
+          <div class="card-body">
+            <span class="card-label">ผู้เข้าชมเว็บไซต์ทั้งหมด</span>
+            <div class="card-value-row">
+              <span class="card-value big-value">{{ stats.totalWebsiteViews | number }}</span>
+              <span class="card-unit">ครั้ง</span>
+            </div>
+            <div class="card-hint">กดเพื่อดูสถิติรายปี/เดือน</div>
+          </div>
+          <div class="views-mini-stats">
+            <div class="mini-stat" *ngFor="let year of allYears.slice(-3)">
+              <span class="mini-year">{{ year }}</span>
+              <span class="mini-count">{{ getTotalViewsForYear(year) | number }}</span>
+            </div>
+          </div>
+          <ion-icon name="arrow-forward-outline" class="card-arrow"></ion-icon>
+        </div>
+
       </div>
     </div>
 
-    <!-- User Custom Modal -->
-    <div class="custom-modal-backdrop" *ngIf="isUserModalOpen">
-      <div class="custom-modal-dialog">
-        <div class="modal-header">
-          <h2>สถิติผู้ใช้งาน</h2>
-          <button class="close-btn" (click)="closeUserModal()">
+    <!-- ============================================ -->
+    <!-- DORM MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-backdrop" *ngIf="isDormModalOpen" (click)="closeDormModal()">
+      <div class="modal-dialog dorm-modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="modal-icon-wrap blue-icon">
+              <ion-icon name="business-outline"></ion-icon>
+            </div>
+            <h2>สถิติหอพัก</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeDormModal()">
             <ion-icon name="close"></ion-icon>
           </button>
         </div>
-        <div class="modal-content">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="12" size-md="6">
-                <ion-card class="stat-card">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                      <ion-icon name="people-outline"></ion-icon>
-                    </div>
-                    <div class="stat-info">
-                      <span class="stat-label">สมาชิก (Member)</span>
-                      <h3 class="stat-value">{{ stats?.memberCount | number }}</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="12" size-md="6">
-                <ion-card class="stat-card">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                      <ion-icon name="person-outline"></ion-icon>
-                    </div>
-                    <div class="stat-info">
-                      <span class="stat-label">เจ้าของหอ (Owner)</span>
-                      <h3 class="stat-value">{{ stats?.ownerCount | number }}</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="12">
-                <ion-card class="stat-card">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                      <ion-icon name="checkmark-circle-outline"></ion-icon>
-                    </div>
-                    <div class="stat-info">
-                      <span class="stat-label">ผู้ใช้งานที่ Active</span>
-                      <h3 class="stat-value">{{ stats?.userStatusBreakdown?.activeUsers | number }}</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="12" size-md="6">
-                <ion-card class="stat-card">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper" style="background: rgba(100, 116, 139, 0.1); color: #64748b;">
-                      <ion-icon name="power-outline"></ion-icon>
-                    </div>
-                    <div class="stat-info">
-                      <span class="stat-label">ปิดการใช้งาน</span>
-                      <h3 class="stat-value">{{ stats?.userStatusBreakdown?.deactiveUsers | number }}</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="12" size-md="6">
-                <ion-card class="stat-card">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper" style="background: rgba(239, 68, 68, 0.1); color: #ef4444">
-                      <ion-icon name="ban-outline"></ion-icon>
-                    </div>
-                    <div class="stat-info">
-                      <span class="stat-label">ถูกระงับ (Banned)</span>
-                      <h3 class="stat-value">{{ stats?.userStatusBreakdown?.bannedUsers | number }}</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-      </div>
-    </div>
-
-    <!-- Zone Custom Modal -->
-    <div class="custom-modal-backdrop" *ngIf="isZoneModalOpen">
-      <div class="custom-modal-dialog">
-        <div class="modal-header">
-          <h2>สถิติหอพักตามโซน</h2>
-          <button class="close-btn" (click)="closeZoneModal()">
-            <ion-icon name="close"></ion-icon>
-          </button>
-        </div>
-        <div class="modal-content">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="12" *ngFor="let zone of stats?.zoneBreakdown">
-                <ion-card class="stat-card zone-breakdown-card clickable-card" (click)="goToFilteredDorms(zone.zoneName)">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper"><ion-icon name="location-outline"></ion-icon></div>
-                    <div class="stat-info">
-                      <span class="stat-label">{{ zone.zoneName }}</span>
-                      <h3 class="stat-value">{{ zone.dormCount | number }} แห่ง</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-              <ion-col size="12" *ngIf="!stats?.zoneBreakdown?.length">
-                <div class="ion-text-center ion-padding"><p>ไม่มีข้อมูลโซน</p></div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-      </div>
-    </div>
-
-    <!-- Popular Dorm Custom Modal -->
-    <div class="custom-modal-backdrop" *ngIf="isPopularModalOpen">
-      <div class="custom-modal-dialog">
-        <div class="modal-header">
-          <h2>Top 5 หอพักยอดนิยม</h2>
-          <button class="close-btn" (click)="closePopularModal()">
-            <ion-icon name="close"></ion-icon>
-          </button>
-        </div>
-        <div class="modal-content">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="12" *ngFor="let dorm of stats?.topPopularDorms; let i = index">
-                <ion-card class="stat-card clickable-card" (click)="goToDormDetail(dorm.dormId)" style="border-left: 4px solid #f59e0b;">
-                  <ion-card-content class="horizontal-card-content">
-                    <div class="icon-wrapper star-wrapper" style="width: 40px; height: 40px;">
-                      <span style="font-weight: bold; color: #f59e0b;">#{{ i + 1 }}</span>
-                    </div>
-                    <div class="stat-info">
-                      <span class="stat-label">{{ dorm.views | number }} เข้าชม</span>
-                      <h3 class="stat-value" style="font-size: 1.25rem;">{{ dorm.dormName }}</h3>
-                    </div>
-                  </ion-card-content>
-                </ion-card>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-      </div>
-    </div>
-
-    <!-- View Custom Modal -->
-    <div class="custom-modal-backdrop" *ngIf="isViewModalOpen">
-      <div class="custom-modal-dialog">
-        <div class="modal-header">
-          <h2>ยอดผู้เข้าชมเว็บไซต์</h2>
-          <button class="close-btn" (click)="closeViewModal()">
-            <ion-icon name="close"></ion-icon>
-          </button>
-        </div>
-        <div class="modal-content">
-          <p class="ion-text-center" style="color: #64748b; margin-bottom: 1rem; font-size: 14px;">
-            คลิกที่ปีในกราฟเพื่อดูตารางรายเดือน
-          </p>
-          <ion-card style="position: relative; box-shadow: none; border: 1px solid #f0f0f0;">
-            <ion-card-content>
-              <div class="chart-center-text" *ngIf="selectedYearForTable" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                <span class="year-label" style="display: block; font-size: 12px; color: #888;">ปี</span>
-                <span class="year-value" style="font-size: 24px; font-weight: bold;">{{ selectedYearForTable }}</span>
-              </div>
-              <div class="chart-center-text" *ngIf="!selectedYearForTable" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                <span class="year-label" style="display: block; font-size: 12px; color: #888;">ผู้เข้าชม</span>
-                <span class="year-value" style="font-size: 16px; font-weight: bold;">ทั้งหมด</span>
-              </div>
-              <canvas #viewCanvas></canvas>
-            </ion-card-content>
-          </ion-card>
-
-          <div class="table-wrapper" *ngIf="selectedYearForTable" style="margin-top: 20px;">
-            <h3 style="margin-left: 1rem; color: #0f172a; margin-top: 1rem; margin-bottom: 0.5rem; font-size: 16px; font-weight: bold;">
-              ยอดเข้าชมรายเดือน ปี {{ selectedYearForTable }}
-            </h3>
-            <table style="width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-              <thead style="background: #f8fafc; color: #475569;">
-                <tr>
-                  <th style="padding: 12px; text-align: left; font-size: 14px;">เดือน</th>
-                  <th style="padding: 12px; text-align: right; font-size: 14px;">ยอดเข้าชม</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let row of getMonthlyTableData()" style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 12px; font-weight: 500;">{{ getMonthName(row.month) }}</td>
-                  <td style="padding: 12px; text-align: right; color: #3b82f6; font-weight: bold;">{{ row.count | number }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <p class="modal-hint">กดที่ส่วนของกราฟเพื่อไปจัดการ</p>
+        <div class="modal-body charts-row">
+          <div class="chart-panel">
+            <h3 class="chart-label">สถานะหอพัก</h3>
+            <div class="chart-wrap">
+              <canvas #dormStatusCanvas></canvas>
+            </div>
+          </div>
+          <div class="chart-panel">
+            <h3 class="chart-label">ประเภทหอพัก</h3>
+            <div class="chart-wrap">
+              <canvas #dormTypeCanvas></canvas>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </ion-content>
 
+    <!-- ============================================ -->
+    <!-- USER MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-backdrop" *ngIf="isUserModalOpen" (click)="closeUserModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="modal-icon-wrap purple-icon">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <h2>สถิติผู้ใช้งาน</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeUserModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="user-stats-grid">
+            <div class="user-stat-item blue-stat">
+              <div class="user-stat-icon">👥</div>
+              <div class="user-stat-info">
+                <span class="user-stat-label">สมาชิก (Member)</span>
+                <span class="user-stat-value">{{ stats?.memberCount | number }}</span>
+              </div>
+            </div>
+            <div class="user-stat-item purple-stat">
+              <div class="user-stat-icon">🏠</div>
+              <div class="user-stat-info">
+                <span class="user-stat-label">เจ้าของหอ (Owner)</span>
+                <span class="user-stat-value">{{ stats?.ownerCount | number }}</span>
+              </div>
+            </div>
+            <div class="user-stat-item green-stat full-width-stat">
+              <div class="user-stat-icon">✅</div>
+              <div class="user-stat-info">
+                <span class="user-stat-label">ผู้ใช้งานที่ Active</span>
+                <span class="user-stat-value">{{ stats?.userStatusBreakdown?.activeUsers | number }}</span>
+              </div>
+            </div>
+            <div class="user-stat-item gray-stat">
+              <div class="user-stat-icon">⏸️</div>
+              <div class="user-stat-info">
+                <span class="user-stat-label">ปิดการใช้งาน</span>
+                <span class="user-stat-value">{{ stats?.userStatusBreakdown?.deactiveUsers | number }}</span>
+              </div>
+            </div>
+            <div class="user-stat-item red-stat">
+              <div class="user-stat-icon">🚫</div>
+              <div class="user-stat-info">
+                <span class="user-stat-label">ถูกระงับ (Banned)</span>
+                <span class="user-stat-value">{{ stats?.userStatusBreakdown?.bannedUsers | number }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ZONE MAP MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-backdrop" *ngIf="isZoneModalOpen" (click)="closeZoneModal()">
+      <div class="modal-dialog zone-modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="modal-icon-wrap green-icon">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <h2>แผนที่โซนหอพัก</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeZoneModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <p class="modal-hint">กดที่โซนบนแผนที่หรือรายการเพื่อกรองหอพักในโซนนั้น</p>
+        <div class="modal-body zone-modal-body">
+
+          <!-- Loading Zones -->
+          <div class="zone-loading" *ngIf="isZoneMapLoading">
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>กำลังโหลดแผนที่...</span>
+          </div>
+
+          <!-- Map + List -->
+          <ng-container *ngIf="!isZoneMapLoading">
+            <!-- Google Map -->
+            <div class="zone-google-map-wrap" *ngIf="zoneMarkers.length > 0" style="height: 380px;">
+              <google-map
+                height="100%"
+                width="100%"
+                [center]="zoneMapCenter"
+                [zoom]="zoneMapZoom"
+                [options]="mapOptions">
+                <!-- Zone markers with labels -->
+                <map-marker
+                  *ngFor="let marker of zoneMarkers"
+                  [position]="marker.position"
+                  [label]="{ text: marker.zoneName + '\n(' + marker.dormCount + ' แห่ง)', color: '#000', fontWeight: 'bold', fontSize: '13px', className: 'map-label' }"
+                  [options]="{
+                    icon: {
+                      path: 'M 0,0 m -15, 0 a 15,15 0 1,0 30,0 a 15,15 0 1,0 -30,0',
+                      fillColor: '#FFD600',
+                      fillOpacity: 0.9,
+                      strokeColor: '#333',
+                      strokeWeight: 2,
+                      scale: 2,
+                      labelOrigin: { x: 0, y: 0 }
+                    }
+                  }"
+                  (mapClick)="goToFilteredZones(marker.zoneName)">
+                </map-marker>
+              </google-map>
+            </div>
+
+            <!-- Zone List -->
+            <div class="zone-list">
+              <div
+                class="zone-list-item clickable"
+                *ngFor="let zone of stats?.zoneBreakdown; let i = index"
+                (click)="goToFilteredZones(zone.zoneName)">
+                <div class="zone-list-dot" [class]="'dot-color-' + (i % 6)"></div>
+                <span class="zone-list-name">{{ zone.zoneName }}</span>
+                <span class="zone-list-count">{{ zone.dormCount }} แห่ง</span>
+                <ion-icon name="arrow-forward-outline" class="zone-list-arrow"></ion-icon>
+              </div>
+              <div class="zone-list-item no-data" *ngIf="!stats?.zoneBreakdown?.length">
+                <p>ไม่มีข้อมูลโซน</p>
+              </div>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- VIEW MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-backdrop" *ngIf="isViewModalOpen" (click)="closeViewModal()">
+      <div class="modal-dialog view-modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="modal-icon-wrap yellow-icon">
+              <ion-icon name="globe-outline"></ion-icon>
+            </div>
+            <h2>ยอดผู้เข้าชมเว็บไซต์</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeViewModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <p class="modal-hint">กดที่กราฟแท่งเพื่อดูรายละเอียดรายเดือน</p>
+        <div class="modal-body">
+          <div class="view-total-banner">
+            <span class="view-total-label">ยอดรวมทั้งหมด</span>
+            <span class="view-total-number">{{ stats?.totalWebsiteViews | number }}</span>
+            <span class="view-total-unit">ครั้ง</span>
+          </div>
+
+          <!-- Bar Chart -->
+          <div class="chart-wrap bar-chart-wrap">
+            <canvas #viewCanvas></canvas>
+          </div>
+
+          <!-- Monthly Table (show after click) -->
+          <div class="monthly-table-section" *ngIf="selectedYearForTable">
+            <div class="monthly-table-header">
+              <span>📅 รายละเอียดรายเดือน ปี <strong>{{ selectedYearForTable }}</strong></span>
+              <button class="clear-btn" (click)="selectedYearForTable = null">✕ ปิด</button>
+            </div>
+            <div class="monthly-table-wrap">
+              <table class="monthly-table">
+                <thead>
+                  <tr>
+                    <th>เดือน</th>
+                    <th>ยอดเข้าชม</th>
+                    <th>สัดส่วน</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of getMonthlyTableData()">
+                    <td>{{ getMonthName(row.month) }}</td>
+                    <td class="count-cell">{{ row.count | number }}</td>
+                    <td>
+                      <div class="mini-bar">
+                        <div class="mini-bar-fill"
+                          [style.width.%]="(row.count / getTotalViewsForYear(selectedYearForTable!)) * 100">
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ion-content>
 </div>

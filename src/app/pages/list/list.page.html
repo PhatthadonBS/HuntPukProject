@@ -7,11 +7,11 @@
     <div class="main-bg">
       
       <div class="page-actions">
-        <button class="action-btn outline-btn" (click)="goBack()">
-          <ion-icon name="arrow-back"></ion-icon> ย้อนกลับ
-        </button>
         <button class="action-btn dark-btn" (click)="openMenu()">
           <ion-icon name="menu-outline"></ion-icon> เมนู
+        </button>
+        <button class="action-btn white-btn" (click)="openFilter()">
+          <ion-icon name="options-outline"></ion-icon> กรอง
         </button>
       </div>
 
@@ -84,5 +84,82 @@
       </div>
     </div>
   </ion-content>
+
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
+    <ng-template>
+      <div class="filter-wrapper">
+        <div class="filter-head">
+          <h2>ตัวกรองค้นหา</h2>
+          <ion-icon name="close-circle" (click)="setOpen(false)" class="close-modal-btn"></ion-icon>
+        </div>
+
+        <div class="filter-scrollable-body">
+
+          <div class="zone-section" style="margin-bottom: 25px;">
+            <h3>บริเวณหอพัก</h3>
+            <select class="zone-select" [(ngModel)]="selectedZone">
+              <option value="">— ทุกโซน —</option>
+              <option *ngFor="let zone of zoneOptions" [value]="zone.ZONE_NAME">{{ zone.ZONE_NAME }}</option>
+            </select>
+          </div>
+
+          <div class="price-section" style="margin-bottom: 25px;">
+            <h3>ช่วงราคา</h3>
+            <div class="price-inputs">
+              <div class="price-col">
+                <span class="label">ต่ำสุด</span>
+                <div class="input-capsule" style="display: flex; align-items: center;">
+                  <input type="number" [(ngModel)]="minPrice" placeholder="0" style="flex: 1;">
+                  <ion-icon name="close-circle" *ngIf="minPrice" (click)="minPrice = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                </div>
+              </div>
+              <div class="dash" style="margin: 0 10px;">-</div>
+              <div class="price-col">
+                <span class="label">สูงสุด</span>
+                <div class="input-capsule" style="display: flex; align-items: center;">
+                  <input type="number" [(ngModel)]="maxPrice" placeholder="ไม่จำกัด" style="flex: 1;">
+                  <ion-icon name="close-circle" *ngIf="maxPrice" (click)="maxPrice = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 25px;">
+             <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">คะแนนรีวิวขั้นต่ำ</h3>
+             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+               <div (click)="minScore = 1" [style.background]="minScore === 1 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 1 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">1+ ⭐</div>
+               <div (click)="minScore = 2" [style.background]="minScore === 2 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 2 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">2+ ⭐</div>
+               <div (click)="minScore = 3" [style.background]="minScore === 3 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 3 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">3+ ⭐</div>
+               <div (click)="minScore = 4" [style.background]="minScore === 4 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 4 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">4+ ⭐</div>
+               <div (click)="minScore = 5" [style.background]="minScore === 5 ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === 5 ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">5 ⭐</div>
+               <div (click)="minScore = null" [style.background]="minScore === null ? '#1a1a1a' : '#f5f5f5'" [style.color]="minScore === null ? '#FFD600' : '#555'" style="flex: 1; text-align: center; padding: 10px 6px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 60px;">ทั้งหมด</div>
+             </div>
+          </div>
+
+          <div style="margin-bottom: 25px; display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าน้ำสูงสุด</h3>
+              <div class="input-capsule" style="display: flex; align-items: center;">
+                <input type="number" [(ngModel)]="maxWater" placeholder="บาท" style="flex: 1;">
+                <ion-icon name="close-circle" *ngIf="maxWater" (click)="maxWater = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+              </div>
+            </div>
+            <div style="flex: 1;">
+              <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; color: #333;">ค่าไฟสูงสุด</h3>
+              <div class="input-capsule" style="display: flex; align-items: center;">
+                <input type="number" [(ngModel)]="maxElect" placeholder="บาท" style="flex: 1;">
+                <ion-icon name="close-circle" *ngIf="maxElect" (click)="maxElect = null" style="font-size: 20px; color: #ccc; cursor: pointer; margin-left: 5px;"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <button class="btn-confirm" (click)="applyFilter()">ยืนยันการค้นหา</button>
+          <button class="btn-clear" (click)="clearAllFilters(); applyFilter()">ล้างตัวกรองทั้งหมด</button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 
 </div>

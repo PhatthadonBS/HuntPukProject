@@ -79,7 +79,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
-  maxDistance: number | null = 0.5;
+  maxDistance: number = 1;
   zoneOptions: any[] = [];
   minScore: number | null = null;
   maxWater: number | null = null;
@@ -104,7 +104,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   // ⭕ จุดอ้างอิงและวงกลม
   referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   circleCenter: google.maps.LatLngLiteral | undefined = this.referencePoint;
-  circleRadius: number = 500;
+  circleRadius: number = 1000;
   circleOptions: google.maps.CircleOptions = {
     fillColor: '#FFD600', fillOpacity: 0.2, strokeColor: '#FFD600',
     strokeOpacity: 0.8, strokeWeight: 2, clickable: false,
@@ -241,16 +241,37 @@ export class HomePage implements OnInit, ViewDidEnter {
     });
   }
 
-  ionViewDidEnter() {
+  async ionViewDidEnter() {
     const storedData = localStorage.getItem('loggedIn');
     if (storedData) {
       try {
         const userObj = JSON.parse(storedData);
         if ((userObj.id || userObj.USER_ID) && userObj.accout_status === 0) {
           this.currentUser = userObj.user ? userObj.user : userObj;
+          await this.refreshFavorites();
           this.cdr.detectChanges();
         }
       } catch (e) {}
+    }
+  }
+
+  async refreshFavorites() {
+    if (this.currentUser && (this.currentUser.id || this.currentUser.USER_ID)) {
+      try {
+        const favRes = await this.dormService.getMyFavorites(Number(this.currentUser.id || this.currentUser.USER_ID));
+        if (favRes) {
+          const favoriteIds = (favRes as any[]).map(f => Number(f.DORM_ID || f.dorm_id));
+          
+          this.allDorms.forEach(d => {
+            d.isChecked = favoriteIds.includes(Number(d.DORM_ID || d.id));
+          });
+
+          if (this.selectedDorm) {
+             this.selectedDorm.isChecked = favoriteIds.includes(Number(this.selectedDorm.DORM_ID || this.selectedDorm.id));
+          }
+          this.cdr.detectChanges();
+        }
+      } catch (e) { console.error('Fetch fav error:', e); }
     }
   }
 
@@ -420,8 +441,23 @@ export class HomePage implements OnInit, ViewDidEnter {
   async fetchDorms() {
     try {
       const res = await this.dormService.getAllDorms();
+      let favoriteIds: number[] = [];
+      if (this.currentUser && (this.currentUser.id || this.currentUser.USER_ID)) {
+        try {
+           const favRes = await this.dormService.getMyFavorites(Number(this.currentUser.id || this.currentUser.USER_ID));
+           if (favRes) {
+              favoriteIds = (favRes as any[]).map(f => Number(f.DORM_ID || f.dorm_id));
+           }
+        } catch (e) { console.error('Fetch fav error:', e); }
+      }
+
       if (res.success && res.data) {
-        this.allDorms = res.data.map((d: any) => ({ ...d, lat: Number(d.lat), lng: Number(d.lng) })) as any[];        
+        this.allDorms = res.data.map((d: any) => ({ 
+          ...d, 
+          lat: Number(d.lat), 
+          lng: Number(d.lng),
+          isChecked: favoriteIds.includes(Number(d.DORM_ID || d.id))
+        })) as any[];        
         this.dorms = [...this.allDorms];
         // ✅ Call performSearch to apply initial radius filter
         this.performSearch();
@@ -483,21 +519,22 @@ export class HomePage implements OnInit, ViewDidEnter {
   get hasActiveFilterComputed(): boolean { return this.hasActiveFilter(); }
 
   hasActiveFilter(): boolean {
-    return (this.minPrice !== null && this.minPrice !== undefined) || 
-           (this.maxPrice !== null && this.maxPrice !== undefined) || 
+    return (this.minPrice !== null && this.minPrice !== undefined && this.minPrice !== 0) || 
+           (this.maxPrice !== null && this.maxPrice !== undefined && this.maxPrice !== 0) || 
            !!this.selectedZone ||
-           (this.maxDistance !== null && this.maxDistance !== undefined) || 
-           (this.minScore !== null && this.minScore !== undefined) || 
-           (this.maxWater !== null && this.maxWater !== undefined) || 
-           (this.maxElect !== null && this.maxElect !== undefined);
+           (this.maxDistance !== null && this.maxDistance !== undefined && this.maxDistance !== 1) || 
+           (this.minScore !== null && this.minScore !== undefined && this.minScore !== 0) || 
+           (this.maxWater !== null && this.maxWater !== undefined && this.maxWater !== 0) || 
+           (this.maxElect !== null && this.maxElect !== undefined && this.maxElect !== 0);
   }
 
   clearAllFilters() {
     this.minPrice = null; this.maxPrice = null; this.selectedZone = '';
-    this.maxDistance = null; this.minScore = null; this.maxWater = null;
+    this.maxDistance = 1; this.minScore = null; this.maxWater = null;
     this.maxElect = null;
     this.zoneCircleCenter = undefined; this.zoneCircleRadius = 0;
-    this.circleCenter = undefined;
+    this.circleCenter = this.referencePoint;
+    this.circleRadius = 1000;
   }
 
   applyFilter() { this.setOpen(false); this.performSearch(); }
@@ -642,7 +679,7 @@ export class HomePage implements OnInit, ViewDidEnter {
       try {
         const res = await this.dormService.getDormById(dorm.DORM_ID);
         if (res.success && res.data) {
-          this.selectedDorm = { ...this.selectedDorm, ...res.data };
+          this.selectedDorm = { ...this.selectedDorm, ...res.data, isChecked: dorm.isChecked };
           this.cdr.detectChanges();
         }
       } catch (e) { console.error(e); }
@@ -797,6 +834,8 @@ export class HomePage implements OnInit, ViewDidEnter {
                     try {
                         await this.dormService.removeFavorite(currentUserId, dorm.DORM_ID || dorm.id);
                         dorm.isChecked = false;
+                        const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
+                        if (targetInAll) targetInAll.isChecked = false;
                         this.showToast('ยกเลิกการสนใจเรียบร้อย', 'medium', 'bookmark-outline');
                         this.cdr.detectChanges();
                     } catch (error) {
@@ -821,11 +860,15 @@ export class HomePage implements OnInit, ViewDidEnter {
                 try {
                   await this.dormService.addFavorite(currentUserId, dorm.DORM_ID || dorm.id);
                   dorm.isChecked = true; 
+                  const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
+                  if (targetInAll) targetInAll.isChecked = true;
                   this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการสนใจเรียบร้อย!`, 'success', 'bookmark');
                   this.cdr.detectChanges();
                 } catch (error: any) {
                   if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
                      dorm.isChecked = true;
+                     const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
+                     if (targetInAll) targetInAll.isChecked = true;
                      this.showToast('หอพักนี้มีในรายการสนใจแล้วครับ', 'warning', 'bookmark');
                      this.cdr.detectChanges();
                   } else {

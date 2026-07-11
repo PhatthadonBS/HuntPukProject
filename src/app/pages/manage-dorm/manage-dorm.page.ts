@@ -8,7 +8,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { arrowBack, create, trash, refresh, search, person, add } from 'ionicons/icons'; 
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory'; 
 import { chatbubbleEllipses } from 'ionicons/icons'; 
 
@@ -26,13 +26,15 @@ import { chatbubbleEllipses } from 'ionicons/icons';
 export class ManageDormPage implements OnInit {
 
   dorms: any[] = []; 
-  filteredDorms: any[] = [];
+  filteredDorms: any[] = []; // Search & Filter
   searchQuery: string = '';
+  statusFilterQuery: string = '';
   isLoading = false;
 
   constructor(
     private dormService: DormitoryService,
     private router: Router,
+    private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController
@@ -44,6 +46,13 @@ export class ManageDormPage implements OnInit {
   ngOnInit() {}
 
   ionViewWillEnter() {
+    // Read queryParams from dashboard navigation
+    const params = this.route.snapshot.queryParams;
+    if (params['search']) {
+      this.searchQuery = params['search'];
+    } else if (params['statusFilter']) {
+      this.statusFilterQuery = params['statusFilter'];
+    }
     this.loadAllDorms();
   }
 
@@ -79,18 +88,38 @@ export class ManageDormPage implements OnInit {
   }
 
   onSearchChange(event: any) {
-    this.searchQuery = (typeof event === 'string' ? event : event?.target?.value || '').trim().toLowerCase();
-    
-    if (!this.searchQuery) {
-      this.filteredDorms = [...this.dorms];
-    } else {
-      this.filteredDorms = this.dorms.filter(d => 
+    if (event !== undefined && event !== null && typeof event !== 'string' && event.target) {
+      this.searchQuery = (event.target.value || '').trim().toLowerCase();
+    } else if (typeof event === 'string') {
+      this.searchQuery = event.trim().toLowerCase();
+    }
+
+    let temp = this.dorms;
+
+    // Filter by Search Query
+    if (this.searchQuery) {
+      temp = temp.filter(d => 
         (d.DORM_NAME && d.DORM_NAME.toLowerCase().includes(this.searchQuery)) ||
         (d.owner_name && d.owner_name.toLowerCase().includes(this.searchQuery)) ||
         (d.FIRST_NAME && d.FIRST_NAME.toLowerCase().includes(this.searchQuery)) ||
         (d.LAST_NAME && d.LAST_NAME.toLowerCase().includes(this.searchQuery))
       );
     }
+
+    // Filter by Status Query from Dashboard
+    if (this.statusFilterQuery) {
+      let statusId = 0;
+      if (this.statusFilterQuery === 'เปิดบริการ') statusId = 1;
+      else if (this.statusFilterQuery === 'ปิดปรับปรุง') statusId = 2;
+      else if (this.statusFilterQuery === 'ห้องเต็ม') statusId = 3;
+      else if (this.statusFilterQuery === 'ถูกลบ') statusId = 4;
+      
+      if (statusId > 0) {
+        temp = temp.filter(d => d.DORM_STATUS_ID === statusId);
+      }
+    }
+
+    this.filteredDorms = temp;
   }
 
   // ไปหน้าแก้ไขหอพัก

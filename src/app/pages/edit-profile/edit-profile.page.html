@@ -27,10 +27,8 @@
       <label>เบอร์โทรศัพท์</label>
       <div class="input-container">
         <ion-icon name="call-outline"></ion-icon>
-
         <input type="tel" maxlength="10" [(ngModel)]="editData.phone_number" name="phone_number"
           placeholder="0xxxxxxxxx">
-
       </div>
     </div>
 
@@ -41,6 +39,73 @@
         <span style="padding: 12px 0; color: #555;">{{ fullUserData.email || '-' }}</span>
       </div>
     </div>
+
+    <!-- ส่วนข้อมูลเจ้าของหอพัก (แสดงเฉพาะ role 2) -->
+    <ng-container *ngIf="isOwner">
+      <div class="section-divider">
+        <span>ข้อมูลเจ้าของหอพัก</span>
+      </div>
+
+      <div class="form-group">
+        <label>ชื่อจริง</label>
+        <div class="input-container">
+          <ion-icon name="person-outline"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.first_name" placeholder="ชื่อจริง">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>นามสกุล</label>
+        <div class="input-container">
+          <ion-icon name="person-outline"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.last_name" placeholder="นามสกุล">
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <span>ช่องทางติดต่อ</span>
+      </div>
+
+      <div class="form-group">
+        <label>LINE ID</label>
+        <div class="input-container">
+          <ion-icon name="chatbubbles" style="color: #06C755;"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.line" placeholder="LINE ID หรือ URL">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Facebook</label>
+        <div class="input-container">
+          <ion-icon name="logo-facebook" style="color: #1877F2;"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.facebook" placeholder="Facebook URL">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Instagram</label>
+        <div class="input-container">
+          <ion-icon name="logo-instagram" style="color: #E1306C;"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.instagram" placeholder="Instagram URL">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>X (Twitter)</label>
+        <div class="input-container">
+          <ion-icon name="logo-twitter" style="color: #1DA1F2;"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.x" placeholder="X (Twitter) URL">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Telegram</label>
+        <div class="input-container">
+          <ion-icon name="paper-plane" style="color: #0088cc;"></ion-icon>
+          <input type="text" [(ngModel)]="ownerEditData.telegram" placeholder="Telegram URL">
+        </div>
+      </div>
+    </ng-container>
 
   <div class="action-area">
 

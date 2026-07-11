@@ -110,3 +110,27 @@ ion-content {
 .btn-cancel {
   --border-width: 2px;
 }
+
+/* --- Section Divider (คั่นส่วนเจ้าของหอพัก) --- */
+.section-divider {
+  display: flex;
+  align-items: center;
+  margin: 10px 0 20px 0;
+  gap: 12px;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #eee;
+  }
+
+  span {
+    font-size: 12px;
+    font-weight: 700;
+    color: #aaa;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+}

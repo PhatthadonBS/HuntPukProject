@@ -20,8 +20,7 @@ import {
 })
 export class DormPopularPage implements OnInit {
 
-  topDorm: any = null;
-  otherDorms: any[] = [];
+  popularDorms: any[] = [];
   compareError: string = '';
   currentUserId: number = 0;
   dormStatusList: any[] = [];
@@ -37,7 +36,8 @@ export class DormPopularPage implements OnInit {
       arrowBack, star, trophy, bookmark, 'bookmark-outline': bookmarkOutline,
       call, 'call-outline': callOutline, 'document-text-outline': documentTextOutline,
       'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook,
-      'location-outline': locationOutline, 'checkmark-circle-outline': checkmarkCircleOutline
+      'location-outline': locationOutline, 'checkmark-circle-outline': checkmarkCircleOutline,
+      eyeOutline: 'eye-outline' // For views
     });
   }
 
@@ -69,7 +69,8 @@ export class DormPopularPage implements OnInit {
   async fetchPopularDorms() {
     this.compareError = '';
     try {
-      const res = await this.dormService.getPopularDorms();
+      // Get up to 1000 to mimic "unlimited"
+      const res = await this.dormService.getPopularDorms(1000);
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         let processedDorms = res.data.map((dorm: any) => {
           const rawScore = dorm.SCORE || dorm.score || 0;
@@ -81,14 +82,18 @@ export class DormPopularPage implements OnInit {
           };
         });
         
+        // Sort by VIEW_COUNT primarily, then SCORE if needed
         processedDorms = processedDorms
-          .filter((d: any) => parseFloat(d.SCORE || d.score || 0) > 0)
-          .sort((a: any, b: any) => parseFloat(b.SCORE || b.score || 0) - parseFloat(a.SCORE || a.score || 0));
+          .sort((a: any, b: any) => {
+            const viewsA = a.VIEW_COUNT || a.views || 0;
+            const viewsB = b.VIEW_COUNT || b.views || 0;
+            if (viewsB !== viewsA) {
+               return viewsB - viewsA;
+            }
+            return parseFloat(b.SCORE || b.score || 0) - parseFloat(a.SCORE || a.score || 0);
+          });
 
-        if(processedDorms.length > 0) {
-           this.topDorm = processedDorms[0];
-           this.otherDorms = processedDorms.slice(1);
-        }
+        this.popularDorms = processedDorms;
       } else { this.compareError = 'ยังไม่มีข้อมูลหอพักยอดนิยมในขณะนี้'; }
     } catch (err) { this.compareError = 'เกิดข้อผิดพลาดในการดึงข้อมูล'; } 
     finally { this.cdr.detectChanges(); }

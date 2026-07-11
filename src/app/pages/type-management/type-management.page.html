@@ -82,7 +82,15 @@
           <div class="map-wrap">
             <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
               [options]="mapOptions" (mapClick)="onMapClick($event)">
+              <!-- New zone marker (draggable, red) -->
               <map-marker [position]="markerPosition" [options]="markerOptions" (mapDragend)="onMarkerDragEnd($event)"></map-marker>
+              <!-- Existing zones markers (blue) -->
+              <map-marker
+                *ngFor="let em of existingZoneMarkers"
+                [position]="em.position"
+                [title]="em.title + ' (มีอยู่แล้ว)'"
+                [options]="{ draggable: false }">
+              </map-marker>
             </google-map>
           </div>
         </ion-item>
@@ -110,7 +118,7 @@
           <ion-label>รายการ{{ currentLabel }}ที่มีอยู่</ion-label>
         </ion-item-divider>
 
-        <ion-item *ngFor="let item of currentList" class="type-list-item">
+        <ion-item *ngFor="let item of currentList" class="type-list-item" [class.highlighted-item]="highlightItem && (item.name || item.ZONE_NAME) === highlightItem">
           <ion-label>
             <h2 class="type-name">{{ item.name || item.ZONE_NAME }}</h2>
             <p *ngIf="item.lat && item.lng" class="coord-sub">

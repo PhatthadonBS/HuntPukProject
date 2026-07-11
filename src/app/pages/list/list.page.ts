@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, menuOutline } from 'ionicons/icons';
+import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, menuOutline, optionsOutline, closeCircle } from 'ionicons/icons';
 
 import { DormitoryService, Dormitory } from '../../services/dormitory'; 
 import { UserService } from '../../services/user'; 
@@ -26,6 +26,16 @@ export class ListPage implements OnInit {
   isLoading: boolean = true; 
   dormStatusList: any[] = [];
 
+  allDorms: Dormitory[] = [];
+  isModalOpen = false;
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+  selectedZone: string = '';
+  minScore: number | null = null;
+  maxWater: number | null = null;
+  maxElect: number | null = null;
+  zoneOptions: any[] = [];
+
   constructor(
     private router: Router, 
     private navCtrl: NavController,
@@ -34,14 +44,20 @@ export class ListPage implements OnInit {
     private dormService: DormitoryService,
     private userService: UserService
   ) { 
-    // ✅ เพิ่ม menuOutline เข้าไปในระบบไอคอน
-    addIcons({ bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, 'menu-outline': menuOutline });
+    // ✅ เพิ่ม menuOutline, optionsOutline, closeCircle เข้าไปในระบบไอคอน
+    addIcons({ bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, 'menu-outline': menuOutline, 'options-outline': optionsOutline, 'close-circle': closeCircle });
   }
 
   ngOnInit() {
     this.checkLoginStatus(); 
+    this.fetchZones();
     this.fetchDormStatuses();
     this.loadDorms();
+  }
+
+  async fetchZones() {
+    try { const res = await this.dormService.getZones(); if (res.success) this.zoneOptions = res.data; } 
+    catch (error) { console.error('Fetch Zones Error:', error); }
   }
 
   fetchDormStatuses() {
@@ -70,22 +86,71 @@ export class ListPage implements OnInit {
     this.isLoading = true; 
     try {
       const res = await this.dormService.getAllDorms();
-      if (res) { this.dorms = res.data || []; }
+      let favoriteIds: number[] = [];
+      if (this.currentUserId !== 0) {
+        try {
+           const favRes = await this.dormService.getMyFavorites(this.currentUserId);
+           if (favRes) {
+              favoriteIds = (favRes as any[]).map(f => Number(f.DORM_ID || f.dorm_id));
+           }
+        } catch (e) { console.error('Fetch fav error:', e); }
+      }
+
+      if (res && res.data) {
+        this.allDorms = res.data.map((d: any) => ({ 
+          ...d, 
+          isChecked: favoriteIds.includes(Number(d.DORM_ID || d.id))
+        })) as any[];        
+        this.dorms = [...this.allDorms];
+        this.performSearch(); // Apply filters if any
+      } else {
+        this.dorms = [];
+      }
     } catch (error) { console.error('Error loading dorms:', error); } 
     finally { setTimeout(() => { this.isLoading = false; }, 300); }
   }
 
   async onSearch(event?: any) {
     if (event !== undefined) { this.keyword = (typeof event === 'string' ? event : event?.target?.value || '').trim(); }
-    if(!this.keyword) { this.loadDorms(); return; }
+    this.performSearch();
+  }
 
-    this.isLoading = true; 
+  async performSearch() {
+    this.isLoading = true;
     try {
-       const res = await this.dormService.searchDorms(this.keyword);
-       this.dorms = res.data || [];
-    } catch (error) { console.error(error); } 
+      const res = await this.dormService.searchDorms(
+        this.keyword, 
+        this.selectedZone, 
+        this.minPrice !== null ? this.minPrice : undefined, 
+        this.maxPrice !== null ? this.maxPrice : undefined
+      );
+      if (res && res.data) {
+        let tempDorms = res.data.map((d: any) => ({ 
+          ...d, 
+          isChecked: this.allDorms.find(ad => ad.DORM_ID === d.DORM_ID)?.isChecked 
+        })) as any[];
+        
+        if (this.minScore !== null && this.minScore !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
+        if (this.maxWater !== null && this.maxWater !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT <= this.maxWater! || dorm.WATER_LUMP <= this.maxWater!);
+        if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
+
+        this.dorms = tempDorms;
+      } else {
+        this.dorms = [];
+      }
+    } catch (err) { console.error('Search Error:', err); }
     finally { this.isLoading = false; }
   }
+
+  setOpen(isOpen: boolean) { this.isModalOpen = isOpen; }
+  openFilter() { this.setOpen(true); }
+  
+  clearAllFilters() {
+    this.minPrice = null; this.maxPrice = null; this.selectedZone = '';
+    this.minScore = null; this.maxWater = null; this.maxElect = null;
+  }
+
+  applyFilter() { this.setOpen(false); this.performSearch(); }
 
   async toggleFavorite(event: Event, dorm: any) {
     event.stopPropagation(); 

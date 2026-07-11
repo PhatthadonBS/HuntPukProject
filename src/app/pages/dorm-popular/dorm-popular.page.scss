@@ -126,44 +126,50 @@
 }
 
 /* =========================================
-   🥈 อันดับอื่นๆ (Other Dorms)
+   🥈 รายการ (List)
    ========================================= */
 .rank-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
-  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
 }
 
 .rank-item {
   .dorm-card {
-    height: 100%; padding-top: 35px; justify-content: space-between;
+    height: 100%; 
+    padding-top: 35px; 
+    justify-content: space-between;
     
     .card-body-column {
       display: flex; flex-direction: row; gap: 15px; margin-bottom: 15px;
+      @media(max-width: 600px) { flex-direction: column; align-items: flex-start; }
+      
       .img-wrapper-mini {
-        width: 90px; height: 90px; border-radius: 12px; overflow: hidden; background: #eee; flex-shrink: 0;
+        width: 120px; height: 120px; border-radius: 12px; overflow: hidden; background: #eee; flex-shrink: 0;
         img { width: 100%; height: 100%; object-fit: cover; }
+        @media(max-width: 600px) { width: 100%; height: 200px; }
       }
       .info-mini {
         flex: 1; display: flex; flex-direction: column; justify-content: center;
-        h4 { margin: 0 0 4px 0; font-size: 15px; font-weight: 900; color: #222; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        h4 { margin: 0 0 6px 0; font-size: 18px; font-weight: 900; color: #222; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         .rating-row-mini {
-          display: flex; align-items: center; gap: 4px; color: #f39c12; font-weight: 900; font-size: 13px; margin-bottom: 4px;
-          ion-icon { font-size: 14px; }
+          display: flex; align-items: center; gap: 4px; color: #f39c12; font-weight: 900; font-size: 15px; margin-bottom: 5px;
+          ion-icon { font-size: 16px; }
         }
         
         .address-mini { 
-          display: flex; align-items: center; gap: 4px; color: #888; font-size: 12px; margin: 0 0 6px 0; 
-          ion-icon { color: #e74c3c;} 
+          display: flex; align-items: center; gap: 4px; color: #888; font-size: 13px; margin: 0 0 8px 0; 
+          ion-icon { color: #e74c3c; font-size: 16px;} 
         }
         
         .price-mini { 
-          color: #d32f2f; font-weight: 900; font-size: 14px; margin: 0; 
-          .per-month{ font-size: 10px; color: #888; font-weight: normal;} 
+          color: #d32f2f; font-weight: 900; font-size: 16px; margin: 0; 
+          .per-month{ font-size: 12px; color: #888; font-weight: normal;} 
         }
       }
     }
-    .click-more-mini { text-align: right; color: #888; font-size: 12px; font-weight: 700; }
+    .click-more-mini { text-align: right; color: #1976d2; font-size: 13px; font-weight: 800; margin-top: 5px; }
   }
 }
 

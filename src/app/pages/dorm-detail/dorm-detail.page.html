@@ -37,7 +37,10 @@
       </div>
       
       <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
-      
+      <div class="type-badge" *ngIf="dormData.DORM_TYPE_NAME">
+        ประเภท: {{ dormData.DORM_TYPE_NAME }}
+      </div>
+
 <div class="location-row">
   <ion-icon name="location-sharp"></ion-icon>
   <p>{{ dormData.ADDRESS || dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
