@@ -57,6 +57,8 @@ interface DashboardStats {
   popularDormName: string;
   popularDormViews: number;
   topPopularDorms: TopPopularDorm[];
+  allDormViews: any[];
+  totalDormViews: number;
   zoneBreakdown: ZoneBreakdown[];
   dormStatusBreakdown: DormStatusBreakdown[];
   dormTypeBreakdown: DormTypeBreakdown[];
@@ -100,7 +102,8 @@ export class DashboardPage implements OnInit {
   // Zone map
   zoneMapCenter: google.maps.LatLngLiteral = { lat: 16.245, lng: 103.250 };
   zoneMapZoom = 12;
-  zoneMarkers: { position: google.maps.LatLngLiteral; zoneName: string; dormCount: number; }[] = [];
+  zoneMarkers: any[] = [];
+  dormMarkers: any[] = []; // To hold dorm markers
   zonesWithCoords: any[] = [];
   isZoneMapLoading = false;
   mapOptions: google.maps.MapOptions = {
@@ -218,8 +221,22 @@ export class DashboardPage implements OnInit {
           this.zoneMapZoom = 13;
         }
       }
+      
+      // Load all dorms to show on map
+      const dormRes = await this.dormService.getAllDormsAdmin();
+      if (dormRes?.success && dormRes?.data?.length) {
+        this.dormMarkers = dormRes.data
+          .filter((d: any) => d.lat && d.lng)
+          .map((d: any) => ({
+            position: { lat: parseFloat(d.lat), lng: parseFloat(d.lng) },
+            dormName: d.DORM_NAME || d.name,
+            zoneName: d.ZONE_NAME,
+            image: d.image || d.COVERIMAGE
+          }));
+      }
+
     } catch (e) {
-      console.error('Failed to load zones for map', e);
+      console.error('Failed to load zones/dorms for map', e);
     } finally {
       this.isZoneMapLoading = false;
     }
@@ -235,7 +252,7 @@ export class DashboardPage implements OnInit {
 
   goToFilteredZones(zoneName: string) {
     this.closeZoneModal();
-    this.router.navigate(['/type-management'], { queryParams: { tab: 'zone', highlight: zoneName } });
+    this.router.navigate(['/manage-dorm'], { queryParams: { zoneFilter: zoneName } });
   }
 
   // Navigate from dorm status chart click
@@ -245,9 +262,9 @@ export class DashboardPage implements OnInit {
   }
 
   // Navigate from dorm type chart click
-  goToTypeManagementWithType(typeName: string) {
+  goToManageDormWithType(typeName: string) {
     this.closeDormModal();
-    this.router.navigate(['/type-management'], { queryParams: { tab: 'dormType', highlight: typeName } });
+    this.router.navigate(['/manage-dorm'], { queryParams: { typeFilter: typeName } });
   }
 
   private destroyCharts() {
@@ -315,7 +332,7 @@ export class DashboardPage implements OnInit {
           if (elements && elements.length > 0 && elements[0]) {
             const idx = elements[0].index;
             const typeName = this.stats!.dormTypeBreakdown[idx]?.typeName;
-            if (typeName) this.goToTypeManagementWithType(typeName);
+            if (typeName) this.goToManageDormWithType(typeName);
           }
         }
       }

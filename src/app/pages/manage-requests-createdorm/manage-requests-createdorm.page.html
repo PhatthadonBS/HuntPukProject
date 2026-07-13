@@ -1,39 +1,66 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar style="--background: #222; color: white;">
+  <!-- Main toolbar: black bg + yellow accent -->
+  <ion-toolbar style="--background: #111827; --border-width: 0; padding-bottom: 0;">
     <ion-buttons slot="start">
-      <ion-button color="warning" (click)="goBack()">
-        <ion-icon name="arrow-back" slot="start" style="font-size: 24px;"></ion-icon>
-        <span style="font-size: 16px; font-weight: bold;">กลับ</span>
+      <ion-button (click)="goBack()" style="--color: #FFD700;">
+        <ion-icon name="arrow-back" slot="start" style="font-size: 20px; color: #FFD700;"></ion-icon>
+        <span style="font-size: 15px; font-weight: 700; color: #FFD700;">กลับ</span>
       </ion-button>
     </ion-buttons>
-    <ion-title>จัดการคำร้องขอ</ion-title>
+    <ion-title style="font-weight: 800; font-size: 18px; color: #ffffff; letter-spacing: 0.3px;">
+      จัดการคำร้องขอ
+    </ion-title>
   </ion-toolbar>
 
-  <!-- Segment Tabs -->
-  <ion-toolbar style="--background: #222;">
-    <ion-segment [(ngModel)]="currentSegment" mode="md" style="margin: 6px 8px;">
-      <ion-segment-button value="pending">
-        <ion-label>รออนุมัติ
-          <span class="badge-count warn" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
-        </ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="approved">
-        <ion-label>อนุมัติแล้ว
-          <span class="badge-count ok" *ngIf="approvedCount > 0">{{ approvedCount }}</span>
-        </ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="rejected">
-        <ion-label>ปฏิเสธแล้ว
-          <span class="badge-count err" *ngIf="rejectedCount > 0">{{ rejectedCount }}</span>
-        </ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="sendback">
-        <ion-label>ส่งกลับแก้ไข
-          <span class="badge-count inf" *ngIf="sendbackCount > 0">{{ sendbackCount }}</span>
-        </ion-label>
-      </ion-segment-button>
-    </ion-segment>
+  <!-- Yellow accent line -->
+  <div style="height: 3px; background: linear-gradient(90deg, #FFD700 0%, #f59e0b 60%, transparent 100%);"></div>
+
+  <!-- Search + Filter: dark charcoal bg -->
+  <ion-toolbar style="--background: #1f2937; --border-width: 0; padding: 4px 0 8px 0;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 14px;">
+      <!-- Search bar -->
+      <ion-searchbar [(ngModel)]="searchQuery"
+                     placeholder="ค้นหาชื่อหอพัก, เจ้าของ..."
+                     mode="ios"
+                     animated="true"
+                     style="
+                       flex: 1;
+                       --background: rgba(255,255,255,0.1);
+                       --border-radius: 10px;
+                       --box-shadow: none;
+                       --color: #fff;
+                       --placeholder-color: rgba(255,255,255,0.5);
+                       --icon-color: #FFD700;
+                       --clear-button-color: #FFD700;
+                       padding: 0;
+                     ">
+      </ion-searchbar>
+      <!-- Filter select -->
+      <ion-select [(ngModel)]="statusFilter"
+                  interface="popover"
+                  mode="ios"
+                  style="
+                    min-width: 110px;
+                    background: rgba(255,215,0,0.15);
+                    border: 1.5px solid #FFD700;
+                    border-radius: 10px;
+                    padding: 8px 12px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #FFD700;
+                    --color: #FFD700;
+                    --placeholder-color: #FFD700;
+                  ">
+        <ion-select-option value="all">ทั้งหมด</ion-select-option>
+        <ion-select-option value="0">รออนุมัติ</ion-select-option>
+        <ion-select-option value="2">ปฏิเสธแล้ว</ion-select-option>
+        <ion-select-option value="4">ส่งกลับแก้ไข</ion-select-option>
+        <ion-select-option value="1">อนุมัติแล้ว</ion-select-option>
+      </ion-select>
+    </div>
   </ion-toolbar>
+  <!-- Bottom border of header -->
+  <div style="height: 1px; background: rgba(255,215,0,0.2);"></div>
 </ion-header>
 
 <ion-content>
@@ -61,12 +88,12 @@
             <div class="dorm-title">{{ item.DORM_NAME || '(ไม่มีชื่อ)' }}</div>
             <div class="owner-info">
               <ion-icon name="person"></ion-icon>
-              {{ item.FIRST_NAME }} {{ item.LAST_NAME }}
-              <span class="email-text">· {{ item.EMAIL }}</span>
+              {{ item.FIRST_NAME || 'ไม่ระบุ' }} {{ item.LAST_NAME || '' }}
+              <span class="email-text">· {{ item.EMAIL || 'ไม่ระบุอีเมล' }}</span>
             </div>
             <div class="date-info">
               <ion-icon name="calendar"></ion-icon>
-              ยื่นเมื่อ: {{ item.REG_AT | date:'dd/MM/yyyy HH:mm' }}
+              ยื่นเมื่อ: {{ item.REG_AT | date:'dd/MM/yyyy' }}
             </div>
           </div>
           <div class="card-top-right">
@@ -99,11 +126,17 @@
               <div class="info-grid">
                 <div class="info-row">
                   <span class="info-label">ชื่อหอพัก</span>
-                  <span class="info-val bold">{{ expandedDormData.DORM_NAME }}</span>
+                  <span class="info-val bold">{{ expandedDormData.DORM_NAME || 'ไม่ระบุ' }}</span>
                 </div>
+                <!-- Contact Info -->
+                <div class="info-row">
+                  <span class="info-label">เบอร์โทร</span>
+                  <span class="info-val">{{ expandedDormData.PHONE_NUMBER || 'ไม่ระบุ' }}</span>
+                </div>
+                <!-- Location Info -->
                 <div class="info-row">
                   <span class="info-label">ที่อยู่</span>
-                  <span class="info-val">{{ expandedDormData.ADDRESS }}</span>
+                  <span class="info-val">{{ expandedDormData.ADDRESS || 'ไม่ระบุ' }}</span>
                 </div>
                 <div class="info-row">
                   <span class="info-label">โซน</span>
@@ -113,9 +146,9 @@
                   <span class="info-label">ประเภท</span>
                   <span class="info-val">{{ expandedDormData.DORM_TYPE_NAME || 'ไม่ระบุ' }}</span>
                 </div>
-                <div class="info-row" *ngIf="expandedDormData.ADD_DORM_DATA">
+                <div class="info-row">
                   <span class="info-label">รายละเอียด</span>
-                  <span class="info-val">{{ expandedDormData.ADD_DORM_DATA }}</span>
+                  <span class="info-val">{{ expandedDormData.ADD_DORM_DATA || 'ไม่ระบุ' }}</span>
                 </div>
               </div>
             </div>
@@ -156,7 +189,15 @@
                 <ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก
               </div>
               <div class="room-item" *ngFor="let room of (expandedDormData.rooms || expandedDormData.ROOMS)">
-                <div class="room-name">{{ room.ROOM_TYPE_NAME || room.ROOM_TYPE }}</div>
+                <div class="room-name-col">
+                  <div class="room-name">{{ room.ROOM_TYPE_NAME || room.ROOM_TYPE || 'ไม่ระบุประเภท' }}</div>
+                  <div class="room-bed" *ngIf="room.BED_TYPE_NAME || room.BED_TYPE || room.BED_TYPE_ID">
+                    <ion-icon name="bed-outline"></ion-icon> {{ room.BED_TYPE_NAME || room.BED_TYPE || 'เตียง' }}
+                  </div>
+                  <div class="room-bed" *ngIf="!(room.BED_TYPE_NAME || room.BED_TYPE || room.BED_TYPE_ID)">
+                    <ion-icon name="bed-outline"></ion-icon> ไม่ระบุประเภทเตียง
+                  </div>
+                </div>
                 <div class="room-prices">
                   <ng-container *ngIf="room.prices?.length > 0">
                     <span class="price-chip" *ngFor="let p of room.prices">
@@ -194,18 +235,18 @@
               
               <div class="img-main-row">
                 <!-- หน้าหอพัก -->
-                <div class="img-card-wrap" *ngIf="expandedDormData.FRONT_DORM_IMAGE || expandedDormData.FRONT_DORM_IMG || expandedDormData.image">
+                <div class="img-card-wrap">
                   <div class="img-label">หน้าหอพัก</div>
-                  <div class="img-wrap" (click)="viewImage(expandedDormData.FRONT_DORM_IMAGE || expandedDormData.FRONT_DORM_IMG || expandedDormData.image)">
-                    <img [src]="expandedDormData.FRONT_DORM_IMAGE || expandedDormData.FRONT_DORM_IMG || expandedDormData.image" 
+                  <div class="img-wrap" (click)="viewImage(expandedDormData.FRONT_DORM_IMAGE || expandedDormData.FRONT_DORM_IMG || expandedDormData.image || 'https://placehold.co/400x300?text=No+Image')">
+                    <img [src]="expandedDormData.FRONT_DORM_IMAGE || expandedDormData.FRONT_DORM_IMG || expandedDormData.image || 'https://placehold.co/400x300?text=No+Image'" 
                          onerror="this.src='https://placehold.co/400x300?text=No+Image'">
                   </div>
                 </div>
                 <!-- ใบอนุญาต -->
-                <div class="img-card-wrap" *ngIf="expandedDormData.DORM_LICENSE || expandedDormData.LICENSE_IMG">
+                <div class="img-card-wrap">
                   <div class="img-label">ใบอนุญาต</div>
-                  <div class="img-wrap" (click)="viewImage(expandedDormData.DORM_LICENSE || expandedDormData.LICENSE_IMG)">
-                    <img [src]="expandedDormData.DORM_LICENSE || expandedDormData.LICENSE_IMG" 
+                  <div class="img-wrap" (click)="viewImage(expandedDormData.DORM_LICENSE || expandedDormData.LICENSE_IMG || 'https://placehold.co/400x300?text=No+Doc')">
+                    <img [src]="expandedDormData.DORM_LICENSE || expandedDormData.LICENSE_IMG || 'https://placehold.co/400x300?text=No+Doc'" 
                          onerror="this.src='https://placehold.co/400x300?text=No+Doc'">
                   </div>
                 </div>
@@ -213,40 +254,40 @@
 
               <!-- รูปภายในห้อง -->
               <div class="room-imgs-grid">
-                <div class="room-img-item" *ngIf="expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img">
+                <div class="room-img-item">
                   <div class="img-label">เพดาน</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img)">
-                    <img [src]="expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img || 'https://placehold.co/200x200?text=No+Image')">
+                    <img [src]="expandedDormData.room_images?.CEILING_IMG || expandedDormData.CEILING_IMG || expandedDormData.ceiling_img || 'https://placehold.co/200x200?text=No+Image'" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img">
+                <div class="room-img-item">
                   <div class="img-label">ผนัง</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img)">
-                    <img [src]="expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img || 'https://placehold.co/200x200?text=No+Image')">
+                    <img [src]="expandedDormData.room_images?.WALL_IMG || expandedDormData.WALL_IMG || expandedDormData.wall_img || 'https://placehold.co/200x200?text=No+Image'" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img">
+                <div class="room-img-item">
                   <div class="img-label">พื้น</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img)">
-                    <img [src]="expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img || 'https://placehold.co/200x200?text=No+Image')">
+                    <img [src]="expandedDormData.room_images?.FLOOR_IMG || expandedDormData.FLOOR_IMG || expandedDormData.floor_img || 'https://placehold.co/200x200?text=No+Image'" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img">
+                <div class="room-img-item">
                   <div class="img-label">เตียง</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img)">
-                    <img [src]="expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img || 'https://placehold.co/200x200?text=No+Image')">
+                    <img [src]="expandedDormData.room_images?.BED_IMG || expandedDormData.BED_IMG || expandedDormData.bed_img || 'https://placehold.co/200x200?text=No+Image'" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img">
+                <div class="room-img-item">
                   <div class="img-label">ห้องน้ำ</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img)">
-                    <img [src]="expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img || 'https://placehold.co/200x200?text=No+Image')">
+                    <img [src]="expandedDormData.room_images?.BATHROOM_IMG || expandedDormData.BATHROOM_IMG || expandedDormData.bathroom_img || 'https://placehold.co/200x200?text=No+Image'" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
-                <div class="room-img-item" *ngIf="expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img">
+                <div class="room-img-item">
                   <div class="img-label">ระเบียง</div>
-                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img)">
-                    <img [src]="expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                  <div class="img-wrap sm" (click)="viewImage(expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img || 'https://placehold.co/200x200?text=No+Image')">
+                    <img [src]="expandedDormData.room_images?.BALCONY_IMG || expandedDormData.BALCONY_IMG || expandedDormData.balcony_img || 'https://placehold.co/200x200?text=No+Image'" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                   </div>
                 </div>
               </div>
@@ -264,19 +305,17 @@
 
             <!-- ===== Action Buttons (only for pending) ===== -->
             <div class="action-section" *ngIf="item.REQ_STATUS === 0">
-
-              <!-- Approve -->
-              <ion-button expand="block" color="success" (click)="approve(item)">
-                <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-                อนุมัติคำขอ
-              </ion-button>
-
-              <!-- Reject with reason -->
-              <div class="reason-section">
-                <ion-button expand="block" color="danger" fill="outline" (click)="reject(item)">
-                  <ion-icon name="close-circle" slot="start"></ion-icon>
-                  ปฏิเสธคำขอ
-                </ion-button>
+              <div class="decision-buttons">
+                <!-- Reject -->
+                <button class="btn-decision btn-reject" (click)="reject(item)">
+                  <ion-icon name="close-circle"></ion-icon>
+                  <span>ปฏิเสธคำขอ</span>
+                </button>
+                <!-- Approve -->
+                <button class="btn-decision btn-approve" (click)="approve(item)">
+                  <ion-icon name="checkmark-circle"></ion-icon>
+                  <span>อนุมัติคำขอ</span>
+                </button>
               </div>
             </div>
 
@@ -287,21 +326,17 @@
                 {{ getReqStatusLabel(item.REQ_STATUS) }}
               </div>
 
-              <!-- Send back for revision (เฉพาะกรณีปฏิเสธแล้ว แอดมินสามารถเปลี่ยนใจส่งให้แก้ไขได้) -->
-              <ion-button expand="block" color="tertiary" fill="outline" class="ion-margin-top"
-                          *ngIf="item.REQ_STATUS === 2"
-                          (click)="sendBack(item)">
-                <ion-icon name="send-outline" slot="start"></ion-icon>
-                ส่งกลับให้แก้ไข (แทนการปฏิเสธ)
-              </ion-button>
+              <!-- Send back for revision -->
+              <button class="btn-sendback" *ngIf="item.REQ_STATUS === 2" (click)="sendBack(item)">
+                <ion-icon name="send-outline"></ion-icon>
+                <span>ส่งกลับให้แก้ไข (แทนการปฏิเสธ)</span>
+              </button>
 
-              <!-- Delete button for rejected/sendback -->
-              <ion-button expand="block" color="medium" fill="outline" size="small" class="ion-margin-top"
-                          *ngIf="item.REQ_STATUS === 2 || item.REQ_STATUS === 4"
-                          (click)="deleteRequest(item)">
-                <ion-icon name="trash-outline" slot="start"></ion-icon>
-                ลบคำขอนี้ออกจากระบบ
-              </ion-button>
+              <!-- Delete button -->
+              <button class="btn-delete" *ngIf="item.REQ_STATUS === 2 || item.REQ_STATUS === 4" (click)="deleteRequest(item)">
+                <ion-icon name="trash-outline"></ion-icon>
+                <span>ลบคำขอนี้ออกจากระบบ</span>
+              </button>
             </div>
 
           </ng-container>

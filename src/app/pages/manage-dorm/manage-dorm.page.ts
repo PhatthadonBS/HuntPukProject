@@ -29,6 +29,8 @@ export class ManageDormPage implements OnInit {
   filteredDorms: any[] = []; // Search & Filter
   searchQuery: string = '';
   statusFilterQuery: string = '';
+  typeFilterQuery: string = '';
+  zoneFilterQuery: string = '';
   isLoading = false;
 
   constructor(
@@ -52,6 +54,10 @@ export class ManageDormPage implements OnInit {
       this.searchQuery = params['search'];
     } else if (params['statusFilter']) {
       this.statusFilterQuery = params['statusFilter'];
+    } else if (params['typeFilter']) {
+      this.typeFilterQuery = params['typeFilter'];
+    } else if (params['zoneFilter']) {
+      this.zoneFilterQuery = params['zoneFilter'];
     }
     this.loadAllDorms();
   }
@@ -117,6 +123,14 @@ export class ManageDormPage implements OnInit {
       if (statusId > 0) {
         temp = temp.filter(d => d.DORM_STATUS_ID === statusId);
       }
+    }
+
+    if (this.typeFilterQuery) {
+      temp = temp.filter(d => d.DORM_TYPE_NAME === this.typeFilterQuery);
+    }
+
+    if (this.zoneFilterQuery) {
+      temp = temp.filter(d => d.ZONE_NAME === this.zoneFilterQuery);
     }
 
     this.filteredDorms = temp;

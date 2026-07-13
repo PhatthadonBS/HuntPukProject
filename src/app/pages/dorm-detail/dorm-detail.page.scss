@@ -429,3 +429,15 @@ $text-dark: #1a1a1a;
     &.next { right: 8px; }
   }
 }
+
+.type-badge {
+  display: inline-block;
+  background: var(--ion-color-primary, #3880ff);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}

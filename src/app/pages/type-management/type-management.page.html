@@ -82,14 +82,45 @@
           <div class="map-wrap">
             <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
               [options]="mapOptions" (mapClick)="onMapClick($event)">
+              
+              <!-- Zone Radius Circle -->
+              <map-circle
+                *ngFor="let em of existingZoneMarkers"
+                [center]="em.position"
+                [radius]="500"
+                [options]="{
+                  fillColor: '#FFD600',
+                  fillOpacity: 0.2,
+                  strokeColor: '#FFD600',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2
+                }">
+              </map-circle>
+
               <!-- New zone marker (draggable, red) -->
               <map-marker [position]="markerPosition" [options]="markerOptions" (mapDragend)="onMarkerDragEnd($event)"></map-marker>
-              <!-- Existing zones markers (blue) -->
+              
+              <!-- Existing zones markers -->
               <map-marker
                 *ngFor="let em of existingZoneMarkers"
                 [position]="em.position"
                 [title]="em.title + ' (มีอยู่แล้ว)'"
+                [label]="{ text: em.title, color: '#000', fontWeight: 'bold', fontSize: '13px', className: 'map-label-top' }"
                 [options]="{ draggable: false }">
+              </map-marker>
+
+              <!-- Dorm markers -->
+              <map-marker
+                *ngFor="let dorm of dormMarkers"
+                [position]="dorm.position"
+                [title]="dorm.dormName"
+                [label]="{ text: '🏢', fontSize: '20px' }"
+                [options]="{
+                  icon: {
+                    path: 'M 0,0',
+                    scale: 0
+                  }
+                }">
               </map-marker>
             </google-map>
           </div>

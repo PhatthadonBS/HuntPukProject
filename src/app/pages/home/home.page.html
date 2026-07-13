@@ -41,7 +41,7 @@
     <div class="map-wrapper">
 
       <google-map #mapRef *ngIf="apiLoaded | async" height="100%" width="100%" [center]="center" [zoom]="zoom"
-        [options]="mapOptions" (mapClick)="onMapClick($event)">
+        [options]="mapOptions" (zoomChanged)="onZoomChanged()" (mapClick)="onMapClick($event)">
 
         <!-- วงกลมระยะทาง / หอพักที่เลือก -->
         <map-circle *ngIf="circleCenter" [center]="circleCenter" [radius]="circleRadius" [options]="circleOptions"></map-circle>
@@ -106,7 +106,7 @@
       <div class="btn-close-panel" (click)="closeDetailPanel()"><ion-icon name="close"></ion-icon></div>
 
       <div class="panel-header-img">
-        <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
+        <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='assets/dorm-placeholder.jpg'" />
         
         <div class="panel-fav-btn" (click)="toggleFavorite($event, selectedDorm)">
           <ion-icon [name]="selectedDorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
@@ -149,7 +149,7 @@
 
           <div *ngIf="selectedDorm.UPDATE_AT || selectedDorm.updated_at" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; margin-bottom: 10px;">
             <ion-icon name="time-outline" style="font-size: 14px;"></ion-icon>
-            <span>อัปเดตข้อมูล: <strong style="color: #555;">{{ (selectedDorm.UPDATE_AT || selectedDorm.updated_at) | date:'dd/MM/yyyy HH:mm' }}</strong></span>
+            <span>อัปเดตข้อมูล: <strong style="color: #555;">{{ (selectedDorm.UPDATE_AT || selectedDorm.updated_at) | date:'dd/MM/yyyy' }}</strong></span>
           </div>
 
 
@@ -235,7 +235,7 @@
             <div class="inline-box-title"><ion-icon name="location-outline"></ion-icon> หอพักใกล้เคียง</div>
             <div class="nearby-list">
               <div class="nearby-item" *ngFor="let nb of nearbyDorms" (click)="selectNearbyDorm(nb)">
-                <img [src]="nb.image || nb.FRONT_DORM_IMAGE" onerror="this.src='https://placehold.co/80x60?text=No+Image'" />
+                <img [src]="nb.image || nb.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='assets/dorm-placeholder.jpg'" />
                 <div class="nb-info">
                   <span class="nb-name">{{ nb.DORM_NAME }}</span>
                   

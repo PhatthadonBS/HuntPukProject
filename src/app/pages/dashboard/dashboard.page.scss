@@ -200,10 +200,91 @@ $card-radius: 20px;
   }
 
   .views-mini-stats {
-    display: flex; flex-direction: column; gap: 4px; align-items: flex-end;
-    .mini-stat { display: flex; align-items: center; gap: 6px; }
-    .mini-year { font-size: 11px; opacity: 0.6; font-weight: 600; }
-    .mini-count { font-size: 12px; font-weight: 800; }
+    display: flex; gap: 8px; margin-top: auto;
+    .mini-stat {
+      background: rgba(0,0,0,0.05); padding: 4px 10px; border-radius: 12px;
+      display: flex; align-items: center; gap: 6px; font-size: 11px;
+      .mini-year { font-weight: 700; color: #555; }
+      .mini-count { color: #222; font-weight: 800; }
+    }
+  }
+}
+
+// Dorm Views List Card
+.card-dorm-views {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+  padding: 16px;
+  grid-column: 1 / -1;
+
+  .dorm-views-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    
+    .card-icon-wrap {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 214, 0, 0.15);
+      color: #d97706;
+      font-size: 20px;
+    }
+  }
+
+  .dorm-views-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dorm-view-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    
+    .dorm-rank {
+      font-weight: 800;
+      width: 24px;
+      text-align: center;
+      color: #94a3b8;
+      &.gold { color: #eab308; }
+      &.silver { color: #94a3b8; }
+      &.bronze { color: #b45309; }
+    }
+    
+    .dorm-view-name {
+      flex: 1;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+    
+    .dorm-view-bar-wrap {
+      flex: 2;
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      overflow: hidden;
+      
+      .dorm-view-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #FFD600, #f59e0b);
+        border-radius: 4px;
+      }
+    }
+    
+    .dorm-view-count {
+      font-weight: 700;
+      color: #64748b;
+      min-width: 50px;
+      text-align: right;
+    }
   }
 }
 
@@ -363,6 +444,15 @@ $card-radius: 20px;
 .zone-google-map-wrap {
   border-radius: 16px; overflow: hidden; margin-bottom: 16px;
   border: 1px solid #e2e8f0;
+}
+
+.map-label-top {
+  background: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transform: translateY(-40px);
 }
 
 .zone-list {

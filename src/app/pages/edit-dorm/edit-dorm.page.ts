@@ -7,7 +7,7 @@ import {
   IonSegment, IonSegmentButton, IonLabel, 
   IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
   IonCheckbox, IonList, IonListHeader, IonModal,
-  LoadingController, ToastController, AlertController, IonImg
+  LoadingController, ToastController, AlertController, ActionSheetController, IonImg
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -103,6 +103,7 @@ export class EditDormPage implements OnInit {
 
   previews: any = {
     FRONT_DORM_IMG: null,
+    LICENSE_IMG: null,
     BED_IMG: null,
     WALL_IMG: null,
     CEILING_IMG: null,
@@ -113,6 +114,7 @@ export class EditDormPage implements OnInit {
   };
 
   existingGallery: string[] = [];
+  geocoder = new google.maps.Geocoder();
 
   constructor(
     private route: ActivatedRoute,
@@ -121,6 +123,7 @@ export class EditDormPage implements OnInit {
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
+    private actionSheetCtrl: ActionSheetController,
     private httpClient: HttpClient
   ) {
     addIcons({
@@ -281,8 +284,9 @@ export class EditDormPage implements OnInit {
           this.addRoomType();
         }
 
-        // ✅ Fix: Load cover image correctly
+        // ✅ Fix: Load cover image and license correctly
         this.previews.FRONT_DORM_IMG = d.image || null;
+        this.previews.LICENSE_IMG = d.DORM_LICENSE || null;
         
         // ✅ Fix: Load room images correctly (backend returns them at root level)
         this.previews.BED_IMG = d.bed_img || null;
@@ -359,7 +363,17 @@ export class EditDormPage implements OnInit {
       this.formData.lat = event.latLng.lat();
       this.formData.lng = event.latLng.lng();
       this.markerPosition = { lat: this.formData.lat, lng: this.formData.lng };
+      this.detectAndSelectZone(this.formData.lat, this.formData.lng);
+      this.geocodeAddress(this.formData.lat, this.formData.lng);
     }
+  }
+
+  geocodeAddress(lat: number, lng: number) {
+    this.geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        this.formData.address = results[0].formatted_address;
+      }
+    });
   }
 
   confirmMapPin() {
@@ -381,23 +395,53 @@ export class EditDormPage implements OnInit {
   // ==========================
   // Auto Zone Calculation
   // ==========================
-  calculateNearestZone(lat: number, lng: number) {
+  async detectAndSelectZone(lat: number, lng: number) {
     if (!this.zones || this.zones.length === 0) return;
-    
-    let minDistance = Infinity;
-    let nearestZone = this.zones[0];
-    
-    for (const zone of this.zones) {
-      if (zone.lat != null && zone.lng != null) {
-        const dist = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng);
-        if (dist < minDistance) {
-          minDistance = dist;
-          nearestZone = zone;
+
+    // Find all zones whose radius covers this pin
+    const matchingZones = this.zones.filter((zone: any) => {
+      if (zone.lat == null || zone.lng == null) return false;
+      const distM = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng) * 1000;
+      return distM <= (zone.ZONE_RADIUS || this.zoneRadius);
+    });
+
+    if (matchingZones.length === 0) {
+      // No zone covers the pin — fall back to nearest
+      let minDistance = Infinity;
+      let nearestZone = this.zones[0];
+      for (const zone of this.zones) {
+        if (zone.lat != null && zone.lng != null) {
+          const dist = this.getDistanceFromLatLonInKm(lat, lng, zone.lat, zone.lng);
+          if (dist < minDistance) { minDistance = dist; nearestZone = zone; }
         }
       }
+      this.applyZone(nearestZone);
+      this.showToast(`ไม่อยู่ในรัศมีโซนใด — เลือกโซนใกล้ที่สุด: ${nearestZone.ZONE_NAME}`, 'warning');
+    } else if (matchingZones.length === 1) {
+      this.applyZone(matchingZones[0]);
+    } else {
+      // Multiple overlapping zones — let user choose
+      const buttons = matchingZones.map((zone: any) => ({
+        text: zone.ZONE_NAME,
+        handler: () => { this.applyZone(zone); }
+      }));
+      buttons.push({ text: 'ยกเลิก', handler: () => {} } as any);
+
+      const sheet = await this.actionSheetCtrl.create({
+        header: '🗺️ ตำแหน่งนี้อยู่ใน ' + matchingZones.length + ' โซน — กรุณาเลือกโซน',
+        buttons
+      });
+      await sheet.present();
     }
-    this.formData.zone_id = nearestZone.ZONE_ID;
-    this.currentZoneName = nearestZone.ZONE_NAME;
+  }
+
+  applyZone(zone: any) {
+    this.formData.zone_id = zone.ZONE_ID;
+    this.currentZoneName = zone.ZONE_NAME;
+    if (zone.lat && zone.lng) {
+      this.zoneCenter = { lat: zone.lat, lng: zone.lng };
+      this.zoneRadius = zone.ZONE_RADIUS || 500;
+    }
   }
 
   getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -502,6 +546,7 @@ const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any
       form.append('roomTypes', JSON.stringify(this.roomTypes));
 
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
+      if (this.selectedFiles.LICENSE_IMG) form.append('LICENSE_IMG', this.selectedFiles.LICENSE_IMG);
       if (this.selectedFiles.BED_IMG) form.append('BED_IMG', this.selectedFiles.BED_IMG);
       if (this.selectedFiles.WALL_IMG) form.append('WALL_IMG', this.selectedFiles.WALL_IMG);
       if (this.selectedFiles.CEILING_IMG) form.append('CEILING_IMG', this.selectedFiles.CEILING_IMG);

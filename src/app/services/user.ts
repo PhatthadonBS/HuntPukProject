@@ -27,7 +27,16 @@ export class UserService {
   async getAllUsers(): Promise<any[]> {
     const url = `${this.apiUrl}/user/users`;
     try {
-      const res = await lastValueFrom(this.http.get<any[]>(url));
+      const stored = localStorage.getItem('loggedIn');
+      let token = '';
+      if (stored) {
+         const parsed = JSON.parse(stored);
+         token = parsed.token || '';
+      }
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}` 
+      });
+      const res = await lastValueFrom(this.http.get<any[]>(url, { headers }));
       // Map ข้อมูลให้เป็น Format เล็ก
       return res.map((u: any) => ({
         id: u.USER_ID,

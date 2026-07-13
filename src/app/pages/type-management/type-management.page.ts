@@ -135,7 +135,8 @@ export class TypeManagementPage implements OnInit {
     this.existingZoneMarkers = [];
   }
 
-  // Load zone markers (existing zones) so admin sees them on map
+  dormMarkers: any[] = [];
+
   async loadExistingZoneMarkers() {
     try {
       const res = await this.dormServices.getZones();
@@ -149,6 +150,16 @@ export class TypeManagementPage implements OnInit {
         if (this.existingZoneMarkers.length > 0) {
           this.center = { ...(this.existingZoneMarkers[0]!.position) };
         }
+      }
+
+      const dormRes = await this.dormServices.getAllDormsAdmin();
+      if (dormRes?.success && dormRes?.data?.length) {
+        this.dormMarkers = dormRes.data
+          .filter((d: any) => d.lat && d.lng)
+          .map((d: any) => ({
+            position: { lat: parseFloat(d.lat), lng: parseFloat(d.lng) },
+            dormName: d.DORM_NAME || d.name
+          }));
       }
     } catch (e) {
       console.error('Failed to load existing zone markers', e);

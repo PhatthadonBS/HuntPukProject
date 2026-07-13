@@ -182,7 +182,7 @@ label {
     ion-icon { color: $error-color; }
   }
 
-  ion-input {
+  ion-input, ion-select {
     --padding-start: 0;
     --color: #000;
     --placeholder-color: #999;

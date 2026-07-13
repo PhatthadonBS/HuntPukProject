@@ -19,9 +19,11 @@ import { OwnerRequestService, OwnerRequest } from '../../services/owner-request'
 export class ManageRequestsDormOwnerPage implements OnInit {
 
   requests: OwnerRequest[] = [];
+  filteredRequests: OwnerRequest[] = [];
   isLoading = false;
   isModalOpen = false;
   selectedReq: OwnerRequest | null = null;
+  searchQuery: string = '';
 
   constructor(
     private requestService: OwnerRequestService,
@@ -42,7 +44,14 @@ export class ManageRequestsDormOwnerPage implements OnInit {
     this.isLoading = true;
     this.requestService.getAllRequests().subscribe({
       next: (res) => {
-        this.requests = res;
+        // กรองคำขอที่ซ้ำซ้อนโดยใช้ user_id
+        const uniqueRequests = res.filter((req, index, self) =>
+          index === self.findIndex((t) => (
+            t.user_id === req.user_id
+          ))
+        );
+        this.requests = uniqueRequests;
+        this.filteredRequests = uniqueRequests;
         this.isLoading = false;
       },
       error: (err) => {
@@ -50,6 +59,19 @@ export class ManageRequestsDormOwnerPage implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  searchRequests() {
+    const query = this.searchQuery.toLowerCase().trim();
+    if (!query) {
+      this.filteredRequests = [...this.requests];
+    } else {
+      this.filteredRequests = this.requests.filter(req => {
+        const fullName = `${req.first_name || ''} ${req.last_name || ''}`.toLowerCase();
+        const phone = req.phone_number || '';
+        return fullName.includes(query) || phone.includes(query);
+      });
+    }
   }
 
   

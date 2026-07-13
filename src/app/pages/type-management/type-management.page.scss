@@ -332,6 +332,19 @@ ion-item-divider {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+.coord.map-hint {
+  font-size: 11px; color: #dc2626; margin: 4px 0 16px;
+}
+
+.map-label-top {
+  background: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transform: translateY(-40px);
+}
+
 .coord-sub {
   font-size: 0.78rem;
   color: $gray-mid;

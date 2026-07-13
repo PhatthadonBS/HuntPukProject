@@ -81,13 +81,6 @@
         </ion-item>
 
         <ion-item class="custom-input">
-          <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
-          <ion-select [(ngModel)]="formData.zone_id" (ionChange)="onZoneChange()" interface="popover" [disabled]="isWaitingForAdmin">
-            <ion-select-option *ngFor="let z of zones" [value]="z.ZONE_ID">{{ z.ZONE_NAME }}</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-item class="custom-input">
           <ion-label position="stacked">รายละเอียด/คำเชิญชวน</ion-label>
           <ion-textarea [(ngModel)]="formData.detail" rows="4" placeholder="เช่น หอพักสะอาด ใกล้มอ..." [disabled]="isWaitingForAdmin"></ion-textarea>
         </ion-item>
@@ -95,6 +88,13 @@
 
       <div class="section-card">
         <h3><ion-icon name="location-outline"></ion-icon> ที่อยู่ & พิกัด</h3>
+        
+        <ion-item class="custom-input">
+          <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
+          <ion-select [(ngModel)]="formData.zone_id" (ionChange)="onZoneChange()" interface="popover" [disabled]="isWaitingForAdmin">
+            <ion-select-option *ngFor="let z of zones" [value]="z.ZONE_ID">{{ z.ZONE_NAME }}</ion-select-option>
+          </ion-select>
+        </ion-item>
         <ion-item class="custom-input">
           <ion-label position="stacked">ที่อยู่</ion-label>
           <ion-textarea [(ngModel)]="formData.address" rows="2" placeholder="บ้านเลขที่, ซอย, ถนน..." [disabled]="isWaitingForAdmin"></ion-textarea>
@@ -254,8 +254,22 @@
         <input #frontInput type="file" (change)="onFileSelect($event, 'FRONT_DORM_IMG')" accept="image/*" hidden [disabled]="isWaitingForAdmin">
       </div>
 
+      <div class="section-card" *ngIf="isResubmitMode">
+        <h3><ion-icon name="document-text-outline"></ion-icon> เอกสารใบอนุญาตหอพัก <span class="req">*</span></h3>
+        <p class="hint-text text-danger" style="font-size: 13px; margin-bottom: 10px;">กรุณาแนบใบอนุญาตหอพักอีกครั้ง (เนื่องจากใบเดิมถูกลบไปแล้ว)</p>
+        <div class="img-upload-box" (click)="!isWaitingForAdmin && licenseInput.click()">
+          <img [src]="previews.LICENSE_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
+          <div class="overlay" *ngIf="!isWaitingForAdmin">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span>อัปโหลดใบอนุญาต</span>
+          </div>
+        </div>
+        <input #licenseInput type="file" (change)="onFileSelect($event, 'LICENSE_IMG')" accept="image/*" hidden [disabled]="isWaitingForAdmin">
+      </div>
+
       <div class="section-card">
-        <h3>รูปภาพส่วนประกอบห้อง</h3>
+        <h3><ion-icon name="grid-outline"></ion-icon> รูปภาพส่วนประกอบห้อง</h3>
+        <p class="hint-text" style="font-size: 13px; margin-bottom: 12px; color: #666;">รูปส่วนต่างๆ ของห้อง (เตียง, ผนัง, ห้องน้ำ ฯลฯ)</p>
         <div class="grid-2-col">
           <div class="img-mini-box" (click)="!isWaitingForAdmin && bedInput.click()">
             <label>รูปเตียงนอน</label>
@@ -291,7 +305,7 @@
       </div>
 
       <div class="section-card">
-        <h3>อัลบั้มรูปเพิ่มเติม (Gallery)</h3>
+        <h3><ion-icon name="images-outline"></ion-icon> อัลบั้มรูปเพิ่มเติม (Gallery)</h3>
         <p style="font-size: 13px; color: #888; margin-bottom: 10px;">สูงสุด <strong>5 ภาพ</strong> ({{ (existingGallery.length + previews.OTHER_IMG.length) }}/5)</p>
         <input #galleryInput type="file" (change)="onGallerySelect($event)" accept="image/*" multiple hidden [disabled]="isWaitingForAdmin">
         <ion-button expand="block" fill="outline" (click)="galleryInput.click()" *ngIf="!isWaitingForAdmin">

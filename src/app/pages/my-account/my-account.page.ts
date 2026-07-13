@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; 
 import { addIcons } from 'ionicons';
 import { 
-  person, mail, create, arrowBack, arrowForward, call, shieldCheckmark, home, documentText, 
+  person, mail, create, arrowBack, arrowForward, chevronForward, logOut, call, shieldCheckmark, home, documentText, 
   close, alertCircle, business, chatbubbleEllipses, logoFacebook, logoInstagram, 
   documentTextOutline, personCircle, createOutline, lockClosedOutline, trashOutline 
 } from 'ionicons/icons';
@@ -40,7 +40,9 @@ export class MyAccountPage implements OnInit {
     private alertCtrl: AlertController
   ) { 
     addIcons({ 
-      person, mail, create, arrowBack, 'arrow-forward': arrowForward, call, shieldCheckmark, home, documentText, 
+      person, mail, create, arrowBack, 'arrow-forward': arrowForward, 
+      'chevron-forward': chevronForward, 'log-out-outline': logOut,
+      call, shieldCheckmark, home, documentText, 
       close, alertCircle, business, 'chatbubble-ellipses': chatbubbleEllipses, 
       'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 
       'document-text-outline': documentTextOutline, 'person-circle': personCircle,

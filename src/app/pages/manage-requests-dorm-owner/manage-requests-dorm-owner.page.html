@@ -18,6 +18,11 @@
       <p>ตรวจสอบและอนุมัติสิทธิ์การเป็นเจ้าของหอพัก</p>
     </div>
 
+    <!-- Search box area -->
+    <div class="search-container">
+      <ion-searchbar [(ngModel)]="searchQuery" (ionInput)="searchRequests()" placeholder="ค้นหาชื่อ, นามสกุล หรือเบอร์โทรศัพท์..." animated="true"></ion-searchbar>
+    </div>
+
     <div class="table-card fade-in">
       
       <div class="table-header">
@@ -31,12 +36,12 @@
         <p>กำลังโหลดข้อมูล...</p>
       </div>
 
-      <div *ngIf="!isLoading && requests.length === 0" class="empty-state">
+      <div *ngIf="!isLoading && filteredRequests.length === 0" class="empty-state">
         <ion-icon name="folder-open-outline"></ion-icon>
         <p>ไม่มีรายการคำร้องขอ</p>
       </div>
 
-      <div class="table-row" *ngFor="let req of requests">
+      <div class="table-row" *ngFor="let req of filteredRequests">
         
         <div class="col-name">
           <div class="user-info">
@@ -140,8 +145,12 @@
         </div>
 
         <div class="action-buttons" *ngIf="selectedReq.status === 'pending'">
-          <button class="btn-reject" (click)="updateStatus(selectedReq, 'rejected')">ปฏิเสธ</button>
-          <button class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">อนุมัติสิทธิ์</button>
+          <button class="btn-reject" (click)="updateStatus(selectedReq, 'rejected')">
+            <ion-icon name="close-circle"></ion-icon> ปฏิเสธ
+          </button>
+          <button class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">
+            <ion-icon name="checkmark-circle"></ion-icon> อนุมัติสิทธิ์
+          </button>
         </div>
 
         <div class="action-note" *ngIf="selectedReq.status !== 'pending'">

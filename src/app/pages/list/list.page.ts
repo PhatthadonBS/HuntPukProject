@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, ToastController, AlertController } from '@ionic/angular';
+import { IonicModule, NavController, ToastController, AlertController, ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, menuOutline, optionsOutline, closeCircle } from 'ionicons/icons';
+import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, menuOutline, optionsOutline, closeCircle, swapVerticalOutline } from 'ionicons/icons';
 
 import { DormitoryService, Dormitory } from '../../services/dormitory'; 
 import { UserService } from '../../services/user'; 
@@ -35,17 +35,19 @@ export class ListPage implements OnInit {
   maxWater: number | null = null;
   maxElect: number | null = null;
   zoneOptions: any[] = [];
+  currentSort: string = ''; // 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'score_desc'
 
   constructor(
     private router: Router, 
     private navCtrl: NavController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController, 
+    private actionSheetCtrl: ActionSheetController,
     private dormService: DormitoryService,
     private userService: UserService
   ) { 
     // ✅ เพิ่ม menuOutline, optionsOutline, closeCircle เข้าไปในระบบไอคอน
-    addIcons({ bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, 'menu-outline': menuOutline, 'options-outline': optionsOutline, 'close-circle': closeCircle });
+    addIcons({ bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, 'menu-outline': menuOutline, 'options-outline': optionsOutline, 'close-circle': closeCircle, 'swap-vertical-outline': swapVerticalOutline });
   }
 
   ngOnInit() {
@@ -135,6 +137,7 @@ export class ListPage implements OnInit {
         if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms;
+        this.applySort(); // Apply sort after filtering
       } else {
         this.dorms = [];
       }
@@ -151,6 +154,38 @@ export class ListPage implements OnInit {
   }
 
   applyFilter() { this.setOpen(false); this.performSearch(); }
+
+  async openSort() {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'จัดเรียงลำดับ',
+      cssClass: 'custom-action-sheet',
+      buttons: [
+        { text: 'ราคา: ต่ำ - สูง', handler: () => { this.currentSort = 'price_asc'; this.applySort(); } },
+        { text: 'ราคา: สูง - ต่ำ', handler: () => { this.currentSort = 'price_desc'; this.applySort(); } },
+        { text: 'ชื่อ: ก - ฮ', handler: () => { this.currentSort = 'name_asc'; this.applySort(); } },
+        { text: 'ชื่อ: ฮ - ก', handler: () => { this.currentSort = 'name_desc'; this.applySort(); } },
+        { text: 'คะแนนรีวิว: มาก - น้อย', handler: () => { this.currentSort = 'score_desc'; this.applySort(); } },
+        { text: 'ยกเลิกการจัดเรียง', role: 'destructive', handler: () => { this.currentSort = ''; this.performSearch(); } },
+        { text: 'ปิด', role: 'cancel' }
+      ]
+    });
+    await actionSheet.present();
+  }
+
+  applySort() {
+    if (!this.currentSort) return;
+    
+    this.dorms.sort((a: any, b: any) => {
+      switch (this.currentSort) {
+        case 'price_asc': return (a.start_price || 0) - (b.start_price || 0);
+        case 'price_desc': return (b.start_price || 0) - (a.start_price || 0);
+        case 'name_asc': return (a.DORM_NAME || '').localeCompare(b.DORM_NAME || '', 'th');
+        case 'name_desc': return (b.DORM_NAME || '').localeCompare(a.DORM_NAME || '', 'th');
+        case 'score_desc': return (b.SCORE || 0) - (a.SCORE || 0);
+        default: return 0;
+      }
+    });
+  }
 
   async toggleFavorite(event: Event, dorm: any) {
     event.stopPropagation(); 

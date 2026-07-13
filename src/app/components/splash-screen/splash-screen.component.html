@@ -1,11 +1,28 @@
 <div class="splash-container" *ngIf="isVisible()">
+
+  <!-- Logo + Title -->
   <div class="logo-wrapper">
     <div class="logo-container">
       <img src="assets/logo1.jpg" alt="HuntPuk Logo" class="logo-animation">
     </div>
     <h1 class="app-name">HuntPuk</h1>
+    <p class="app-tagline">ค้นหาหอพักที่ใช่ สำหรับคุณ</p>
   </div>
+
+  <!-- Dorm Running Loader -->
   <div class="loader-wrapper">
-    <div class="line-loader"></div>
+    <div class="run-track">
+      <div class="run-dorm">
+        <!-- SVG icon หอพัก -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </div>
+      <div class="track-line">
+        <div class="track-fill"></div>
+      </div>
+    </div>
+    <p class="loading-text">กำลังโหลด...</p>
   </div>
+
 </div>

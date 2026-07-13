@@ -1,88 +1,182 @@
+/* ─────────────────────────────
+   Splash Screen – Dark Theme
+───────────────────────────── */
+
 .splash-container {
   position: fixed;
   inset: 0;
-  background-color: #ffcc00; /* Primary Yellow */
+  background: #ffcc00;
   z-index: 9999;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  animation: fadeOut 0.5s ease-in 2.2s forwards;
+  gap: 2rem;
+  animation: splashFadeOut 0.6s ease-in-out 2.8s forwards;
 }
 
+/* ─── Logo ─── */
 .logo-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  animation: logoEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .logo-container {
-  width: 140px;
-  height: 140px;
-  border-radius: 20%;
-  background-color: white;
-  overflow: hidden; /* This creates the "crop" effect */
+  width: 110px;
+  height: 110px;
+  border-radius: 24px;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: pulseScale 1.5s infinite ease-in-out;
+  box-shadow:
+    0 0 0 2px rgba(255, 204, 0, 0.3),
+    0 0 30px rgba(255, 204, 0, 0.15),
+    0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
 .logo-animation {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transform: scale(1.3); /* Zoom in the image content by ~1.5x (relative to container) */
+  transform: scale(1.3);
 }
 
 .app-name {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #374151; /* Dark Gray */
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #1a1a1a;
   margin: 0;
-  letter-spacing: -0.05em;
-  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.04em;
+  font-family: 'Poppins', 'Prompt', sans-serif;
+
+  /* dark shimmer effect */
+  background: linear-gradient(90deg, #1a1a1a 0%, #374151 40%, #1a1a1a 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 2s linear infinite;
 }
 
+.app-tagline {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.55);
+  margin: 0;
+  letter-spacing: 0.05em;
+  font-family: 'Prompt', sans-serif;
+}
+
+/* ─── Dorm Running Loader ─── */
 .loader-wrapper {
   position: absolute;
-  bottom: 10%;
-  width: 60%;
+  bottom: 12%;
+  width: 65%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: loaderEntrance 0.5s ease 0.4s forwards;
+  opacity: 0;
 }
 
-.line-loader {
-  height: 4px;
+.run-track {
   width: 100%;
-  background: rgba(55, 65, 81, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
 
-  &::after {
-    content: '';
-    position: absolute;
-    left: -50%;
-    height: 100%;
-    width: 50%;
-    background: #374151;
-    border-radius: 2px;
-    animation: loadingMove 1.5s infinite linear;
+/* House icon วิ่งบนเส้น */
+.run-dorm {
+  position: relative;
+  animation: dormRun 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  margin-bottom: 4px;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: #1a1a1a;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+    animation: dormBounce 0.4s ease-in-out infinite alternate;
   }
 }
 
-@keyframes pulseScale {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+/* เส้น track */
+.track-line {
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
 }
 
-@keyframes loadingMove {
-  from { left: -50%; }
-  to { left: 100%; }
+.track-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1a1a1a, #374151);
+  border-radius: 2px;
+  animation: trackProgress 2.8s ease-out forwards;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes fadeOut {
+.loading-text {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+  letter-spacing: 0.1em;
+  font-family: 'Prompt', sans-serif;
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+/* ─── Keyframes ─── */
+@keyframes logoEntrance {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loaderEntrance {
+  to { opacity: 1; }
+}
+
+@keyframes shimmerText {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+
+/* house วิ่งจากซ้ายไปขวา */
+@keyframes dormRun {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(calc(100% + 10px)); }
+}
+
+/* เด้งเล็กน้อย */
+@keyframes dormBounce {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-4px); }
+}
+
+/* เส้นโหลด */
+@keyframes trackProgress {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.8; }
+}
+
+@keyframes splashFadeOut {
   from { opacity: 1; pointer-events: auto; }
-  to { opacity: 0; pointer-events: none; }
+  to   { opacity: 0; pointer-events: none; }
 }

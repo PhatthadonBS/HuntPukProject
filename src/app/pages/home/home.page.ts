@@ -265,6 +265,9 @@ export class HomePage implements OnInit, ViewDidEnter {
           this.allDorms.forEach(d => {
             d.isChecked = favoriteIds.includes(Number(d.DORM_ID || d.id));
           });
+          this.dorms.forEach(d => {
+            d.isChecked = favoriteIds.includes(Number(d.DORM_ID || d.id));
+          });
 
           if (this.selectedDorm) {
              this.selectedDorm.isChecked = favoriteIds.includes(Number(this.selectedDorm.DORM_ID || this.selectedDorm.id));
@@ -462,7 +465,15 @@ export class HomePage implements OnInit, ViewDidEnter {
         // ✅ Call performSearch to apply initial radius filter
         this.performSearch();
       }
-    } catch (err) { console.error('Fetch Dorms Error:', err); }
+    } catch (err) {
+      console.error('Search Dorms Error:', err);
+    }
+  }
+
+  onZoomChanged() {
+    if (this.googleMapComponent?.googleMap) {
+      this.zoom = this.googleMapComponent.googleMap.getZoom() || this.zoom;
+    }
   }
 
   onSearch(text: any) {
@@ -595,6 +606,8 @@ export class HomePage implements OnInit, ViewDidEnter {
 
         this.dorms = tempDorms as any[];
   
+        this.cdr.detectChanges();
+
         if (this.dorms.length === 0 && this.hasActiveFilter()) {
           setTimeout(async () => {
             const alert = await this.alertCtrl.create({
@@ -679,7 +692,9 @@ export class HomePage implements OnInit, ViewDidEnter {
       try {
         const res = await this.dormService.getDormById(dorm.DORM_ID);
         if (res.success && res.data) {
-          this.selectedDorm = { ...this.selectedDorm, ...res.data, isChecked: dorm.isChecked };
+          // ดึง isChecked ล่าสุดจาก allDorms เสมอ เพื่อไม่ให้ค่าเก่าทับค่าใหม่
+          const latestChecked = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID))?.isChecked ?? dorm.isChecked;
+          this.selectedDorm = { ...this.selectedDorm, ...res.data, isChecked: latestChecked };
           this.cdr.detectChanges();
         }
       } catch (e) { console.error(e); }

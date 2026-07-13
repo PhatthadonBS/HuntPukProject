@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, 
   IonButtons, IonButton, IonIcon, IonSpinner,
-  IonSegment, IonSegmentButton, IonLabel, IonBadge, IonTextarea,
-  AlertController, ToastController
+  IonSegment, IonSegmentButton, IonLabel, IonBadge, IonTextarea, IonSearchbar,
+  IonSelect, IonSelectOption, AlertController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -27,7 +27,8 @@ import { DormitoryService } from '../../services/dormitory';
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, 
     IonButtons, IonButton, IonIcon, IonSpinner,
-    IonSegment, IonSegmentButton, IonLabel, IonBadge, IonTextarea,
+    IonSegment, IonSegmentButton, IonLabel, IonBadge, IonTextarea, IonSearchbar,
+    IonSelect, IonSelectOption,
     CommonModule, FormsModule
   ],
   providers: [DatePipe] 
@@ -36,13 +37,13 @@ export class ManageRequestsCreatedormPage implements OnInit {
 
   requests: any[] = [];
   isLoading = false;
-  currentSegment: string = 'pending'; // pending | approved | rejected | sendback
+  searchQuery = '';
+  statusFilter = 'all'; // all | 0 | 2 | 4 | 1
 
   // Expanded detail state
   expandedDormId: number | null = null;
   expandedDormData: any = null;
   isLoadingDetail: boolean = false;
-  sendBackReasonMap: { [dormId: number]: string } = {};
   isLightboxOpen = false;
   lightboxImage: string | null = null;
 
@@ -72,13 +73,38 @@ export class ManageRequestsCreatedormPage implements OnInit {
     this.router.navigate(['/home']); 
   }
 
-  // ====== Load all requests (all statuses for admin) ======
+  // ====== Load all requests ======
   async loadAllRequests() {
     this.isLoading = true;
     try {
       const res = await this.dormService.getPendingRequests();
       if (res && res.data) {
-        this.requests = res.data;
+        // กรองคำขอที่ซ้ำซ้อน (ชื่อหอพัก + ไอดีเจ้าของหอพัก เดียวกัน) เลือกอันใหม่สุด (DORM_ID มากสุด)
+        const uniqueMap = new Map<string, any>();
+        for (const req of res.data) {
+          const key = `${req.DORM_NAME}_${req.DORM_OWNER_ID}`;
+          if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, req);
+          } else {
+            const existing = uniqueMap.get(key);
+            if (req.DORM_ID > existing.DORM_ID) {
+              uniqueMap.set(key, req);
+            }
+          }
+        }
+        
+        let uniqueList = Array.from(uniqueMap.values());
+        
+        // เรียงลำดับความสำคัญของสถานะ: 0 (รออนุมัติ) -> 2 (ปฏิเสธ) -> 4 (ส่งกลับ) -> 1 (อนุมัติแล้ว)
+        const statusOrder: { [key: number]: number } = { 0: 1, 2: 2, 4: 3, 1: 4 };
+        uniqueList.sort((a, b) => {
+          const orderA = statusOrder[a.REQ_STATUS] || 99;
+          const orderB = statusOrder[b.REQ_STATUS] || 99;
+          if (orderA !== orderB) return orderA - orderB;
+          return new Date(b.REG_AT).getTime() - new Date(a.REG_AT).getTime();
+        });
+
+        this.requests = uniqueList;
       } else {
         this.requests = [];
       }
@@ -90,21 +116,28 @@ export class ManageRequestsCreatedormPage implements OnInit {
     }
   }
 
-  // ====== Filter requests by segment ======
+  // ====== Filter requests by search and status ======
   get filteredRequests(): any[] {
-    switch (this.currentSegment) {
-      case 'pending':   return this.requests.filter(r => r.REQ_STATUS === 0);
-      case 'approved':  return this.requests.filter(r => r.REQ_STATUS === 1);
-      case 'rejected':  return this.requests.filter(r => r.REQ_STATUS === 2);
-      case 'sendback':  return this.requests.filter(r => r.REQ_STATUS === 4);
-      default: return this.requests;
+    let filtered = this.requests;
+    
+    // Filter by status
+    if (this.statusFilter !== 'all') {
+      const statusNum = parseInt(this.statusFilter, 10);
+      filtered = filtered.filter(r => r.REQ_STATUS === statusNum);
     }
-  }
 
-  get pendingCount()   { return this.requests.filter(r => r.REQ_STATUS === 0).length; }
-  get approvedCount()  { return this.requests.filter(r => r.REQ_STATUS === 1).length; }
-  get rejectedCount()  { return this.requests.filter(r => r.REQ_STATUS === 2).length; }
-  get sendbackCount()  { return this.requests.filter(r => r.REQ_STATUS === 4).length; }
+    // Filter by search query
+    if (this.searchQuery) {
+      const lowerQ = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(r => 
+        (r.DORM_NAME && r.DORM_NAME.toLowerCase().includes(lowerQ)) ||
+        (r.FIRST_NAME && r.FIRST_NAME.toLowerCase().includes(lowerQ)) ||
+        (r.LAST_NAME && r.LAST_NAME.toLowerCase().includes(lowerQ))
+      );
+    }
+    
+    return filtered;
+  }
 
   getReqStatusLabel(status: number): string {
     switch (status) {
@@ -204,20 +237,13 @@ export class ManageRequestsCreatedormPage implements OnInit {
   async sendBack(item: any) {
     const alert = await this.alertCtrl.create({
       header: 'ส่งกลับให้แก้ไข',
-      message: `ระบุหมายเหตุถึงเจ้าของหอพัก "${item.DORM_NAME}" (ถ้ามี)`,
-      inputs: [
-        {
-          name: 'reason',
-          type: 'textarea',
-          placeholder: 'หมายเหตุเพิ่มเติม...',
-        }
-      ],
+      message: `ต้องการส่งหอพัก "${item.DORM_NAME}" กลับให้เจ้าของแก้ไขใช่หรือไม่?\n(จะใช้ข้อความเดิมที่เคยปฏิเสธไปแล้ว)`,
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
           text: 'ส่งกลับ',
-          handler: (data) => {
-            this.processSendBack(item.DORM_ID, data.reason?.trim() || '');
+          handler: () => {
+            this.processSendBack(item.DORM_ID, '');
           }
         }
       ]
