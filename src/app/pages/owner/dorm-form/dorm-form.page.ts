@@ -563,50 +563,61 @@ export class DormFormPage implements OnInit {
     this.selectedFiles.OTHER_IMG.splice(index, 1);
   }
 
-  async suggestNewFacility() {
+  // =========== Custom Facility Modal State ===========
+  isAddFacilityModalOpen = false;
+  newFacilityName = '';
+  newFacilitySelectedIcon = 'assets/allicons/star.png'; // default icon
+  
+  availableIcons = [
+    'air-conditioner.png', 'bed.png', 'business-fill.png', 'business-outline.png',
+    'cabin.png', 'cable-tv.png', 'car-parking.png', 'cctv-camera.png', 'desk.png',
+    'elevator.png', 'fan.png', 'fingerprint.png', 'frig.png', 'furnitures.png',
+    'garage.png', 'gym.png', 'home.png', 'key.png', 'kitchen-set.png',
+    'laundry-machine.png', 'mart.png', 'motorcycle-parking.png', 'pet.png',
+    'policeman.png', 'quarantine.png', 'recycle-bin.png', 'seater-sofa.png',
+    'star.png', 'swimming-pool.png', 'tv.png', 'user.png', 'wardrobe.png',
+    'water-heater.png', 'wifi.png', 'woman-hair.png'
+  ];
+
+  suggestNewFacility() {
     if (this.formData.new_facilities.length >= 3) {
       this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 3 รายการ', 'warning');
       return;
     }
+    
+    // Reset state and open modal
+    this.newFacilityName = '';
+    this.newFacilitySelectedIcon = 'assets/allicons/star.png';
+    this.isAddFacilityModalOpen = true;
+  }
 
-    const alertName = await this.alertCtrl.create({
-      header: 'เพิ่มสิ่งอำนวยความสะดวก',
-      inputs: [{ name: 'facName', type: 'text', placeholder: 'ถ้ามีเพิ่มเติมกรุณาระบุ' }],
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'เพิ่ม',
-          handler: (data) => {
-            const trimmedName = data.facName ? data.facName.trim() : '';
-            if (!trimmedName) return false;
-            
-            // 1. Check existing facilities
-            const existsInMain = this.facilities.some(f => f.name.toLowerCase() === trimmedName.toLowerCase());
-            const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
-            
-            if (existsInMain || existsInNew) {
-              this.showToast('สิ่งอำนวยความสะดวกนี้มีอยู่แล้ว', 'warning');
-              return false; // Prevent closing the alert if they want to try again, or return true to just close it.
-            }
-            
-            // 2. Auto-map icon
-            let autoIcon = 'cube-outline';
-            if (trimmedName.includes('น้ำ')) autoIcon = 'water-outline';
-            else if (trimmedName.includes('ซัก')) autoIcon = 'shirt-outline';
-            else if (trimmedName.includes('ข้าว') || trimmedName.includes('อาหาร')) autoIcon = 'restaurant-outline';
-            else if (trimmedName.includes('รถ')) autoIcon = 'car-outline';
-            else if (trimmedName.includes('ออกกำลัง') || trimmedName.includes('ฟิตเนส')) autoIcon = 'barbell-outline';
-            else if (trimmedName.includes('สัตว์') || trimmedName.includes('หมา') || trimmedName.includes('แมว')) autoIcon = 'paw-outline';
-            else if (trimmedName.includes('แอร์') || trimmedName.includes('เย็น')) autoIcon = 'snow-outline';
-            else if (trimmedName.includes('ปลอดภัย') || trimmedName.includes('รปภ')) autoIcon = 'shield-checkmark-outline';
-            
-            this.formData.new_facilities.push({ name: trimmedName, icon: autoIcon });
-            return true;
-          }
-        }
-      ]
+  closeAddFacilityModal() {
+    this.isAddFacilityModalOpen = false;
+  }
+
+  confirmAddFacility() {
+    const trimmedName = this.newFacilityName ? this.newFacilityName.trim() : '';
+    if (!trimmedName) {
+      this.showToast('กรุณาระบุชื่อสิ่งอำนวยความสะดวก', 'warning');
+      return;
+    }
+    
+    // 1. Check existing facilities
+    const existsInMain = this.facilities.some(f => f.name.toLowerCase() === trimmedName.toLowerCase());
+    const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
+    
+    if (existsInMain || existsInNew) {
+      this.showToast('สิ่งอำนวยความสะดวกนี้มีอยู่แล้ว', 'warning');
+      return;
+    }
+    
+    // 3. Add to new facilities
+    this.formData.new_facilities.push({
+      name: trimmedName,
+      icon: this.newFacilitySelectedIcon
     });
-    await alertName.present();
+    
+    this.closeAddFacilityModal();
   }
 
   removeNewFacility(index: number) {

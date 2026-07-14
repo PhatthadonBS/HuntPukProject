@@ -54,7 +54,10 @@
 
           <!-- Icon -->
           <div class="fac-icon-box" slot="start">
-            <img *ngIf="fac.FAC_TYPE_ICON" [src]="fac.FAC_TYPE_ICON" class="fac-img" (error)="handleImageError(fac)" alt="">
+            <img *ngIf="fac.FAC_TYPE_ICON && (fac.FAC_TYPE_ICON.includes('/') || fac.FAC_TYPE_ICON.includes('.png'))" 
+                 [src]="fac.FAC_TYPE_ICON" class="fac-img" alt="">
+            <ion-icon *ngIf="fac.FAC_TYPE_ICON && !fac.FAC_TYPE_ICON.includes('/') && !fac.FAC_TYPE_ICON.includes('.png')" 
+                      [name]="fac.FAC_TYPE_ICON" class="fac-fallback-icon"></ion-icon>
             <ion-icon *ngIf="!fac.FAC_TYPE_ICON" name="cube-outline" class="fac-fallback-icon"></ion-icon>
           </div>
 
@@ -98,7 +101,10 @@
       <ion-item *ngFor="let fac of facilityRequests()" class="fac-item request-card" lines="none">
 
         <div class="fac-icon-box" slot="start">
-          <img *ngIf="fac.FAC_TYPE_ICON" [src]="fac.FAC_TYPE_ICON" class="fac-img" (error)="handleImageError(fac)" alt="">
+          <img *ngIf="fac.FAC_TYPE_ICON && (fac.FAC_TYPE_ICON.includes('/') || fac.FAC_TYPE_ICON.includes('.png'))" 
+               [src]="fac.FAC_TYPE_ICON" class="fac-img" alt="">
+          <ion-icon *ngIf="fac.FAC_TYPE_ICON && !fac.FAC_TYPE_ICON.includes('/') && !fac.FAC_TYPE_ICON.includes('.png')" 
+                    [name]="fac.FAC_TYPE_ICON" class="fac-fallback-icon"></ion-icon>
           <ion-icon *ngIf="!fac.FAC_TYPE_ICON" name="cube-outline" class="fac-fallback-icon"></ion-icon>
         </div>
 

@@ -179,10 +179,11 @@
           </ion-button>
           
           <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list">
-            <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item">
-              <ion-icon name="checkmark-circle" color="success" style="vertical-align: middle;"></ion-icon> 
-              <span style="vertical-align: middle; margin-left:5px; color: #333;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
-              <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="vertical-align: middle; margin-left: 5px; --padding-start: 0; --padding-end: 0; height: 24px;">
+            <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
+              <!-- Display the selected icon as image -->
+              <img [src]="newFac.icon" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+              <span style="color: #333;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
+              <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="--padding-start: 0; --padding-end: 0; height: 24px;">
                 <ion-icon name="close-circle" slot="icon-only"></ion-icon>
               </ion-button>
             </div>
@@ -190,6 +191,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal สำหรับเพิ่มสิ่งอำนวยความสะดวกใหม่ -->
+    <ion-modal [isOpen]="isAddFacilityModalOpen" (didDismiss)="closeAddFacilityModal()">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-title>เพิ่มสิ่งอำนวยความสะดวก</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="closeAddFacilityModal()">ปิด</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <ion-item>
+            <ion-label position="stacked">ชื่อสิ่งอำนวยความสะดวก</ion-label>
+            <ion-input [(ngModel)]="newFacilityName" placeholder="ถ้ามีเพิ่มเติมกรุณาระบุ"></ion-input>
+          </ion-item>
+
+          <div style="margin-top: 16px;">
+            <p style="font-weight: bold; margin-bottom: 8px; color: #555;">เลือกไอคอน (จากระบบ)</p>
+            <div class="icon-grid">
+              <div 
+                *ngFor="let iconFile of availableIcons" 
+                class="icon-select-item" 
+                [class.selected]="newFacilitySelectedIcon === 'assets/allicons/' + iconFile"
+                (click)="newFacilitySelectedIcon = 'assets/allicons/' + iconFile">
+                <img [src]="'assets/allicons/' + iconFile" [alt]="iconFile">
+              </div>
+            </div>
+          </div>
+        </ion-content>
+        <ion-footer>
+          <ion-toolbar>
+            <ion-button expand="block" color="success" (click)="confirmAddFacility()">เพิ่มรายการ</ion-button>
+          </ion-toolbar>
+        </ion-footer>
+      </ng-template>
+    </ion-modal>
 
     <!-- ==================== STEP 3: ประเภทห้องพัก ==================== -->
     <div *ngIf="currentStep === 3" class="fade-in">

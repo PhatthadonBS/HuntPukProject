@@ -1,38 +1,37 @@
 <ion-header class="ion-no-border">
-  <!-- Main toolbar: black bg + yellow accent -->
-  <ion-toolbar style="--background: #111827; --border-width: 0; padding-bottom: 0;">
-    <ion-buttons slot="start">
-      <ion-button (click)="goBack()" style="--color: #FFD700;">
-        <ion-icon name="arrow-back" slot="start" style="font-size: 20px; color: #FFD700;"></ion-icon>
-        <span style="font-size: 15px; font-weight: 700; color: #FFD700;">กลับ</span>
-      </ion-button>
-    </ion-buttons>
-    <ion-title style="font-weight: 800; font-size: 18px; color: #ffffff; letter-spacing: 0.3px;">
-      จัดการคำร้องขอ
-    </ion-title>
+  <ion-toolbar style="--background: #ffffff; border-bottom: 1px solid #f0f0f0;">
+    <div style="max-width: 820px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 8px;">
+      <ion-buttons slot="start">
+        <ion-button (click)="goBack()" style="--color: #111;">
+          <ion-icon name="arrow-back" slot="start" style="font-size: 20px; color: #111;"></ion-icon>
+          <span style="font-size: 15px; font-weight: 700; color: #111;">กลับ</span>
+        </ion-button>
+      </ion-buttons>
+      <ion-title style="font-weight: 800; font-size: 18px; color: #111; letter-spacing: 0.3px; text-align: center; padding: 0;">
+        จัดการคำร้องขอ
+      </ion-title>
+      <div style="width: 70px;"></div> <!-- Spacer to center title -->
+    </div>
   </ion-toolbar>
 
-  <!-- Yellow accent line -->
-  <div style="height: 3px; background: linear-gradient(90deg, #FFD700 0%, #f59e0b 60%, transparent 100%);"></div>
-
-  <!-- Search + Filter: dark charcoal bg -->
-  <ion-toolbar style="--background: #1f2937; --border-width: 0; padding: 4px 0 8px 0;">
-    <div style="display: flex; align-items: center; gap: 10px; padding: 0 14px;">
+  <!-- Search + Filter: Light bg -->
+  <ion-toolbar style="--background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 6px 0;">
+    <div style="max-width: 820px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 0 16px;">
       <!-- Search bar -->
       <ion-searchbar [(ngModel)]="searchQuery"
-                     placeholder="ค้นหาชื่อหอพัก, เจ้าของ..."
+                     placeholder="ค้นหาชื่อหอพัก หรือเจ้าของ..."
                      mode="ios"
                      animated="true"
                      style="
                        flex: 1;
-                       --background: rgba(255,255,255,0.1);
-                       --border-radius: 10px;
-                       --box-shadow: none;
-                       --color: #fff;
-                       --placeholder-color: rgba(255,255,255,0.5);
-                       --icon-color: #FFD700;
-                       --clear-button-color: #FFD700;
                        padding: 0;
+                       --background: #f3f4f6;
+                       --border-radius: 12px;
+                       --box-shadow: none;
+                       --color: #111;
+                       --placeholder-color: #6b7280;
+                       --icon-color: #6b7280;
+                       --clear-button-color: #6b7280;
                      ">
       </ion-searchbar>
       <!-- Filter select -->
@@ -40,16 +39,16 @@
                   interface="popover"
                   mode="ios"
                   style="
-                    min-width: 110px;
-                    background: rgba(255,215,0,0.15);
-                    border: 1.5px solid #FFD700;
-                    border-radius: 10px;
-                    padding: 8px 12px;
-                    font-size: 13px;
+                    min-width: 120px;
+                    background: #fcfcfc;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 12px;
+                    padding: 8px 14px;
+                    font-size: 14px;
                     font-weight: 600;
-                    color: #FFD700;
-                    --color: #FFD700;
-                    --placeholder-color: #FFD700;
+                    color: #374151;
+                    --color: #374151;
+                    --placeholder-color: #374151;
                   ">
         <ion-select-option value="all">ทั้งหมด</ion-select-option>
         <ion-select-option value="0">รออนุมัติ</ion-select-option>
@@ -59,8 +58,6 @@
       </ion-select>
     </div>
   </ion-toolbar>
-  <!-- Bottom border of header -->
-  <div style="height: 1px; background: rgba(255,215,0,0.2);"></div>
 </ion-header>
 
 <ion-content>

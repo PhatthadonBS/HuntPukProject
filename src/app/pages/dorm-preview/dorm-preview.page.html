@@ -1,12 +1,12 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="warning">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/my-dorms" text="ย้อนกลับ" color="dark"></ion-back-button>
+      <ion-back-button defaultHref="/my-dorms" text="à¸¢à¹‰à¸­à¸™à¸�à¸¥à¸±à¸š" color="dark"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">แก้ไขข้อมูลหอพัก</ion-title>
+    <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">à¹�à¸�à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸«à¸­à¸žà¸±à¸�</ion-title>
     <ion-buttons slot="end">
       <ion-button color="dark" (click)="goEdit()">
-        <ion-icon name="create-outline" slot="start"></ion-icon> ���
+        <ion-icon name="create-outline" slot="start"></ion-icon> á¡éä¢
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -14,16 +14,16 @@
   <ion-toolbar color="light">
     <ion-segment [value]="activeSegment" (ionChange)="segmentChanged($event)" mode="md" color="warning">
       <ion-segment-button value="general">
-        <ion-label>ข้อมูลทั่วไป</ion-label>
+        <ion-label>à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸—à¸±à¹ˆà¸§à¹„à¸›</ion-label>
       </ion-segment-button>
       <ion-segment-button value="facilities">
-        <ion-label>สิ่งอำนวยฯ</ion-label>
+        <ion-label>à¸ªà¸´à¹ˆà¸‡à¸­à¸³à¸™à¸§à¸¢à¸¯</ion-label>
       </ion-segment-button>
       <ion-segment-button value="rooms">
-        <ion-label>ห้องพัก</ion-label>
+        <ion-label>à¸«à¹‰à¸­à¸‡à¸žà¸±à¸�</ion-label>
       </ion-segment-button>
       <ion-segment-button value="images">
-        <ion-label>รูปภาพ</ion-label>
+        <ion-label>à¸£à¸¹à¸›à¸ à¸²à¸ž</ion-label>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
@@ -31,27 +31,27 @@
 
 <ion-content class="ion-padding bg-light">
 
-  <!-- รออนุมัติ (REQ_STATUS=0) -->
+  <!-- à¸£à¸­à¸­à¸™à¸¸à¸¡à¸±à¸•à¸´ (REQ_STATUS=0) -->
   <div class="status-banner" *ngIf="true && !isResubmitMode" style="background: #fff3cd; color: #856404; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-weight: bold; border: 1px solid #ffeeba;">
     <ion-icon name="time-outline" style="font-size: 24px;"></ion-icon>
-    <span>กำลังรอแอดมินตรวจสอบ ไม่สามารถแก้ไขข้อมูลได้ในขณะนี้</span>
+    <span>à¸�à¸³à¸¥à¸±à¸‡à¸£à¸­à¹�à¸­à¸”à¸¡à¸´à¸™à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸š à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹�à¸�à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹„à¸”à¹‰à¹ƒà¸™à¸‚à¸“à¸°à¸™à¸µà¹‰</span>
   </div>
 
-  <!-- view-only mode (เข้ามาดูข้อมูล) -->
+  <!-- view-only mode (à¹€à¸‚à¹‰à¸²à¸¡à¸²à¸”à¸¹à¸‚à¹‰à¸­à¸¡à¸¹à¸¥) -->
   <div class="status-banner" *ngIf="true" style="background: #e0f2fe; color: #0369a1; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-weight: bold; border: 1px solid #bae6fd;">
     <ion-icon name="eye-outline" style="font-size: 24px;"></ion-icon>
-    <span>เรากำลังรออนุมัติจากแอดมิน อยู่ในโหมดดูข้อมูลอย่างเดียว</span>
+    <span>à¹€à¸£à¸²à¸�à¸³à¸¥à¸±à¸‡à¸£à¸­à¸­à¸™à¸¸à¸¡à¸±à¸•à¸´à¸ˆà¸²à¸�à¹�à¸­à¸”à¸¡à¸´à¸™ à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¹‚à¸«à¸¡à¸”à¸”à¸¹à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸¢à¹ˆà¸²à¸‡à¹€à¸”à¸µà¸¢à¸§</span>
   </div>
 
-  <!-- resubmit mode (ส่งกลับให้แก้ไข) -->
+  <!-- resubmit mode (à¸ªà¹ˆà¸‡à¸�à¸¥à¸±à¸šà¹ƒà¸«à¹‰à¹�à¸�à¹‰à¹„à¸‚) -->
   <div class="status-banner" *ngIf="isResubmitMode" style="background: #ede9fe; color: #4c1d95; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-weight: bold; border: 1px solid #c4b5fd;">
     <ion-icon name="pencil-outline" style="font-size: 24px;"></ion-icon>
-    <span>แอดมินให้คุณแก้ไขข้อมูลและกด "ส่งใหม่" เพื่อขออนุมัติอีกครั้ง</span>
+    <span>à¹�à¸­à¸”à¸¡à¸´à¸™à¹ƒà¸«à¹‰à¸„à¸¸à¸“à¹�à¸�à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹�à¸¥à¸°à¸�à¸” "à¸ªà¹ˆà¸‡à¹ƒà¸«à¸¡à¹ˆ" à¹€à¸žà¸·à¹ˆà¸­à¸‚à¸­à¸­à¸™à¸¸à¸¡à¸±à¸•à¸´à¸­à¸µà¸�à¸„à¸£à¸±à¹‰à¸‡</span>
   </div>
 
   <div class="status-banner" *ngIf="reqStatus === 2 && !isResubmitMode" style="background: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-weight: bold; border: 1px solid #f5c6cb;">
     <ion-icon name="alert-circle-outline" style="font-size: 24px;"></ion-icon>
-    <span>คำขอถูกปฏิเสธ กรุณาแก้ไขข้อมูลและกดบันทึกเพื่อส่งคำขอใหม่</span>
+    <span>à¸„à¸³à¸‚à¸­à¸–à¸¹à¸�à¸›à¸�à¸´à¹€à¸ªà¸˜ à¸�à¸£à¸¸à¸“à¸²à¹�à¸�à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹�à¸¥à¸°à¸�à¸”à¸šà¸±à¸™à¸—à¸¶à¸�à¹€à¸žà¸·à¹ˆà¸­à¸ªà¹ˆà¸‡à¸„à¸³à¸‚à¸­à¹ƒà¸«à¸¡à¹ˆ</span>
   </div>
 
   <div class="form-container" [class.readonly]="true || true">
@@ -59,38 +59,38 @@
     <div *ngIf="activeSegment === 'general'" class="fade-in">
       
       <div class="section-card">
-        <h3><ion-icon name="home-outline"></ion-icon> ข้อมูลพื้นฐาน</h3>
+        <h3><ion-icon name="home-outline"></ion-icon> à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸žà¸·à¹‰à¸™à¸�à¸²à¸™</h3>
         
         <ion-item class="custom-input">
-          <ion-label position="stacked">ชื่อหอพัก <span class="req">*</span></ion-label>
-          <ion-input [(ngModel)]="formData.name" placeholder="ระบุชื่อหอพัก" [disabled]="true" [readonly]="true"></ion-input>
+          <ion-label position="stacked">à¸Šà¸·à¹ˆà¸­à¸«à¸­à¸žà¸±à¸� <span class="req">*</span></ion-label>
+          <ion-input [(ngModel)]="formData.name" placeholder="à¸£à¸°à¸šà¸¸à¸Šà¸·à¹ˆà¸­à¸«à¸­à¸žà¸±à¸�" [disabled]="true" [readonly]="true"></ion-input>
         </ion-item>
 
         <ion-item class="custom-input">
-          <ion-label position="stacked">ประเภทหอพัก</ion-label>
+          <ion-label position="stacked">à¸›à¸£à¸°à¹€à¸ à¸—à¸«à¸­à¸žà¸±à¸�</ion-label>
           <ion-select [(ngModel)]="formData.type_id" interface="popover" [disabled]="true" [readonly]="true">
             <ion-select-option *ngFor="let dt of dormTypesDB" [value]="dt.id || dt.DORM_TYPE_ID">{{ dt.name || dt.DORM_TYPE_NAME }}</ion-select-option>
           </ion-select>
         </ion-item>
 
         <ion-item class="custom-input">
-          <ion-label position="stacked">โซนหอพัก <span class="req">*</span></ion-label>
+          <ion-label position="stacked">à¹‚à¸‹à¸™à¸«à¸­à¸žà¸±à¸� <span class="req">*</span></ion-label>
           <ion-select [(ngModel)]="formData.zone_id" (ionChange)="onZoneChange()" interface="popover" [disabled]="true" [readonly]="true">
             <ion-select-option *ngFor="let z of zones" [value]="z.ZONE_ID">{{ z.ZONE_NAME }}</ion-select-option>
           </ion-select>
         </ion-item>
 
         <ion-item class="custom-input">
-          <ion-label position="stacked">รายละเอียด/คำเชิญชวน</ion-label>
-          <ion-textarea [(ngModel)]="formData.detail" rows="4" placeholder="เช่น หอพักสะอาด ใกล้มอ..." [disabled]="true" [readonly]="true"></ion-textarea>
+          <ion-label position="stacked">à¸£à¸²à¸¢à¸¥à¸°à¹€à¸­à¸µà¸¢à¸”/à¸„à¸³à¹€à¸Šà¸´à¸�à¸Šà¸§à¸™</ion-label>
+          <ion-textarea [(ngModel)]="formData.detail" rows="4" placeholder="à¹€à¸Šà¹ˆà¸™ à¸«à¸­à¸žà¸±à¸�à¸ªà¸°à¸­à¸²à¸” à¹ƒà¸�à¸¥à¹‰à¸¡à¸­..." [disabled]="true" [readonly]="true"></ion-textarea>
         </ion-item>
       </div>
 
       <div class="section-card">
-        <h3><ion-icon name="location-outline"></ion-icon> ที่อยู่ & พิกัด</h3>
+        <h3><ion-icon name="location-outline"></ion-icon> à¸—à¸µà¹ˆà¸­à¸¢à¸¹à¹ˆ & à¸žà¸´à¸�à¸±à¸”</h3>
         <ion-item class="custom-input">
-          <ion-label position="stacked">ที่อยู่</ion-label>
-          <ion-textarea [(ngModel)]="formData.address" rows="2" placeholder="บ้านเลขที่, ซอย, ถนน..." [disabled]="true" [readonly]="true"></ion-textarea>
+          <ion-label position="stacked">à¸—à¸µà¹ˆà¸­à¸¢à¸¹à¹ˆ</ion-label>
+          <ion-textarea [(ngModel)]="formData.address" rows="2" placeholder="à¸šà¹‰à¸²à¸™à¹€à¸¥à¸‚à¸—à¸µà¹ˆ, à¸‹à¸­à¸¢, à¸–à¸™à¸™..." [disabled]="true" [readonly]="true"></ion-textarea>
         </ion-item>
         
         <div class="map-wrapper" style="margin-top: 15px; height: 300px; border-radius: 8px; overflow: hidden; position: relative;" *ngIf="apiLoaded | async">
@@ -99,45 +99,45 @@
             <map-marker [position]="markerPosition" [options]="markerOptions">
             </map-marker>
             <map-circle *ngIf="zoneCenter" [center]="zoneCenter" [radius]="zoneRadius" [options]="circleOptions"></map-circle>
-            <!-- Marker สำหรับศูนย์กลางโซน -->
+            <!-- Marker à¸ªà¸³à¸«à¸£à¸±à¸šà¸¨à¸¹à¸™à¸¢à¹Œà¸�à¸¥à¸²à¸‡à¹‚à¸‹à¸™ -->
             <map-marker *ngIf="zoneCenter" [position]="zoneCenter" [options]="{ icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } }"></map-marker>
           </google-map>
         </div>
-        <p class="hint-text text-danger" style="font-size: 13px; margin-top: 8px;" *ngIf="!true">* แตะบนแผนที่เพื่อปักหมุดแก้ไขตำแหน่งหอพัก</p>
+        <p class="hint-text text-danger" style="font-size: 13px; margin-top: 8px;" *ngIf="!true">* à¹�à¸•à¸°à¸šà¸™à¹�à¸œà¸™à¸—à¸µà¹ˆà¹€à¸žà¸·à¹ˆà¸­à¸›à¸±à¸�à¸«à¸¡à¸¸à¸”à¹�à¸�à¹‰à¹„à¸‚à¸•à¸³à¹�à¸«à¸™à¹ˆà¸‡à¸«à¸­à¸žà¸±à¸�</p>
         <div class="coord-display" style="margin-top: 10px;" *ngIf="formData.lat">
           <div style="font-size: 13px; color: #28a745; display: flex; align-items: center; gap: 4px;">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
-            พิกัด: {{ formData.lat | number:'1.6-6' }}, {{ formData.lng | number:'1.6-6' }}
+            à¸žà¸´à¸�à¸±à¸”: {{ formData.lat | number:'1.6-6' }}, {{ formData.lng | number:'1.6-6' }}
           </div>
         </div>
       </div>
 
    <div class="section-card">
-        <h3>💡 ค่าน้ำ & ค่าไฟ</h3>
+        <h3>ðŸ’¡ à¸„à¹ˆà¸²à¸™à¹‰à¸³ & à¸„à¹ˆà¸²à¹„à¸Ÿ</h3>
         
         <div class="row-2-col">
           <ion-item class="custom-input">
-            <ion-label position="stacked">ค่าน้ำ (บาท/หน่วย) <span class="req">*</span></ion-label>
-            <ion-input type="number" [(ngModel)]="formData.water_unit" placeholder="เช่น 15" [disabled]="true" [readonly]="true"></ion-input>
+            <ion-label position="stacked">à¸„à¹ˆà¸²à¸™à¹‰à¸³ (à¸šà¸²à¸—/à¸«à¸™à¹ˆà¸§à¸¢) <span class="req">*</span></ion-label>
+            <ion-input type="number" [(ngModel)]="formData.water_unit" placeholder="à¹€à¸Šà¹ˆà¸™ 15" [disabled]="true" [readonly]="true"></ion-input>
           </ion-item>
 
           <ion-item class="custom-input">
-            <ion-label position="stacked">ค่าน้ำเหมาจ่าย (ถ้ามี)</ion-label>
-            <ion-input type="number" [(ngModel)]="formData.water_lump" placeholder="เช่น 150 หรือปล่อยว่าง" [disabled]="true" [readonly]="true"></ion-input>
+            <ion-label position="stacked">à¸„à¹ˆà¸²à¸™à¹‰à¸³à¹€à¸«à¸¡à¸²à¸ˆà¹ˆà¸²à¸¢ (à¸–à¹‰à¸²à¸¡à¸µ)</ion-label>
+            <ion-input type="number" [(ngModel)]="formData.water_lump" placeholder="à¹€à¸Šà¹ˆà¸™ 150 à¸«à¸£à¸·à¸­à¸›à¸¥à¹ˆà¸­à¸¢à¸§à¹ˆà¸²à¸‡" [disabled]="true" [readonly]="true"></ion-input>
           </ion-item>
         </div>
 
         <ion-item class="custom-input">
-          <ion-label position="stacked">ค่าไฟ (บาท/หน่วย) <span class="req">*</span></ion-label>
-          <ion-input type="number" [(ngModel)]="formData.elect_unit" placeholder="เช่น 8" [disabled]="true" [readonly]="true"></ion-input>
+          <ion-label position="stacked">à¸„à¹ˆà¸²à¹„à¸Ÿ (à¸šà¸²à¸—/à¸«à¸™à¹ˆà¸§à¸¢) <span class="req">*</span></ion-label>
+          <ion-input type="number" [(ngModel)]="formData.elect_unit" placeholder="à¹€à¸Šà¹ˆà¸™ 8" [disabled]="true" [readonly]="true"></ion-input>
         </ion-item>
       </div>
     </div>
 
     <div *ngIf="activeSegment === 'facilities'" class="fade-in">
       <div class="section-card">
-        <h3><ion-icon name="wifi"></ion-icon> สิ่งอำนวยความสะดวก</h3>
-        <p class="hint-text">เลือกสิ่งที่หอพักของคุณมีให้บริการ</p>
+        <h3><ion-icon name="wifi"></ion-icon> à¸ªà¸´à¹ˆà¸‡à¸­à¸³à¸™à¸§à¸¢à¸„à¸§à¸²à¸¡à¸ªà¸°à¸”à¸§à¸�</h3>
+        <p class="hint-text">à¹€à¸¥à¸·à¸­à¸�à¸ªà¸´à¹ˆà¸‡à¸—à¸µà¹ˆà¸«à¸­à¸žà¸±à¸�à¸‚à¸­à¸‡à¸„à¸¸à¸“à¸¡à¸µà¹ƒà¸«à¹‰à¸šà¸£à¸´à¸�à¸²à¸£</p>
         
         <div class="facilities-checkbox-grid">
           <div *ngFor="let fac of facilities" 
@@ -146,17 +146,18 @@
                [class.disabled]="true"
                (click)="!true && (fac.checked = !fac.checked)">
             <div class="fac-icon-area">
-              <img *ngIf="fac.icon && fac.icon.startsWith('http')" 
+              <!-- Use image if icon contains '/' or '.png' or 'http' -->
+              <img *ngIf="fac.icon && (fac.icon.includes('/') || fac.icon.includes('.png') || fac.icon.startsWith('http'))" 
                    [src]="fac.icon" 
                    [alt]="fac.name"
                    class="fac-icon-img"
                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
               
-              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.startsWith('http') && fac.icon.startsWith('fa-')">
+              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.includes('/') && !fac.icon.includes('.png') && !fac.icon.startsWith('http') && fac.icon.startsWith('fa-')">
                  <i [class]="'fas ' + fac.icon"></i>
               </div>
 
-              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.startsWith('http') && !fac.icon.startsWith('fa-')">
+              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.includes('/') && !fac.icon.includes('.png') && !fac.icon.startsWith('http') && !fac.icon.startsWith('fa-')">
                  <ion-icon [name]="fac.icon"></ion-icon>
               </div>
 
@@ -171,16 +172,17 @@
           </div>
         </div>
 
-        <!-- ✅ สิ่งอำนวยความสะดวกเพิ่มเติม (new_facilities) -->
+        <!-- âœ… à¸ªà¸´à¹ˆà¸‡à¸­à¸³à¸™à¸§à¸¢à¸„à¸§à¸²à¸¡à¸ªà¸°à¸”à¸§à¸�à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸•à¸´à¸¡ (new_facilities) -->
         <div *ngIf="formData.new_facilities && formData.new_facilities.length > 0" style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 12px; border: 1px dashed #ddd;">
-          <p style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 10px;">✨ สิ่งอำนวยความสะดวกเพิ่มเติม (รออนุมัติ)</p>
+          <p style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 10px;">âœ¨ à¸ªà¸´à¹ˆà¸‡à¸­à¸³à¸™à¸§à¸¢à¸„à¸§à¸²à¸¡à¸ªà¸°à¸”à¸§à¸�à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸•à¸´à¸¡ (à¸£à¸­à¸­à¸™à¸¸à¸¡à¸±à¸•à¸´)</p>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             <div *ngFor="let nf of formData.new_facilities" style="display: flex; align-items: center; gap: 6px; background: #fff3e0; border: 1px solid #ffcc02; border-radius: 20px; padding: 4px 12px; font-size: 13px; color: #795548;">
-              <ion-icon [name]="nf.icon || 'cube-outline'" style="font-size: 14px;"></ion-icon>
+              <img *ngIf="nf.icon && (nf.icon.includes('/') || nf.icon.includes('.png'))" [src]="nf.icon" style="width: 16px; height: 16px; object-fit: contain;">
+              <ion-icon *ngIf="!nf.icon || (!nf.icon.includes('/') && !nf.icon.includes('.png'))" [name]="nf.icon || 'cube-outline'" style="font-size: 14px;"></ion-icon>
               <span>{{ nf.name }}</span>
             </div>
           </div>
-          <p style="font-size: 11px; color: #aaa; margin-top: 8px;">โควต้าที่เหลือ: {{ 3 - formData.new_facilities.length }} / 3</p>
+          <p style="font-size: 11px; color: #aaa; margin-top: 8px;">à¹‚à¸„à¸§à¸•à¹‰à¸²à¸—à¸µà¹ˆà¹€à¸«à¸¥à¸·à¸­: {{ 3 - formData.new_facilities.length }} / 3</p>
         </div>
       </div>
     </div>
@@ -188,35 +190,35 @@
     <div *ngIf="activeSegment === 'rooms'" class="fade-in">
       <div class="section-card">
         <div class="header-row">
-          <h3><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</h3>
+          <h3><ion-icon name="bed-outline"></ion-icon> à¸›à¸£à¸°à¹€à¸ à¸—à¸«à¹‰à¸­à¸‡à¸žà¸±à¸�</h3>
           <ion-button fill="outline" size="small" (click)="addRoomType()" *ngIf="!true">
-            <ion-icon name="add-circle-outline" slot="start"></ion-icon> เพิ่มห้อง
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon> à¹€à¸žà¸´à¹ˆà¸¡à¸«à¹‰à¸­à¸‡
           </ion-button>
         </div>
 
         <div class="room-card" *ngFor="let room of roomTypes; let i = index">
           <div class="room-header">
-            <span>แบบห้องที่ {{ i + 1 }}</span>
+            <span>à¹�à¸šà¸šà¸«à¹‰à¸­à¸‡à¸—à¸µà¹ˆ {{ i + 1 }}</span>
             <ion-button fill="clear" color="danger" (click)="removeRoomType(i)" *ngIf="!true">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </div>
           
           <ion-item class="custom-input">
-            <ion-label position="stacked">ชื่อประเภทห้อง <span class="req">*</span></ion-label>
+            <ion-label position="stacked">à¸Šà¸·à¹ˆà¸­à¸›à¸£à¸°à¹€à¸ à¸—à¸«à¹‰à¸­à¸‡ <span class="req">*</span></ion-label>
             <ion-select [(ngModel)]="room.selectedType" (ionChange)="onRoomTypeChange(room)" interface="popover" [disabled]="true" [readonly]="true">
               <ion-select-option *ngFor="let rt of roomTypesDB" [value]="rt.name || rt.ROOM_TYPE_NAME">{{ rt.name || rt.ROOM_TYPE_NAME }}</ion-select-option>
-              <ion-select-option value="custom">อื่นๆ (พิมพ์ชื่อเอง)</ion-select-option>
+              <ion-select-option value="custom">à¸­à¸·à¹ˆà¸™à¹† (à¸žà¸´à¸¡à¸žà¹Œà¸Šà¸·à¹ˆà¸­à¹€à¸­à¸‡)</ion-select-option>
             </ion-select>
           </ion-item>
 
           <ion-item class="custom-input fade-in" *ngIf="room.selectedType === 'custom'">
-            <ion-label position="stacked">พิมพ์ชื่อห้องของคุณ</ion-label>
-            <ion-input [(ngModel)]="room.roomType" placeholder="เช่น ห้อง VIP..." [disabled]="true" [readonly]="true"></ion-input>
+            <ion-label position="stacked">à¸žà¸´à¸¡à¸žà¹Œà¸Šà¸·à¹ˆà¸­à¸«à¹‰à¸­à¸‡à¸‚à¸­à¸‡à¸„à¸¸à¸“</ion-label>
+            <ion-input [(ngModel)]="room.roomType" placeholder="à¹€à¸Šà¹ˆà¸™ à¸«à¹‰à¸­à¸‡ VIP..." [disabled]="true" [readonly]="true"></ion-input>
           </ion-item>
 
           <ion-item class="custom-input">
-            <ion-label position="stacked">ประเภทเตียง <span class="req">*</span></ion-label>
+            <ion-label position="stacked">à¸›à¸£à¸°à¹€à¸ à¸—à¹€à¸•à¸µà¸¢à¸‡ <span class="req">*</span></ion-label>
             <ion-select [(ngModel)]="room.bedType" interface="popover" [disabled]="true" [readonly]="true">
               <ion-select-option *ngFor="let bt of bedTypesDB" [value]="(bt.id || bt.BED_TYPE_ID).toString()">{{ bt.name || bt.BED_TYPE_NAME }}</ion-select-option>
             </ion-select>
@@ -224,8 +226,8 @@
 
           <div class="price-grid">
             <ion-item class="custom-input" *ngFor="let p of room.prices">
-              <ion-label position="stacked">{{ p.name }} (บาท)</ion-label>
-              <ion-input type="number" [(ngModel)]="p.price" placeholder="ไม่ระบุปล่อยว่าง" [disabled]="true" [readonly]="true"></ion-input>
+              <ion-label position="stacked">{{ p.name }} (à¸šà¸²à¸—)</ion-label>
+              <ion-input type="number" [(ngModel)]="p.price" placeholder="à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸à¸›à¸¥à¹ˆà¸­à¸¢à¸§à¹ˆà¸²à¸‡" [disabled]="true" [readonly]="true"></ion-input>
             </ion-item>
           </div>
         </div>
@@ -235,48 +237,48 @@
     <div *ngIf="activeSegment === 'images'" class="fade-in">
       
       <div class="section-card">
-        <h3><ion-icon name="image-outline"></ion-icon> รูปภาพหลัก (หน้าปก)</h3>
+        <h3><ion-icon name="image-outline"></ion-icon> à¸£à¸¹à¸›à¸ à¸²à¸žà¸«à¸¥à¸±à¸� (à¸«à¸™à¹‰à¸²à¸›à¸�)</h3>
         
         <div class="img-upload-box" (click)="!true && frontInput.click()">
           <img [src]="previews.FRONT_DORM_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
           <div class="overlay" *ngIf="!true">
             <ion-icon name="cloud-upload-outline"></ion-icon>
-            <span>แตะเพื่อเปลี่ยนรูป</span>
+            <span>à¹�à¸•à¸°à¹€à¸žà¸·à¹ˆà¸­à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸£à¸¹à¸›</span>
           </div>
         </div>
         <input #frontInput type="file" (change)="onFileSelect($event, 'FRONT_DORM_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
       </div>
 
       <div class="section-card">
-        <h3>รูปภาพส่วนประกอบห้อง</h3>
+        <h3>à¸£à¸¹à¸›à¸ à¸²à¸žà¸ªà¹ˆà¸§à¸™à¸›à¸£à¸°à¸�à¸­à¸šà¸«à¹‰à¸­à¸‡</h3>
         <div class="grid-2-col">
           <div class="img-mini-box" (click)="!true && bedInput.click()">
-            <label>รูปเตียงนอน</label>
+            <label>à¸£à¸¹à¸›à¹€à¸•à¸µà¸¢à¸‡à¸™à¸­à¸™</label>
             <img [src]="previews.BED_IMG || 'assets/placeholder-square.png'">
             <input #bedInput type="file" (change)="onFileSelect($event, 'BED_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
           </div>
           <div class="img-mini-box" (click)="!true && wallInput.click()">
-            <label>รูปผนัง</label>
+            <label>à¸£à¸¹à¸›à¸œà¸™à¸±à¸‡</label>
             <img [src]="previews.WALL_IMG || 'assets/placeholder-square.png'">
             <input #wallInput type="file" (change)="onFileSelect($event, 'WALL_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
           </div>
           <div class="img-mini-box" (click)="!true && ceilingInput.click()">
-            <label>รูปฝ้าเพดาน</label>
+            <label>à¸£à¸¹à¸›à¸�à¹‰à¸²à¹€à¸žà¸”à¸²à¸™</label>
             <img [src]="previews.CEILING_IMG || 'assets/placeholder-square.png'">
             <input #ceilingInput type="file" (change)="onFileSelect($event, 'CEILING_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
           </div>
           <div class="img-mini-box" (click)="!true && floorInput.click()">
-            <label>รูปพื้นห้อง</label>
+            <label>à¸£à¸¹à¸›à¸žà¸·à¹‰à¸™à¸«à¹‰à¸­à¸‡</label>
             <img [src]="previews.FLOOR_IMG || 'assets/placeholder-square.png'">
             <input #floorInput type="file" (change)="onFileSelect($event, 'FLOOR_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
           </div>
           <div class="img-mini-box" (click)="!true && bathInput.click()">
-            <label>รูปห้องน้ำ</label>
+            <label>à¸£à¸¹à¸›à¸«à¹‰à¸­à¸‡à¸™à¹‰à¸³</label>
             <img [src]="previews.BATHROOM_IMG || 'assets/placeholder-square.png'">
             <input #bathInput type="file" (change)="onFileSelect($event, 'BATHROOM_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
           </div>
           <div class="img-mini-box" (click)="!true && balconyInput.click()">
-            <label>รูประเบียง</label>
+            <label>à¸£à¸¹à¸›à¸£à¸°à¹€à¸šà¸µà¸¢à¸‡</label>
             <img [src]="previews.BALCONY_IMG || 'assets/placeholder-square.png'">
             <input #balconyInput type="file" (change)="onFileSelect($event, 'BALCONY_IMG')" accept="image/*" hidden [disabled]="true" [readonly]="true">
           </div>
@@ -284,12 +286,12 @@
       </div>
 
       <div class="section-card">
-        <h3>อัลบั้มรูปเพิ่มเติม (Gallery)</h3>
-        <p style="font-size: 13px; color: #888; margin-bottom: 10px;">สูงสุด <strong>5 ภาพ</strong> ({{ (existingGallery.length + previews.OTHER_IMG.length) }}/5)</p>
+        <h3>à¸­à¸±à¸¥à¸šà¸±à¹‰à¸¡à¸£à¸¹à¸›à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸•à¸´à¸¡ (Gallery)</h3>
+        <p style="font-size: 13px; color: #888; margin-bottom: 10px;">à¸ªà¸¹à¸‡à¸ªà¸¸à¸” <strong>5 à¸ à¸²à¸ž</strong> ({{ (existingGallery.length + previews.OTHER_IMG.length) }}/5)</p>
         <input #galleryInput type="file" (change)="onGallerySelect($event)" accept="image/*" multiple hidden [disabled]="true" [readonly]="true">
         <ion-button expand="block" fill="outline" (click)="galleryInput.click()" *ngIf="!true">
           <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-          เลือกรูปหลายรูป
+          à¹€à¸¥à¸·à¸­à¸�à¸£à¸¹à¸›à¸«à¸¥à¸²à¸¢à¸£à¸¹à¸›
         </ion-button>
 
         <div class="gallery-grid" *ngIf="existingGallery.length > 0">

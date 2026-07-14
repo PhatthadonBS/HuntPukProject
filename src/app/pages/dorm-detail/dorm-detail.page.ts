@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core'; 
+import { Component, OnInit, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core'; 
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, NavController, AlertController } from '@ionic/angular';
@@ -22,10 +22,19 @@ import { DormitoryService } from '../../services/dormitory';
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule]
 })
-export class DormDetailPage implements OnInit {
+export class DormDetailPage implements OnInit, OnChanges {
 
   @Input() dormData: any = null; 
   @Input() isPopup: boolean = false; 
+  facilitiesList: { name: string; icon: string }[] = [];
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['dormData'] && changes['dormData'].currentValue) {
+      this.prepareOwnerInfo();
+      this.parseFacilities();
+      this.loadReviews();
+    }
+  }
 
   activeTab: string = 'info';
   isLoading: boolean = false;
@@ -102,6 +111,7 @@ export class DormDetailPage implements OnInit {
       this.loadDormDetail(Number(idParam));
     } else if (this.dormData) {
       this.prepareOwnerInfo();
+      this.parseFacilities();
       this.loadReviews();
     }
   }
@@ -171,6 +181,7 @@ export class DormDetailPage implements OnInit {
         this.dormData.gallery = [...this.dormData.gallery, ...roomImages];
 
         this.prepareOwnerInfo();
+        this.parseFacilities();
         this.loadReviews();
       } else {
         this.isError = true;
@@ -215,21 +226,20 @@ export class DormDetailPage implements OnInit {
     this.cdr.detectChanges(); 
   }
 
-  get facilitiesList(): { name: string; icon: string }[] {
-    if (!this.dormData) return [];
+  parseFacilities() {
+    this.facilitiesList = [];
+    if (!this.dormData) return;
     const facData = this.dormData.facilities || this.dormData.FACILITIES || this.dormData.facility;
-    if (!facData || facData === 'null') return [];
+    if (!facData || facData === 'null') return;
 
     if (Array.isArray(facData)) {
-      return facData.map((f: any) => {
+      this.facilitiesList = facData.map((f: any) => {
         if (typeof f === 'string') return { name: f, icon: '' };
         return { name: f.name || f.FAC_TYPE_NAME || '', icon: f.icon || f.FAC_TYPE_ICON || '' };
       });
+    } else if (typeof facData === 'string') {
+      this.facilitiesList = facData.split(',').map((s: string) => ({ name: s.trim(), icon: '' }));
     }
-    if (typeof facData === 'string') {
-      return facData.split(',').map((s: string) => ({ name: s.trim(), icon: '' }));
-    }
-    return [];
   }
 
   async loadReviews() {

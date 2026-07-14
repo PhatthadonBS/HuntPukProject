@@ -31,8 +31,10 @@
           <!-- Facility chips on card -->
           <div class="facilities-preview" *ngIf="checkedFacilities.length > 0">
             <div class="fac-chip" *ngFor="let fac of checkedFacilities.slice(0, 4)">
+              <!-- URL รูปภาพ -->
+              <img *ngIf="fac.icon && (fac.icon.includes('/') || fac.icon.includes('.png'))" [src]="fac.icon" style="width: 14px; height: 14px; object-fit: contain;">
               <!-- Ionicon name -->
-              <ion-icon *ngIf="fac.icon && !fac.isFontAwesome" [name]="fac.icon" style="font-size: 12px;"></ion-icon>
+              <ion-icon *ngIf="fac.icon && !fac.isFontAwesome && !fac.icon.includes('/') && !fac.icon.includes('.png')" [name]="fac.icon" style="font-size: 12px;"></ion-icon>
               <!-- Font Awesome icon -->
               <i *ngIf="fac.isFontAwesome" [class]="fac.icon" style="font-size: 11px;"></i>
               <!-- No icon fallback -->
@@ -83,7 +85,8 @@
         <div class="info-label">สิ่งอำนวยความสะดวก ({{ checkedFacilities.length }} รายการ)</div>
         <div class="fac-wrap">
           <span class="fac-tag" *ngFor="let fac of checkedFacilities">
-            <ion-icon *ngIf="fac.icon && !fac.isFontAwesome" [name]="fac.icon" style="font-size: 12px; vertical-align: middle;"></ion-icon>
+            <img *ngIf="fac.icon && (fac.icon.includes('/') || fac.icon.includes('.png'))" [src]="fac.icon" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle; margin-right: 4px;">
+            <ion-icon *ngIf="fac.icon && !fac.isFontAwesome && !fac.icon.includes('/') && !fac.icon.includes('.png')" [name]="fac.icon" style="font-size: 12px; vertical-align: middle;"></ion-icon>
             <i *ngIf="fac.isFontAwesome" [class]="fac.icon" style="font-size: 11px; vertical-align: middle; margin-right: 3px;"></i>
             {{ fac.name }}
           </span>
@@ -93,7 +96,10 @@
       <div class="info-group" *ngIf="formData?.new_facilities && formData.new_facilities.length > 0">
         <div class="info-label">สิ่งอำนวยฯ เพิ่มเติม (รออนุมัติ)</div>
         <div class="fac-wrap">
-          <span class="fac-tag pending" *ngFor="let nf of formData.new_facilities">✨ {{ nf.name }}</span>
+          <span class="fac-tag pending" *ngFor="let nf of formData.new_facilities" style="display: inline-flex; align-items: center; gap: 4px;">
+            <img *ngIf="nf.icon && (nf.icon.includes('/') || nf.icon.includes('.png'))" [src]="nf.icon" style="width: 14px; height: 14px; object-fit: contain;">
+            ✨ {{ nf.name }}
+          </span>
         </div>
       </div>
 

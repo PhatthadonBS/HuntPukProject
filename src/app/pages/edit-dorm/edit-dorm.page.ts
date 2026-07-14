@@ -116,6 +116,22 @@ export class EditDormPage implements OnInit {
   existingGallery: string[] = [];
   geocoder = new google.maps.Geocoder();
 
+  // =========== Custom Facility Modal State ===========
+  isAddFacilityModalOpen = false;
+  newFacilityName = '';
+  newFacilitySelectedIcon = 'assets/allIcons/star.png'; // default icon
+  
+  availableIcons = [
+    'air-conditioner.png', 'bed.png', 'business-fill.png', 'business-outline.png',
+    'cabin.png', 'cable-tv.png', 'car-parking.png', 'cctv-camera.png', 'desk.png',
+    'elevator.png', 'fan.png', 'fingerprint.png', 'frig.png', 'furnitures.png',
+    'garage.png', 'gym.png', 'home.png', 'key.png', 'kitchen-set.png',
+    'laundry-machine.png', 'mart.png', 'motorcycle-parking.png', 'pet.png',
+    'policeman.png', 'quarantine.png', 'recycle-bin.png', 'seater-sofa.png',
+    'star.png', 'swimming-pool.png', 'tv.png', 'user.png', 'wardrobe.png',
+    'water-heater.png', 'wifi.png', 'woman-hair.png'
+  ];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -504,6 +520,52 @@ export class EditDormPage implements OnInit {
       this.previews.OTHER_IMG.splice(index, 1);
       this.selectedFiles.OTHER_IMG.splice(index, 1);
     }
+  }
+
+  // =========== Add Custom Facility Logic ===========
+  getCheckedFacilitiesCount(): number {
+    return this.facilities.filter(f => f.checked).length;
+  }
+
+  suggestNewFacility() {
+    if (this.formData.new_facilities.length >= 3) {
+      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 3 รายการ', 'warning');
+      return;
+    }
+    this.newFacilityName = '';
+    this.newFacilitySelectedIcon = 'assets/allIcons/star.png';
+    this.isAddFacilityModalOpen = true;
+  }
+
+  closeAddFacilityModal() {
+    this.isAddFacilityModalOpen = false;
+  }
+
+  confirmAddFacility() {
+    const trimmedName = this.newFacilityName ? this.newFacilityName.trim() : '';
+    if (!trimmedName) {
+      this.showToast('กรุณาระบุชื่อสิ่งอำนวยความสะดวก', 'warning');
+      return;
+    }
+    
+    const existsInMain = this.facilities.some(f => f.name.toLowerCase() === trimmedName.toLowerCase());
+    const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
+    
+    if (existsInMain || existsInNew) {
+      this.showToast('สิ่งอำนวยความสะดวกนี้มีอยู่แล้ว', 'warning');
+      return;
+    }
+    
+    this.formData.new_facilities.push({
+      name: trimmedName,
+      icon: this.newFacilitySelectedIcon
+    });
+    
+    this.closeAddFacilityModal();
+  }
+
+  removeNewFacility(index: number) {
+    this.formData.new_facilities.splice(index, 1);
   }
 
   async onSubmit() {

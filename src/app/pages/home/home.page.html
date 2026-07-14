@@ -56,12 +56,13 @@
           [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 999 }">
         </map-marker>
 
-        <map-marker *ngFor="let dorm of dorms" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
+        <map-marker *ngFor="let dorm of dorms; trackBy: trackByDormId" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
           [options]="{ icon: dormMarkerIcon }"
           (mapClick)="openInfoWindow(marker, dorm)" #marker="mapMarker">
         </map-marker>
-
+        <!-- เส้นทาง (หลัก) -->
         <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="mainRouteOptions"></map-directions-renderer>
+        
         <map-directions-renderer *ngFor="let altRoute of altRouteRenderers" [directions]="altRoute" [options]="getAltRouteOptions()"></map-directions-renderer>
 
       </google-map>
@@ -106,7 +107,8 @@
       <div class="btn-close-panel" (click)="closeDetailPanel()"><ion-icon name="close"></ion-icon></div>
 
       <div class="panel-header-img">
-        <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='assets/dorm-placeholder.jpg'" />
+        <img [src]="selectedDorm.image || selectedDorm.FRONT_DORM_IMAGE || 'https://placehold.co/600x400?text=No+Image'" 
+             (error)="selectedDorm.image = null; selectedDorm.FRONT_DORM_IMAGE = null;" />
         
         <div class="panel-fav-btn" (click)="toggleFavorite($event, selectedDorm)">
           <ion-icon [name]="selectedDorm.isChecked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
@@ -223,10 +225,10 @@
           <div class="inline-fac-box" *ngIf="selectedDorm.facilities && selectedDorm.facilities.length > 0">
             <div class="inline-box-title"><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</div>
             <div class="inline-fac-grid">
-              <div class="fac-chip" *ngFor="let fac of selectedDorm.facilities">
-                 <img *ngIf="fac.FAC_TYPE_ICON || fac.icon" [src]="fac.FAC_TYPE_ICON || fac.icon" style="width: 16px; height: 16px; object-fit: contain;" />
-                 <ion-icon *ngIf="!(fac.FAC_TYPE_ICON || fac.icon)" name="checkmark-circle-outline"></ion-icon>
-                 <span>{{ fac.FAC_TYPE_NAME || fac.name || fac }}</span>
+              <div class="fac-icon-only" *ngFor="let fac of selectedDorm.facilities" 
+                   [attr.data-tooltip]="fac.FAC_TYPE_NAME || fac.name || fac">
+                 <img *ngIf="fac.FAC_TYPE_ICON || fac.icon" [src]="getFacIconPath(fac)" (error)="fac.iconError = true" [hidden]="fac.iconError" />
+                 <ion-icon *ngIf="!(fac.FAC_TYPE_ICON || fac.icon) || fac.iconError" name="checkmark-circle-outline"></ion-icon>
               </div>
             </div>
           </div>
@@ -234,8 +236,9 @@
           <div class="nearby-section" *ngIf="nearbyDorms.length > 0">
             <div class="inline-box-title"><ion-icon name="location-outline"></ion-icon> หอพักใกล้เคียง</div>
             <div class="nearby-list">
-              <div class="nearby-item" *ngFor="let nb of nearbyDorms" (click)="selectNearbyDorm(nb)">
-                <img [src]="nb.image || nb.FRONT_DORM_IMAGE || 'assets/dorm-placeholder.jpg'" onerror="this.src='assets/dorm-placeholder.jpg'" />
+              <div class="nearby-item" *ngFor="let nb of nearbyDorms; trackBy: trackByDormId" (click)="selectNearbyDorm(nb)">
+                <img [src]="nb.image || nb.FRONT_DORM_IMAGE || 'https://placehold.co/600x400?text=No+Image'" 
+                     (error)="nb.image = null; nb.FRONT_DORM_IMAGE = null;" />
                 <div class="nb-info">
                   <span class="nb-name">{{ nb.DORM_NAME }}</span>
                   

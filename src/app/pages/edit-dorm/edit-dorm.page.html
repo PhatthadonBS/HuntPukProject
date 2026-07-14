@@ -152,25 +152,17 @@
                [class.checked]="fac.checked"
                [class.disabled]="isWaitingForAdmin"
                (click)="!isWaitingForAdmin && (fac.checked = !fac.checked)">
-            <div class="fac-icon-area">
-              <img *ngIf="fac.icon && fac.icon.startsWith('http')" 
-                   [src]="fac.icon" 
-                   [alt]="fac.name"
-                   class="fac-icon-img"
-                   onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-              
-              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.startsWith('http') && fac.icon.startsWith('fa-')">
-                 <i [class]="'fas ' + fac.icon"></i>
+              <!-- ✅ FIX: แสดง Icon ตามประเภท (Font Awesome class หรือ URL) -->
+              <div class="fac-icon-area">
+                <!-- Font Awesome icon (เช่น "fas fa-snowflake") -->
+                <i *ngIf="fac.isFontAwesome" [class]="fac.icon" class="fac-fa-icon"></i>
+                <!-- URL รูปภาพ -->
+                <img *ngIf="!fac.isFontAwesome && fac.icon"
+                  [src]="fac.icon" class="fac-icon-img"
+                  (error)="$any($event.target).src='assets/icon/favicon.png'">
+                <!-- Fallback ถ้าไม่มีไอคอน -->
+                <ion-icon *ngIf="!fac.icon" name="home-outline" class="fac-ion-icon"></ion-icon>
               </div>
-
-              <div class="fac-default-icon" *ngIf="fac.icon && !fac.icon.startsWith('http') && !fac.icon.startsWith('fa-')">
-                 <ion-icon [name]="fac.icon"></ion-icon>
-              </div>
-
-              <div class="fac-default-icon" *ngIf="!fac.icon">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-              </div>
-            </div>
             <span class="fac-name">{{ fac.name }}</span>
             <div class="fac-tick" *ngIf="fac.checked">
               <ion-icon name="checkmark-circle" style="color: #f5a623;"></ion-icon>
@@ -178,19 +170,74 @@
           </div>
         </div>
 
-        <!-- ✅ สิ่งอำนวยความสะดวกเพิ่มเติม (new_facilities) -->
-        <div *ngIf="formData.new_facilities && formData.new_facilities.length > 0" style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 12px; border: 1px dashed #ddd;">
-          <p style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 10px;">✨ สิ่งอำนวยความสะดวกเพิ่มเติม (รออนุมัติ)</p>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <div *ngFor="let nf of formData.new_facilities" style="display: flex; align-items: center; gap: 6px; background: #fff3e0; border: 1px solid #ffcc02; border-radius: 20px; padding: 4px 12px; font-size: 13px; color: #795548;">
-              <ion-icon [name]="nf.icon || 'cube-outline'" style="font-size: 14px;"></ion-icon>
-              <span>{{ nf.name }}</span>
+        <!-- แสดงจำนวนที่เลือก -->
+        <div class="selected-count" *ngIf="facilities.length > 0" style="margin-top: 15px; font-size: 13px; color: #666; text-align: right;">
+          เลือกแล้ว {{ getCheckedFacilitiesCount() }} / {{ facilities.length }} รายการ
+        </div>
+
+        <!-- ปุ่มเสนอสิ่งอำนวยความสะดวกใหม่ -->
+        <div class="suggest-fac-container" style="text-align: center; margin-top: 15px;" *ngIf="!isWaitingForAdmin">
+          <ion-button fill="outline" shape="round" color="secondary" (click)="suggestNewFacility()" *ngIf="formData.new_facilities.length < 3">
+            <ion-icon slot="start" name="bulb-outline"></ion-icon>
+            เพิ่มสิ่งอำนวยความสะดวกเพิ่มเติม (เหลือ {{ 3 - formData.new_facilities.length }} ครั้ง)
+          </ion-button>
+          
+          <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list" style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 12px; border: 1px dashed #ddd;">
+            <p style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 10px;">✨ สิ่งอำนวยความสะดวกเพิ่มเติม (รออนุมัติ)</p>
+            <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
+              <!-- Display the selected icon as image -->
+              <img *ngIf="newFac.icon && !newFac.icon.includes('-outline')" [src]="newFac.icon" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+              <ion-icon *ngIf="newFac.icon && newFac.icon.includes('-outline')" [name]="newFac.icon" style="font-size: 24px; color: #795548;"></ion-icon>
+              
+              <span style="color: #333;"> <strong>{{ newFac.name }}</strong></span>
+              <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="--padding-start: 0; --padding-end: 0; height: 24px;">
+                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+              </ion-button>
             </div>
           </div>
-          <p style="font-size: 11px; color: #aaa; margin-top: 8px;">โควต้าที่เหลือ: {{ 3 - formData.new_facilities.length }} / 3</p>
         </div>
       </div>
     </div>
+
+    <!-- Modal สำหรับเพิ่มสิ่งอำนวยความสะดวกใหม่ -->
+    <ion-modal [isOpen]="isAddFacilityModalOpen" (didDismiss)="closeAddFacilityModal()">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar color="warning">
+            <ion-title>เพิ่มสิ่งอำนวยความสะดวก</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="closeAddFacilityModal()">ปิด</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <ion-item class="custom-input">
+            <ion-label position="stacked">ชื่อสิ่งอำนวยความสะดวก</ion-label>
+            <ion-input [(ngModel)]="newFacilityName" placeholder="ถ้ามีเพิ่มเติมกรุณาระบุ"></ion-input>
+          </ion-item>
+
+          <div style="margin-top: 16px;">
+            <p style="font-weight: bold; margin-bottom: 8px; color: #555;">เลือกไอคอน (จากระบบ)</p>
+            <div class="icon-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 10px;">
+              <div 
+                *ngFor="let iconFile of availableIcons" 
+                class="icon-select-item" 
+                style="border: 2px solid transparent; padding: 5px; border-radius: 8px; text-align: center;"
+                [style.border-color]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile ? '#FFD600' : 'transparent'"
+                [style.background]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile ? '#fff9c4' : 'transparent'"
+                (click)="newFacilitySelectedIcon = 'assets/allIcons/' + iconFile">
+                <img [src]="'assets/allIcons/' + iconFile" [alt]="iconFile" style="width: 24px; height: 24px;">
+              </div>
+            </div>
+          </div>
+        </ion-content>
+        <ion-footer>
+          <ion-toolbar>
+            <ion-button expand="block" color="dark" (click)="confirmAddFacility()">เพิ่มรายการ</ion-button>
+          </ion-toolbar>
+        </ion-footer>
+      </ng-template>
+    </ion-modal>
 
     <div *ngIf="activeSegment === 'rooms'" class="fade-in">
       <div class="section-card">

@@ -44,7 +44,7 @@ import {
   imports: [
     CommonModule, FormsModule, IonicModule, RouterModule,
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
-    HeaderComponent, DormDetailPage, MapDirectionsRenderer, MapCircle, MapMarker, MapInfoWindow,
+    HeaderComponent, MapDirectionsRenderer, MapCircle, MapMarker,
     WelcomeModalComponent, SplashScreenComponent
   ],
 })
@@ -167,6 +167,8 @@ export class HomePage implements OnInit, ViewDidEnter {
     };
   }
 
+  locationWatchId?: number | undefined;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -205,12 +207,7 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.mainRouteOptions = {
           suppressMarkers: true,
           polylineOptions: { 
-            strokeColor: '#ff4d4d', strokeOpacity: 0.9, strokeWeight: 6, zIndex: 5,
-            icons: [{
-              icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, strokeColor: '#fff', fillColor: '#ff4d4d', fillOpacity: 1, scale: 3 },
-              offset: '50px',
-              repeat: '100px'
-            }]
+            strokeColor: '#ff4d4d', strokeOpacity: 0.9, strokeWeight: 6, zIndex: 5
           }
         };
       }
@@ -367,6 +364,23 @@ export class HomePage implements OnInit, ViewDidEnter {
           this.performSearch();
           
           if (!isSilent) this.showToast('ดึงตำแหน่งปัจจุบันสำเร็จ', 'success', 'location-outline');
+
+          if (this.locationWatchId === undefined) {
+            this.locationWatchId = navigator.geolocation.watchPosition(
+              (pos) => {
+                const newLat = pos.coords.latitude;
+                const newLng = pos.coords.longitude;
+                // Update only if moved more than 5 meters to prevent excessive change detection
+                const dist = this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, newLat, newLng);
+                if (dist > 5) {
+                  this.referencePoint = { lat: newLat, lng: newLng };
+                  this.cdr.detectChanges();
+                }
+              },
+              (err) => console.error('Watch position error:', err),
+              { enableHighAccuracy: true }
+            );
+          }
         },
         (error) => { 
           this.userLocationGranted = false;
@@ -474,6 +488,19 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (this.googleMapComponent?.googleMap) {
       this.zoom = this.googleMapComponent.googleMap.getZoom() || this.zoom;
     }
+  }
+
+  trackByDormId(index: number, dorm: any): number {
+    return dorm?.DORM_ID;
+  }
+
+  getFacIconPath(fac: any): string {
+    const iconName = fac?.FAC_TYPE_ICON || fac?.icon;
+    if (!iconName) return '';
+    if (iconName.startsWith('http') || iconName.startsWith('assets/')) {
+      return iconName;
+    }
+    return `assets/allIcons/${iconName}`;
   }
 
   onSearch(text: any) {
@@ -721,6 +748,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.directionsResult = undefined; 
     this.altRouteRenderers = []; 
     this.nearbyDorms = [];
+
     this.router.navigate([], { queryParams: {} });
   }
 
