@@ -1,4 +1,4 @@
-<div class="ion-page" style="height: 100vh; width: 100%; position: relative;">
+<div class="ion-page home-page-container" style="height: 100dvh; width: 100%; position: relative;">
 
   <!-- ✅ Welcome Modal — โชว์ครั้งเดียวหลัง login สำเร็จ -->
   <app-welcome-modal
@@ -8,7 +8,7 @@
   </app-welcome-modal>
 
   <!-- 🗺️ Map Skeleton — position:fixed สูงกว่า Google Maps iframe -->
-  <div class="map-skeleton-overlay" *ngIf="isMapLoading">
+  <div class="map-skeleton-overlay" *ngIf="isMapLoading || !(apiLoaded | async)">
     <div class="map-skel-shimmer"></div>
     <div class="map-skel-center">
       <div class="map-skel-pin"></div>
@@ -18,6 +18,20 @@
 
   <!-- ✅ Splash Screen -->
   <app-splash-screen *ngIf="isInitialLoading"></app-splash-screen>
+
+  <!-- 🧭 Navigation Overlay -->
+  <div class="navigation-overlay fade-in" *ngIf="isNavigating">
+    <div class="nav-info">
+      <div class="nav-status">
+        <ion-icon name="navigate"></ion-icon> 
+        <span>กำลังนำทางด้วย GPS...</span>
+      </div>
+      <div class="nav-target">{{ selectedDorm?.DORM_NAME }}</div>
+    </div>
+    <button class="stop-nav-btn" (click)="stopNavigation()">
+      <ion-icon name="close"></ion-icon> สิ้นสุด
+    </button>
+  </div>
 
   <!-- 📍 Pin Mode Overlay -->
   <div class="pin-mode-overlay" *ngIf="pinMode">
@@ -53,7 +67,7 @@
         <map-marker *ngIf="zoneCircleCenter" [position]="zoneCircleCenter" [options]="zoneMarkerOptions"></map-marker>
 
         <map-marker [position]="referencePoint" title="ตำแหน่งของคุณ" 
-          [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 999 }">
+          [options]="isNavigating && navMarkerIcon ? navMarkerIcon : { icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 999 }">
         </map-marker>
 
         <map-marker *ngFor="let dorm of dorms; trackBy: trackByDormId" [position]="{ lat: dorm.lat, lng: dorm.lng }" [title]="dorm.DORM_NAME"
@@ -64,6 +78,9 @@
         <map-directions-renderer *ngIf="directionsResult" [directions]="directionsResult" [options]="mainRouteOptions"></map-directions-renderer>
         
         <map-directions-renderer *ngFor="let altRoute of altRouteRenderers" [directions]="altRoute" [options]="getAltRouteOptions()"></map-directions-renderer>
+
+        <!-- ➡️ เส้นประ + ลูกศรชี้ไปหาหอพัก -->
+        <map-polyline *ngIf="directLinePath" [path]="directLinePath" [options]="directLineOptions"></map-polyline>
 
       </google-map>
 
@@ -79,6 +96,7 @@
     </div>
   </ion-content>
 
+  <!-- 🍔 Hamburger — แสดงตลอดเวลาเพื่อเรียกเมนู Overlay -->
   <div class="menu-fab-btn" (click)="openMenu()"><ion-icon name="menu-outline"></ion-icon></div>
   <div class="filter-compare-group">
     <div class="chip-button" (click)="openFilter()"><ion-icon name="options-outline"></ion-icon> กรอง</div>
@@ -96,7 +114,8 @@
     </div>
   </div>
     
-  <div class="dorm-side-panel" [class.open]="selectedDorm != null" [class.minimized]="isPanelMinimized">
+
+  <ng-template #dormDetailTemplate>
     <div class="panel-content" *ngIf="selectedDorm">
 
       <div class="panel-drag-handle" (click)="togglePanelSize()">
@@ -207,6 +226,11 @@
                 <div class="info-pill"><ion-icon name="navigate-circle-outline"></ion-icon> {{ activeTravelMode === 'DRIVING' ? drivingDistance : walkingDistance }}</div>
               </div>
             </div>
+            
+            <button class="start-nav-btn" *ngIf="!isNavigating && (activeTravelMode === 'DRIVING' ? drivingDistance !== '-' : walkingDistance !== '-')" (click)="startNavigation()">
+              <ion-icon name="navigate"></ion-icon> เริ่มนำทางแบบ Real-time
+            </button>
+
             <div class="alt-route-notice" *ngIf="activeTravelMode === 'DRIVING' && possibleRoutesCount > 1">
               <ion-icon name="git-branch-outline"></ion-icon> ค้นพบ {{ possibleRoutesCount }} เส้นทาง
             </div>
@@ -286,7 +310,25 @@
 
       </div>
     </div>
+  </ng-template>
+
+  <!-- Desktop: Side Panel -->
+  <div class="dorm-side-panel hide-mobile" [class.open]="selectedDorm != null && isDesktop" [class.minimized]="isPanelMinimized">
+    <ng-container *ngTemplateOutlet="dormDetailTemplate"></ng-container>
   </div>
+
+  <!-- Mobile: Bottom Sheet -->
+  <ion-modal class="mobile-bottom-sheet" 
+             [isOpen]="selectedDorm != null && !isDesktop" 
+             [initialBreakpoint]="0.5" 
+             [breakpoints]="[0, 0.5, 0.9]" 
+             (didDismiss)="closeDetailPanel()">
+    <ng-template>
+      <ion-content>
+        <ng-container *ngTemplateOutlet="dormDetailTemplate"></ng-container>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)" class="filter-modal-custom">
     <ng-template>

@@ -463,6 +463,16 @@ export class DormPreviewPage implements OnInit {
   }
 
   
+    hasAnyFacilityChecked(): boolean {
+    return this.facilities.some(f => f.checked);
+  }
+
+  getBedTypeName(bedId: any): string {
+    if (!bedId) return '-';
+    const bt = this.bedTypesDB.find(b => (b.id || b.BED_TYPE_ID).toString() === bedId.toString());
+    return bt ? (bt.name || bt.BED_TYPE_NAME) : '-';
+  }
+
   goEdit() {
     this.router.navigate(['/edit-dorm', this.dormId]);
   }
@@ -547,4 +557,5 @@ const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any
     toast.present();
   }
 }
+
 

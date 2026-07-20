@@ -48,7 +48,13 @@ toggleNewPassword() {
   }
   
   goBack() {
-    this.router.navigate(['/login']);
+    // ถ้าล็อกอยู่แล้ว (มี loggedIn ใน localStorage) ให้กลับไป /my-account
+    const isLoggedIn = !!localStorage.getItem('loggedIn');
+    if (isLoggedIn) {
+      this.router.navigate(['/my-account']);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   // STEP 1: ขอ OTP และเปิด Modal

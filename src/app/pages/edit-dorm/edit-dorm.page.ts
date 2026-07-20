@@ -602,10 +602,11 @@ export class EditDormPage implements OnInit {
       form.append('water_lump', (this.formData.water_lump || 0).toString());
       form.append('elect_unit', (this.formData.elect_unit || 0).toString());
       
-const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any) => f.id);
+      const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any) => f.id);
       form.append('facilities', JSON.stringify(selectedFacIds));
       form.append('new_facilities', JSON.stringify(this.formData.new_facilities || []));
       form.append('roomTypes', JSON.stringify(this.roomTypes));
+      form.append('remaining_gallery', JSON.stringify(this.existingGallery || []));
 
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
       if (this.selectedFiles.LICENSE_IMG) form.append('LICENSE_IMG', this.selectedFiles.LICENSE_IMG);

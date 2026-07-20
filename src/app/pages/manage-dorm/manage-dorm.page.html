@@ -1,100 +1,151 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar style="--background: #222; color: white;">
+  <ion-toolbar class="minimal-toolbar">
     <ion-buttons slot="start">
-      <ion-button color="warning" (click)="goBack()">
+      <ion-button class="btn-back" (click)="goBack()">
         <ion-icon name="arrow-back" slot="start"></ion-icon>
         กลับ
       </ion-button>
     </ion-buttons>
-    <ion-title>จัดการหอพัก</ion-title>
+    <ion-title class="page-title">จัดการหอพัก</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="main-container">
+<ion-content class="minimal-content">
+  <div class="page-wrapper">
 
+    <!-- Loading State -->
     <div class="loading-center" *ngIf="isLoading">
       <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <p class="loading-text">กำลังโหลดข้อมูล...</p>
     </div>
 
-    <div class="yellow-card" *ngIf="!isLoading">
+    <!-- Main Content -->
+    <div class="content-card" *ngIf="!isLoading">
 
-      <div class="top-bar" style="display: flex; gap: 15px; flex-wrap: wrap;">
-        <div class="search-box" style="flex: 1; min-width: 200px;">
-          <ion-searchbar 
-            placeholder="ค้นหาชื่อหอพัก หรือ ชื่อเจ้าของ..."
-            [ngModel]="searchQuery"
-            (ngModelChange)="onSearchChange($event)"
-            mode="ios"
-            class="custom-searchbar"
-            style="padding: 0;">
-          </ion-searchbar>
+      <!-- Top Control Bar -->
+      <div class="control-bar">
+        <!-- Search Section -->
+        <div class="search-section">
+          <div class="search-input-wrap">
+            <ion-icon name="search-outline" class="search-icon-inner"></ion-icon>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="ค้นหาชื่อหอพัก หรือชื่อผู้ดูแล..."
+              [ngModel]="searchQuery"
+              (ngModelChange)="onSearchChange($event)"
+            />
+            <button class="clear-btn" *ngIf="searchQuery" (click)="onSearchChange('')">
+              <ion-icon name="close-circle"></ion-icon>
+            </button>
+          </div>
         </div>
-        <div class="add-btn" (click)="goToAddDorm()">
-          <ion-icon name="add"></ion-icon> เพิ่มข้อมูลหอพัก
-        </div>
+
+        <!-- Add Button -->
+        <button class="add-btn" (click)="goToAddDorm()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>เพิ่มหอพัก</span>
+        </button>
       </div>
 
-      <div class="custom-table">
+      <!-- Result Count -->
+      <div class="result-info">
+        <span class="result-count">
+          พบ <strong>{{ filteredDorms.length }}</strong> รายการ
+        </span>
+        <span class="result-hint" *ngIf="searchQuery">
+          (จากทั้งหมด {{ dorms.length }} รายการ)
+        </span>
+      </div>
 
+      <!-- Table Container (scrollable) -->
+      <div class="table-container">
+
+        <!-- Sticky Table Header -->
         <div class="table-header">
           <div class="col-id">ลำดับ</div>
-          <div class="col-dorm">ชื่อหอพัก</div>
-          <div class="col-owner">ชื่อผู้ดูแลหอพัก</div>
+          <div class="col-dorm">ชื่อหอพัก / สถานะ</div>
+          <div class="col-owner">ผู้ดูแล</div>
           <div class="col-action">จัดการ</div>
         </div>
 
+        <!-- Table Body -->
         <ng-container *ngIf="filteredDorms.length > 0; else noData">
-          <div class="table-row" *ngFor="let item of filteredDorms; let i = index">
+          <div class="table-row" *ngFor="let item of filteredDorms; let i = index"
+               [class.row-deleted]="item.DORM_STATUS_ID === 4">
 
-            <div class="col-id">{{ i + 1 }}</div>
-
-            <div class="col-dorm" style="display:flex; flex-direction:column; gap:5px; align-items:flex-start;">
-              <span>{{ item.DORM_NAME }}</span>
-              <select class="status-dropdown" [ngModel]="item.DORM_STATUS_ID" (ngModelChange)="changeStatus(item, $event)">
-                <option [ngValue]="1">เปิดบริการ</option>
-                <option [ngValue]="2">ปิดปรับปรุง</option>
-                <option [ngValue]="3">ห้องเต็ม</option>
-                <option [ngValue]="4" *ngIf="item.DORM_STATUS_ID === 4">ถูกลบ</option>
-              </select>
+            <!-- ลำดับ -->
+            <div class="col-id">
+              <span class="row-num">{{ i + 1 }}</span>
             </div>
 
+            <!-- ชื่อหอพัก + สถานะ -->
+            <div class="col-dorm">
+              <span class="dorm-name">{{ item.DORM_NAME }}</span>
+              <div class="status-wrap">
+                <select
+                  class="status-dropdown"
+                  [ngModel]="item.DORM_STATUS_ID"
+                  (ngModelChange)="changeStatus(item, $event)"
+                  [class.status-open]="item.DORM_STATUS_ID === 1"
+                  [class.status-closed]="item.DORM_STATUS_ID === 2"
+                  [class.status-full]="item.DORM_STATUS_ID === 3"
+                  [class.status-deleted]="item.DORM_STATUS_ID === 4"
+                >
+                  <option [ngValue]="1">เปิดบริการ</option>
+                  <option [ngValue]="2">ปิดปรับปรุง</option>
+                  <option [ngValue]="3">ห้องเต็ม</option>
+                  <option [ngValue]="4" *ngIf="item.DORM_STATUS_ID === 4">ถูกลบ</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ผู้ดูแล -->
             <div class="col-owner">
-              {{ item.FIRST_NAME }} {{ item.LAST_NAME }}
+              <div class="owner-info">
+                <div class="owner-avatar">{{ (item.FIRST_NAME || 'A')[0] }}</div>
+                <span class="owner-name">{{ item.FIRST_NAME }} {{ item.LAST_NAME }}</span>
+              </div>
             </div>
 
+            <!-- การจัดการ -->
             <div class="col-action">
-              <div class="icon-btn review-btn" (click)="goToReviews(item.DORM_ID)" title="จัดการรีวิว">
-                <ion-icon name="chatbubble-ellipses"></ion-icon>
-              </div>
+              <button class="action-btn btn-review" (click)="goToReviews(item.DORM_ID)" title="จัดการรีวิว">
+                <ion-icon name="chatbubble-outline"></ion-icon>
+                <span class="btn-label">รีวิว</span>
+              </button>
 
-              <div class="icon-btn edit-btn" (click)="goToDetail(item.DORM_ID)" title="แก้ไข">
-                <ion-icon name="person"></ion-icon>
-                <div class="tiny-pen">✎</div>
-              </div>
+              <button class="action-btn btn-edit" (click)="goToDetail(item.DORM_ID)" title="แก้ไขข้อมูล">
+                <ion-icon name="create-outline"></ion-icon>
+                <span class="btn-label">แก้ไข</span>
+              </button>
 
-              <div class="icon-btn delete-btn" *ngIf="item.DORM_STATUS_ID !== 4" (click)="confirmRemove(item)"
-                title="ลบออกจากระบบ">
-                <ion-icon name="trash"></ion-icon>
-              </div>
+              <button class="action-btn btn-delete" *ngIf="item.DORM_STATUS_ID !== 4"
+                (click)="confirmRemove(item)" title="ลบออกจากระบบ">
+                <ion-icon name="trash-outline"></ion-icon>
+                <span class="btn-label">ลบ</span>
+              </button>
 
-              <div class="icon-btn restore-btn" *ngIf="item.DORM_STATUS_ID === 2 || item.DORM_STATUS_ID === 4" (click)="confirmRestore(item)"
-                title="กู้คืน">
-                <ion-icon name="refresh"></ion-icon>
-              </div>
-
+              <button class="action-btn btn-restore" *ngIf="item.DORM_STATUS_ID === 2 || item.DORM_STATUS_ID === 4"
+                (click)="confirmRestore(item)" title="กู้คืน">
+                <ion-icon name="refresh-outline"></ion-icon>
+                <span class="btn-label">กู้คืน</span>
+              </button>
             </div>
+
           </div>
         </ng-container>
 
+        <!-- No Data -->
         <ng-template #noData>
           <div class="no-data-row">
-            ไม่พบข้อมูลหอพัก
+            <ion-icon name="search-outline" class="no-data-icon"></ion-icon>
+            <p>ไม่พบข้อมูลหอพัก</p>
+            <span *ngIf="searchQuery">ลองค้นหาด้วยคำอื่น หรือล้างการค้นหา</span>
           </div>
         </ng-template>
 
       </div>
-
     </div>
   </div>
 </ion-content>

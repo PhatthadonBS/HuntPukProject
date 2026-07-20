@@ -5,10 +5,15 @@ import {
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
   IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonAvatar, IonImg,
   IonIcon, IonButton, IonAlert, ToastController, AlertController, IonItemSliding,
-  IonItemOptions, IonItemOption, IonModal, IonInput
+  IonItemOptions, IonItemOption, IonModal, IonInput, IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircleOutline, closeCircleOutline, closeOutline, trashOutline, createOutline, documentTextOutline, cubeOutline, cameraOutline, imageOutline, informationCircleOutline } from 'ionicons/icons';
+import { 
+  checkmarkCircleOutline, closeCircleOutline, closeOutline, trashOutline, 
+  createOutline, documentTextOutline, cubeOutline, cameraOutline, imageOutline, 
+  informationCircleOutline, addCircleOutline, addOutline, searchOutline,
+  pencilOutline, alertCircleOutline, checkmarkOutline, layersOutline
+} from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory';
 import { FacilityItem } from '../../model/dorm.model';
 
@@ -20,7 +25,7 @@ import { FacilityItem } from '../../model/dorm.model';
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonBackButton,
     IonSegment, IonSegmentButton, IonLabel, IonList, IonItem, IonAvatar, IonImg,
-    IonIcon, IonButton, IonItemSliding, IonItemOptions, IonItemOption, IonModal, IonInput,
+    IonIcon, IonButton, IonItemSliding, IonItemOptions, IonItemOption, IonModal, IonInput, IonSpinner,
     CommonModule, FormsModule
   ]
 })
@@ -31,18 +36,34 @@ export class FacilityManagementPage implements OnInit {
   facilityRequests = signal<FacilityItem[]>([]);
   isLoading = signal<boolean>(false);
   
+  // ─── Edit Modal ───
   isEditModalOpen = signal<boolean>(false);
   editFacName = signal<string>('');
   editingFacId = signal<number | null>(null);
   editSelectedFile = signal<File | null>(null);
   editPreviewUrl = signal<string | null>(null);
 
+  // ─── Add Modal ───
+  isAddModalOpen = signal<boolean>(false);
+  addFacName = signal<string>('');
+  addSelectedFile = signal<File | null>(null);
+  addPreviewUrl = signal<string | null>(null);
+
+  // ─── Delete Confirm Modal ───
+  isDeleteModalOpen = signal<boolean>(false);
+  deletingFac = signal<FacilityItem | null>(null);
+
   constructor(
     private dormSv: DormitoryService,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) {
-    addIcons({ checkmarkCircleOutline, closeCircleOutline, closeOutline, trashOutline, createOutline, documentTextOutline, cubeOutline, cameraOutline, imageOutline, informationCircleOutline });
+    addIcons({ 
+      checkmarkCircleOutline, closeCircleOutline, closeOutline, trashOutline, 
+      createOutline, documentTextOutline, cubeOutline, cameraOutline, imageOutline, 
+      informationCircleOutline, addCircleOutline, addOutline, searchOutline,
+      pencilOutline, alertCircleOutline, checkmarkOutline, layersOutline
+    });
   }
 
   ngOnInit() {
@@ -74,7 +95,6 @@ export class FacilityManagementPage implements OnInit {
   }
 
   loadFacilityRequests() {
-    this.isLoading.set(true);
     this.dormSv.getPendingFacilities().subscribe({
       next: (res: any) => {
         if (res && res.success && res.data) {
@@ -82,12 +102,10 @@ export class FacilityManagementPage implements OnInit {
         } else if (Array.isArray(res)) {
           this.facilityRequests.set(res);
         }
-        this.isLoading.set(false);
       },
       error: (err: any) => {
         console.error(err);
         this.facilityRequests.set([]);
-        this.isLoading.set(false);
       }
     });
   }
@@ -100,6 +118,54 @@ export class FacilityManagementPage implements OnInit {
     fac.FAC_TYPE_ICON = '';
   }
 
+  // ─────────────────────────────────────────
+  // ADD
+  // ─────────────────────────────────────────
+  openAddModal() {
+    this.addFacName.set('');
+    this.addSelectedFile.set(null);
+    this.addPreviewUrl.set(null);
+    this.isAddModalOpen.set(true);
+  }
+
+  selectAddImage(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.addSelectedFile.set(file);
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.addPreviewUrl.set(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async saveAddFacility() {
+    if (!this.addFacName().trim()) {
+      this.showToast('กรุณากรอกชื่อสิ่งอำนวยความสะดวก', 'warning');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('fac_name', this.addFacName());
+    const file = this.addSelectedFile();
+    if (file) {
+      formData.append('icon', file);
+    }
+
+    this.dormSv.addFacility(formData).subscribe({
+      next: () => {
+        this.showToast('เพิ่มสิ่งอำนวยความสะดวกสำเร็จ', 'success');
+        this.isAddModalOpen.set(false);
+        this.loadData();
+      },
+      error: () => this.showToast('เกิดข้อผิดพลาดในการเพิ่ม', 'danger')
+    });
+  }
+
+  // ─────────────────────────────────────────
+  // EDIT
+  // ─────────────────────────────────────────
   openEditModal(fac: FacilityItem) {
     this.editingFacId.set(fac.FAC_TYPE_ID);
     this.editFacName.set(fac.FAC_TYPE_NAME);
@@ -138,7 +204,6 @@ export class FacilityManagementPage implements OnInit {
       formData.append('icon', file);
     }
 
-    // Pass user_id = 1 for admin
     this.dormSv.updateFacility(formData, 1).subscribe({
       next: () => {
         this.showToast('อัปเดตข้อมูลสำเร็จ', 'success');
@@ -149,10 +214,34 @@ export class FacilityManagementPage implements OnInit {
     });
   }
 
+  // ─────────────────────────────────────────
+  // DELETE
+  // ─────────────────────────────────────────
+  openDeleteModal(fac: FacilityItem) {
+    this.deletingFac.set(fac);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  confirmDelete() {
+    const fac = this.deletingFac();
+    if (!fac) return;
+    this.isDeleteModalOpen.set(false);
+    this.dormSv.approveFacilityReq(fac.FAC_TYPE_ID, false, 'Deleted by Admin').subscribe({
+      next: () => {
+        this.showToast('ลบสิ่งอำนวยความสะดวกสำเร็จ', 'success');
+        this.loadData();
+      },
+      error: () => this.showToast('เกิดข้อผิดพลาดในการลบ', 'danger')
+    });
+  }
+
+  // ─────────────────────────────────────────
+  // APPROVE / REJECT REQUESTS
+  // ─────────────────────────────────────────
   async approveFacility(fac: FacilityItem) {
     const alert = await this.alertCtrl.create({
       header: 'ยืนยันการอนุมัติ',
-      message: `คุณต้องการอนุมัติสิ่งอำนวยความสะดวก "${fac.FAC_TYPE_NAME}" ใช่หรือไม่?`,
+      message: `คุณต้องการอนุมัติ "${fac.FAC_TYPE_NAME}" ใช่หรือไม่?`,
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         { 
@@ -175,7 +264,7 @@ export class FacilityManagementPage implements OnInit {
   async rejectFacility(fac: FacilityItem) {
     const alert = await this.alertCtrl.create({
       header: 'ยืนยันการปฏิเสธ',
-      message: `คุณต้องการปฏิเสธคำร้องขอสิ่งอำนวยความสะดวก "${fac.FAC_TYPE_NAME}" ใช่หรือไม่?`,
+      message: `คุณต้องการปฏิเสธคำร้องขอ "${fac.FAC_TYPE_NAME}" ใช่หรือไม่?`,
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         { 
@@ -196,27 +285,7 @@ export class FacilityManagementPage implements OnInit {
   }
 
   async deleteFacility(fac: FacilityItem) {
-    const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการลบ',
-      message: `คุณต้องการลบสิ่งอำนวยความสะดวก "${fac.FAC_TYPE_NAME}" ใช่หรือไม่?`,
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        { 
-          text: 'ลบ', 
-          role: 'destructive',
-          handler: () => {
-            this.dormSv.approveFacilityReq(fac.FAC_TYPE_ID, false, 'Deleted by Admin').subscribe({
-              next: () => {
-                this.showToast('ลบสิ่งอำนวยความสะดวกสำเร็จ', 'success');
-                this.loadData();
-              },
-              error: () => this.showToast('เกิดข้อผิดพลาดในการลบ', 'danger')
-            });
-          } 
-        }
-      ]
-    });
-    await alert.present();
+    this.openDeleteModal(fac);
   }
 
   async showToast(message: string, color: string) {

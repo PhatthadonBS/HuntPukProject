@@ -136,20 +136,28 @@ export class Auth {
   public async updateProfile(userId: number, username: string, phoneNumber: string, ownerData?: {
     first_name?: string; last_name?: string;
     facebook?: string; line?: string; instagram?: string; x?: string; telegram?: string;
-  }) {
+  }, file?: File) {
     const url = this.endpoint.API_ENDPOINT + '/spec/user/' + userId;
     try {
-      const body: any = { username, phone_number: phoneNumber };
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('phone_number', phoneNumber);
+
       if (ownerData) {
-        if (ownerData.first_name !== undefined) body.first_name = ownerData.first_name;
-        if (ownerData.last_name !== undefined) body.last_name = ownerData.last_name;
-        if (ownerData.facebook !== undefined) body.facebook = ownerData.facebook;
-        if (ownerData.line !== undefined) body.line = ownerData.line;
-        if (ownerData.instagram !== undefined) body.instagram = ownerData.instagram;
-        if (ownerData.x !== undefined) body.x = ownerData.x;
-        if (ownerData.telegram !== undefined) body.telegram = ownerData.telegram;
+        if (ownerData.first_name !== undefined) formData.append('first_name', ownerData.first_name);
+        if (ownerData.last_name !== undefined) formData.append('last_name', ownerData.last_name);
+        if (ownerData.facebook !== undefined) formData.append('facebook', ownerData.facebook);
+        if (ownerData.line !== undefined) formData.append('line', ownerData.line);
+        if (ownerData.instagram !== undefined) formData.append('instagram', ownerData.instagram);
+        if (ownerData.x !== undefined) formData.append('x', ownerData.x);
+        if (ownerData.telegram !== undefined) formData.append('telegram', ownerData.telegram);
       }
-      const res = await lastValueFrom(this.http.put(url, body));
+
+      if (file) {
+        formData.append('file', file);
+      }
+
+      const res = await lastValueFrom(this.http.put(url, formData));
       return res;
     } catch (error: any) {
       throw error;

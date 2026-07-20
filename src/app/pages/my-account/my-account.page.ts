@@ -253,11 +253,12 @@ export class MyAccountPage implements OnInit {
                 this.ownerData = {
                   first_name: fullDorm.FIRST_NAME || fullDorm.OWNER_FIRST_NAME || dorm.FIRST_NAME || this.user.first_name || '',
                   last_name: fullDorm.LAST_NAME || fullDorm.OWNER_LAST_NAME || dorm.LAST_NAME || this.user.last_name || '',
-                  facebook: fullDorm.FACEBOOK || dorm.FACEBOOK || '',
-                  line: fullDorm.LINE || dorm.LINE || '',
-                  instagram: fullDorm.INSTAGRAM || dorm.INSTAGRAM || '',
-                  x: fullDorm.X || dorm.X || '',
-                  telegram: fullDorm.TELEGRAM || dorm.TELEGRAM || ''
+                  facebook: fullDorm.facebook || fullDorm.FACEBOOK || dorm.facebook || dorm.FACEBOOK || '',
+                  line: fullDorm.line || fullDorm.LINE || dorm.line || dorm.LINE || '',
+                  instagram: fullDorm.instagram || fullDorm.INSTAGRAM || dorm.instagram || dorm.INSTAGRAM || '',
+                  x: fullDorm.x || fullDorm.X || dorm.x || dorm.X || '',
+                  telegram: fullDorm.telegram || fullDorm.TELEGRAM || dorm.telegram || dorm.TELEGRAM || '',
+                  profile_image: this.user.profile_image || fullDorm.PROFILE_IMAGE || ''
                 };
               }
               return { 

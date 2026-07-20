@@ -53,7 +53,6 @@
         <ion-select-option value="all">ทั้งหมด</ion-select-option>
         <ion-select-option value="0">รออนุมัติ</ion-select-option>
         <ion-select-option value="2">ปฏิเสธแล้ว</ion-select-option>
-        <ion-select-option value="4">ส่งกลับแก้ไข</ion-select-option>
         <ion-select-option value="1">อนุมัติแล้ว</ion-select-option>
       </ion-select>
     </div>
@@ -316,21 +315,15 @@
               </div>
             </div>
 
-            <!-- ===== Actions for approved/rejected/sendback ===== -->
+            <!-- ===== Actions for approved/rejected ===== -->
             <div class="action-section" *ngIf="item.REQ_STATUS !== 0">
               <div class="status-done-banner" [ngClass]="'banner-' + getReqStatusColor(item.REQ_STATUS)">
-                <ion-icon [name]="item.REQ_STATUS === 1 ? 'checkmark-circle' : item.REQ_STATUS === 4 ? 'send-outline' : 'close-circle'"></ion-icon>
+                <ion-icon [name]="item.REQ_STATUS === 1 ? 'checkmark-circle' : 'close-circle'"></ion-icon>
                 {{ getReqStatusLabel(item.REQ_STATUS) }}
               </div>
 
-              <!-- Send back for revision -->
-              <button class="btn-sendback" *ngIf="item.REQ_STATUS === 2" (click)="sendBack(item)">
-                <ion-icon name="send-outline"></ion-icon>
-                <span>ส่งกลับให้แก้ไข (แทนการปฏิเสธ)</span>
-              </button>
-
               <!-- Delete button -->
-              <button class="btn-delete" *ngIf="item.REQ_STATUS === 2 || item.REQ_STATUS === 4" (click)="deleteRequest(item)">
+              <button class="btn-delete" *ngIf="item.REQ_STATUS === 2" (click)="deleteRequest(item)">
                 <ion-icon name="trash-outline"></ion-icon>
                 <span>ลบคำขอนี้ออกจากระบบ</span>
               </button>

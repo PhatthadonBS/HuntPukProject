@@ -191,28 +191,53 @@ $text-dark: #1a1a1a;
    👤 5. Owner Card (เหมือน Host Airbnb)
    ========================================= */
 .owner-premium-card {
-  background: linear-gradient(135deg, $msu-dark 0%, #333 100%); border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); color: white;
-  .owner-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
-    .owner-avatar { width: 60px; height: 60px; background: $msu-yellow; color: $msu-dark; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 3px solid #fff; }
-    .owner-title h4 { margin: 0 0 5px 0; font-size: 18px; font-weight: 900; }
-    .owner-title span { font-size: 13px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; font-weight: 600; }
+  background: #ffffff; 
+  border-radius: 20px; 
+  padding: 25px; 
+  margin-bottom: 20px; 
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
+  border: 1px solid #eee;
+  color: $text-dark;
+  
+  .owner-header { 
+    display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+    .owner-avatar { 
+      width: 60px; height: 60px; 
+      background: linear-gradient(135deg, $msu-yellow 0%, #ffc107 100%);
+      color: $msu-dark; border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 30px; 
+    }
+    .owner-title h4 { margin: 0 0 5px 0; font-size: 18px; font-weight: 900; color: $text-dark; }
+    .owner-title span { 
+      font-size: 13px; 
+      background: #f8f9fa; color: #555;
+      padding: 4px 10px; border-radius: 12px; font-weight: 600; 
+      border: 1px solid #e0e0e0;
+    }
   }
 /* =========================================
    👤 Contact Grid (ช่องทางติดต่อ)
    ========================================= */
 .contact-grid { 
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; 
   .contact-btn { 
     display: flex; align-items: center; justify-content: center; gap: 8px; 
-    padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 800; 
-    color: white; text-decoration: none; transition: 0.2s;
+    padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 700; 
+    color: #444; background: #f4f6f8;
+    text-decoration: none; transition: all 0.2s ease;
+    border: 1px solid transparent;
     
-    &.phone { background: #28a745; grid-column: span 2; }
-    &.line { background: #00c300; }
-    &.fb { background: #1877F2; }
-    &.ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
-    &.x { background: #0f1419; }
-    &.telegram { background: #0088cc; }
+    &.phone { 
+      background: rgba(40, 167, 69, 0.1); color: #28a745; 
+      grid-column: span 2; border-color: rgba(40, 167, 69, 0.2); 
+      font-size: 14px; padding: 14px;
+    }
+    &.line { background: rgba(0, 195, 0, 0.1); color: #00c300; border-color: rgba(0, 195, 0, 0.2); }
+    &.fb { background: rgba(24, 119, 242, 0.1); color: #1877F2; border-color: rgba(24, 119, 242, 0.2); }
+    &.ig { background: rgba(225, 48, 108, 0.1); color: #e1306c; border-color: rgba(225, 48, 108, 0.2); }
+    &.x { background: rgba(15, 20, 25, 0.1); color: #0f1419; border-color: rgba(15, 20, 25, 0.2); }
+    &.telegram { background: rgba(0, 136, 204, 0.1); color: #0088cc; border-color: rgba(0, 136, 204, 0.2); }
     
     &:active { transform: scale(0.95); }
     ion-icon { font-size: 18px; flex-shrink: 0; }
@@ -232,44 +257,78 @@ $text-dark: #1a1a1a;
 /* =========================================
    ⭐ 6. Reviews Section
    ========================================= */
-/* =========================================
-   ⭐ 6. Reviews Section
-   ========================================= */
 .write-review-card {
-  background: $card-bg; border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.03); border: 1px solid #eee;
+  background: #ffffff; border-radius: 24px; padding: 25px; margin-bottom: 30px; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #f0f0f0;
   
-  h3 { margin: 0 0 15px 0; font-size: 16px; font-weight: 900; color: $text-dark; }
+  h3 { margin: 0 0 20px 0; font-size: 18px; font-weight: 800; color: $text-dark; text-align: center; }
   
-  .rating-input { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; ion-icon { font-size: 35px; color: #ddd; transition: 0.2s; cursor: pointer; &.active { color: $msu-yellow; transform: scale(1.1); } } }
-  
-  /* 🌟 แก้ไข ion-textarea ตรงนี้ 🌟 */
-  ion-textarea { 
-    background: #f8f9fa; 
-    border-radius: 15px; 
-    padding: 10px; 
-    font-size: 14px; 
-    margin-bottom: 15px; 
-    --padding-start: 15px; 
-    
-    /* ✅ บังคับให้สีตัวอักษรเป็นสีเข้ม (สีดำ/เทาเข้ม) */
-    --color: #1a1a1a !important; 
-    color: #1a1a1a !important; 
-    
-    /* ✅ ปรับสี Placeholder ให้จางลงหน่อยจะได้ดูสวยงาม */
-    --placeholder-color: #888888;
+  .rating-input { 
+    display: flex; gap: 12px; margin-bottom: 20px; justify-content: center; 
+    ion-icon { 
+      font-size: 42px; color: #e4e5e9; transition: all 0.2s ease; cursor: pointer; 
+      &.active { color: $msu-yellow; transform: scale(1.15); filter: drop-shadow(0 2px 4px rgba(255, 214, 0, 0.4)); } 
+      &:active { transform: scale(0.9); }
+    } 
   }
   
-  .submit-btn { width: 100%; background: $msu-dark; color: $msu-yellow; padding: 15px; border-radius: 15px; font-size: 16px; font-weight: 900; border: none; cursor: pointer; &:active { transform: scale(0.98); } }
+  ion-textarea { 
+    background: #f8f9fb; 
+    border-radius: 16px; 
+    padding: 12px; 
+    font-size: 15px; 
+    margin-bottom: 20px; 
+    --padding-start: 15px; 
+    border: 1px solid #ebedf0;
+    transition: all 0.2s ease;
+    
+    &:focus-within {
+      background: #ffffff;
+      border-color: $msu-yellow;
+      box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.15);
+    }
+    
+    --color: #1a1a1a !important; 
+    color: #1a1a1a !important; 
+    --placeholder-color: #999;
+  }
+  
+  .submit-btn { 
+    width: 100%; background: linear-gradient(135deg, $msu-yellow 0%, #ffc107 100%); 
+    color: $msu-dark; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 800; 
+    border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 214, 0, 0.3);
+    transition: all 0.2s ease;
+    &:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(255, 214, 0, 0.2); } 
+  }
 }
 
 .user-review-card {
-  background: $card-bg; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f0f0f0;
-  .reviewer-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
-    .avatar { width: 45px; height: 45px; background: #e0e0e0; color: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; }
-    .meta { flex: 1; .name { font-weight: 800; font-size: 14px; color: $text-dark; } .date { font-size: 11px; color: #888; margin-top: 2px; } }
-    .review-score { display: flex; align-items: center; gap: 4px; background: rgba(255, 214, 0, 0.2); color: #997d00; padding: 4px 10px; border-radius: 10px; font-weight: 900; font-size: 13px; ion-icon { color: $msu-yellow; } }
+  background: #ffffff; border-radius: 20px; padding: 22px; margin-bottom: 18px; 
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+  
+  .reviewer-top { 
+    display: flex; align-items: center; gap: 15px; margin-bottom: 15px;
+    .avatar { 
+      width: 48px; height: 48px; background: linear-gradient(135deg, #f0f2f5 0%, #e4e6eb 100%); 
+      color: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      font-weight: 800; font-size: 18px; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .meta { 
+      flex: 1; 
+      .name { font-weight: 800; font-size: 15px; color: $text-dark; } 
+      .date { font-size: 12px; color: #888; margin-top: 4px; } 
+    }
+    .review-score { 
+      display: flex; align-items: center; gap: 4px; background: rgba(255, 214, 0, 0.15); 
+      color: #997d00; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 14px; 
+      ion-icon { color: #f5b041; } 
+    }
   }
-  .comment-text { margin: 0; font-size: 14px; color: #444; line-height: 1.6; background: #f8f9fa; padding: 15px; border-radius: 12px; font-style: italic; }
+  .comment-text { 
+    margin: 0; font-size: 14.5px; color: #444; line-height: 1.7; 
+    background: #f8f9fa; padding: 16px; border-radius: 14px; 
+    border-left: 4px solid #f0f0f0; 
+  }
 }
 
 .status-box { text-align: center; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 700; &.success { background: #e8f5e9; color: #2e7d32; } &.warning { background: #fff3e0; color: #e65100; } &.normal { background: #eee; color: #555; } }

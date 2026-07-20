@@ -26,6 +26,7 @@ import {
 export class DormRequestModalComponent implements OnInit {
 
   @Input() dorm: any;
+  @Input() owner: any;
   @Input() isViewOnly: boolean = false;
 
   // ✅ Lightbox สำหรับขยายดูรูปหน้าหอ/ใบอนุญาต/แกลเลอรี

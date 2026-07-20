@@ -98,6 +98,9 @@ export class DashboardPage implements OnInit {
   selectedYearForTable: number | null = null;
   allYears: number[] = [];
   private charts: Chart[] = [];
+  
+  // Sort state for dorm views
+  dormViewsSortOrder: 'desc' | 'asc' = 'desc';
 
   // Zone map
   zoneMapCenter: google.maps.LatLngLiteral = { lat: 16.245, lng: 103.250 };
@@ -430,5 +433,17 @@ export class DashboardPage implements OnInit {
 
   async showAlert(header: string, message: string) {
     alert(`${header}\n${message}`);
+  }
+
+  // --- Toggle Dorm Views Sorting ---
+  toggleDormViewsSort() {
+    this.dormViewsSortOrder = this.dormViewsSortOrder === 'desc' ? 'asc' : 'desc';
+    if (this.stats && this.stats.allDormViews) {
+      this.stats.allDormViews.sort((a: any, b: any) => {
+        const viewsA = Number(a.views) || 0;
+        const viewsB = Number(b.views) || 0;
+        return this.dormViewsSortOrder === 'desc' ? viewsB - viewsA : viewsA - viewsB;
+      });
+    }
   }
 }

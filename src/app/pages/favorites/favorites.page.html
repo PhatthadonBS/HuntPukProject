@@ -1,61 +1,106 @@
-<ion-content [fullscreen]="true">
-  <div class="main-bg">
-    
-    <div class="top-bar">
-      <div class="menu-btn" (click)="goBack()">
-        <ion-icon name="arrow-back"></ion-icon>
-      </div>
-      <h2>รายการโปรดของฉัน</h2>
+<div class="ion-page" style="height: 100vh; width: 100%; position: relative; display: flex; flex-direction: column;">
+  <app-header title="รายการโปรด" [userData]="currentUser" [dormList]="allDorms" (searchChange)="onSearch($event)"></app-header>
+
+  <!-- Sticky Action Bar -->
+  <div class="sticky-action-bar">
+    <div style="display: flex; gap: 8px;">
+      <button class="action-btn white-btn" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon> กลับ
+      </button>
+      <button class="action-btn white-btn" (click)="openSort()" *ngIf="allDorms.length > 0">
+        <ion-icon name="swap-vertical-outline"></ion-icon> จัดเรียง
+      </button>
     </div>
-
-    <div class="yellow-container">
-      
-      <div class="dorm-grid" *ngIf="favDorms.length > 0; else noData">
-        
-        <div class="dorm-card" *ngFor="let dorm of favDorms" (click)="goToDetail(dorm)">
-          
-          <div class="delete-btn" (click)="removeFavorite($event, dorm)">
-             <ion-icon name="trash-outline"></ion-icon>
-          </div>
-
-          <div class="card-content">
-            <div class="img-box">
-              <ion-icon name="home" class="placeholder-icon" *ngIf="!dorm.image"></ion-icon>
-              <img [src]="dorm.image" *ngIf="dorm.image" onerror="this.onerror=null; this.src='assets/dorm-placeholder.jpg'" />
-            </div>
-
-            <div class="info-box">
-              <h3>{{ dorm.DORM_NAME }}</h3>
-              
-              <p class="zone-name" *ngIf="dorm.zone || dorm.ZONE_NAME">
-                <ion-icon name="location-outline"></ion-icon> {{ dorm.zone || dorm.ZONE_NAME }}
-              </p>
-              <p class="desc">{{ dorm.ADDRESS }}</p>
-              
-              <div class="score-row" *ngIf="dorm.SCORE">
-                 <ion-icon name="star" color="warning"></ion-icon>
-                 <span>{{ dorm.SCORE }}</span>
-              </div>
-
-              <p class="price" *ngIf="dorm.start_price">เริ่มต้น {{ dorm.start_price | number }} บาท</p>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="loading-row" *ngIf="isLoading">
-         <ion-spinner name="crescent"></ion-spinner>
-      </div>
-
-      <ng-template #noData>
-        <div class="no-data" *ngIf="!isLoading">
-          <ion-icon name="heart-dislike-outline"></ion-icon>
-          <p>คุณยังไม่มีรายการโปรด</p>
-        </div>
-      </ng-template>
-
+    
+    <div style="display: flex; gap: 8px; margin-left: auto;">
+      <button class="action-btn clear-btn" (click)="clearSelection()" *ngIf="isCompareMode && getSelectedCount() > 0" style="background: #ffe3e3; color: #d32f2f; border: 1px solid #ffbaba;">
+        <ion-icon name="trash-outline"></ion-icon> ล้าง
+      </button>
+      <button class="action-btn dark-btn" (click)="toggleCompareMode()" *ngIf="allDorms.length > 0">
+        <ion-icon [name]="isCompareMode ? 'close-circle' : 'list-circle'"></ion-icon>
+        {{ isCompareMode ? 'ยกเลิก' : 'โหมดเปรียบเทียบ' }}
+      </button>
     </div>
   </div>
-</ion-content>
+
+  <ion-content [fullscreen]="true" class="custom-content">
+    <div class="main-bg">
+      
+      <div class="yellow-container">
+        <!-- Loading State -->
+        <div class="loading-row" *ngIf="isLoading">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+
+        <!-- Grid of Favorites -->
+        <div class="dorm-grid" *ngIf="!isLoading && favDorms.length > 0">
+          
+          <div class="dorm-card" *ngFor="let dorm of favDorms" (click)="goToDetail(dorm)" [class.selected]="dorm.isChecked">
+            
+            <div class="card-image">
+              <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
+
+              <div class="rating-badge">
+                <ion-icon name="star"></ion-icon>
+                {{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : 'New' }}
+              </div>
+
+              <!-- Bookmark-style Delete Button -->
+              <div class="bookmark-btn active" (click)="removeFavorite($event, dorm)" *ngIf="!isCompareMode">
+                <ion-icon name="bookmark"></ion-icon>
+                <span>ลบออก</span>
+              </div>
+
+              <!-- Compare Checkbox -->
+              <div class="checkbox-wrapper" *ngIf="isCompareMode">
+                 <div class="custom-checkbox" [class.checked]="dorm.isChecked">
+                   <ion-icon name="checkmark-circle" *ngIf="dorm.isChecked"></ion-icon>
+                 </div>
+              </div>
+
+              <!-- Price Tag -->
+              <div class="price-tag">
+                เริ่มต้น ฿{{ dorm.start_price | number }}
+              </div>
+            </div>
+
+            <div class="card-content">
+              <h3>{{ dorm.DORM_NAME }}</h3>
+              
+              <div class="rating-row">
+                <ion-icon name="star"></ion-icon>
+                <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
+              </div>
+
+              <p class="zone">
+                <ion-icon name="location-outline"></ion-icon>
+                {{ dorm.zone || dorm.ZONE_NAME || 'ไม่ระบุโซน' }}
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="no-data" *ngIf="!isLoading && favDorms.length === 0">
+          <ion-icon name="heart-dislike-outline"></ion-icon>
+          <p>{{ keyword ? 'ไม่พบหอพักที่ค้นหา' : 'ยังไม่มีหอพักที่สนใจ' }}</p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Floating Button for Compare -->
+    <div slot="fixed" class="fixed-bottom-btn" *ngIf="isCompareMode">
+      <button class="btn-premium-compare" (click)="startCompare()" [disabled]="getSelectedCount() < 2">
+        <div class="btn-content">
+          <span>นำไปเปรียบเทียบ</span>
+          <span class="count-badge" *ngIf="getSelectedCount() > 0">{{ getSelectedCount() }}</span>
+        </div>
+        <ion-icon name="arrow-forward-circle"></ion-icon>
+      </button>
+    </div>
+
+  </ion-content>
+</div>

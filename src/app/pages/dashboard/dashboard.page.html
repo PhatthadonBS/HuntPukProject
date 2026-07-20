@@ -152,25 +152,28 @@
 
       </div>
 
-      <!-- Row 3: Top Dorm Views -->
-      <div class="stat-card card-dorm-views" id="dorm-view-card" *ngIf="stats.topPopularDorms?.length">
+      <!-- Row 3: All Dorm Views List -->
+      <div class="stat-card card-dorm-views" id="dorm-view-card" *ngIf="stats.allDormViews?.length">
         <div class="card-glow"></div>
         <div class="dorm-views-header">
-          <div class="card-icon-wrap"><ion-icon name="eye-outline"></ion-icon></div>
+          <div class="card-icon-wrap"><ion-icon name="stats-chart-outline"></ion-icon></div>
           <div class="card-body">
-            <span class="card-label">หอพักยอดนิยม (Top 5)</span>
+            <span class="card-label">ยอดการเข้าชมหอพัก</span>
             <div class="card-value-row">
               <span class="card-value">{{ stats.totalDormViews | number }}</span>
-              <span class="card-unit">ครั้ง</span>
+              <span class="card-unit">ครั้ง (รวม)</span>
             </div>
           </div>
+          <button class="sort-btn" (click)="toggleDormViewsSort()">
+            <ion-icon [name]="dormViewsSortOrder === 'desc' ? 'arrow-down-outline' : 'arrow-up-outline'"></ion-icon>
+          </button>
         </div>
         <div class="dorm-views-list">
-          <div class="dorm-view-item" *ngFor="let dorm of stats.topPopularDorms; let i = index">
-            <span class="dorm-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">#{{ i+1 }}</span>
+          <div class="dorm-view-item" *ngFor="let dorm of stats.allDormViews; let i = index">
+            <span class="dorm-rank" [class.gold]="i===0 && dormViewsSortOrder === 'desc'" [class.silver]="i===1 && dormViewsSortOrder === 'desc'" [class.bronze]="i===2 && dormViewsSortOrder === 'desc'">#{{ i+1 }}</span>
             <span class="dorm-view-name">{{ dorm.dormName }}</span>
             <div class="dorm-view-bar-wrap">
-              <div class="dorm-view-bar" [style.width.%]="stats.topPopularDorms[0]?.views ? (dorm.views / stats.topPopularDorms[0].views * 100) : 0"></div>
+              <div class="dorm-view-bar" [style.width.%]="stats.allDormViews[0]?.views ? (dorm.views / stats.allDormViews[0].views * 100) : 0"></div>
             </div>
             <span class="dorm-view-count">{{ dorm.views | number }} ครั้ง</span>
           </div>

@@ -200,40 +200,43 @@
     </div>
 
     <!-- Modal สำหรับเพิ่มสิ่งอำนวยความสะดวกใหม่ -->
-    <ion-modal [isOpen]="isAddFacilityModalOpen" (didDismiss)="closeAddFacilityModal()">
+    <ion-modal [isOpen]="isAddFacilityModalOpen" (didDismiss)="closeAddFacilityModal()" [initialBreakpoint]="0.75" [breakpoints]="[0, 0.5, 0.75, 1]">
       <ng-template>
-        <ion-header>
-          <ion-toolbar color="warning">
-            <ion-title>เพิ่มสิ่งอำนวยความสะดวก</ion-title>
+        <ion-header class="ion-no-border">
+          <ion-toolbar style="--background: #fff;">
+            <ion-title style="color: #333;">เพิ่มสิ่งอำนวยความสะดวก</ion-title>
             <ion-buttons slot="end">
-              <ion-button (click)="closeAddFacilityModal()">ปิด</ion-button>
+              <ion-button (click)="closeAddFacilityModal()" color="dark">ปิด</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
-        <ion-content class="ion-padding">
-          <ion-item class="custom-input">
-            <ion-label position="stacked">ชื่อสิ่งอำนวยความสะดวก</ion-label>
-            <ion-input [(ngModel)]="newFacilityName" placeholder="ถ้ามีเพิ่มเติมกรุณาระบุ"></ion-input>
+        <ion-content class="ion-padding" style="--background: #f4f5f8;">
+          <ion-item class="custom-input" lines="none" style="--background: #fff; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+            <ion-label position="stacked" style="color: #666; font-weight: 600;">ชื่อสิ่งอำนวยความสะดวก</ion-label>
+            <ion-input [(ngModel)]="newFacilityName" placeholder="เช่น เครื่องซักผ้าส่วนตัว" style="color: #333; font-size: 15px; margin-top: 8px;"></ion-input>
           </ion-item>
 
-          <div style="margin-top: 16px;">
-            <p style="font-weight: bold; margin-bottom: 8px; color: #555;">เลือกไอคอน (จากระบบ)</p>
-            <div class="icon-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 10px;">
+          <div style="background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+            <p style="font-weight: 600; margin-bottom: 16px; color: #333; text-align: center;">เลือกไอคอนที่ตรงกับสิ่งอำนวยความสะดวก</p>
+            <div class="icon-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 12px;">
               <div 
                 *ngFor="let iconFile of availableIcons" 
                 class="icon-select-item" 
-                style="border: 2px solid transparent; padding: 5px; border-radius: 8px; text-align: center;"
+                style="border: 2px solid transparent; padding: 10px; border-radius: 12px; text-align: center; background: #f8f9fa; cursor: pointer; transition: all 0.2s ease;"
                 [style.border-color]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile ? '#FFD600' : 'transparent'"
-                [style.background]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile ? '#fff9c4' : 'transparent'"
+                [style.background]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile ? '#fff9c4' : '#f8f9fa'"
+                [style.box-shadow]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile ? '0 4px 10px rgba(255, 214, 0, 0.3)' : 'none'"
                 (click)="newFacilitySelectedIcon = 'assets/allIcons/' + iconFile">
-                <img [src]="'assets/allIcons/' + iconFile" [alt]="iconFile" style="width: 24px; height: 24px;">
+                <img [src]="'assets/allIcons/' + iconFile" [alt]="iconFile" style="width: 28px; height: 28px; object-fit: contain;">
               </div>
             </div>
           </div>
         </ion-content>
-        <ion-footer>
-          <ion-toolbar>
-            <ion-button expand="block" color="dark" (click)="confirmAddFacility()">เพิ่มรายการ</ion-button>
+        <ion-footer class="ion-no-border">
+          <ion-toolbar style="--background: #f4f5f8; padding: 10px 16px 20px 16px;">
+            <ion-button expand="block" color="warning" shape="round" style="height: 48px; font-weight: bold;" (click)="confirmAddFacility()">
+              เพิ่มรายการ
+            </ion-button>
           </ion-toolbar>
         </ion-footer>
       </ng-template>

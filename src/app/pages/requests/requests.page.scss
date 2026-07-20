@@ -182,13 +182,23 @@ label {
     ion-icon { color: $error-color; }
   }
 
-  ion-input, ion-select {
+  ion-input {
     --padding-start: 0;
     --color: #000;
     --placeholder-color: #999;
     --placeholder-opacity: 1;
     font-size: 15px;
     font-weight: 500;
+  }
+
+  ion-select {
+    --padding-start: 0;
+    --placeholder-color: #999;
+    --placeholder-opacity: 1;
+    color: #000;
+    font-size: 15px;
+    font-weight: 500;
+    width: 100%;
   }
 
   ion-icon {
@@ -320,4 +330,8 @@ label {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
+}
+
+ion-select::part(text) {
+  color: #000 !important;
 }

@@ -23,17 +23,17 @@
     <div class="info-card">
       <div class="info-item">
         <span class="label">ชื่อ-สกุล</span>
-        <span class="value">{{ dorm.FIRST_NAME }} {{ dorm.LAST_NAME }}</span>
+        <span class="value">{{ owner?.FIRST_NAME || owner?.first_name || dorm?.FIRST_NAME || dorm?.first_name || 'ไม่ระบุ' }} {{ owner?.LAST_NAME || owner?.last_name || dorm?.LAST_NAME || dorm?.last_name || '' }}</span>
       </div>
       <div class="divider"></div>
       <div class="info-item">
         <span class="label"><ion-icon name="mail"></ion-icon> อีเมล</span>
-        <span class="value">{{ dorm.EMAIL }}</span>
+        <span class="value">{{ owner?.EMAIL || owner?.email || dorm?.EMAIL || dorm?.email || 'ไม่ระบุ' }}</span>
       </div>
       <div class="divider"></div>
       <div class="info-item">
         <span class="label"><ion-icon name="call"></ion-icon> เบอร์โทร</span>
-        <span class="value highlight">{{ dorm.PHONE_NUMBER || 'ไม่ระบุ' }}</span>
+        <span class="value highlight">{{ owner?.PHONE_NUMBER || owner?.phone || dorm?.PHONE_NUMBER || dorm?.phone || 'ไม่ระบุ' }}</span>
       </div>
     </div>
 
@@ -133,7 +133,7 @@
     <div class="info-card" *ngIf="dorm.facilities?.length > 0 || dorm.FACILITIES?.length > 0">
       <div class="fac-list" style="display:flex; flex-wrap:wrap; gap:10px;">
         <div class="fac-item" *ngFor="let fac of (dorm.facilities || dorm.FACILITIES)" style="background:var(--ion-color-light); padding:5px 10px; border-radius:15px; font-size:12px; display:flex; align-items:center; gap:5px;">
-          <img *ngIf="fac.icon && fac.icon.startsWith('http')" [src]="fac.icon" style="width:16px; height:16px; border-radius:50%;">
+          <img *ngIf="fac.icon && fac.icon.startsWith('http')" [src]="fac.icon" style="width:16px; height:16px; border-radius:50%;" onerror="this.src='https://placehold.co/16x16?text=F'">
           <ion-icon *ngIf="!fac.icon || !fac.icon.startsWith('http')" [name]="fac.icon || 'checkmark-circle-outline'"></ion-icon>
           <span>{{ fac.name || fac.FAC_TYPE_NAME }}</span>
         </div>
@@ -144,26 +144,18 @@
       <div class="icon-box">
         <ion-icon name="images"></ion-icon>
       </div>
-      <div class="header-text">เอกสารและรูปภาพ</div>
+      <div class="header-text">รูปภาพหอพัก</div>
     </div>
 
     <ion-grid class="ion-no-padding img-grid">
       <ion-row>
-        <ion-col size="6" class="col-left">
+        <!-- เต็มจอแทนที่ของเดิมที่แบ่งครึ่ง -->
+        <ion-col size="12">
           <div class="img-card" (click)="viewImage(dorm.FRONT_DORM_IMG || dorm.image || dorm.FRONT_DORM_IMAGE)">
             <div class="img-header">หน้าหอพัก</div>
             <div class="img-wrapper">
               <img [src]="dorm.FRONT_DORM_IMG || dorm.image || dorm.FRONT_DORM_IMAGE || 'assets/no-image.png'" 
                    onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
-            </div>
-          </div>
-        </ion-col>
-        <ion-col size="6" class="col-right">
-          <div class="img-card" (click)="viewImage(dorm.LICENSE_IMG || dorm.DORM_LICENSE)">
-            <div class="img-header">ใบอนุญาต</div>
-            <div class="img-wrapper">
-              <img [src]="dorm.LICENSE_IMG || dorm.DORM_LICENSE || 'assets/no-doc.png'" 
-                   onerror="this.src='https://placehold.co/600x400?text=No+Document'" />
             </div>
           </div>
         </ion-col>
@@ -180,8 +172,8 @@
         </ion-col>
       </ion-row>
 
-      <!-- ✅ แยกรูปส่วนต่างๆ ของห้องพักเป็นหมวดหมู่ -->
-      <div *ngIf="dorm.ceiling_img || dorm.wall_img || dorm.floor_img || dorm.bathroom_img || dorm.balcony_img">
+      <!-- ✅ รูปส่วนต่างๆ ของห้องพักเป็นหมวดหมู่ -->
+      <div>
         <div class="section-header" style="margin-top: 15px;">
           <div class="icon-box" style="background: var(--ion-color-secondary);">
             <ion-icon name="bed"></ion-icon>
@@ -190,43 +182,43 @@
         </div>
 
         <ion-row>
-          <ion-col size="6" *ngIf="dorm.ceiling_img" style="padding: 2px;">
+          <ion-col size="6" style="padding: 2px;">
             <div class="img-card" (click)="viewImage(dorm.ceiling_img)">
               <div class="img-header">เพดาน</div>
               <div class="img-wrapper" style="height: 100px;">
-                <img [src]="dorm.ceiling_img" />
+                <img [src]="dorm.ceiling_img || ''" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
               </div>
             </div>
           </ion-col>
-          <ion-col size="6" *ngIf="dorm.wall_img" style="padding: 2px;">
+          <ion-col size="6" style="padding: 2px;">
             <div class="img-card" (click)="viewImage(dorm.wall_img)">
               <div class="img-header">ผนัง</div>
               <div class="img-wrapper" style="height: 100px;">
-                <img [src]="dorm.wall_img" />
+                <img [src]="dorm.wall_img || ''" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
               </div>
             </div>
           </ion-col>
-          <ion-col size="6" *ngIf="dorm.floor_img" style="padding: 2px;">
+          <ion-col size="6" style="padding: 2px;">
             <div class="img-card" (click)="viewImage(dorm.floor_img)">
               <div class="img-header">พื้น</div>
               <div class="img-wrapper" style="height: 100px;">
-                <img [src]="dorm.floor_img" />
+                <img [src]="dorm.floor_img || ''" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
               </div>
             </div>
           </ion-col>
-          <ion-col size="6" *ngIf="dorm.bathroom_img" style="padding: 2px;">
+          <ion-col size="6" style="padding: 2px;">
             <div class="img-card" (click)="viewImage(dorm.bathroom_img)">
               <div class="img-header">ห้องน้ำ</div>
               <div class="img-wrapper" style="height: 100px;">
-                <img [src]="dorm.bathroom_img" />
+                <img [src]="dorm.bathroom_img || ''" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
               </div>
             </div>
           </ion-col>
-          <ion-col size="6" *ngIf="dorm.balcony_img" style="padding: 2px;">
+          <ion-col size="6" style="padding: 2px;">
             <div class="img-card" (click)="viewImage(dorm.balcony_img)">
               <div class="img-header">ระเบียง</div>
               <div class="img-wrapper" style="height: 100px;">
-                <img [src]="dorm.balcony_img" />
+                <img [src]="dorm.balcony_img || ''" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
               </div>
             </div>
           </ion-col>
@@ -250,7 +242,7 @@
 
 </ion-content>
 
-<!-- ✅ Lightbox ขยายรูปภาพ — ใช้กับรูปหน้าหอ/ใบอนุญาต/แกลเลอรี -->
+<!-- ✅ Lightbox ขยายรูปภาพ — ใช้กับรูปหน้าหอ/แกลเลอรี -->
 <div class="lightbox-overlay" *ngIf="isLightboxOpen" (click)="closeLightbox()">
   <div class="lightbox-close" (click)="closeLightbox()">
     <ion-icon name="close"></ion-icon>

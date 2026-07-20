@@ -1,77 +1,124 @@
-<div class="custom-backdrop" *ngIf="isOpen" (click)="isOpen = false"></div>
+<!-- 🌑 Backdrop — ใช้ class toggle แทน *ngIf เพื่อป้องกัน re-render bug -->
+<div class="custom-backdrop" 
+     [class.visible]="isOpen" 
+     (click)="forceClose()">
+</div>
 
 <div class="custom-sidebar" [class.open]="isOpen">
   <ion-content class="sidebar-content">
     <div class="sidebar-wrapper">
-      
+
+      <!-- ปุ่มปิด (animated chevron) -->
+      <div class="sidebar-close-btn" (click)="forceClose()" title="ปิดเมนู">
+        <div class="close-icon-wrap">
+          <span class="chevron-line top"></span>
+          <span class="chevron-line bottom"></span>
+        </div>
+      </div>
+
       <div class="logo-area">
-        <div style="margin-bottom: 20px;">
-          <h2 style="color: #FFD600; font-weight: 900; margin: 0; font-size: 28px; letter-spacing: 1.5px;">HuntPuk</h2>
+        <div class="sidebar-brand">
+          <div class="sidebar-logo-circle">
+            <img src="assets/logo1.jpg" alt="Logo" onerror="this.style.display='none'">
+          </div>
+          <h2 class="sidebar-title">HuntPuk</h2>
         </div>
 
-        <ng-container *ngIf="currentUser; else showLogo">
+        <ng-container *ngIf="currentUser; else showGuest">
           <div class="user-avatar-circle">
             <ion-icon name="person"></ion-icon>
           </div>
-          <h3 style="color: white; margin: 10px 0 0;">{{ currentUser.username || currentUser.USERNAME }}</h3>
+          <h3 class="user-name">{{ currentUser.username || currentUser.USERNAME }}</h3>
+          <span class="user-role-badge">{{ userRole === 3 ? 'Admin' : userRole === 2 ? 'เจ้าของหอพัก' : 'สมาชิก' }}</span>
         </ng-container>
-        
-        <ng-template #showLogo>
-          <img src="assets/logo1.jpg" alt="Logo" onerror="this.src='https://placehold.co/80x80?text=Logo'">
+
+        <ng-template #showGuest>
+          <p class="guest-hint">เข้าสู่ระบบเพื่อใช้งานครบทุกฟีเจอร์</p>
         </ng-template>
       </div>
 
       <div class="menu-list">
         <div class="menu-item" (click)="navigate('/home')">
-          <ion-icon name="home"></ion-icon> หน้าแรก
+          <div class="menu-icon-wrap"><ion-icon name="home"></ion-icon></div>
+          <span>หน้าแรก</span>
         </div>
         <div class="menu-item" (click)="navigate('/list')">
-          <ion-icon name="list-outline"></ion-icon> รายการ
+          <div class="menu-icon-wrap"><ion-icon name="list-outline"></ion-icon></div>
+          <span>รายการหอพัก</span>
         </div>
         <div class="menu-item" (click)="navigate('/dorm-popular')">
-          <ion-icon name="star-outline"></ion-icon> หอพักยอดนิยม
+          <div class="menu-icon-wrap"><ion-icon name="star-outline"></ion-icon></div>
+          <span>หอพักยอดนิยม</span>
         </div>
 
         <ng-container *ngIf="userRole > 0">
+          <div class="menu-section-divider">
+            <span>บัญชีของฉัน</span>
+          </div>
           <div class="menu-item" (click)="navigate('/my-account')">
-            <ion-icon name="person-circle-outline"></ion-icon> บัญชีของฉัน
+            <div class="menu-icon-wrap"><ion-icon name="person-circle-outline"></ion-icon></div>
+            <span>โปรไฟล์</span>
           </div>
           <div class="menu-item" *ngIf="userRole === 1 || userRole === 3" (click)="navigate('/requests')">
-            <ion-icon name="key"></ion-icon> ร้องขอเป็นเจ้าของหอพัก
+            <div class="menu-icon-wrap"><ion-icon name="key"></ion-icon></div>
+            <span>ร้องขอเป็นเจ้าของหอพัก</span>
           </div>
-        <ng-container *ngIf="userRole === 2 || userRole === 3">
+          <ng-container *ngIf="userRole === 2 || userRole === 3">
             <div class="menu-item" (click)="navigate('/dorm-form')">
-              <ion-icon name="create"></ion-icon> ลงทะเบียนหอพัก
+              <div class="menu-icon-wrap"><ion-icon name="create"></ion-icon></div>
+              <span>ลงทะเบียนหอพัก</span>
             </div>
             <div class="menu-item" (click)="navigate('/my-dorms')">
-              <ion-icon name="business"></ion-icon> หอพักของฉัน
+              <div class="menu-icon-wrap"><ion-icon name="business"></ion-icon></div>
+              <span>หอพักของฉัน</span>
             </div>
           </ng-container>
-          <div class="menu-item" (click)="navigate('/favorites')">
-            <ion-icon name="heart-outline"></ion-icon> รายการโปรด
+          <div class="menu-item" *ngIf="userRole === 1" (click)="navigate('/favorites')">
+            <div class="menu-icon-wrap"><ion-icon name="heart-outline"></ion-icon></div>
+            <span>รายการโปรด</span>
           </div>
         </ng-container>
 
         <ng-container *ngIf="userRole === 3">
-          <div class="menu-divider"></div>
-          <div class="menu-title">ADMIN PANEL</div>
-          <div class="menu-item dashboard-btn" (click)="navigate('/dashboard')">Dashboard</div>
-          <div class="menu-item" (click)="navigate('/manage-requests-dorm-owner')">จัดการคำร้องขอเจ้าของหอพัก</div>
-          <div class="menu-item" (click)="navigate('/manage-users')">จัดการบัญชีสมาชิก</div>
-          <div class="menu-item" (click)="navigate('/manage-dorm')">จัดการหอพัก</div>
-          <div class="menu-item" (click)="navigate('/manage-requests-createdorm')">จัดการคำร้องขอหอพัก</div>
+          <div class="menu-section-divider admin">
+            <span>⚡ Admin Panel</span>
+          </div>
+          <div class="menu-item dashboard-btn" (click)="navigate('/dashboard')">
+            <div class="menu-icon-wrap"><ion-icon name="bar-chart-outline"></ion-icon></div>
+            <span>Dashboard</span>
+          </div>
+          <div class="menu-item" (click)="navigate('/manage-requests-dorm-owner')">
+            <div class="menu-icon-wrap"><ion-icon name="key"></ion-icon></div>
+            <span>จัดการคำร้องขอเจ้าของหอพัก</span>
+          </div>
+          <div class="menu-item" (click)="navigate('/manage-users')">
+            <div class="menu-icon-wrap"><ion-icon name="people-outline"></ion-icon></div>
+            <span>จัดการบัญชีสมาชิก</span>
+          </div>
+          <div class="menu-item" (click)="navigate('/manage-dorm')">
+            <div class="menu-icon-wrap"><ion-icon name="business"></ion-icon></div>
+            <span>จัดการหอพัก</span>
+          </div>
+          <div class="menu-item" (click)="navigate('/manage-requests-createdorm')">
+            <div class="menu-icon-wrap"><ion-icon name="document-text-outline"></ion-icon></div>
+            <span>จัดการคำร้องขอหอพัก</span>
+          </div>
           <div class="menu-item" (click)="navigate('/facility-management')">
-            <ion-icon name="cube-outline"></ion-icon> จัดการสิ่งอำนวยความสะดวก
+            <div class="menu-icon-wrap"><ion-icon name="cube-outline"></ion-icon></div>
+            <span>จัดการสิ่งอำนวยความสะดวก</span>
           </div>
           <div class="menu-item" (click)="navigate('/type-management')">
-            <ion-icon name="cube-outline"></ion-icon> จัดการประเภทหอพัก
+            <div class="menu-icon-wrap"><ion-icon name="grid-outline"></ion-icon></div>
+            <span>จัดการประเภทหอพัก</span>
           </div>
         </ng-container>
 
-        <div class="menu-item" *ngIf="userRole > 0" (click)="logout()" style="color: #ff6b6b; margin-top: 15px;">
-          <ion-icon name="log-out-outline"></ion-icon> ออกจากระบบ
+        <div class="menu-item logout-item" *ngIf="userRole > 0" (click)="logout()">
+          <div class="menu-icon-wrap"><ion-icon name="log-out-outline"></ion-icon></div>
+          <span>ออกจากระบบ</span>
         </div>
       </div>
+
     </div>
   </ion-content>
 </div>

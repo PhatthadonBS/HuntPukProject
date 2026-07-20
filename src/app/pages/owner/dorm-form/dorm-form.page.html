@@ -3,7 +3,9 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/my-dorms" text="ย้อนกลับ" color="dark"></ion-back-button>
     </ion-buttons>
-    <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">ลงทะเบียนหอพักใหม่</ion-title>
+    <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">
+      {{ dormId ? 'ข้อมูลหอพัก' : 'ลงทะเบียนหอพัก' }}
+    </ion-title>
   </ion-toolbar>
 
   <!-- Step Indicator -->
@@ -31,7 +33,7 @@
 </ion-header>
 
 <ion-content class="ion-padding bg-light">
-  <div class="form-container" *ngIf="formState === 'editing'">
+  <div class="form-container" [class.disabled-form]="isReadOnly" *ngIf="formState === 'editing'">
 
     <!-- ==================== STEP 1: ข้อมูลพื้นฐาน ==================== -->
     <div *ngIf="currentStep === 1" class="fade-in">
@@ -82,8 +84,8 @@
 
       <div class="section-card">
         <div class="header-row" style="margin-bottom: 10px;">
-          <h3 style="margin: 0;"><ion-icon name="location-outline"></ion-icon> ที่อยู่ & พิกัด</h3>
-          <ion-button fill="outline" size="small" color="primary" (click)="getCurrentLocation()">
+          <h3 style="margin: 0;"><ion-icon name="location-outline"></ion-icon> แผนที่ & พิกัด</h3>
+          <ion-button *ngIf="!dormId" fill="outline" size="small" color="primary" (click)="getCurrentLocation()">
             <ion-icon name="locate-outline" slot="start"></ion-icon> พิกัดปัจจุบัน
           </ion-button>
         </div>
@@ -102,12 +104,27 @@
         <div class="map-wrapper">
           <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
             [options]="mapOptions" (mapClick)="onMapClick($event)">
+            <!-- Marker ตำแหน่งหอพักใหม่ -->
             <map-marker [position]="markerPosition" [options]="markerOptions">
               <map-info-window [infoWindow]="infoWindow" [options]="{content: currentZoneName}"></map-info-window>
             </map-marker>
-            <map-circle *ngIf="zoneCenter" [center]="zoneCenter" [radius]="zoneRadius" [options]="circleOptions"></map-circle>
-            <!-- Marker สำหรับศูนย์กลางโซน -->
-            <map-marker *ngIf="zoneCenter" [position]="zoneCenter" [options]="zoneMarkerOptions"></map-marker>
+            <!-- วงกลมทุกโซน -->
+            <map-circle *ngFor="let zone of zones"
+              [center]="{lat: zone.lat, lng: zone.lng}"
+              [radius]="zone.ZONE_RADIUS || 500"
+              [options]="getZoneCircleOptions(zone)">
+            </map-circle>
+            <!-- หมุดศูนย์กลางโซนพร้อมชื่อ -->
+            <map-marker *ngFor="let zone of zones"
+              [position]="{lat: zone.lat, lng: zone.lng}"
+              [options]="getZoneMarkerOptions(zone)"
+              (mapClick)="onZoneMarkerClick(zone)">
+            </map-marker>
+            <!-- หมุดหอพักที่มีอยู่แล้วในระบบ -->
+            <map-marker *ngFor="let dorm of allDorms"
+              [position]="{lat: dorm.lat, lng: dorm.lng}"
+              [options]="getDormMarkerOptions(dorm)">
+            </map-marker>
           </google-map>
         </div>
         <p class="hint-text text-danger">* แตะบนแผนที่เพื่อปักหมุดตำแหน่งหอพัก (ที่อยู่จะถูกดึงอัตโนมัติ)</p>
@@ -171,17 +188,19 @@
           เลือกแล้ว {{ getCheckedFacilitiesCount() }} / {{ facilities.length }} รายการ
         </div>
 
-        <!-- ปุ่มเสนอสิ่งอำนวยความสะดวกใหม่ -->
+        <!-- เสนอสิ่งอำนวยความสะดวก -->
         <div class="suggest-fac-container" style="text-align: center; margin-top: 15px;">
           <ion-button fill="outline" shape="round" color="secondary" (click)="suggestNewFacility()" *ngIf="formData.new_facilities.length < 3">
             <ion-icon slot="start" name="bulb-outline"></ion-icon>
-            เพิ่มสิ่งอำนวยความสะดวกเพิ่มเติม (เหลือ {{ 3 - formData.new_facilities.length }} ครั้ง)
+            เสนอเพิ่มสิ่งอำนวยความสะดวก (เสนอได้อีก {{ 3 - formData.new_facilities.length }} อย่าง)
           </ion-button>
+          <p class="hint-text text-danger" *ngIf="formData.new_facilities.length >= 3" style="margin-top: 10px;">
+            <ion-icon name="alert-circle-outline"></ion-icon> คุณเสนอสิ่งอำนวยความสะดวกครบกำหนด 3 อย่างแล้ว
+          </p>
           
           <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list">
             <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
-              <!-- Display the selected icon as image -->
-              <img [src]="newFac.icon" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+              <img [src]="newFac.icon.startsWith('data:') || newFac.icon.startsWith('http') ? newFac.icon : ('/assets/allicons/' + newFac.icon)" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
               <span style="color: #333;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
               <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="--padding-start: 0; --padding-end: 0; height: 24px;">
                 <ion-icon name="close-circle" slot="icon-only"></ion-icon>
@@ -192,43 +211,45 @@
       </div>
     </div>
 
-    <!-- Modal สำหรับเพิ่มสิ่งอำนวยความสะดวกใหม่ -->
-    <ion-modal [isOpen]="isAddFacilityModalOpen" (didDismiss)="closeAddFacilityModal()">
-      <ng-template>
-        <ion-header>
-          <ion-toolbar color="primary">
-            <ion-title>เพิ่มสิ่งอำนวยความสะดวก</ion-title>
-            <ion-buttons slot="end">
-              <ion-button (click)="closeAddFacilityModal()">ปิด</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-          <ion-item>
-            <ion-label position="stacked">ชื่อสิ่งอำนวยความสะดวก</ion-label>
-            <ion-input [(ngModel)]="newFacilityName" placeholder="ถ้ามีเพิ่มเติมกรุณาระบุ"></ion-input>
-          </ion-item>
-
-          <div style="margin-top: 16px;">
-            <p style="font-weight: bold; margin-bottom: 8px; color: #555;">เลือกไอคอน (จากระบบ)</p>
-            <div class="icon-grid">
-              <div 
-                *ngFor="let iconFile of availableIcons" 
-                class="icon-select-item" 
-                [class.selected]="newFacilitySelectedIcon === 'assets/allicons/' + iconFile"
+    <!-- Overlay Modal สำหรับเพิ่มสิ่งอำนวยความสะดวกใหม่ (ใช้ div แทน ion-modal เพื่อป้องกันหน้าจอดำ) -->
+    <div class="fac-modal-overlay" *ngIf="isAddFacilityModalOpen" (click)="closeAddFacilityModal()">
+      <div class="fac-modal-box" (click)="$event.stopPropagation()">
+        <!-- Header -->
+        <div class="fac-modal-header">
+          <span>✨ เพิ่มสิ่งอำนวยความสะดวก</span>
+          <button class="fac-modal-close" (click)="closeAddFacilityModal()">✕</button>
+        </div>
+        <!-- Content -->
+        <div class="fac-modal-content">
+          <!-- ช่องกรอกชื่อ -->
+          <div class="fac-modal-input-group">
+            <label>ชื่อสิ่งอำนวยความสะดวก <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="newFacilityName" placeholder="เช่น เครื่องซักผ้าส่วนตัว, เตียงคู่" class="fac-name-input">
+          </div>
+          <!-- เลือกไอคอน -->
+          <div class="fac-icon-section">
+            <p class="fac-icon-label">เลือกไอคอน</p>
+            <div class="fac-icon-grid">
+              <div
+                *ngFor="let iconFile of availableIcons"
+                class="fac-icon-cell"
+                [class.fac-icon-selected]="newFacilitySelectedIcon === 'assets/allicons/' + iconFile"
                 (click)="newFacilitySelectedIcon = 'assets/allicons/' + iconFile">
                 <img [src]="'assets/allicons/' + iconFile" [alt]="iconFile">
+                <span *ngIf="newFacilitySelectedIcon === 'assets/allicons/' + iconFile" class="fac-icon-tick">✓</span>
               </div>
             </div>
           </div>
-        </ion-content>
-        <ion-footer>
-          <ion-toolbar>
-            <ion-button expand="block" color="success" (click)="confirmAddFacility()">เพิ่มรายการ</ion-button>
-          </ion-toolbar>
-        </ion-footer>
-      </ng-template>
-    </ion-modal>
+        </div>
+        <!-- Footer -->
+        <div class="fac-modal-footer">
+          <button class="fac-btn-cancel" (click)="closeAddFacilityModal()">ยกเลิก</button>
+          <button class="fac-btn-confirm" (click)="confirmAddFacility()">
+            ✚ ยืนยันการเพิ่ม
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ==================== STEP 3: ประเภทห้องพัก ==================== -->
     <div *ngIf="currentStep === 3" class="fade-in">
@@ -285,122 +306,128 @@
     <div *ngIf="currentStep === 4" class="fade-in">
 
       <!-- เอกสารยืนยันตัวตน -->
-      <div class="section-card">
+      <div class="section-card" *ngIf="!isApproved">
         <h3><ion-icon name="document-text-outline"></ion-icon> เอกสารยืนยันตัวตน <span class="req">*</span></h3>
         <p class="hint-text">รูปใบอนุญาตประกอบกิจการหอพัก หรือรูปเจ้าของถ่ายคู่กับบัตรประชาชน <br> <span class="text-danger">(ถ้าแอดมินตรวจสอบเสร็จระบบจะทำการลบออกจากระบบทันที)</span></p>
-        <div class="img-upload-box" (click)="licenseInput.click()" [class.has-image]="previews.LICENSE_IMG">
-          <img [src]="previews.LICENSE_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
-          <div class="overlay">
-            <ion-icon name="cloud-upload-outline"></ion-icon>
-            <span>{{ previews.LICENSE_IMG ? 'เปลี่ยนรูป' : 'เลือกไฟล์...' }}</span>
+        <div class="img-upload-box" (click)="isReadOnly ? null : licenseInput.click()" [class.has-image]="previews.LICENSE_IMG">
+            <img [src]="previews.LICENSE_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
+            <div class="overlay">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <span>{{ previews.LICENSE_IMG ? 'เปลี่ยนรูป' : 'เลือกไฟล์...' }}</span>
+            </div>
+          </div>
+          <input #licenseInput type="file" (change)="onFileSelect($event, 'LICENSE_IMG')" accept="image/*" hidden>
+          <p class="upload-status" *ngIf="selectedFiles.LICENSE_IMG">
+            ✅ {{ selectedFiles.LICENSE_IMG.name }}
+          </p>
+        </div>
+
+        <!-- รูปหน้าปก -->
+        <div class="section-card">
+          <h3><ion-icon name="image-outline"></ion-icon> รูปหน้าปกหอพัก <span class="req">*</span></h3>
+          <p class="hint-text">รูปภาพด้านหน้าอาคาร หรือรูปที่สวยที่สุดของหอพัก</p>
+          <div class="img-upload-box" (click)="isReadOnly ? null : frontInput.click()" [class.has-image]="previews.FRONT_DORM_IMG">
+            <img [src]="previews.FRONT_DORM_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
+            <div class="overlay">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              <span>{{ previews.FRONT_DORM_IMG ? 'เปลี่ยนรูป' : 'เลือกไฟล์...' }}</span>
+            </div>
+          </div>
+          <input #frontInput type="file" (change)="onFileSelect($event, 'FRONT_DORM_IMG')" accept="image/*" hidden>
+          <p class="upload-status" *ngIf="selectedFiles.FRONT_DORM_IMG">
+            ✅ {{ selectedFiles.FRONT_DORM_IMG.name }}
+          </p>
+        </div>
+
+        <!-- รูปมุมต่างๆ ภายในห้อง -->
+        <div class="section-card">
+          <h3>📸 รูปภาพส่วนประกอบห้อง <span class="req">*</span> บังคับ 5 รูป</h3>
+          <p class="hint-text">กดที่รูปหรือปุ่มด้านล่างเพื่ออัปโหลดภาพแต่ละมุม &bull; <span class="text-danger"><strong>1-5 จำเป็นต้องใส่</strong></span>, ระเบียงไม่บังคับ</p>
+
+          <div class="grid-3-col">
+            <div class="img-mini-box">
+              <label>1. เตียงนอน <span class="req">*</span></label>
+              <img [src]="previews.BED_IMG || 'assets/placeholder-square.png'"
+                (click)="isReadOnly ? null : bedInput.click()" [class.uploaded]="previews.BED_IMG">
+              <ion-button size="small" fill="outline" expand="block" color="primary"
+                class="upload-btn" (click)="isReadOnly ? null : bedInput.click()">เลือกไฟล์</ion-button>
+              <input #bedInput type="file" (change)="onFileSelect($event, 'BED_IMG')" accept="image/*" hidden>
+            </div>
+
+            <div class="img-mini-box">
+              <label>2. ผนังปลายเตียง <span class="req">*</span></label>
+              <img [src]="previews.WALL_IMG || 'assets/placeholder-square.png'"
+                (click)="isReadOnly ? null : wallInput.click()" [class.uploaded]="previews.WALL_IMG">
+              <ion-button size="small" fill="outline" expand="block" color="primary"
+                class="upload-btn" (click)="isReadOnly ? null : wallInput.click()">เลือกไฟล์</ion-button>
+              <input #wallInput type="file" (change)="onFileSelect($event, 'WALL_IMG')" accept="image/*" hidden>
+            </div>
+
+            <div class="img-mini-box">
+              <label>3. เพดาน <span class="req">*</span></label>
+              <img [src]="previews.CEILING_IMG || 'assets/placeholder-square.png'"
+                (click)="isReadOnly ? null : ceilingInput.click()" [class.uploaded]="previews.CEILING_IMG">
+              <ion-button size="small" fill="outline" expand="block" color="primary"
+                class="upload-btn" (click)="isReadOnly ? null : ceilingInput.click()">เลือกไฟล์</ion-button>
+              <input #ceilingInput type="file" (change)="onFileSelect($event, 'CEILING_IMG')" accept="image/*" hidden>
+            </div>
+
+            <div class="img-mini-box">
+              <label>4. ฝั่งติดประตู <span class="req">*</span></label>
+              <img [src]="previews.FLOOR_IMG || 'assets/placeholder-square.png'"
+                (click)="isReadOnly ? null : floorInput.click()" [class.uploaded]="previews.FLOOR_IMG">
+              <ion-button size="small" fill="outline" expand="block" color="primary"
+                class="upload-btn" (click)="isReadOnly ? null : floorInput.click()">เลือกไฟล์</ion-button>
+              <input #floorInput type="file" (change)="onFileSelect($event, 'FLOOR_IMG')" accept="image/*" hidden>
+            </div>
+
+            <div class="img-mini-box">
+              <label>5. ห้องน้ำ <span class="req">*</span></label>
+              <img [src]="previews.BATHROOM_IMG || 'assets/placeholder-square.png'"
+                (click)="isReadOnly ? null : bathInput.click()" [class.uploaded]="previews.BATHROOM_IMG">
+              <ion-button size="small" fill="outline" expand="block" color="primary"
+                class="upload-btn" (click)="isReadOnly ? null : bathInput.click()">เลือกไฟล์</ion-button>
+              <input #bathInput type="file" (change)="onFileSelect($event, 'BATHROOM_IMG')" accept="image/*" hidden>
+            </div>
+
+            <div class="img-mini-box">
+              <label>6. ระเบียง (ถ้ามี)</label>
+              <img [src]="previews.BALCONY_IMG || 'assets/placeholder-square.png'"
+                (click)="isReadOnly ? null : balconyInput.click()" [class.uploaded]="previews.BALCONY_IMG">
+              <ion-button size="small" fill="outline" expand="block" color="primary"
+                class="upload-btn" (click)="isReadOnly ? null : balconyInput.click()">เลือกไฟล์</ion-button>
+              <input #balconyInput type="file" (change)="onFileSelect($event, 'BALCONY_IMG')" accept="image/*" hidden>
+            </div>
           </div>
         </div>
-        <input #licenseInput type="file" (change)="onFileSelect($event, 'LICENSE_IMG')" accept="image/*" hidden>
-        <p class="upload-status" *ngIf="selectedFiles.LICENSE_IMG">
-          ✅ {{ selectedFiles.LICENSE_IMG.name }}
-        </p>
-      </div>
 
-      <!-- รูปหน้าปก -->
-      <div class="section-card">
-        <h3><ion-icon name="image-outline"></ion-icon> รูปหน้าปกหอพัก <span class="req">*</span></h3>
-        <p class="hint-text">รูปภาพด้านหน้าอาคาร หรือรูปที่สวยที่สุดของหอพัก</p>
-        <div class="img-upload-box" (click)="frontInput.click()" [class.has-image]="previews.FRONT_DORM_IMG">
-          <img [src]="previews.FRONT_DORM_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
-          <div class="overlay">
-            <ion-icon name="cloud-upload-outline"></ion-icon>
-            <span>{{ previews.FRONT_DORM_IMG ? 'เปลี่ยนรูป' : 'เลือกไฟล์...' }}</span>
+        <!-- อัลบั้มรูปอื่นๆ -->
+        <div class="section-card">
+          <h3><ion-icon name="images-outline"></ion-icon> อัลบั้มรูปภายในห้องพัก (อื่นๆ)</h3>
+          <p class="hint-text">เลือกภาพมุมอื่นๆ ได้พร้อมกันหลายรูป (ถ้ามีจะดีกว่า) &bull; <strong>สูงสุด 5 ภาพ</strong></p>
+          <input #galleryInput type="file" (change)="onGallerySelect($event)" accept="image/*" multiple hidden>
+          <ion-button expand="block" fill="outline" color="primary" (click)="isReadOnly ? null : galleryInput.click()">
+            <ion-icon name="images-outline" slot="start"></ion-icon> เพิ่มรูปภาพมุมอื่นๆ
+          </ion-button>
+
+          <div class="gallery-grid" *ngIf="existingGallery.length > 0 || previews.OTHER_IMG.length > 0">
+            <!-- Existing Images from Database -->
+            <div class="gallery-item" *ngFor="let img of existingGallery; let i = index">
+              <img [src]="img">
+              <!-- Allow user to remove existing gallery image as well -->
+              <ion-button class="del-btn" fill="clear" color="danger" (click)="removeGalleryImage(i, true)">
+                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+            <!-- Newly Selected Images -->
+            <div class="gallery-item" *ngFor="let img of previews.OTHER_IMG; let i = index">
+              <img [src]="img">
+              <ion-button class="del-btn" fill="clear" color="danger" (click)="removeGalleryImage(i, false)">
+                <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
           </div>
         </div>
-        <input #frontInput type="file" (change)="onFileSelect($event, 'FRONT_DORM_IMG')" accept="image/*" hidden>
-        <p class="upload-status" *ngIf="selectedFiles.FRONT_DORM_IMG">
-          ✅ {{ selectedFiles.FRONT_DORM_IMG.name }}
-        </p>
-      </div>
-
-      <!-- รูปมุมต่างๆ ภายในห้อง -->
-      <div class="section-card">
-        <h3>📸 รูปภาพส่วนประกอบห้อง (ถ้ามีจะดีกว่า)</h3>
-        <p class="hint-text">กดที่รูปหรือปุ่มด้านล่างเพื่ออัปโหลดภาพแต่ละมุม</p>
-
-        <div class="grid-3-col">
-          <div class="img-mini-box">
-            <label>1. เตียงนอน</label>
-            <img [src]="previews.BED_IMG || 'assets/placeholder-square.png'"
-              (click)="bedInput.click()" [class.uploaded]="previews.BED_IMG">
-            <ion-button size="small" fill="outline" expand="block" color="primary"
-              class="upload-btn" (click)="bedInput.click()">เลือกไฟล์</ion-button>
-            <input #bedInput type="file" (change)="onFileSelect($event, 'BED_IMG')" accept="image/*" hidden>
-          </div>
-
-          <div class="img-mini-box">
-            <label>2. ผนังปลายเตียง</label>
-            <img [src]="previews.WALL_IMG || 'assets/placeholder-square.png'"
-              (click)="wallInput.click()" [class.uploaded]="previews.WALL_IMG">
-            <ion-button size="small" fill="outline" expand="block" color="primary"
-              class="upload-btn" (click)="wallInput.click()">เลือกไฟล์</ion-button>
-            <input #wallInput type="file" (change)="onFileSelect($event, 'WALL_IMG')" accept="image/*" hidden>
-          </div>
-
-          <div class="img-mini-box">
-            <label>3. เพดาน</label>
-            <img [src]="previews.CEILING_IMG || 'assets/placeholder-square.png'"
-              (click)="ceilingInput.click()" [class.uploaded]="previews.CEILING_IMG">
-            <ion-button size="small" fill="outline" expand="block" color="primary"
-              class="upload-btn" (click)="ceilingInput.click()">เลือกไฟล์</ion-button>
-            <input #ceilingInput type="file" (change)="onFileSelect($event, 'CEILING_IMG')" accept="image/*" hidden>
-          </div>
-
-          <div class="img-mini-box">
-            <label>4. ฝั่งติดประตู</label>
-            <img [src]="previews.FLOOR_IMG || 'assets/placeholder-square.png'"
-              (click)="floorInput.click()" [class.uploaded]="previews.FLOOR_IMG">
-            <ion-button size="small" fill="outline" expand="block" color="primary"
-              class="upload-btn" (click)="floorInput.click()">เลือกไฟล์</ion-button>
-            <input #floorInput type="file" (change)="onFileSelect($event, 'FLOOR_IMG')" accept="image/*" hidden>
-          </div>
-
-          <div class="img-mini-box">
-            <label>5. ห้องน้ำ</label>
-            <img [src]="previews.BATHROOM_IMG || 'assets/placeholder-square.png'"
-              (click)="bathInput.click()" [class.uploaded]="previews.BATHROOM_IMG">
-            <ion-button size="small" fill="outline" expand="block" color="primary"
-              class="upload-btn" (click)="bathInput.click()">เลือกไฟล์</ion-button>
-            <input #bathInput type="file" (change)="onFileSelect($event, 'BATHROOM_IMG')" accept="image/*" hidden>
-          </div>
-
-          <div class="img-mini-box">
-            <label>6. ระเบียง (ถ้ามี)</label>
-            <img [src]="previews.BALCONY_IMG || 'assets/placeholder-square.png'"
-              (click)="balconyInput.click()" [class.uploaded]="previews.BALCONY_IMG">
-            <ion-button size="small" fill="outline" expand="block" color="primary"
-              class="upload-btn" (click)="balconyInput.click()">เลือกไฟล์</ion-button>
-            <input #balconyInput type="file" (change)="onFileSelect($event, 'BALCONY_IMG')" accept="image/*" hidden>
-          </div>
-        </div>
-      </div>
-
-      <!-- อัลบั้มรูปอื่นๆ -->
-      <div class="section-card">
-        <h3><ion-icon name="images-outline"></ion-icon> อัลบั้มรูปภายในห้องพัก (อื่นๆ)</h3>
-        <p class="hint-text">เลือกภาพมุมอื่นๆ ได้พร้อมกันหลายรูป (ถ้ามีจะดีกว่า) &bull; <strong>สูงสุด 5 ภาพ</strong></p>
-        <input #galleryInput type="file" (change)="onGallerySelect($event)" accept="image/*" multiple hidden>
-        <ion-button expand="block" fill="outline" color="primary" (click)="galleryInput.click()">
-          <ion-icon name="images-outline" slot="start"></ion-icon> เพิ่มรูปภาพมุมอื่นๆ
-        </ion-button>
-
-        <div class="gallery-grid" *ngIf="previews.OTHER_IMG.length > 0">
-          <div class="gallery-item" *ngFor="let img of previews.OTHER_IMG; let i = index">
-            <img [src]="img">
-            <ion-button class="del-btn" fill="clear" color="danger" (click)="removeGalleryImage(i)">
-              <ion-icon name="close-circle" slot="icon-only"></ion-icon>
-            </ion-button>
-          </div>
-        </div>
-        <p class="hint-text" *ngIf="previews.OTHER_IMG.length > 0" style="margin-top: 8px;">
-          📎 เพิ่มแล้ว {{ previews.OTHER_IMG.length }} รูป
-        </p>
-      </div>
 
     </div>
 
@@ -422,8 +449,8 @@
       ถัดไป <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
     </ion-button>
 
-    <ion-button color="success" class="nav-btn submit-btn" (click)="onSubmit()" *ngIf="currentStep === 4">
-      <ion-icon name="save-outline" slot="start"></ion-icon> บันทึกข้อมูล
+    <ion-button color="success" class="nav-btn submit-btn" (click)="onSubmit()" *ngIf="currentStep === 4 && !isReadOnly">
+      <ion-icon name="save-outline" slot="start"></ion-icon> {{ dormId ? 'ลงทะเบียนหอพักอีกครั้ง' : 'ลงทะเบียนหอพัก' }}
     </ion-button>
   </div>
 </div>
@@ -483,8 +510,10 @@
   *ngIf="showPreviewModal"
   [formData]="formData"
   [coverImage]="previews.FRONT_DORM_IMG"
+  [allImages]="previews"
   [facilities]="facilities"
   [roomTypes]="roomTypes"
+  [zones]="zones"
   (confirmed)="onPreviewConfirmed()"
   (cancelled)="onPreviewCancelled()">
 </app-dorm-preview-modal>

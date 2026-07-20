@@ -7,7 +7,12 @@ import {
   AlertController, ToastController, LoadingController 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { arrowBack, create, trash, refresh, search, person, add } from 'ionicons/icons'; 
+import { 
+  arrowBack, create, trash, refresh, search, person, add, list, 
+  listOutline, businessOutline, personOutline, settingsOutline, 
+  searchOutline, closeCircle, addOutline, chatbubbleOutline, 
+  createOutline, trashOutline, refreshOutline 
+} from 'ionicons/icons'; 
 import { Router, ActivatedRoute } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory'; 
 import { chatbubbleEllipses } from 'ionicons/icons'; 
@@ -42,7 +47,12 @@ export class ManageDormPage implements OnInit {
     private loadingCtrl: LoadingController
   ) { 
     // ✅ ลงทะเบียน Icons ให้ครบ (รวมถึง add สำหรับปุ่มเพิ่ม)
-    addIcons({ arrowBack, create, trash, refresh, search, person, add, chatbubbleEllipses });
+    addIcons({ 
+      arrowBack, create, trash, refresh, search, person, add, list, 
+      listOutline, businessOutline, personOutline, settingsOutline, 
+      searchOutline, closeCircle, addOutline, chatbubbleOutline, 
+      createOutline, trashOutline, refreshOutline, chatbubbleEllipses 
+    });
   }
 
   ngOnInit() {}

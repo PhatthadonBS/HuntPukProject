@@ -1,13 +1,17 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonButton, IonIcon } from '@ionic/angular/standalone';
+import { FormsModule } from '@angular/forms';
+import { 
+  IonButton, IonIcon, IonSegment, IonSegmentButton, IonLabel 
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   closeOutline, locationOutline, wifi, bedOutline,
   checkmarkCircleOutline, listOutline, timeOutline, homeOutline,
   waterOutline, flashOutline, cubeOutline, snowOutline, shirtOutline,
   carOutline, pawOutline, barbellOutline, restaurantOutline,
-  shieldCheckmarkOutline, arrowForwardOutline
+  shieldCheckmarkOutline, arrowForwardOutline, eyeOutline, documentTextOutline,
+  starOutline, addCircleOutline, imageOutline, imagesOutline, alertCircleOutline, water, flash, mapOutline, peopleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -15,16 +19,21 @@ import {
   templateUrl: './dorm-preview-modal.component.html',
   styleUrls: ['./dorm-preview-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonButton, IonIcon]
+  imports: [CommonModule, FormsModule, IonButton, IonIcon, IonSegment, IonSegmentButton, IonLabel]
 })
-export class DormPreviewModalComponent {
+export class DormPreviewModalComponent implements OnInit {
   @Input() formData: any;
   @Input() coverImage: string | null = null;
+  @Input() allImages: any;
   @Input() facilities: any[] = [];
   @Input() roomTypes: any[] = [];
+  @Input() zones: any[] = [];
 
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
+
+  activeSegment: string = 'general';
+  zoneName: string = '';
 
   constructor() {
     addIcons({
@@ -32,48 +41,27 @@ export class DormPreviewModalComponent {
       checkmarkCircleOutline, listOutline, timeOutline, homeOutline,
       waterOutline, flashOutline, cubeOutline, snowOutline, shirtOutline,
       carOutline, pawOutline, barbellOutline, restaurantOutline,
-      shieldCheckmarkOutline, arrowForwardOutline
+      shieldCheckmarkOutline, arrowForwardOutline, eyeOutline, documentTextOutline,
+      starOutline, addCircleOutline, imageOutline, imagesOutline, alertCircleOutline, water, flash, mapOutline, peopleOutline
     });
+  }
+
+  ngOnInit() {
+    if (this.formData?.zone_id && this.zones?.length > 0) {
+      const z = this.zones.find((x: any) => x.ZONE_ID == this.formData.zone_id);
+      this.zoneName = z ? z.ZONE_NAME : 'ไม่พบข้อมูลโซน';
+    }
   }
 
   get checkedFacilities(): any[] {
-    return this.facilities.filter((f: any) => f.checked);
+    return this.facilities ? this.facilities.filter((f: any) => f.checked) : [];
   }
 
-  /**
-   * Returns the minimum monthly price across all room types.
-   * Falls back to lowest price across any type if no monthly found.
-   */
-  get minMonthlyPrice(): number {
-    let monthlyMin = Infinity;
-    let fallbackMin = Infinity;
-
-    this.roomTypes.forEach(rt => {
-      rt.prices?.forEach((p: any) => {
-        const val = Number(p.price);
-        if (p.price != null && val > 0) {
-          // Check if this is a monthly price type
-          const nameLC = (p.name || '').toLowerCase();
-          if (nameLC.includes('เดือน') || nameLC.includes('month')) {
-            if (val < monthlyMin) monthlyMin = val;
-          }
-          if (val < fallbackMin) fallbackMin = val;
-        }
-      });
-    });
-
-    const result = monthlyMin !== Infinity ? monthlyMin : fallbackMin;
-    return result !== Infinity ? result : 0;
+  onConfirm() {
+    this.confirmed.emit();
   }
 
-  /** Resolve icon name for display — handles ionicon names and fa- classes */
-  resolveIconName(fac: any): string {
-    if (!fac.icon) return 'home-outline';
-    if (fac.isFontAwesome) return ''; // handled via <i> tag
-    // if it looks like an ionicon name (has a dash)
-    return fac.icon;
+  onCancel() {
+    this.cancelled.emit();
   }
-
-  onConfirm() { this.confirmed.emit(); }
-  onCancel() { this.cancelled.emit(); }
 }

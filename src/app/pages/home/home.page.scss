@@ -36,54 +36,57 @@ app-header {
    🚀 3. Floating UI (ปุ่มลอยแยกอิสระ)
    ========================================= */
 .menu-fab-btn {
-  position: absolute; top: 85px; left: 15px; z-index: 9999;
-  width: 56px; height: 56px; background: $msu-yellow; color: $msu-dark;
-  border-radius: 16px; display: flex; align-items: center; justify-content: center;
+  position: absolute; top: 70px; left: 15px; z-index: 8000;
+  width: 48px; height: 48px; background: $msu-yellow; color: $msu-dark;
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer; transition: all 0.2s ease;
-  border: 3px solid #fff; margin: 0; overflow: hidden;
+  border: 2px solid #fff; margin: 0; overflow: hidden;
   user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
 
-  ion-icon { font-size: 32px; font-weight: bold; pointer-events: none; }
+  ion-icon { font-size: 28px; font-weight: bold; pointer-events: none; }
   &:active { transform: scale(0.9); background: #e6c200; }
 }
 
 .filter-compare-group {
-  position: absolute; top: 85px; left: 85px; z-index: 9999;
-  display: flex; gap: 12px; pointer-events: none; 
+  position: absolute; top: 70px; left: 73px; z-index: 8000;
+  display: flex; gap: 8px; pointer-events: none;
+  transition: left 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  flex-wrap: wrap;
+  max-width: calc(100vw - 85px);
 }
 
 .chip-button {
-  background: #ffffff; color: $msu-dark; padding: 12px 22px; border-radius: 25px;
-  display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px;
+  background: #ffffff; color: $msu-dark; padding: 9px 16px; border-radius: 25px;
+  display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 14px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); cursor: pointer; pointer-events: auto;
-  transition: all 0.2s; border: 2px solid transparent; 
+  transition: all 0.2s; border: 2px solid transparent; white-space: nowrap;
   user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
 
-  ion-icon { font-size: 20px; pointer-events: none; color: $msu-dark; }
+  ion-icon { font-size: 18px; pointer-events: none; color: $msu-dark; }
   &:hover { border-color: $msu-yellow; box-shadow: 0 4px 15px rgba(255, 214, 0, 0.3); }
   &:active { transform: scale(0.95); background: #f0f0f0; }
 }
 
 .gps-fab-btn {
-  position: absolute; bottom: 80px; right: 20px; z-index: 99;
-  width: 50px; height: 50px; background: #ffffff; color: #1976d2;
+  position: absolute; bottom: 90px; right: 16px; z-index: 8000;
+  width: 46px; height: 46px; background: #ffffff; color: #1976d2;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer; transition: 0.2s;
   border: 2px solid #f0f0f0;
   
-  ion-icon { font-size: 24px; }
+  ion-icon { font-size: 22px; }
   &:active { transform: scale(0.9); background: #f0f8ff; }
 }
 
 .pin-fab-btn {
-  position: absolute; bottom: 20px; right: 20px; z-index: 99;
+  position: absolute; bottom: 24px; right: 16px; z-index: 8000;
   background: #ffffff; color: #1976d2;
-  border-radius: 25px; display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 10px 16px;
+  border-radius: 25px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 14px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer; transition: 0.2s;
   border: 2px solid #f0f0f0;
-  font-weight: bold;
-  ion-icon { font-size: 20px; }
+  font-weight: bold; font-size: 13px;
+  ion-icon { font-size: 18px; }
   &.active { background: #e3f2fd; border-color: #1976d2; }
 }
 
@@ -93,15 +96,15 @@ app-header {
 .dorm-side-panel {
   position: absolute;
   top: 0;
-  right: -450px;
+  right: -520px;   /* ✅ กว้างกว่า max width (480px) เพื่อซ่อนสนิท */
   width: 420px;
-  height: 100vh;
+  height: 100dvh;
   background: $card-bg;
-  border-radius: 24px 0 0 24px; 
+  border-radius: 24px 0 0 24px;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
   z-index: 9999;
   transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  display: flex; flex-direction: column; // ✅ เพิ่มเพื่อให้ปุ่มด้านล่าง sticky ได้
+  display: flex; flex-direction: column;
 
   &.open { right: 0; }
 
@@ -112,7 +115,7 @@ app-header {
     border-radius: 24px 24px 0 0;
     top: auto;
     bottom: -100vh;
-    height: 88vh;
+    height: 88dvh;
     transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), right 0s 0.4s;
     &.open { bottom: 0; right: 0; transition: bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
   }
@@ -440,9 +443,14 @@ ion-modal.filter-modal-custom {
 }
 
 @media (max-width: 768px) {
-  .menu-fab-btn { top: 125px; left: 10px; width: 45px; height: 45px; ion-icon { font-size: 24px; } }
-  .filter-compare-group { top: 125px; left: 65px; gap: 8px; .chip-button { padding: 8px 12px; font-size: 12px; ion-icon { font-size: 16px; } } }
-  .gps-fab-btn { bottom: 20px; right: 15px; width: 45px; height: 45px; }
+  .menu-fab-btn { top: 70px; left: 10px; width: 44px; height: 44px; ion-icon { font-size: 22px; } }
+  .filter-compare-group { 
+    top: 70px; left: 62px; gap: 6px; 
+    max-width: calc(100vw - 70px);
+    .chip-button { padding: 7px 10px; font-size: 12px; ion-icon { font-size: 15px; } } 
+  }
+  .gps-fab-btn { bottom: 90px; right: 12px; width: 44px; height: 44px; }
+  .pin-fab-btn { bottom: 24px; right: 12px; }
 
   .dorm-side-panel { 
     width: 100%; height: 55vh; right: 0; top: auto; bottom: -100vh; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
@@ -458,8 +466,13 @@ ion-modal.filter-modal-custom {
   .btn-close-panel { top: 12px; right: 12px; background: rgba(0,0,0,0.6); z-index: 30; }
 }
 
-@media (max-width: 380px) {
-  .filter-compare-group { flex-direction: column; top: 125px; left: 65px; .chip-button { padding: 6px 10px; font-size: 12px; } }
+/* Very small screens - stack filter buttons vertically */
+@media (max-width: 400px) {
+  .filter-compare-group { 
+    top: 70px; left: 62px; flex-direction: row; flex-wrap: wrap; gap: 5px;
+    max-width: calc(100vw - 70px);
+    .chip-button { padding: 6px 10px; font-size: 11px; }
+  }
 }
 
 /* ====== Panel Skeleton ====== */
@@ -574,4 +587,139 @@ ion-modal.filter-modal-custom {
     box-shadow: 0 0 0 3px rgba(255, 214, 0, 0.2);
     background-color: #ffffff;
   }
-}
+}
+
+/* ==============================================
+   🖥️ Desktop Layout (sidebar width + content shift)
+   ============================================== */
+@media (min-width: 1024px) {
+  /* เมื่อ sidebar เปิดค้างอยู่ — content เลื่อนเข้า sidebar อย่าง smooth */
+  app-header {
+    padding-left: 0;
+  }
+
+  /* GPS & Pin FAB — ปรับตำแหน่งให้อยู่เหนือขึ้นอีกนิด */
+  .gps-fab-btn {
+    bottom: 40px;
+    right: 30px;
+  }
+
+  .pin-fab-btn {
+    bottom: 100px;
+    right: 30px;
+  }
+
+  /* Chip buttons — โตใหญ่ขึ้นนิด */
+  .chip-button {
+    font-size: 14px;
+    padding: 10px 18px;
+  }
+
+  /* Side panel — ใหญ่ขึ้นนิด จอใหญ่ ได้ใช้แปลนกว้างขึ้น */
+  .dorm-side-panel {
+    width: 480px;
+    right: -520px;  /* ✅ ซ่อนสนิทก่อนเปิด */
+  }
+}
+
+/* Map wrapper ต้องเต็ม parent เสมอ */
+.map-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 🧭 Real-time Navigation UI */
+.start-nav-btn {
+  width: 100%;
+  margin-top: 15px;
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
+  }
+
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.navigation-overlay {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  background: white;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  z-index: 1000;
+  border-bottom: 4px solid #4CAF50;
+
+  .nav-info {
+    display: flex;
+    flex-direction: column;
+    
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #4CAF50;
+      font-weight: 600;
+      font-size: 13px;
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+    
+    .nav-target {
+      font-size: 15px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+  }
+
+  .stop-nav-btn {
+    background: #ffebee;
+    color: #d32f2f;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+
+    &:active {
+      background: #ffcdd2;
+    }
+  }
+}
+

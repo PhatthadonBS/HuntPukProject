@@ -230,22 +230,24 @@ ion-content { --background: transparent; }
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   padding-bottom: 10px;
+
+  span {
+    color: #888;
+  }
 
   .link-register {
     color: $msu-dark;
     text-decoration: none;
     font-weight: 800;
-    padding: 4px 6px;
-    border-radius: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
     background: linear-gradient(180deg, transparent 60%, rgba(255, 214, 0, 0.5) 60%);
     transition: all 0.2s;
     &:hover { background: rgba(255, 214, 0, 0.2); color: #000; }
   }
-
-  .divider { color: #e0e0e0; font-weight: 300; }
 }
 
 // --- Animation ---

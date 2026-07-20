@@ -8,187 +8,155 @@ $gray-light: #f4f5f7;
 $card-bg: #ffffff;
 
 ion-content {
-  --background: #{$msu-dark};
+  --background: #{$gray-light};
 }
 
 .main-bg {
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%;
-  background: $msu-dark;
+  background: $gray-light;
   display: flex;
   flex-direction: column;
-  padding: 15px;
 }
 
-.top-bar {
+// Remove top-bar, use sticky-action-bar
+.sticky-action-bar {
+  background: linear-gradient(135deg, #FFD600 0%, #FBC02D 100%);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 6px 0;
+  padding: 12px 20px;
   gap: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(255, 214, 0, 0.4);
+  z-index: 100;
 
-  .menu-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    color: $msu-yellow;
-    font-size: 22px;
-    cursor: pointer;
+  .action-btn {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 22px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, background 0.2s ease;
-
-    &:active {
-      transform: scale(0.88);
-      background: rgba(255, 255, 255, 0.15);
-    }
-  }
-
-  h2 {
-    color: #fff;
-    margin: 0;
+    gap: 6px;
+    font-size: 14px;
     font-weight: 800;
-    font-size: 1.15rem;
-    letter-spacing: 0.2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    
+    ion-icon { font-size: 17px; }
+    &:active { transform: scale(0.94); }
+
+    &.dark-btn {
+      background: #1a1a1a;
+      color: #FFD600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      &:hover { background: #333; }
+    }
+
+    &.white-btn {
+      background: #ffffff;
+      color: #1a1a1a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      &:hover { background: #f5f5f5; }
+    }
+    
+    &.clear-btn {
+      &:hover { background: #ffdada !important; }
+    }
   }
 }
 
-/*
-  ✅ ปรับ container ให้เบาลง — ใช้เหลืองล้วนแบบทึบเรียบ
-  แทน gradient + inset shadow เดิมที่ดูหนักไปหน่อย
-*/
 .yellow-container {
-  background: $msu-yellow;
-  border-radius: 28px;
-  padding: 26px 18px;
-  min-height: 80vh;
-  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.04) inset;
+  background: $gray-light;
+  padding: 25px 20px 50px 20px;
+  flex: 1;
 }
 
 .dorm-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  @media (min-width: 768px) { grid-template-columns: 1fr 1fr; }
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+  gap: 20px; 
 }
 
 .dorm-card {
-  background: $card-bg;
-  border-radius: 18px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s ease;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: $card-bg; border-radius: 24px; overflow: hidden; position: relative; 
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.05); cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.02);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+  display: flex; flex-direction: column;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
-  }
+  @media (min-width: 992px) { &:hover { transform: translateY(-5px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08); } }
+  &:active { transform: translateY(2px) scale(0.98); }
 
-  &:active { transform: scale(0.97) translateY(0); }
-
-  // ปุ่มลบ — เรียบขึ้น ไม่ใช้ gradient ฉูดฉาด
-  .delete-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.92);
-    color: #e03131;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    z-index: 10;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: #ffe2e2;
-      transform: scale(1.08);
+  .card-image {
+    height: 190px; position: relative; background: #e9ecef; width: 100%;
+    img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    
+    &::after {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+      background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%); pointer-events: none;
     }
-    &:active { transform: scale(0.9); }
-    ion-icon { font-size: 18px; }
+
+    &:hover img { transform: scale(1.03); }
+
+    .rating-badge { 
+      position: absolute; top: 12px; left: 12px; 
+      background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 12px; 
+      display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 900; color: #111; z-index: 2; box-shadow: 0 4px 12px rgba(0,0,0,0.08); backdrop-filter: blur(4px);
+      ion-icon { color: #fbc02d; font-size: 15px; }
+    }
+
+    .bookmark-btn {
+      position: absolute; top: 12px; right: 12px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(4px);
+      display: flex; align-items: center; gap: 4px;
+      z-index: 20; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.2s ease;
+      ion-icon { font-size: 16px; color: #ccc; pointer-events: none; transition: 0.2s; }
+      span { font-size: 12px; font-weight: 800; color: #888; pointer-events: none; transition: 0.2s; }
+      
+      &.active { 
+        background: #e74c3c; 
+        ion-icon { color: #ffffff; } 
+        span { color: #ffffff; }
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+      }
+      &:active { transform: scale(0.95); }
+    }
+    
+    .price-tag {
+      position: absolute; bottom: 12px; right: 12px; background: linear-gradient(135deg, #FFD600, #FBC02D); color: $msu-dark;
+      padding: 8px 14px; border-radius: 14px; font-size: 14px; font-weight: 900; z-index: 2;
+      box-shadow: 0 4px 12px rgba(255, 214, 0, 0.4); letter-spacing: 0.2px;
+    }
+
+    // Checkbox สำหรับเปรียบเทียบ
+    .checkbox-wrapper { position: absolute; top: 12px; left: 12px; z-index: 10; }
+    .custom-checkbox { 
+      width: 32px; height: 32px; background: rgba(255,255,255,0.9); 
+      border-radius: 50%; border: 3px solid #eee; 
+      display: flex; align-items: center; justify-content: center; 
+      transition: 0.2s; cursor: pointer;
+      &.checked { 
+        background: $msu-dark; border-color: $msu-dark; color: $msu-yellow; 
+        font-size: 22px; transform: scale(1.1);
+      }
+    }
   }
 
   .card-content {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-
-    .img-box {
-      width: 100%;
-      height: 170px;
-      background: $gray-light;
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-      ion-icon { font-size: 48px; color: #c8ccd1; }
+    padding: 18px; display: flex; flex-direction: column; flex: 1;
+    h3 { margin: 0 0 8px 0; font-size: 17px; font-weight: 900; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; letter-spacing: 0.3px;} 
+    
+    .rating-row {
+      display: flex; align-items: center; gap: 4px; margin-bottom: 8px;
+      ion-icon { color: #fbc02d; font-size: 16px; }
+      span { font-size: 13px; font-weight: 800; color: #555; }
     }
 
-    .info-box {
-      padding: 14px 16px 16px;
-      flex: 1;
-
-      h3 {
-        margin: 0 0 6px 0;
-        font-size: 16.5px;
-        font-weight: 800;
-        color: $msu-dark;
-        line-height: 1.3;
-        letter-spacing: -0.2px;
-      }
-
-      .zone-name {
-        font-size: 12.5px;
-        color: $gray-dark;
-        font-weight: 700;
-        margin: 0 0 4px 0;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        ion-icon { font-size: 14px; }
-      }
-
-      .desc {
-        font-size: 12.5px;
-        color: #8a909a;
-        margin: 0 0 8px 0;
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        line-height: 1.4;
-      }
-
-      .score-row {
-        font-size: 12.5px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        color: #d68a00;
-        margin-bottom: 8px;
-        ion-icon { font-size: 15px; }
-      }
-
-      .price {
-        font-size: 14px;
-        font-weight: 800;
-        color: $msu-dark;
-        margin: 0;
-        background: rgba(255, 214, 0, 0.25);
-        padding: 4px 10px;
-        border-radius: 8px;
-        display: inline-block;
-      }
-    }
-  }
-
-  &:hover .img-box img {
-    transform: scale(1.08);
+    .zone { font-size: 13px; color: #6c757d; margin: 0; display: flex; align-items: center; gap: 4px; font-weight: 500; ion-icon { font-size: 16px; color: #e74c3c; } }
   }
 }
 
@@ -231,4 +199,35 @@ ion-content {
 ion-spinner {
   --color: #{$msu-dark};
   transform: scale(1.3);
+}
+
+/* =========================================
+   Floating Button สำหรับเปรียบเทียบ
+   ========================================= */
+.fixed-bottom-btn { 
+  position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 9999;
+}
+
+.btn-premium-compare { 
+  background: $msu-dark; color: $msu-yellow; 
+  border: 3px solid $msu-yellow; padding: 14px 28px; border-radius: 40px; 
+  font-size: 16px; font-weight: 900; box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+  display: flex; align-items: center; gap: 12px; transition: 0.2s; cursor: pointer; 
+  animation: pulseGlow 2s infinite;
+  
+  &:active { transform: scale(0.95); }
+  &:disabled { 
+    opacity: 0.5; box-shadow: none; border-color: transparent; 
+    color: #fff; cursor: not-allowed; animation: none; 
+  }
+  
+  .btn-content { display: flex; align-items: center; gap: 8px; }
+  .count-badge { background: $msu-yellow; color: $msu-dark; padding: 4px 10px; border-radius: 15px; font-size: 14px; font-weight: 900;}
+  ion-icon { font-size: 24px; }
+}
+
+@keyframes pulseGlow { 
+  0% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0.4); } 
+  70% { box-shadow: 0 0 0 15px rgba(255, 214, 0, 0); } 
+  100% { box-shadow: 0 0 0 0 rgba(255, 214, 0, 0); } 
 }

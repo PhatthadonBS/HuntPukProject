@@ -1,120 +1,226 @@
 <div class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>🏠 ตัวอย่างหอพักของคุณ</h2>
-      <ion-button fill="clear" color="dark" (click)="onCancel()" class="close-btn">
+      <h2>🏠 ดูตัวอย่างหน้าหอพัก</h2>
+      <ion-button fill="clear" color="dark" (click)="onCancel()" class="close-btn" style="margin: 0;">
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </div>
 
     <div class="modal-body">
+      <!-- Tabs (Segment) inside modal body -->
+      <div style="position: sticky; top: 0; z-index: 10; background: white; padding: 10px 0; border-bottom: 1px solid #eee;">
+        <ion-segment [(ngModel)]="activeSegment" mode="md" color="warning">
+          <ion-segment-button value="general">
+            <ion-label>ข้อมูลทั่วไป</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="facilities">
+            <ion-label>สิ่งอำนวยฯ</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="rooms">
+            <ion-label>ห้องพัก</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="images">
+            <ion-label>รูปภาพ</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
 
-      <!-- ===== Card Preview ===== -->
-      <div class="preview-section-title">📱 ตัวอย่างการ์ดบนหน้าหลัก</div>
-      <div class="dorm-card">
-        <div class="img-container">
-          <img [src]="coverImage || 'assets/placeholder-landscape.png'" alt="Dorm Cover">
-          <div class="price-badge" *ngIf="minMonthlyPrice > 0">
-            <div class="price-amount">{{ minMonthlyPrice | number }}</div>
-            <div class="price-label">฿ / เดือน</div>
-          </div>
-          <div class="price-badge no-price" *ngIf="minMonthlyPrice === 0">
-            <div class="price-label">ยังไม่ระบุราคา</div>
-          </div>
+      <div class="bg-light" style="min-height: 100%;">
+        
+        <!-- Status banner -->
+        <div class="status-banner view-only-banner">
+          <ion-icon name="eye-outline"></ion-icon>
+          <span>โหมดดูตัวอย่าง (ไม่ได้บันทึกข้อมูล)</span>
         </div>
-        <div class="card-content">
-          <h3 class="dorm-title">{{ formData?.name || '(ยังไม่ระบุชื่อ)' }}</h3>
-          <div class="info-row">
-            <ion-icon name="location-outline"></ion-icon>
-            <span>{{ formData?.address || 'ยังไม่ได้ระบุที่อยู่' }}</span>
-          </div>
-          <!-- Facility chips on card -->
-          <div class="facilities-preview" *ngIf="checkedFacilities.length > 0">
-            <div class="fac-chip" *ngFor="let fac of checkedFacilities.slice(0, 4)">
-              <!-- URL รูปภาพ -->
-              <img *ngIf="fac.icon && (fac.icon.includes('/') || fac.icon.includes('.png'))" [src]="fac.icon" style="width: 14px; height: 14px; object-fit: contain;">
-              <!-- Ionicon name -->
-              <ion-icon *ngIf="fac.icon && !fac.isFontAwesome && !fac.icon.includes('/') && !fac.icon.includes('.png')" [name]="fac.icon" style="font-size: 12px;"></ion-icon>
-              <!-- Font Awesome icon -->
-              <i *ngIf="fac.isFontAwesome" [class]="fac.icon" style="font-size: 11px;"></i>
-              <!-- No icon fallback -->
-              <ion-icon *ngIf="!fac.icon" name="checkmark-circle-outline" style="font-size: 12px;"></ion-icon>
-              <span>{{ fac.name }}</span>
+
+        <!-- ==================== GENERAL TAB ==================== -->
+        <div *ngIf="activeSegment === 'general'" class="fade-in">
+          
+          <div class="hero-banner">
+            <img [src]="coverImage || 'https://placehold.co/600x400?text=No+Image'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" alt="Dorm Cover" />
+            <div class="hero-overlay">
+              <h2>{{ formData?.name || 'ไม่ได้ระบุชื่อหอพัก' }}</h2>
+              <p><ion-icon name="location-outline"></ion-icon> โซน: {{ zoneName || 'กำลังระบุ...' }}</p>
             </div>
-            <div class="fac-chip more" *ngIf="checkedFacilities.length > 4">
-              +{{ checkedFacilities.length - 4 }}
+          </div>
+
+          <div style="padding: 16px;">
+            <div class="info-card">
+              <h3><ion-icon name="home-outline" color="primary"></ion-icon> ที่อยู่และการติดต่อ</h3>
+              <p class="info-text">{{ formData?.address || 'ไม่ได้ระบุที่อยู่' }}</p>
+              
+              <div class="divider"></div>
+              
+              <h3><ion-icon name="document-text-outline" color="secondary"></ion-icon> รายละเอียดเพิ่มเติม</h3>
+              <p class="info-text">{{ formData?.detail || '-' }}</p>
+            </div>
+
+            <div class="info-card">
+              <h3><ion-icon name="water-outline" color="tertiary"></ion-icon> ค่าน้ำ / ค่าไฟ</h3>
+              
+              <div class="transparent-list">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <ion-icon name="water" color="medium" style="font-size: 24px; margin-right: 12px;"></ion-icon>
+                  <div>
+                    <h2 style="margin:0; font-weight: 600; font-size: 15px; color: #1e293b;">ค่าน้ำ (เหมาจ่าย)</h2>
+                    <p style="margin: 4px 0 0; font-size: 14px; color: #64748b;">{{ formData?.water_lump ? formData.water_lump + ' บาท/เดือน' : '-' }}</p>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <ion-icon name="water" color="medium" style="font-size: 24px; margin-right: 12px;"></ion-icon>
+                  <div>
+                    <h2 style="margin:0; font-weight: 600; font-size: 15px; color: #1e293b;">ค่าน้ำ (ต่อหน่วย)</h2>
+                    <p style="margin: 4px 0 0; font-size: 14px; color: #64748b;">{{ formData?.water_unit ? formData.water_unit + ' บาท/หน่วย' : '-' }}</p>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                  <ion-icon name="flash" color="warning" style="font-size: 24px; margin-right: 12px;"></ion-icon>
+                  <div>
+                    <h2 style="margin:0; font-weight: 600; font-size: 15px; color: #1e293b;">ค่าไฟ (ต่อหน่วย)</h2>
+                    <p style="margin: 4px 0 0; font-size: 14px; color: #64748b;">{{ formData?.elect_unit ? formData.elect_unit + ' บาท/หน่วย' : '-' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <h3><ion-icon name="map-outline" color="danger"></ion-icon> ตำแหน่งบนแผนที่</h3>
+              <p class="info-text">ละติจูด: {{ formData?.lat }}<br>ลองจิจูด: {{ formData?.lng }}</p>
             </div>
           </div>
-          <p *ngIf="checkedFacilities.length === 0" style="font-size: 0.8rem; color: #aaa; margin: 6px 0 0 0;">ยังไม่ได้เลือกสิ่งอำนวยความสะดวก</p>
         </div>
-      </div>
 
-      <!-- ===== Full Info ===== -->
-      <div class="preview-section-title" style="margin-top: 20px;">📋 ข้อมูลทั้งหมดที่จะส่ง</div>
+        <!-- ==================== FACILITIES TAB ==================== -->
+        <div *ngIf="activeSegment === 'facilities'" class="fade-in" style="padding: 16px;">
+          
+          <div class="info-card">
+            <h3><ion-icon name="star-outline" color="warning"></ion-icon> สิ่งอำนวยความสะดวก</h3>
+            
+            <div class="facilities-grid">
+              <ng-container *ngFor="let fac of checkedFacilities">
+                <div class="facility-chip">
+                  <div class="fac-icon-wrapper">
+                    <i *ngIf="fac.isFontAwesome" [class]="fac.icon"></i>
+                    <img *ngIf="!fac.isFontAwesome && fac.icon && (fac.icon.includes('http') || fac.icon.includes('/'))" [src]="fac.icon" alt="icon">
+                    <ion-icon *ngIf="!fac.isFontAwesome && (!fac.icon || (!fac.icon.includes('http') && !fac.icon.includes('/')))" [name]="fac.icon || 'checkmark-circle-outline'"></ion-icon>
+                  </div>
+                  <span>{{ fac.name }}</span>
+                </div>
+              </ng-container>
+            </div>
+            
+            <div *ngIf="checkedFacilities.length === 0" class="empty-state">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <p>ไม่มีสิ่งอำนวยความสะดวกที่ระบุ</p>
+            </div>
+          </div>
 
-      <div class="info-group">
-        <div class="info-label">ชื่อหอพัก</div>
-        <div class="info-value">{{ formData?.name || '-' }}</div>
-      </div>
-      <div class="info-group">
-        <div class="info-label">ที่อยู่</div>
-        <div class="info-value">{{ formData?.address || '-' }}</div>
-      </div>
-      <div class="info-group" *ngIf="formData?.detail">
-        <div class="info-label">รายละเอียด</div>
-        <div class="info-value">{{ formData?.detail }}</div>
-      </div>
-
-      <div class="info-row-2">
-        <div class="info-group">
-          <div class="info-label">💧 ค่าน้ำ/หน่วย</div>
-          <div class="info-value">{{ formData?.water_unit ?? '-' }} ฿</div>
+          <div class="info-card" *ngIf="formData?.new_facilities && formData.new_facilities.length > 0">
+            <h3><ion-icon name="add-circle-outline" color="success"></ion-icon> สิ่งอำนวยความสะดวกเพิ่มเติม</h3>
+            <div class="facilities-grid">
+              <div class="facility-chip custom-chip" *ngFor="let newFac of formData.new_facilities">
+                <div class="fac-icon-wrapper">
+                  <img *ngIf="newFac.icon && !newFac.icon.includes('-outline')" [src]="newFac.icon.startsWith('data:') || newFac.icon.startsWith('http') ? newFac.icon : ('/assets/allicons/' + newFac.icon)" alt="icon">
+                  <ion-icon *ngIf="newFac.icon && newFac.icon.includes('-outline')" [name]="newFac.icon"></ion-icon>
+                  <ion-icon *ngIf="!newFac.icon" name="checkmark-circle-outline"></ion-icon>
+                </div>
+                <span>{{ newFac.name }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="info-group">
-          <div class="info-label">💧 เหมาจ่าย</div>
-          <div class="info-value">{{ formData?.water_lump || 'ไม่มี' }}</div>
-        </div>
-        <div class="info-group">
-          <div class="info-label">⚡ ค่าไฟ/หน่วย</div>
-          <div class="info-value">{{ formData?.elect_unit ?? '-' }} ฿</div>
-        </div>
-      </div>
 
-      <!-- Facilities -->
-      <div class="info-group" *ngIf="checkedFacilities.length > 0">
-        <div class="info-label">สิ่งอำนวยความสะดวก ({{ checkedFacilities.length }} รายการ)</div>
-        <div class="fac-wrap">
-          <span class="fac-tag" *ngFor="let fac of checkedFacilities">
-            <img *ngIf="fac.icon && (fac.icon.includes('/') || fac.icon.includes('.png'))" [src]="fac.icon" style="width: 14px; height: 14px; object-fit: contain; vertical-align: middle; margin-right: 4px;">
-            <ion-icon *ngIf="fac.icon && !fac.isFontAwesome && !fac.icon.includes('/') && !fac.icon.includes('.png')" [name]="fac.icon" style="font-size: 12px; vertical-align: middle;"></ion-icon>
-            <i *ngIf="fac.isFontAwesome" [class]="fac.icon" style="font-size: 11px; vertical-align: middle; margin-right: 3px;"></i>
-            {{ fac.name }}
-          </span>
-        </div>
-      </div>
+        <!-- ==================== ROOMS TAB ==================== -->
+        <div *ngIf="activeSegment === 'rooms'" class="fade-in" style="padding: 16px;">
+          
+          <div class="room-card" *ngFor="let room of roomTypes; let i = index">
+            <div class="room-header">
+              <div class="room-title">
+                <ion-icon name="bed-outline"></ion-icon>
+                <h2>{{ room.roomType || room.selectedType }}</h2>
+              </div>
+              <span class="room-badge">แบบที่ {{ i + 1 }}</span>
+            </div>
 
-      <div class="info-group" *ngIf="formData?.new_facilities && formData.new_facilities.length > 0">
-        <div class="info-label">สิ่งอำนวยฯ เพิ่มเติม (รออนุมัติ)</div>
-        <div class="fac-wrap">
-          <span class="fac-tag pending" *ngFor="let nf of formData.new_facilities" style="display: inline-flex; align-items: center; gap: 4px;">
-            <img *ngIf="nf.icon && (nf.icon.includes('/') || nf.icon.includes('.png'))" [src]="nf.icon" style="width: 14px; height: 14px; object-fit: contain;">
-            ✨ {{ nf.name }}
-          </span>
-        </div>
-      </div>
+            <div class="room-body">
+              <div class="room-detail-row">
+                <ion-icon name="cube-outline" color="medium"></ion-icon>
+                <span>ขนาด: {{ room.size || '-' }} ตร.ม.</span>
+              </div>
+              <div class="room-detail-row" style="margin-top: 10px;">
+                <ion-icon name="people-outline" color="medium"></ion-icon>
+                <span>จำนวนห้อง: {{ room.quantity || '-' }} ห้อง</span>
+              </div>
 
-      <!-- Room Types + Prices -->
-      <div class="info-group" *ngFor="let room of roomTypes; let i = index">
-        <div class="info-label">🛏️ ห้องแบบที่ {{ i + 1 }}: {{ room.roomType || room.selectedType }}</div>
-        <div class="room-prices">
-          <ng-container *ngFor="let p of room.prices">
-            <span class="price-tag has-price" *ngIf="p.price && +p.price > 0">
-              {{ p.name }}: <strong>{{ +p.price | number }} ฿</strong>
-            </span>
-          </ng-container>
+              <div class="price-title">💰 อัตราค่าเช่า</div>
+              <div class="price-grid">
+                <ng-container *ngFor="let p of room.prices">
+                  <div class="price-item" *ngIf="p.price">
+                    <span class="price-label">{{ p.name }}</span>
+                    <span class="price-value">{{ p.price | number }} ฿</span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="!roomTypes || roomTypes.length === 0" class="empty-state">
+            <ion-icon name="bed-outline"></ion-icon>
+            <p>ยังไม่มีการเพิ่มรูปแบบห้องพัก</p>
+          </div>
         </div>
-      </div>
 
+        <!-- ==================== IMAGES TAB ==================== -->
+        <div *ngIf="activeSegment === 'images'" class="fade-in" style="padding: 16px;">
+          
+          <div class="info-card">
+            <h3><ion-icon name="image-outline" color="primary"></ion-icon> รูปภาพส่วนประกอบห้อง</h3>
+            
+            <div class="room-parts-grid">
+              <div class="part-img-box" *ngIf="allImages?.BED_IMG">
+                <img [src]="allImages.BED_IMG" />
+                <div class="part-label">เตียงนอน</div>
+              </div>
+              <div class="part-img-box" *ngIf="allImages?.WALL_IMG">
+                <img [src]="allImages.WALL_IMG" />
+                <div class="part-label">ผนังห้อง</div>
+              </div>
+              <div class="part-img-box" *ngIf="allImages?.CEILING_IMG">
+                <img [src]="allImages.CEILING_IMG" />
+                <div class="part-label">เพดาน/ไฟ</div>
+              </div>
+              <div class="part-img-box" *ngIf="allImages?.BATHROOM_IMG">
+                <img [src]="allImages.BATHROOM_IMG" />
+                <div class="part-label">ห้องน้ำ</div>
+              </div>
+              <div class="part-img-box" *ngIf="allImages?.FLOOR_IMG">
+                <img [src]="allImages.FLOOR_IMG" />
+                <div class="part-label">ฝั่งติดประตู</div>
+              </div>
+              <div class="part-img-box" *ngIf="allImages?.BALCONY_IMG">
+                <img [src]="allImages.BALCONY_IMG" />
+                <div class="part-label">ระเบียง (ถ้ามี)</div>
+              </div>
+            </div>
+            <div *ngIf="!allImages?.BED_IMG && !allImages?.WALL_IMG && !allImages?.CEILING_IMG && !allImages?.BATHROOM_IMG && !allImages?.FLOOR_IMG && !allImages?.BALCONY_IMG" class="empty-state">
+              <ion-icon name="image-outline"></ion-icon>
+              <p>ไม่มีรูปภาพส่วนประกอบ</p>
+            </div>
+          </div>
+
+          <div class="info-card" *ngIf="allImages?.OTHER_IMG?.length > 0">
+            <h3><ion-icon name="images-outline" color="secondary"></ion-icon> แกลลอรี่ภาพเพิ่มเติม</h3>
+            
+            <div class="gallery-masonry">
+              <div class="masonry-item" *ngFor="let img of allImages.OTHER_IMG">
+                <img [src]="img" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <div class="modal-footer">

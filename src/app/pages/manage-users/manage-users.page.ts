@@ -15,7 +15,7 @@ import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
   createOutline, filterOutline, caretDown, close, mail, call, personCircle, arrowBackOutline,
-  warningOutline, refreshOutline
+  warningOutline, refreshOutline, documentTextOutline, settingsOutline
 } from 'ionicons/icons';
 @Component({
   selector: 'app-manage-users',
@@ -56,7 +56,7 @@ export class ManageUsersPage implements OnInit {
     private toastCtrl: ToastController,
     private modalCtrl: ModalController
   ) { 
-    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline, 'warning-outline': warningOutline, 'refresh-outline': refreshOutline });
+    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline, 'warning-outline': warningOutline, 'refresh-outline': refreshOutline, 'document-text-outline': documentTextOutline, 'settings-outline': settingsOutline });
   }
 
   ngOnInit() {
@@ -151,6 +151,7 @@ export class ManageUsersPage implements OnInit {
           component: DormRequestModalComponent,
           componentProps: {
             dorm: fullDorm,
+            owner: this.selectedOwner,
             isViewOnly: true
           },
           cssClass: 'custom-modal'

@@ -218,63 +218,132 @@ ion-header {
   }
 }
 
+
 /* =========================================
-   📱 Responsive (ส่วนจัดระเบียบสำหรับมือถือ)
+   📱 Responsive — Single Row (ทุกขนาดจอ)
+   ทำให้มือถือมีหน้าตาเหมือน desktop แต่เล็กลง
    ========================================= */
-@media (max-width: 768px) {
-  /* ทำให้ Header ยืดหยุ่นและขึ้นบรรทัดใหม่ได้ */
+
+/* Tablet (768px - 1023px) */
+@media (max-width: 1023px) and (min-width: 769px) {
   .main-header-container {
-    flex-wrap: wrap !important;
-    height: auto !important;
-    padding: 8px 10px !important; /* ลด padding */
-    gap: 8px !important;
+    padding: 0 12px;
+    gap: 10px;
   }
-  
-  /* ดันช่องค้นหาไปเป็นลำดับสุดท้าย (ตกลงไปบรรทัด 2) และกว้างเต็มจอ */
+
+  .logo-section {
+    min-width: 130px;
+    .header-title { font-size: 20px; }
+    .header-logo { height: 36px; width: 36px; }
+  }
+
   .search-section {
-    order: 3; 
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-top: 5px;
+    .search-box { height: 40px; }
+    .btn-search-action { height: 40px; padding: 0 18px; }
+  }
+}
 
-    /* ลดขนาดช่องค้นหาให้เล็กลง */
-    .search-box {
-      height: 38px;
-      padding: 0 15px;
-      input { font-size: 13px; }
-    }
-    .btn-search-action {
-      height: 38px;
-      padding: 0 15px;
-      font-size: 13px;
-    }
+/* Mobile (< 768px) — Single Row แบบ desktop แต่เล็กลง */
+@media (max-width: 768px) {
+  .custom-toolbar {
+    padding: 4px 0;
+    min-height: 55px;
   }
 
-  /* ซ่อนชื่อแอปในมือถือ และลดขนาดโลโก้ */
+  /* ✅ ไม่ wrap — ทุกอย่างอยู่แถวเดียว */
+  .main-header-container {
+    flex-wrap: nowrap !important;
+    height: auto !important;
+    padding: 0 8px !important;
+    gap: 6px !important;
+  }
+
+  /* Logo: ซ่อนชื่อบน mobile เล็กมาก แต่แสดงบน mobile ปกติ */
   .logo-section {
     min-width: auto;
-    .header-title { display: none; }
-    .header-logo { height: 35px; width: 35px; }
+    flex-shrink: 0;
+    gap: 6px;
+
+    .header-logo { height: 32px; width: 32px; }
+    .header-title {
+      font-size: 16px;
+      /* ซ่อนเฉพาะจอเล็กมาก */
+      @media (max-width: 400px) { display: none; }
+    }
   }
 
-  /* ปรับขนาดปุ่มมุมขวาบนมือถือ */
+  /* Search: flex: 1 — ยืดเต็มพื้นที่ที่เหลือ */
+  .search-section {
+    flex: 1 !important;
+    order: unset !important;   /* ไม่ดันไปแถว 2 */
+    width: auto !important;
+    max-width: none !important;
+    margin-top: 0 !important;
+
+    .search-wrap {
+      max-width: 100%;
+    }
+
+    .search-box {
+      height: 36px;
+      padding: 0 10px;
+      input {
+        font-size: 13px;
+        min-width: 0; /* allow shrink */
+      }
+    }
+
+    .btn-search-action {
+      height: 36px;
+      padding: 0 12px;
+      font-size: 12px;
+      gap: 4px;
+
+      span {
+        /* ซ่อนคำว่า "ค้นหา" บนจอเล็กมาก แสดงแค่ icon */
+        @media (max-width: 420px) { display: none; }
+      }
+
+      ion-icon { font-size: 16px; }
+    }
+  }
+
+  /* Auth: ย่อ flex-shrink ให้พอดี */
   .auth-buttons {
     min-width: auto;
-    gap: 5px;
+    flex-shrink: 0;
+    gap: 4px;
+
     .btn-login, .btn-register {
-       height: 32px; padding: 0 10px; font-size: 12px;
-       ion-icon { font-size: 14px; }
+      height: 32px;
+      padding: 0 10px;
+      font-size: 12px;
+      ion-icon { font-size: 14px; }
+
+      span {
+        @media (max-width: 480px) { display: none; }
+      }
     }
+
     .user-badge {
-       padding: 2px 10px 2px 2px; font-size: 12px;
-       ion-icon { font-size: 24px; }
+      padding: 2px 8px 2px 2px;
+      font-size: 12px;
+
+      ion-icon { font-size: 24px; }
+
+      span {
+        @media (max-width: 480px) { display: none; }
+      }
     }
+
     .logout-btn {
-      padding: 6px 10px;
+      padding: 5px 8px;
       ion-icon { font-size: 16px; }
     }
   }
 }
+
+
 /* ==========================================
    ?? Autocomplete Dropdown Styles
    ========================================== */
@@ -339,7 +408,8 @@ ion-header {
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
     z-index: 99999;
-    overflow: hidden;
+    max-height: 250px;
+    overflow-y: auto;
     border: 1px solid rgba(0,0,0,0.08);
     animation: suggFadeIn 0.15s ease;
   }
@@ -379,12 +449,6 @@ ion-header {
         color: #888;
         font-weight: 500;
       }
-    }
-
-    .sug-arrow {
-      font-size: 16px;
-      color: #ccc;
-      flex-shrink: 0;
     }
   }
 }

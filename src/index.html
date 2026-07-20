@@ -1,22 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
   <meta charset="utf-8" />
-  <title>HuntPuk</title>
+  <title>HuntPuk — ค้นหาหอพักใกล้มหาวิทยาลัย</title>
+  <meta name="description" content="HuntPuk แพลตฟอร์มค้นหาหอพักใกล้มหาวิทยาลัยมหาสารคาม ค้นหา เปรียบเทียบ และรีวิวหอพักได้ง่ายๆ" />
 
   <base href="/" />
 
-  <meta name="color-scheme" content="light dark" />
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- ปรับ viewport ให้รองรับ safe-area และ dynamic viewport บนมือถือ -->
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />
 
-  <link rel="icon" type="image/png" href="assets/logo2.png" />
+  <!-- 🎨 Theme color — ซ่อน browser chrome ให้กลืนกับ Header สีเหลือง -->
+  <meta name="theme-color" content="#FFD600" />
+  <meta name="msapplication-navbutton-color" content="#FFD600" />
 
-  <!-- add to homescreen for ios -->
+  <!-- PWA: iOS full-screen (Add to Homescreen จะซ่อน URL bar ได้) -->
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HuntPuk" />
+
+  <link rel="icon" type="image/png" href="assets/logo2.png" />
+  <link rel="apple-touch-icon" href="assets/logo2.png" />
 </head>
 
 <body>

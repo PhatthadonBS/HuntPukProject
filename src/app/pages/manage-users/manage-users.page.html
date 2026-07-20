@@ -22,7 +22,7 @@
             <option value="member">สมาชิกทั่วไป</option>
             <option value="owner">เจ้าของหอพัก</option>
           </select>
-          <ion-icon name="caret-down" class="select-icon"></ion-icon>
+          <ion-icon name="chevron-down-outline" class="select-icon"></ion-icon>
         </div>
 
         <div class="search-section">
@@ -33,42 +33,58 @@
         </div>
 
         <div class="add-section" (click)="openAddModal()">
-          <ion-icon name="person-add-outline"></ion-icon>
+          <ion-icon name="add-circle-outline"></ion-icon>
           <span>เพิ่มสมาชิก</span>
         </div>
       </div>
 
       <div class="table-container">
         <div class="table-header">
-          <div class="col-1">ชื่อผู้ใช้งาน</div>
-          <div class="col-2">ข้อมูลการลงทะเบียน</div>
-          <div class="col-3">จัดการ</div>
+          <div class="col-1"><ion-icon name="person-outline"></ion-icon> ข้อมูลผู้ใช้งาน</div>
+          <div class="col-2"><ion-icon name="document-text-outline"></ion-icon> สถานะการลงทะเบียน</div>
+          <div class="col-3"><ion-icon name="settings-outline"></ion-icon> จัดการ</div>
         </div>
 
         <div class="scrollable-list">
           <div class="table-row" *ngFor="let user of displayedUsers" [class.banned-row]="user.status !== 0">
-            <div class="col-1 user-link" (click)="goToProfile(user.id)">
-              {{ user.username }}
-              <span *ngIf="user.status !== 0" class="banned-badge">แบน</span>
+            <div class="col-1">
+              <div class="user-avatar-small">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+              <div class="user-name-wrapper" (click)="goToProfile(user.id)">
+                <span class="user-link">
+                  {{ user.username }}
+                  <span *ngIf="user.status !== 0" class="banned-badge">แบน</span>
+                </span>
+                <span class="user-role-badge">{{ user.role_id === 2 ? 'Owner' : 'Member' }}</span>
+              </div>
             </div>
             <div class="col-2 status-text">
-              <span [class.is-owner]="user.role_id === 2" 
-                    (click)="openOwnerModal(user)" 
-                    [style.cursor]="user.role_id === 2 ? 'pointer' : 'default'">
+              <span class="badge-status" 
+                    [class.badge-owner]="user.role_id === 2" 
+                    [class.badge-default]="user.role_id !== 2"
+                    (click)="user.role_id === 2 ? openOwnerModal(user) : null">
                 {{ getDormStatusText(user.role_id) }}
               </span>
             </div>
             <div class="col-3 action-icons">
-              <ion-icon name="create-outline" color="warning" class="icon-btn" (click)="goToProfile(user.id)"></ion-icon>
+              <button class="action-btn edit-btn" (click)="goToProfile(user.id)" title="แก้ไข">
+                <ion-icon name="create-outline"></ion-icon>
+              </button>
               
               <!-- Ban Button -->
-              <ion-icon *ngIf="user.status === 0" name="trash-outline" color="danger" class="icon-btn" (click)="openBanConfirmModal(user, 'ban')" title="แบนผู้ใช้"></ion-icon>
+              <button *ngIf="user.status === 0" class="action-btn ban-btn" (click)="openBanConfirmModal(user, 'ban')" title="ระงับการใช้งาน">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
               
               <!-- Unban Button -->
-              <ion-icon *ngIf="user.status !== 0" name="refresh-outline" color="success" class="icon-btn" (click)="openBanConfirmModal(user, 'unban')" title="ปลดแบน"></ion-icon>
+              <button *ngIf="user.status !== 0" class="action-btn unban-btn" (click)="openBanConfirmModal(user, 'unban')" title="ยกเลิกระงับ">
+                <ion-icon name="refresh-outline"></ion-icon>
+              </button>
             </div>
           </div>
           <div class="no-data" *ngIf="displayedUsers.length === 0">
+            <ion-icon name="people-circle-outline"></ion-icon>
             ไม่พบข้อมูลสมาชิก
           </div>
         </div> 
@@ -227,7 +243,7 @@
         <div class="ban-modal-actions">
           <button class="btn-cancel" (click)="closeBanConfirmModal()">ยกเลิก</button>
           <button class="btn-confirm" [class.btn-unban]="banActionType === 'unban'" (click)="confirmBanAction()">
-            {{ banActionType === 'ban' ? 'แบนผู้ใช้' : 'ปลดแบน' }}
+            {{ banActionType === 'ban' ? 'ระงับผู้ใช้' : 'ปลดระงับ' }}
           </button>
         </div>
       </div>

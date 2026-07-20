@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
   closeOutline, personOutline, callOutline, mailOutline, trashOutline,
-  logoFacebook, chatbubbles, logoInstagram, logoTwitter, paperPlane
+  logoFacebook, chatbubbles, logoInstagram, logoTwitter, paperPlane, cameraOutline
 } from 'ionicons/icons';
 import { Auth } from '../../services/auth'; 
 
@@ -38,6 +38,9 @@ export class EditProfilePage implements OnInit {
   fullUserData: any = {};
   userId: number = 0;
   isOwner: boolean = false; // true ถ้า role_id === 2
+  
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
 
   constructor(
     private router: Router,
@@ -48,7 +51,7 @@ export class EditProfilePage implements OnInit {
     addIcons({ 
       closeOutline, personOutline, callOutline, mailOutline, trashOutline,
       'logo-facebook': logoFacebook, chatbubbles, 'logo-instagram': logoInstagram,
-      'logo-twitter': logoTwitter, 'paper-plane': paperPlane
+      'logo-twitter': logoTwitter, 'paper-plane': paperPlane, 'camera-outline': cameraOutline
     });
   }
 
@@ -90,6 +93,10 @@ export class EditProfilePage implements OnInit {
       this.ownerEditData.instagram = ownerData.instagram || '';
       this.ownerEditData.x = ownerData.x || '';
       this.ownerEditData.telegram = ownerData.telegram || '';
+      
+      if (ownerData.PROFILE_IMAGE || ownerData.profile_image) {
+        this.imagePreview = ownerData.PROFILE_IMAGE || ownerData.profile_image;
+      }
     }
   }
 
@@ -138,7 +145,8 @@ export class EditProfilePage implements OnInit {
         this.userId, 
         this.editData.username, 
         this.editData.phone_number,
-        ownerPayload
+        ownerPayload,
+        this.selectedFile || undefined
       );
 
       const storedData = localStorage.getItem('loggedIn');
@@ -183,6 +191,22 @@ export class EditProfilePage implements OnInit {
   async showToast(msg: string, color: string) {
     const toast = await this.toastController.create({ message: msg, duration: 2000, color: color, position: 'top' });
     await toast.present();
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  handleImageError() {
+    this.imagePreview = null;
   }
 
   goBack() {

@@ -46,6 +46,20 @@
         <span>ข้อมูลเจ้าของหอพัก</span>
       </div>
 
+      <div class="profile-upload-container">
+        <input type="file" accept="image/*" (change)="onFileSelected($event)" #fileInput style="display: none;">
+        <div class="profile-preview-wrapper" (click)="fileInput.click()">
+          <img [src]="imagePreview" *ngIf="imagePreview" class="profile-image" (error)="handleImageError()">
+          <div class="placeholder" *ngIf="!imagePreview">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="upload-badge">
+            <ion-icon name="camera-outline"></ion-icon>
+          </div>
+        </div>
+        <p class="upload-hint">แตะเพื่อเปลี่ยนรูปโปรไฟล์</p>
+      </div>
+
       <div class="form-group">
         <label>ชื่อจริง</label>
         <div class="input-container">

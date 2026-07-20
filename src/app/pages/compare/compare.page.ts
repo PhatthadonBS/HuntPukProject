@@ -1,10 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular'; // ❌ เอา LoadingController ออก
+import { IonicModule, AlertController, NavController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
-import { GoogleMapsModule, MapMarker } from '@angular/google-maps';
+import { GoogleMapsModule, MapMarker, MapDirectionsRenderer } from '@angular/google-maps';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -24,7 +24,7 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule, IonicModule, RouterModule,
-    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker, MapDirectionsRenderer
   ]
 })
 export class ComparePage implements OnInit {
@@ -33,6 +33,8 @@ export class ComparePage implements OnInit {
   isMapModalOpen: boolean = false;
   mapCenter: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   tempPin: google.maps.LatLngLiteral | null = null;
+  dormMarkers: any[] = [];
+  directionsResults: google.maps.DirectionsResult[] = [];
 
   allDorms: any[] = []; 
   selectedDorms: any[] = []; 
@@ -48,16 +50,18 @@ export class ComparePage implements OnInit {
   // จุดอ้างอิงระยะทาง (ม.มหาสารคาม มอใหม่ เป็น default)
   referencePoint = { lat: 16.246, lng: 103.252 };
 
-  // 📍 Mode การเลือกจุดอ้างอิง: 'manual' = ตำแหน่งผู้ใช้, 'dorm' = จากหอที่เลือก
-  refMode: 'manual' | 'dorm' = 'manual';
+  // 📍 Mode การเลือกจุดอ้างอิง: 'me' = ตำแหน่งผู้ใช้, 'map' = จากแผนที่, 'dorm' = จากหอที่เลือก
+  refMode: 'me' | 'map' | 'dorm' = 'me';
   refDormIndex: number = 0;
+  cameFromOtherPage: boolean = false;
 
   constructor(
     private dormService: DormitoryService,
     private router: Router,
     private alertCtrl: AlertController,
     private cdr: ChangeDetectorRef,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private navCtrl: NavController
   ) { 
     addIcons({ 
       checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
@@ -118,7 +122,25 @@ export class ComparePage implements OnInit {
     try {
       const res = await this.dormService.getAllDorms();
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        this.allDorms = res.data.map((d: any) => ({ ...d, isChecked: false }));
+        
+        // รับค่า compareIds จากการ navigate (เช่น จากหน้า favorites)
+        const nav = this.router.getCurrentNavigation();
+        const state = nav?.extras.state || history.state;
+        const compareIds: number[] = state?.compareIds || [];
+
+        this.allDorms = res.data.map((d: any) => ({ 
+          ...d, 
+          isChecked: compareIds.includes(d.DORM_ID) || compareIds.includes(d.id) 
+        }));
+
+        // ถ้ามีการส่ง compareIds มาให้เริ่มเปรียบเทียบทันที
+        if (compareIds.length > 0) {
+          this.cameFromOtherPage = true;
+          setTimeout(() => {
+            this.startCompare();
+          }, 300);
+        }
+
       } else {
         this.allDorms = [];
         this.compareError = 'ไม่สามารถโหลดข้อมูลหอพักได้ กรุณาลองใหม่อีกครั้ง';
@@ -213,29 +235,52 @@ export class ComparePage implements OnInit {
   cancelCompare() {
     this.isComparing = false;
     this.selectedDorms = [];
-    this.refMode = 'manual';
+    this.refMode = 'me';
     this.cdr.detectChanges();
   }
 
   // 📍 เปลี่ยนจุดอ้างอิงกลับเป็นตำแหน่งผู้ใช้
-  setRefMode(mode: 'manual') {
+  setRefMode(mode: 'me') {
     this.refMode = mode;
     // โหลด referencePoint จาก localStorage
     try {
       const stored = localStorage.getItem('userLocation');
       if (stored) {
         const loc = JSON.parse(stored);
-        if (loc.lat && loc.lng) this.referencePoint = { lat: loc.lat, lng: loc.lng };
+        if (loc.lat && loc.lng) {
+           this.referencePoint = { lat: loc.lat, lng: loc.lng };
+           this.recalcDistances();
+           this.cdr.detectChanges();
+           return;
+        }
       }
     } catch(e) {}
-    this.recalcDistances();
-    this.cdr.detectChanges();
+    
+    // ถ้าไม่มีให้ลองใช้ Geolocation API ของ Browser
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        this.referencePoint = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        this.recalcDistances();
+        this.cdr.detectChanges();
+      }, () => {
+        // Fallback to default
+        this.referencePoint = { lat: 16.246, lng: 103.252 };
+        this.recalcDistances();
+        this.cdr.detectChanges();
+      });
+    } else {
+      this.referencePoint = { lat: 16.246, lng: 103.252 };
+      this.recalcDistances();
+      this.cdr.detectChanges();
+    }
   }
 
   openMapModal() {
     this.isMapModalOpen = true;
     this.tempPin = { ...this.referencePoint };
     this.mapCenter = { ...this.referencePoint };
+    this.updateMapMarkers();
+    this.calcRoutes(this.tempPin);
     this.cdr.detectChanges();
   }
 
@@ -247,14 +292,46 @@ export class ComparePage implements OnInit {
   onCompareMapClick(event: google.maps.MapMouseEvent) {
     if (event.latLng) {
       this.tempPin = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+      this.calcRoutes(this.tempPin);
       this.cdr.detectChanges();
     }
+  }
+
+  updateMapMarkers() {
+    this.dormMarkers = this.selectedDorms
+      .filter(d => d.lat && d.lng)
+      .map(d => ({
+         position: { lat: Number(d.lat), lng: Number(d.lng) },
+         title: d.DORM_NAME
+      }));
+  }
+
+  calcRoutes(origin: google.maps.LatLngLiteral) {
+    this.directionsResults = [];
+    if (!origin) return;
+    
+    const directionsService = new google.maps.DirectionsService();
+    
+    this.selectedDorms.forEach(dorm => {
+      if (dorm.lat && dorm.lng) {
+        directionsService.route({
+          origin: origin,
+          destination: { lat: Number(dorm.lat), lng: Number(dorm.lng) },
+          travelMode: google.maps.TravelMode.DRIVING
+        }, (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK && result) {
+            this.directionsResults.push(result);
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
   }
 
   confirmMapPin() {
     if (this.tempPin) {
       this.referencePoint = { ...this.tempPin };
-      this.refMode = 'manual';
+      this.refMode = 'map';
       this.recalcDistances();
     }
     this.isMapModalOpen = false;
@@ -287,9 +364,13 @@ export class ComparePage implements OnInit {
 
   goBack() {
     if (this.isComparing) {
-      this.cancelCompare();
+      if (this.cameFromOtherPage) {
+        this.navCtrl.back();
+      } else {
+        this.cancelCompare();
+      }
     } else {
-      this.router.navigate(['/home']);
+      this.navCtrl.back();
     }
   }
 

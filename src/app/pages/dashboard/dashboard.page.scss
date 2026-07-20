@@ -213,76 +213,128 @@ $card-radius: 20px;
 // Dorm Views List Card
 .card-dorm-views {
   background: #fff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-  padding: 16px;
+  border-radius: $card-radius;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  padding: 20px;
   grid-column: 1 / -1;
+  border: 1px solid rgba(0,0,0,0.04);
+  margin-top: 10px;
 
   .dorm-views-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     
     .card-icon-wrap {
-      width: 40px; height: 40px; border-radius: 12px;
+      width: 44px; height: 44px; border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255, 214, 0, 0.15);
-      color: #d97706;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: #fff;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .card-body {
+      flex: 1;
+      .card-label {
+        font-weight: 700; color: #1e293b; font-size: 15px;
+      }
+      .card-value-row {
+        display: flex; align-items: baseline; gap: 6px; margin-top: 2px;
+        .card-value { font-size: 20px; font-weight: 800; color: #0f172a; }
+        .card-unit { font-size: 13px; color: #64748b; font-weight: 600; }
+      }
+    }
+    
+    .sort-btn {
+      background: #f1f5f9;
+      border: none;
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: #475569;
       font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      
+      &:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+      &:active {
+        transform: scale(0.95);
+      }
     }
   }
 
   .dorm-views-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 8px;
+    
+    /* Scrollbar styling */
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    &::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   }
 
   .dorm-view-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     font-size: 13px;
+    padding: 8px 12px;
+    background: #fafafa;
+    border-radius: 12px;
+    transition: background 0.2s;
+    
+    &:hover { background: #f1f5f9; }
     
     .dorm-rank {
       font-weight: 800;
-      width: 24px;
+      width: 28px;
       text-align: center;
       color: #94a3b8;
-      &.gold { color: #eab308; }
+      font-size: 14px;
+      &.gold { color: #eab308; font-size: 16px; }
       &.silver { color: #94a3b8; }
       &.bronze { color: #b45309; }
     }
     
     .dorm-view-name {
       flex: 1;
-      font-weight: 600;
-      color: #334155;
+      font-weight: 700;
+      color: #1e293b;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 150px;
+      max-width: 180px;
     }
     
     .dorm-view-bar-wrap {
       flex: 2;
-      height: 8px;
-      background: #f1f5f9;
-      border-radius: 4px;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 6px;
       overflow: hidden;
       
       .dorm-view-bar {
         height: 100%;
-        background: linear-gradient(90deg, #FFD600, #f59e0b);
-        border-radius: 4px;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        border-radius: 6px;
+        transition: width 0.4s ease-out;
       }
     }
     
     .dorm-view-count {
-      font-weight: 700;
-      color: #64748b;
-      min-width: 50px;
+      font-weight: 800;
+      color: #334155;
+      min-width: 65px;
       text-align: right;
     }
   }

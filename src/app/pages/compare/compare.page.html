@@ -11,7 +11,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="main-content">
+<ion-content [fullscreen]="true" class="main-content" [scrollY]="!isComparing">
   
   <div class="bg-curve"></div>
 
@@ -67,10 +67,10 @@
          <span>จุดอ้างอิงระยะทาง:</span>
        </div>
        <div class="ref-point-chips">
-         <div class="ref-chip" [class.active]="refMode === 'manual'" (click)="setRefMode('manual')">
+         <div class="ref-chip" [class.active]="refMode === 'me'" (click)="setRefMode('me')">
            <ion-icon name="navigate-circle-outline"></ion-icon> ตำแหน่งของฉัน
          </div>
-         <div class="ref-chip" (click)="openMapModal()" style="background: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb;">
+         <div class="ref-chip" [class.active]="refMode === 'map'" (click)="openMapModal()">
            <ion-icon name="location"></ion-icon> กำหนดจุดอ้างอิง
          </div>
          <div class="ref-chip" *ngFor="let d of selectedDorms; let i = index"
@@ -205,6 +205,14 @@
              <map-marker *ngIf="tempPin" [position]="tempPin"
               [options]="{ icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', zIndex: 999 }">
             </map-marker>
+            <map-marker *ngFor="let marker of dormMarkers"
+              [position]="marker.position"
+              [options]="{ title: marker.title, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', zIndex: 990 }">
+            </map-marker>
+            <map-directions-renderer *ngFor="let result of directionsResults"
+              [directions]="result"
+              [options]="{ suppressMarkers: true, preserveViewport: true }">
+            </map-directions-renderer>
           </google-map>
           <div *ngIf="!tempPin" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; pointer-events: none; z-index: 1000;">
             คลิกบนแผนที่เพื่อปักหมุด

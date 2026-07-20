@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -61,7 +61,8 @@ export class MyDormsPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({ 
       add, createOutline, trashOutline, eyeOutline, star, home, 
@@ -122,6 +123,7 @@ export class MyDormsPage implements OnInit {
       console.error('Error loadMyDorms:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -173,13 +175,39 @@ export class MyDormsPage implements OnInit {
     await this.changeStatus(this.selectedDormForStatus?.DORM_ID, statusId);
   }
 
-  async onStatusChange(event: Event, dorm: any) {
+  async confirmStatusChange(event: Event, dorm: any) {
     const select = event.target as HTMLSelectElement;
     const newStatusId = Number(select.value);
-    if (newStatusId !== dorm.DORM_STATUS_ID) {
-      await this.changeStatus(dorm.DORM_ID, newStatusId);
-      dorm.DORM_STATUS_ID = newStatusId; // update local immediately
-    }
+    
+    if (newStatusId === dorm.DORM_STATUS_ID) return;
+
+    let statusText = 'ไม่ทราบสถานะ';
+    if (newStatusId === 1) statusText = 'ว่าง';
+    else if (newStatusId === 2) statusText = 'ปิดปรับปรุง';
+    else if (newStatusId === 3) statusText = 'ห้องเต็ม';
+    
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการเปลี่ยนสถานะ',
+      message: `คุณต้องการเปลี่ยนสถานะหอพักเป็น "${statusText}" ใช่หรือไม่?`,
+      buttons: [
+        { 
+          text: 'ยกเลิก', 
+          role: 'cancel',
+          handler: () => {
+            // Revert selection
+            select.value = dorm.DORM_STATUS_ID.toString();
+          }
+        },
+        {
+          text: 'ยืนยัน',
+          handler: async () => {
+            await this.changeStatus(dorm.DORM_ID, newStatusId);
+            dorm.DORM_STATUS_ID = newStatusId; // update local immediately
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
 
@@ -189,11 +217,12 @@ export class MyDormsPage implements OnInit {
     try {
       await this.dormService.changeDormStatus(dormId, statusId);
       this.showToast('เปลี่ยนสถานะเรียบร้อย', 'success');
-      this.loadMyDorms(); 
+      await this.loadMyDorms(); 
     } catch (error) {
       this.showToast('เปลี่ยนสถานะไม่สำเร็จ', 'danger');
     } finally {
       loading.dismiss();
+      this.cdr.detectChanges();
     }
   }
 
@@ -204,7 +233,7 @@ export class MyDormsPage implements OnInit {
 
     const alert = await this.alertCtrl.create({
       header: '🗑️ ลบหอพักออกจากระบบ',
-      message: `หอพัก "${dormName}" จะถูกซ่อนออกจากรายการ แต่สามารถกู้คืนได้ภายหลัง\n\nกรุณากรอก Email ของคุณเพื่อยืนยัน:`,
+      message: `หอพัก "${dormName}" จะถูกลบออกจากรายการของคุณ (ติดต่อผู้ดูแลระบบหากต้องการกู้คืน)\n\nกรุณากรอก Email ของคุณเพื่อยืนยัน:`,
       inputs: [
         {
           name: 'emailConfirm',
@@ -215,14 +244,13 @@ export class MyDormsPage implements OnInit {
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'ยืนยันลบ',
-          role: 'destructive',
+          text: 'ถัดไป',
           handler: (data) => {
             if (!data.emailConfirm || data.emailConfirm.trim().toLowerCase() !== userEmail.toLowerCase()) {
               this.showToast('Email ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'danger');
               return false;
             }
-            this.executeDelete(dormId);
+            this.openOtpModalForDelete(dormId, userEmail);
             return true;
           }
         }
@@ -231,62 +259,38 @@ export class MyDormsPage implements OnInit {
     await alert.present();
   }
 
-  async executeDelete(dormId: number) {
-    const loading = await this.loadingCtrl.create({ message: 'กำลังลบหอพัก...' });
-    await loading.present();
-    try {
-      await this.dormService.changeDormStatus(dormId, 4); // soft delete
-      this.showToast('ลบหอพักออกจากระบบแล้ว (กู้คืนได้)', 'success');
-      this.loadMyDorms(); 
-    } catch (error) {
-      this.showToast('ลบไม่สำเร็จ', 'danger');
-    } finally {
-      loading.dismiss();
-    }
-  }
-
-  async confirmRestoreWithOTP(dormId: number) {
-    const alert = await this.alertCtrl.create({
-      header: '🔄 กู้คืนหอพัก',
-      message: 'ต้องการกู้คืนหอพักนี้ให้กลับมาออนไลน์ใช่หรือไม่?',
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        { text: 'กู้คืน', handler: () => this.executeRestore(dormId) }
-      ]
-    });
-    await alert.present();
-  }
-
-  async openOtpModalForRestore(dormId: number) {
-    const userEmail = this.currentUser.email || this.currentUser.EMAIL;
+  async openOtpModalForDelete(dormId: number, userEmail: string) {
     const modal = await this.modalCtrl.create({
       component: OtpModalComponent,
-      componentProps: { email: userEmail, mode: 'recover' },
+      componentProps: { email: userEmail, mode: 'verify' },
       cssClass: 'custom-otp-modal'
     });
     await modal.present();
     const { data } = await modal.onWillDismiss();
 
     if (data && data.success) {
-      this.executeRestore(dormId);
+      this.executeDelete(dormId);
     } else {
       this.showToast('การยืนยันตัวตนถูกยกเลิก', 'warning');
     }
   }
 
-  async executeRestore(dormId: number) {
-    const loading = await this.loadingCtrl.create({ message: 'กำลังกู้คืนหอพัก...' });
+  async executeDelete(dormId: number) {
+    const loading = await this.loadingCtrl.create({ message: 'กำลังลบหอพัก...' });
     await loading.present();
     try {
-      await this.dormService.restoreDorm(dormId);
-      this.showToast('กู้คืนหอพักสำเร็จ! หอพักออนไลน์แล้ว', 'success');
-      this.loadMyDorms();
+      await this.dormService.changeDormStatus(dormId, 4); // soft delete
+      this.showToast('ลบหอพักออกจากระบบแล้ว (กู้คืนได้)', 'success');
+      await this.loadMyDorms(); 
     } catch (error) {
-      this.showToast('เกิดข้อผิดพลาดในการกู้คืน', 'danger');
+      this.showToast('ลบไม่สำเร็จ', 'danger');
     } finally {
       loading.dismiss();
+      this.cdr.detectChanges();
     }
   }
+
+
 
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });
@@ -299,13 +303,13 @@ export class MyDormsPage implements OnInit {
   goToPreview(id: number) { this.router.navigate(['/dorm-preview', id]); }
   goToReviews(id: number) { this.router.navigate(['/manage-reviews'], { queryParams: { dorm_id: id }}); }
   
-  // สำหรับดูหอพักที่รออนุมัติ (REQ_STATUS=0) หรือแก้ไขส่งใหม่ (REQ_STATUS=4)
+  // สำหรับดูหอพักที่รออนุมัติ (REQ_STATUS=0, 2) หรือแก้ไขส่งใหม่ (REQ_STATUS=3, 4)
   goToPendingView(dorm: any) {
-    if (dorm.REQ_STATUS === 4) {
-      // ส่งกลับแก้ไข: ไปหน้า edit-dorm พร้อม resubmit mode
-      this.router.navigate(['/edit-dorm', dorm.DORM_ID], { queryParams: { mode: 'resubmit' } });
+    if (dorm.REQ_STATUS === 4 || dorm.REQ_STATUS === 3) {
+      // ส่งกลับแก้ไข/ส่งคำร้องใหม่: ไปหน้า dorm-form
+      this.router.navigate(['/dorm-form', dorm.DORM_ID]);
     } else {
-      // รออนุมัติ: ไปหน้า dorm-preview แบบ read-only
+      // รออนุมัติ หรือ ไม่อนุมัติ: ไปหน้า dorm-preview แบบ read-only
       this.router.navigate(['/dorm-preview', dorm.DORM_ID]);
     }
   }

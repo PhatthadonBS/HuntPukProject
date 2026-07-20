@@ -60,6 +60,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'dorm-form/:id',
+    canActivate: [ownerGuard],
+    loadComponent: () =>
+      import('./pages/owner/dorm-form/dorm-form.page').then(
+        (m) => m.DormFormPage
+      ),
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./pages/forgot-password/forgot-password.page').then(
@@ -157,7 +165,7 @@ export const routes: Routes = [
   {
     path: 'dorm-preview/:id',
     canActivate: [ownerGuard],
-    loadComponent: () => import('./pages/dorm-preview/dorm-preview.page').then( m => m.DormPreviewPage)
+    loadComponent: () => import('./pages/owner/dorm-form/dorm-form.page').then( m => m.DormFormPage)
   },
   {
     path: 'facility-management',

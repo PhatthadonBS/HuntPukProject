@@ -34,36 +34,59 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
 /* เพิ่ม CSS ของ Leaflet */
 @import "leaflet/dist/leaflet.css";
 
 /* =========================================
-   🔥 แก้ปัญหาจอดำ/กดไม่ได้ (Global Fix) 🔥
+   🌐 CSS Variables — ใช้ได้ทั้งโปรเจ็กต์
+   ========================================= */
+:root {
+  /* Sidebar */
+  --sidebar-width: 280px;
+
+  /* Brand Colors */
+  --color-primary: #FFD600;
+  --color-dark: #1a1a1a;
+  --color-text: #2b2b2b;
+  --color-muted: #6c757d;
+}
+
+/* =========================================
+   📐 Full-height fix (รองรับ mobile browser bar)
+   ========================================= */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* dvh = dynamic viewport height — หักความสูง URL bar ออกอัตโนมัติ */
+ion-app {
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+/* =========================================
+   🔥 แก้ปัญหาจอดำ/กดไม่ได้ (Global Fix)
    ========================================= */
 
 /* บังคับปิดม่านดำ (Backdrop) ทั้งแอปแบบถาวร */
 ion-backdrop {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    z-index: -1 !important;
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
 }
 
 /* แก้ปุ่มเมนูให้เป็นสีขาวเสมอ (เผื่อมองไม่เห็นในบางหน้า) */
 ion-menu-button {
-    --color: white !important;
+  --color: white !important;
 }
-/* --- src/global.scss --- */
 
 /* บังคับเมนูหน้า Home ให้ลอยทับ Google Map แบบ Global */
 ion-menu[menuId="home-menu"] {
   z-index: 9999 !important;
-}
-
-/* แก้เผื่อกรณีตัว Backdrop (พื้นหลังมืดๆ) โดนบังด้วย */
-ion-backdrop {
-  z-index: 9998 !important;
 }
 
 /* =========================================
@@ -73,18 +96,18 @@ ion-backdrop {
   --background: #ffffff;
   --backdrop-opacity: 0.6;
   border-radius: 16px;
-  
+
   .alert-wrapper {
     border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
-  
+
   .alert-title {
     font-weight: 700;
     font-size: 1.2rem;
     color: #222;
   }
-  
+
   .alert-message {
     color: #555;
   }
@@ -93,7 +116,7 @@ ion-backdrop {
     color: #999;
     font-weight: 500;
   }
-  
+
   .alert-btn-confirm {
     color: #fff;
     background: #000;
@@ -103,5 +126,39 @@ ion-backdrop {
   }
 }
 
-.top-alert { z-index: 999999 !important; }
+.top-alert {
+  z-index: 999999 !important;
+}
 
+/* =========================================
+   📱 Global Responsive Utilities
+   ========================================= */
+
+/* ซ่อนใน mobile (< 1024px) */
+@media (max-width: 1023px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* ซ่อนใน desktop (≥ 1024px) */
+@media (min-width: 1024px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* =========================================
+   🖥️ Desktop Split Pane Layout (Push Content)
+   เมื่อ sidebar-open ทำงานใน ion-app จะดัน router-outlet ไปทางขวา
+   ========================================= */
+@media (min-width: 1024px) {
+  ion-router-outlet {
+    transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  ion-app.sidebar-open ion-router-outlet {
+    left: var(--sidebar-width) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
+  }
+}

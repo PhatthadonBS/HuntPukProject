@@ -1,13 +1,17 @@
 /* ==========================================
-   🎨 Variables — Yellow/Black/White Minimal
+   🎨 Variables
    ========================================== */
-$yellow:  #FFD600;
-$dark:    #1a1a1a;
-$gray:    #f4f5f7;
-$gray2:   #e8eaed;
-$mid:     #888;
-$white:   #ffffff;
-$radius:  16px;
+$yellow:   #FFD600;
+$yellow2:  #FFA500;
+$dark:     #1a1a2e;
+$dark2:    #16213e;
+$gray:     #f4f5f7;
+$gray2:    #e2e4e8;
+$mid:      #888;
+$white:    #ffffff;
+$radius:   16px;
+$green:    #22c55e;
+$red:      #ef4444;
 
 /* ==========================================
    🏷️ Header
@@ -27,13 +31,37 @@ $radius:  16px;
   letter-spacing: -0.3px;
 }
 
+// Header Add Button
+.header-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, $yellow, $yellow2);
+  color: $dark;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: all 0.2s;
+
+  ion-icon { font-size: 16px; }
+
+  &:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(255,214,0,0.35);
+  }
+}
+
 /* ==========================================
    🗂️ Tab Bar
    ========================================== */
 .tab-bar {
   display: flex;
   background: $dark;
-  padding: 0 20px;
+  padding: 0 16px;
   gap: 4px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
@@ -41,14 +69,16 @@ $radius:  16px;
 .tab-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px 14px;
+  gap: 7px;
+  padding: 11px 16px 13px;
   font-size: 14px;
   font-weight: 700;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.4);
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
+
+  ion-icon { font-size: 16px; }
 
   &.active {
     color: $yellow;
@@ -66,19 +96,18 @@ $radius:  16px;
   min-width: 20px;
   text-align: center;
 
-  &.pending {
-    background: $yellow;
-    color: $dark;
-  }
+  &.pending { background: $yellow; color: $dark; }
 }
 
 /* ==========================================
-   📦 Content
+   📦 Content Area
    ========================================== */
-.fac-content { --background: #{$gray}; }
+.fac-content {
+  --background: #f0f2f5;
+}
 
 .tab-content {
-  padding: 16px;
+  padding: 16px 16px 100px; // bottom padding for FAB
 }
 
 /* ==========================================
@@ -112,54 +141,148 @@ $radius:  16px;
 }
 
 /* ==========================================
-   📋 Facility List
+   🃏 Facility Card Grid
    ========================================== */
-.fac-list {
-  background: transparent;
-  padding: 0;
+.fac-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
 }
 
-.fac-slide {
-  margin-bottom: 10px;
-  border-radius: $radius;
-  overflow: hidden;
-}
+.fac-card {
+  background: $white;
+  border-radius: 18px;
+  padding: 16px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  position: relative;
+  transition: transform 0.18s, box-shadow 0.18s;
+  cursor: default;
 
-.fac-item {
-  --background: #{$white};
-  --padding-start: 0;
-  --padding-end: 0;
-  --inner-padding-end: 0;
-  border-radius: $radius;
-  padding: 12px 14px;
-  transition: box-shadow 0.2s;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-
-  &:active { box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
-
-  &.request-card {
-    border-left: 4px solid $yellow;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
   }
 }
 
-.fac-index {
-  width: 28px;
-  height: 28px;
+// Number badge
+.card-num {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 22px;
+  height: 22px;
   background: $dark;
   color: $yellow;
-  border-radius: 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  flex-shrink: 0;
-  margin-right: 12px;
 }
 
-.fac-icon-box {
-  width: 44px;
-  height: 44px;
+// Icon area
+.card-icon-box {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #f9f9f9, #efefef);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-top: 10px;
+  border: 1px solid $gray2;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-icon {
+  font-size: 28px;
+  color: $mid;
+}
+
+.card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: $dark;
+  text-align: center;
+  margin: 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+// Card action buttons
+.card-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.card-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 6px;
+  border-radius: 10px;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  ion-icon { font-size: 14px; }
+
+  &:active { transform: scale(0.93); }
+
+  &.btn-edit {
+    background: rgba(26,26,46,0.08);
+    color: $dark;
+    &:hover { background: $dark; color: $yellow; }
+  }
+
+  &.btn-del {
+    background: rgba(239,68,68,0.09);
+    color: $red;
+    &:hover { background: $red; color: $white; }
+  }
+}
+
+/* ==========================================
+   ⏳ Requests List
+   ========================================== */
+.req-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.req-card {
+  background: $white;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  border-left: 4px solid $yellow;
+}
+
+.req-icon-box {
+  width: 48px;
+  height: 48px;
   background: $gray;
   border-radius: 12px;
   display: flex;
@@ -167,122 +290,69 @@ $radius:  16px;
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  margin-right: 14px;
 }
 
-.fac-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.req-icon { font-size: 24px; color: $mid; }
 
-.fac-fallback-icon {
-  font-size: 22px;
-  color: $mid;
-}
-
-.fac-label {
-  h2 {
-    font-size: 14px;
-    font-weight: 700;
-    color: $dark;
-    margin: 0;
-  }
-}
-
-/* Quick Action Buttons */
-.quick-actions {
+.req-info {
+  flex: 1;
   display: flex;
-  gap: 6px;
-  align-items: center;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.quick-btn {
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 17px;
-  transition: all 0.15s;
-
-  &:active { transform: scale(0.90); }
-
-  &.edit-btn {
-    background: rgba(26,26,26,0.08);
-    color: $dark;
-    &:hover { background: $dark; color: $yellow; }
-  }
-
-  &.del-btn {
-    background: rgba(239,68,68,0.1);
-    color: #ef4444;
-    &:hover { background: #ef4444; color: $white; }
-  }
+.req-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: $dark;
+  margin: 0;
 }
 
-/* ==========================================
-   ⏳ Pending Badge
-   ========================================== */
 .pending-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 11px;
   font-weight: 700;
-  background: rgba(255,214,0,0.2);
+  background: rgba(255,214,0,0.18);
   color: #7a6200;
   border: 1px solid rgba(255,214,0,0.4);
   padding: 2px 8px;
   border-radius: 20px;
-  margin-top: 4px;
+  width: fit-content;
 }
 
-.request-actions {
+.req-actions {
   display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
 .req-btn {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 10px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
-  font-size: 20px;
   transition: all 0.15s;
-  &:active { transform: scale(0.9); }
+
+  ion-icon { font-size: 15px; }
+  &:active { transform: scale(0.93); }
 
   &.approve {
     background: rgba(34,197,94,0.12);
-    color: #16a34a;
-    &:hover { background: #22c55e; color: $white; }
+    color: #15803d;
+    &:hover { background: $green; color: $white; }
   }
   &.reject {
     background: rgba(239,68,68,0.10);
-    color: #ef4444;
-    &:hover { background: #ef4444; color: $white; }
+    color: $red;
+    &:hover { background: $red; color: $white; }
   }
-}
-
-/* ==========================================
-   💬 Swipe Tip
-   ========================================== */
-.swipe-tip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: $mid;
-  font-weight: 600;
-  padding: 0 4px 12px;
-  ion-icon { font-size: 16px; color: $yellow; }
 }
 
 /* ==========================================
@@ -293,16 +363,69 @@ $radius:  16px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  gap: 12px;
-  .empty-icon { font-size: 48px; }
-  p { font-size: 14px; color: $mid; font-weight: 600; margin: 0; }
+  padding: 70px 20px;
+  gap: 14px;
+  .empty-icon { font-size: 52px; }
+  p { font-size: 15px; color: $mid; font-weight: 600; margin: 0; text-align: center; }
+}
+
+.empty-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, $yellow, $yellow2);
+  color: $dark;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(255,214,0,0.3);
+
+  ion-icon { font-size: 20px; }
+  &:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,214,0,0.4); }
 }
 
 /* ==========================================
-   📝 Edit Modal
+   ➕ Floating Action Button
    ========================================== */
-.edit-modal {
+.fab-add {
+  position: fixed;
+  bottom: 28px;
+  right: 22px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, $yellow, $yellow2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(255,214,0,0.45);
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.2s;
+
+  ion-icon {
+    font-size: 28px;
+    color: $dark;
+    font-weight: bold;
+  }
+
+  &:hover {
+    transform: scale(1.08) rotate(90deg);
+    box-shadow: 0 8px 28px rgba(255,214,0,0.55);
+  }
+
+  &:active { transform: scale(0.94); }
+}
+
+/* ==========================================
+   📝 Bottom Sheet Modals (Add & Edit)
+   ========================================== */
+.bottom-modal {
   --height: auto;
   --border-radius: 24px 24px 0 0;
   --background: transparent;
@@ -312,46 +435,103 @@ $radius:  16px;
 .modal-wrap {
   background: $white;
   border-radius: 24px 24px 0 0;
-  padding: 0 0 env(safe-area-inset-bottom);
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: $gray2;
+  border-radius: 2px;
+  margin: 12px auto 0;
 }
 
 .modal-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 20px 20px 0;
-  h3 { font-size: 16px; font-weight: 800; color: $dark; margin: 0; }
+  padding: 20px 20px 4px;
+}
+
+.modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: $dark;
+    margin: 0 0 3px;
+    line-height: 1;
+  }
+  p {
+    font-size: 12px;
+    color: $mid;
+    margin: 0;
+  }
+}
+
+.modal-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 22px; }
+
+  &.add-badge {
+    background: rgba(34,197,94,0.12);
+    color: #15803d;
+  }
+  &.edit-badge {
+    background: rgba(255,179,0,0.14);
+    color: #a06000;
+  }
 }
 
 .modal-close {
-  width: 36px; height: 36px;
-  background: $gray; border: none; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; color: $mid; cursor: pointer;
+  width: 36px;
+  height: 36px;
+  background: $gray;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: $mid;
+  cursor: pointer;
+  flex-shrink: 0;
   &:active { background: $gray2; }
 }
 
-.modal-body { padding: 20px; }
+.modal-body { padding: 16px 20px; }
 
-.input-group {
-  margin-bottom: 20px;
-}
+.input-group { margin-bottom: 20px; }
 
 .input-label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: $mid;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
+
+  .required { color: $red; }
 }
 
 .text-input {
   width: 100%;
   border: 2px solid $gray2;
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 13px 14px;
   font-size: 15px;
   font-weight: 600;
   color: $dark;
@@ -366,54 +546,180 @@ $radius:  16px;
   }
 }
 
+// Icon Upload
 .icon-upload-area {
   position: relative;
-  width: 90px; height: 90px;
+  width: 90px;
+  height: 90px;
   border-radius: 18px;
   overflow: hidden;
   background: $gray;
   border: 2px dashed $gray2;
   cursor: pointer;
-  transition: border-color 0.2s;
-  &:hover { border-color: $yellow; }
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover {
+    border-color: $yellow;
+    background: rgba(255,214,0,0.05);
+  }
 }
 
 .icon-placeholder {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  height: 100%; gap: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 6px;
   ion-icon { font-size: 26px; color: $mid; }
   span { font-size: 10px; font-weight: 700; color: $mid; text-align: center; }
 }
 
 .icon-preview {
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .icon-overlay {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.2s;
-  ion-icon { font-size: 24px; color: $white; }
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  ion-icon { font-size: 22px; color: $white; }
+  span { font-size: 10px; color: $white; font-weight: 700; }
   .icon-upload-area:hover & { opacity: 1; }
 }
 
 .modal-footer {
-  display: flex; gap: 10px; padding: 0 20px 20px;
+  display: flex;
+  gap: 10px;
+  padding: 4px 20px 20px;
 }
 
 .btn-cancel {
-  flex: 1; padding: 14px; border-radius: 14px;
-  background: $gray; border: none; font-size: 15px;
-  font-weight: 700; color: $mid; cursor: pointer;
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  background: $gray;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: $mid;
+  cursor: pointer;
   &:active { background: $gray2; }
 }
 
 .btn-save {
-  flex: 2; padding: 14px; border-radius: 14px;
-  background: $dark; border: none; font-size: 15px;
-  font-weight: 800; color: $yellow; cursor: pointer;
+  flex: 2;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, $dark, $dark2);
+  border: none;
+  font-size: 15px;
+  font-weight: 800;
+  color: $yellow;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   transition: transform 0.15s;
+  ion-icon { font-size: 18px; }
   &:active { transform: scale(0.97); }
+  &:hover { background: #000; }
+}
+
+/* ==========================================
+   🗑️ Delete Confirm Modal (Center Popup)
+   ========================================== */
+.confirm-modal {
+  --height: auto;
+  --border-radius: 20px;
+  --background: transparent;
+  --max-width: 320px;
+}
+
+.confirm-wrap {
+  background: $white;
+  border-radius: 20px;
+  padding: 32px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.confirm-icon-box {
+  width: 68px;
+  height: 68px;
+  background: rgba(239,68,68,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+
+  ion-icon {
+    font-size: 36px;
+    color: $red;
+  }
+}
+
+.confirm-wrap h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: $dark;
+  margin: 0;
+}
+
+.confirm-wrap p {
+  font-size: 14px;
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.warn-note {
+  font-size: 12px !important;
+  color: $mid !important;
+  background: rgba(239,68,68,0.06);
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.btn-danger {
+  flex: 2;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ef4444, #c81c1c);
+  border: none;
+  font-size: 15px;
+  font-weight: 800;
+  color: $white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: transform 0.15s;
+  ion-icon { font-size: 17px; }
+  &:active { transform: scale(0.97); }
+  &:hover { background: #c81c1c; }
 }

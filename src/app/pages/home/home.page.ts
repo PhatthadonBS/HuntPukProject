@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, MenuController, ViewDidEnter, ToastController, AlertController } from '@ionic/angular';
@@ -15,7 +15,7 @@ import {
 } from '@angular/google-maps';
 
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 import { HeaderComponent } from '../../components/header/header.component';
 import { DormitoryService, Dormitory } from '../../services/dormitory';
 import { environment } from '../../../environments/environment';
@@ -63,6 +63,11 @@ export class HomePage implements OnInit, ViewDidEnter {
         featureType: 'poi.business',
         elementType: 'labels',
         stylers: [{ visibility: 'off' }]
+      },
+      {
+        featureType: 'poi.school',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }]
       }
     ]
   };
@@ -100,6 +105,8 @@ export class HomePage implements OnInit, ViewDidEnter {
   isLoadingReviews: boolean = false;
   isPanelLoading: boolean = false;
   isPanelMinimized: boolean = false;
+  
+  isDesktop: boolean = false;
 
   // ⭕ จุดอ้างอิงและวงกลม
   referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
@@ -124,11 +131,40 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   mainRouteOptions: google.maps.DirectionsRendererOptions = {
     suppressMarkers: true,
-    polylineOptions: { strokeColor: '#ff4d4d', strokeOpacity: 0.9, strokeWeight: 6, zIndex: 5 }
+    polylineOptions: { 
+      strokeColor: '#ff4d4d', strokeOpacity: 0.9, strokeWeight: 6, zIndex: 5,
+      icons: [
+        {
+          icon: { path: 2, scale: 4, strokeColor: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.8 },
+          offset: '50%',
+          repeat: '100px'
+        }
+      ]
+    }
   };
   altRouteRenderers: google.maps.DirectionsResult[] = []; 
 
+  directLinePath: google.maps.LatLngLiteral[] | undefined;
+  directLineOptions: google.maps.PolylineOptions = {
+    strokeOpacity: 0, // ซ่อนเส้นหลักเพื่อให้เห็นแค่ลูกศรบนเส้นแดง
+    icons: [
+      { 
+        icon: { path: 2, scale: 3, strokeColor: '#ffffff', fillColor: '#ffffff', fillOpacity: 1 }, 
+        offset: '50%', 
+        repeat: '100px' 
+      }
+    ],
+    clickable: false,
+    zIndex: 6 // ให้อยู่เหนือเส้นแดง (ซึ่งมี zIndex = 5)
+  };
+
   @ViewChild(MapInfoWindow) infoWindow: MapInfoWindow | undefined;
+
+  // 🧭 สถานะนำทางแบบ Real-time
+  isNavigating: boolean = false;
+  watchPositionId: number | null = null;
+  lastOffRouteAlertTime: number = 0;
+  navMarkerIcon: any = null;
 
   // 🎉 Welcome Modal
   showWelcomeModal = false;
@@ -187,13 +223,14 @@ export class HomePage implements OnInit, ViewDidEnter {
       this.apiLoaded = of(true);
     } else {
       this.apiLoaded = this.httpClient
-        .jsonp(`https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}`, 'callback')
+        .jsonp(`https://maps.googleapis.com/maps/api/js?key=${environment.GGMAPI}&libraries=geometry`, 'callback')
         .pipe(
           map(() => true),
           catchError((err) => {
             console.error('Map Load Error:', err);
             return of(false);
           }),
+          shareReplay(1)
         );
     }
 
@@ -214,7 +251,14 @@ export class HomePage implements OnInit, ViewDidEnter {
     });
   }
 
+  @HostListener('window:resize')
+  checkScreenSize() {
+    this.isDesktop = window.innerWidth >= 1024;
+  }
+
   ngOnInit() {
+    this.checkScreenSize();
+    this.checkScreenSize();
     this.checkLoginStatus();
     this.fetchZones();
     this.fetchDormStatuses();
@@ -417,6 +461,12 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   pinMode: boolean = false;
   togglePinMode() {
+    // เช็คว่าล็อกอินหรือยัง
+    if (!this.currentUser || !(this.currentUser.id || this.currentUser.USER_ID)) {
+      this.showToast('กรุณาเข้าสู่ระบบก่อนใช้งานโหมดย้ายตำแหน่ง', 'danger', 'log-in');
+      return;
+    }
+
     if (this.selectedZone) {
       this.showToast('คุณกำลังเลือกโซนอยู่ กรุณาล้างตัวกรองโซนก่อนย้ายตำแหน่ง', 'warning', 'alert-circle-outline');
       return;
@@ -635,11 +685,14 @@ export class HomePage implements OnInit, ViewDidEnter {
   
         this.cdr.detectChanges();
 
-        if (this.dorms.length === 0 && this.hasActiveFilter()) {
+        if (this.dorms.length === 0) {
           setTimeout(async () => {
+            const hasFilter = this.hasActiveFilter();
             const alert = await this.alertCtrl.create({
               header: 'ไม่พบหอพัก',
-              message: 'หอพักไม่ขึ้นกรุณาลองอีกครั้ง (ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้)',
+              message: hasFilter 
+                ? 'ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้ กรุณาลองปรับตัวกรองหรือขยายระยะทางเพิ่มเติม' 
+                : 'ไม่พบหอพักในบริเวณนี้ กรุณาลองขยายระยะทางเพิ่มเติม (เช่น 2 กม. หรือ 3 กม.)',
               cssClass: 'top-alert',
               buttons: ['ตกลง']
             });
@@ -703,6 +756,8 @@ export class HomePage implements OnInit, ViewDidEnter {
       this.zoom = 16;
     }
 
+    this.directLinePath = undefined;
+
     this.directionsResult = undefined;
     this.altRouteRenderers = [];
     this.walkingTime = '-';
@@ -745,6 +800,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     this.selectedDorm = null; 
     this.isPanelMinimized = false; 
     this.isPanelLoading = false;
+    this.directLinePath = undefined;
     this.directionsResult = undefined; 
     this.altRouteRenderers = []; 
     this.nearbyDorms = [];
@@ -806,6 +862,11 @@ export class HomePage implements OnInit, ViewDidEnter {
   renderRoutesOnMap(result: google.maps.DirectionsResult) {
     this.directionsResult = result;
     this.altRouteRenderers = []; 
+    // นำเส้นทางจริงมาใช้สำหรับวาดลูกศรทับลงไป
+    if (result.routes && result.routes.length > 0 && result.routes[0]!.overview_path) {
+      // แปลง overview_path เป็น LatLngLiteral[]
+      this.directLinePath = result.routes[0]!.overview_path.map(p => ({ lat: p.lat(), lng: p.lng() }));
+    }
     this.cdr.detectChanges();
   }
 
@@ -825,6 +886,80 @@ export class HomePage implements OnInit, ViewDidEnter {
     if (this.selectedDorm) {
       const dormId = this.selectedDorm.DORM_ID || this.selectedDorm.id;
       if (dormId) this.router.navigate(['/dorm-detail', dormId]);
+    }
+  }
+
+  // ==========================================
+  // 🧭 Navigation System (Real-time GPS Tracking)
+  // ==========================================
+  startNavigation() {
+    if (!navigator.geolocation) {
+      this.toastCtrl.create({ message: 'อุปกรณ์ของคุณไม่รองรับ GPS', duration: 2000, color: 'danger' }).then(t => t.present());
+      return;
+    }
+
+    this.isNavigating = true;
+    this.isPanelMinimized = true; 
+
+    const isDriving = this.activeTravelMode === 'DRIVING';
+    const svgIcon = isDriving 
+      ? '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="#2196F3" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>'
+      : '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path fill="#4CAF50" d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>';
+      
+    this.navMarkerIcon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
+      scaledSize: typeof google !== 'undefined' ? new google.maps.Size(46, 46) : null,
+      anchor: typeof google !== 'undefined' ? new google.maps.Point(23, 23) : null
+    };
+
+    this.watchPositionId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const newLat = pos.coords.latitude;
+        const newLng = pos.coords.longitude;
+        this.referencePoint = { lat: newLat, lng: newLng };
+        
+        if (this.googleMapComponent?.googleMap) {
+          this.googleMapComponent.googleMap.panTo(this.referencePoint);
+        }
+
+        this.checkOffRoute(newLat, newLng);
+        this.cdr.detectChanges();
+      },
+      (err) => { console.error('Watch Position Error', err); },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+    );
+  }
+
+  stopNavigation() {
+    this.isNavigating = false;
+    if (this.watchPositionId !== null) {
+      navigator.geolocation.clearWatch(this.watchPositionId);
+      this.watchPositionId = null;
+    }
+    this.navMarkerIcon = null;
+    this.cdr.detectChanges();
+  }
+
+  checkOffRoute(lat: number, lng: number) {
+    if (!this.directionsResult || !this.directionsResult.routes[0] || !google.maps.geometry) return;
+
+    const path = this.directionsResult.routes[0].overview_path;
+    const currentLoc = new google.maps.LatLng(lat, lng);
+    const polyline = new google.maps.Polyline({ path: path });
+
+    const isOnRoute = google.maps.geometry.poly.isLocationOnEdge(currentLoc, polyline, 0.0005);
+    
+    if (!isOnRoute) {
+      const now = Date.now();
+      if (now - this.lastOffRouteAlertTime > 30000) {
+        this.lastOffRouteAlertTime = now;
+        this.toastCtrl.create({
+          message: '⚠️ คุณออกนอกเส้นทาง! กรุณาตรวจสอบแผนที่อีกครั้ง',
+          duration: 3000,
+          color: 'warning',
+          position: 'top'
+        }).then(t => t.present());
+      }
     }
   }
 

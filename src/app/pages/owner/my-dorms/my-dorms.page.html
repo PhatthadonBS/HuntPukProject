@@ -11,35 +11,37 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <div style="background: #f8f9fa;">
+    <div class="main-container" style="padding-bottom: 0;">
+      <div class="page-header">
+        <div>
+          <h2>จัดการหอพัก</h2>
+          <p>ทั้งหมด {{ myDorms.length }} รายการ</p>
+        </div>
+        <div class="user-badge" *ngIf="myDorms.length > 0">
+          <ion-icon name="business-outline"></ion-icon>
+          <span>เจ้าของหอพัก</span>
+        </div>
+      </div>
+
+      <!-- Segments -->
+      <div class="segment-container" style="margin-bottom: 15px;">
+        <ion-segment [(ngModel)]="currentSegment" mode="ios">
+          <ion-segment-button value="approved">
+            <ion-label>อนุมัติแล้ว ({{ approvedDorms.length }})</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="pending">
+            <ion-label>คำขอ/รอตรวจสอบ ({{ pendingDorms.length }})</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
+    </div>
+  </div>
 </ion-header>
 
 <ion-content class="bg-light">
   
-  <div class="main-container">
-
-    <div class="page-header">
-      <div>
-        <h2>จัดการหอพัก</h2>
-        <p>ทั้งหมด {{ myDorms.length }} รายการ</p>
-      </div>
-      <div class="user-badge" *ngIf="myDorms.length > 0">
-        <ion-icon name="business-outline"></ion-icon>
-        <span>เจ้าของหอพัก</span>
-      </div>
-    </div>
-
-    <!-- Segments -->
-    <div class="segment-container" style="padding: 0 16px; margin-bottom: 15px;">
-      <ion-segment [(ngModel)]="currentSegment" mode="ios">
-        <ion-segment-button value="approved">
-          <ion-label>อนุมัติแล้ว ({{ approvedDorms.length }})</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="pending">
-          <ion-label>คำขอ/รอตรวจสอบ ({{ pendingDorms.length }})</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
-
+  <div class="main-container" style="padding-top: 5px;">
     <div class="loading-center" *ngIf="isLoading">
       <div class="skeleton-list">
         <div class="skeleton-card" *ngFor="let i of [1,2,3]">
@@ -105,36 +107,31 @@
         </div>
 
         <div class="card-actions" (click)="$event.stopPropagation()">
-          <ion-button fill="clear" size="small" color="dark" (click)="goToReviews(item.DORM_ID)">
-            <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
-            รีวิว
-          </ion-button>
-          
           <div class="right-btns">
             <!-- Status Dropdown (แทนปุ่มลูกศร) -->
             <div class="status-dropdown-wrap" *ngIf="item.REQ_STATUS === 1 && item.DORM_STATUS_ID !== 4"
               (click)="$event.stopPropagation()">
               <select class="status-select"
                 [value]="item.DORM_STATUS_ID"
-                (change)="onStatusChange($event, item)">
+                (change)="confirmStatusChange($event, item)">
                 <option value="1">🟢 ว่าง</option>
                 <option value="3">🔴 ห้องเต็ม</option>
                 <option value="2">🟡 ปิดปรับปรุง</option>
               </select>
             </div>
 
-            <!-- ปุ่ม "แก้ไขและส่งใหม่" สำหรับ REQ_STATUS=4 (ส่งกลับให้แก้ไข) -->
+            <!-- ปุ่ม "แก้ไขและส่งใหม่" สำหรับ REQ_STATUS=4 หรือ 3 (ส่งกลับให้แก้ไข/ส่งคำร้องใหม่) -->
             <ion-button fill="solid" size="small" color="tertiary" class="action-btn resubmit-btn"
                         (click)="$event.stopPropagation(); goToPendingView(item)" 
-                        *ngIf="item.REQ_STATUS === 4">
+                        *ngIf="item.REQ_STATUS === 4 || item.REQ_STATUS === 3">
               <ion-icon name="pencil-outline" slot="start"></ion-icon>
               แก้ไขและส่งใหม่
             </ion-button>
 
-            <!-- ปุ่มดูข้อมูล สำหรับ REQ_STATUS=0 (รออนุมัติ) -->
+            <!-- ปุ่มดูข้อมูล สำหรับ REQ_STATUS=0 หรือ 2 -->
             <ion-button fill="outline" size="small" color="medium" class="action-btn"
                         (click)="$event.stopPropagation(); goToPendingView(item)" 
-                        *ngIf="item.REQ_STATUS === 0">
+                        *ngIf="item.REQ_STATUS === 0 || item.REQ_STATUS === 2">
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
             </ion-button>
 
@@ -148,10 +145,6 @@
 
             <ion-button fill="outline" size="small" color="danger" class="action-btn" (click)="confirmDelete(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID !== 4">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-
-            <ion-button fill="solid" size="small" color="success" class="action-btn" (click)="confirmRestoreWithOTP(item.DORM_ID)" *ngIf="item.DORM_STATUS_ID === 4">
-              <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </div>
         </div>

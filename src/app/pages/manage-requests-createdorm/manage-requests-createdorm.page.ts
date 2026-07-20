@@ -140,21 +140,19 @@ export class ManageRequestsCreatedormPage implements OnInit {
   }
 
   getReqStatusLabel(status: number): string {
-    switch (status) {
+    switch(status) {
       case 0: return 'รออนุมัติ';
       case 1: return 'อนุมัติแล้ว';
-      case 2: return 'ปฏิเสธแล้ว';
-      case 4: return 'ส่งกลับแก้ไข';
-      default: return 'ไม่ทราบ';
+      case 2: return 'ปฏิเสธ';
+      default: return 'ไม่ทราบสถานะ';
     }
   }
 
   getReqStatusColor(status: number): string {
-    switch (status) {
+    switch(status) {
       case 0: return 'warning';
       case 1: return 'success';
       case 2: return 'danger';
-      case 4: return 'tertiary';
       default: return 'medium';
     }
   }
@@ -234,23 +232,6 @@ export class ManageRequestsCreatedormPage implements OnInit {
     await alert.present();
   }
 
-  async sendBack(item: any) {
-    const alert = await this.alertCtrl.create({
-      header: 'ส่งกลับให้แก้ไข',
-      message: `ต้องการส่งหอพัก "${item.DORM_NAME}" กลับให้เจ้าของแก้ไขใช่หรือไม่?\n(จะใช้ข้อความเดิมที่เคยปฏิเสธไปแล้ว)`,
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'ส่งกลับ',
-          handler: () => {
-            this.processSendBack(item.DORM_ID, '');
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
   async deleteRequest(item: any) {
     const alert = await this.alertCtrl.create({
       header: 'ลบคำขอออกจากระบบ',
@@ -273,22 +254,6 @@ export class ManageRequestsCreatedormPage implements OnInit {
     try {
       await this.dormService.approveRequest(dormId, isApprove, msg);
       this.showToast(isApprove ? '✅ อนุมัติสำเร็จ' : '🚫 ปฏิเสธคำขอเรียบร้อย', 'success');
-      this.expandedDormId = null;
-      this.expandedDormData = null;
-      await this.loadAllRequests();
-    } catch (error: any) {
-      const errMsg = error.error?.message || 'เกิดข้อผิดพลาด';
-      this.showToast(errMsg, 'danger');
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  async processSendBack(dormId: number, reason: string) {
-    this.isLoading = true;
-    try {
-      await this.dormService.sendBackForRevision(dormId, reason);
-      this.showToast('📩 ส่งกลับแก้ไขเรียบร้อย', 'success');
       this.expandedDormId = null;
       this.expandedDormData = null;
       await this.loadAllRequests();
