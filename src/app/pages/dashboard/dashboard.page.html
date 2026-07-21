@@ -335,14 +335,7 @@
                 <map-marker
                   *ngFor="let dorm of dormMarkers"
                   [position]="dorm.position"
-                  [title]="dorm.dormName"
-                  [label]="{ text: '🏢', fontSize: '20px' }"
-                  [options]="{
-                    icon: {
-                      path: 'M 0,0',
-                      scale: 0
-                    }
-                  }">
+                  [options]="getDormMarkerOptions(dorm)">
                 </map-marker>
               </google-map>
             </div>
@@ -350,13 +343,21 @@
             <!-- Zone List -->
             <div class="zone-list">
               <div
-                class="zone-list-item clickable"
-                *ngFor="let zone of stats?.zoneBreakdown; let i = index"
-                (click)="goToFilteredZones(zone.zoneName)">
-                <div class="zone-list-dot" [class]="'dot-color-' + (i % 6)"></div>
-                <span class="zone-list-name">{{ zone.zoneName }}</span>
-                <span class="zone-list-count">{{ zone.dormCount }} แห่ง</span>
-                <ion-icon name="arrow-forward-outline" class="zone-list-arrow"></ion-icon>
+                class="zone-list-item"
+                *ngFor="let zone of stats?.zoneBreakdown; let i = index">
+                <div class="zone-info-row" style="display: flex; align-items: center; margin-bottom: 8px;">
+                  <div class="zone-list-dot" [class]="'dot-color-' + (i % 6)"></div>
+                  <span class="zone-list-name" style="flex: 1; font-weight: bold;">{{ zone.zoneName }}</span>
+                  <span class="zone-list-count" style="color: #666; font-size: 0.9em;">{{ zone.dormCount }} แห่ง</span>
+                </div>
+                <div class="zone-action-buttons" style="display: flex; gap: 8px;">
+                  <ion-button style="flex: 1;" size="small" fill="outline" color="dark" (click)="viewZoneOnMap(zone.zoneName)">
+                    <ion-icon name="map-outline" slot="start"></ion-icon> ดูบนแผนที่
+                  </ion-button>
+                  <ion-button style="flex: 1;" size="small" color="primary" (click)="goToFilteredZones(zone.zoneName)">
+                    <ion-icon name="list-outline" slot="start"></ion-icon> ดูรายการหอพัก
+                  </ion-button>
+                </div>
               </div>
               <div class="zone-list-item no-data" *ngIf="!stats?.zoneBreakdown?.length">
                 <p>ไม่มีข้อมูลโซน</p>

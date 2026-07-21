@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   menuOutline, homeOutline, listOutline, starOutline, logOutOutline, person,
-  business, people, documentText, map, time, businessOutline,
+  business, people, documentText, map, time, businessOutline, mapOutline,
   peopleOutline, personCircleOutline, documentTextOutline, statsChart, alertCircle,
   shieldCheckmark, closeCircle, close, locationOutline, globeOutline, checkmarkCircleOutline, powerOutline, banOutline, alertCircleOutline, arrowForwardOutline
 } from 'ionicons/icons';
@@ -124,7 +124,7 @@ export class DashboardPage implements OnInit {
   ) {
     addIcons({
       menuOutline, homeOutline, listOutline, starOutline, logOutOutline, person,
-      business, people, documentText, map, time, businessOutline,
+      business, people, documentText, map, time, businessOutline, mapOutline,
       peopleOutline, personCircleOutline, documentTextOutline, statsChart, alertCircle,
       shieldCheckmark, closeCircle, close, locationOutline, globeOutline, checkmarkCircleOutline, powerOutline, banOutline, alertCircleOutline, arrowForwardOutline
     });
@@ -246,6 +246,17 @@ export class DashboardPage implements OnInit {
   }
   closeZoneModal() { this.isZoneModalOpen = false; }
 
+  getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
+    return {
+      icon: {
+        url: 'assets/icon/dorm-pin.png',
+        scaledSize: new google.maps.Size(22, 22),
+      },
+      title: dorm.dormName || 'หอพัก',
+      zIndex: 5
+    };
+  }
+
   openViewModal() {
     this.isViewModalOpen = true;
     this.selectedYearForTable = null;
@@ -256,6 +267,14 @@ export class DashboardPage implements OnInit {
   goToFilteredZones(zoneName: string) {
     this.closeZoneModal();
     this.router.navigate(['/manage-dorm'], { queryParams: { zoneFilter: zoneName } });
+  }
+
+  viewZoneOnMap(zoneName: string) {
+    const marker = this.zoneMarkers.find(m => m.zoneName === zoneName);
+    if (marker && marker.position) {
+      this.zoneMapCenter = { lat: marker.position.lat, lng: marker.position.lng };
+      this.zoneMapZoom = 15; // Zoom in closer
+    }
   }
 
   // Navigate from dorm status chart click

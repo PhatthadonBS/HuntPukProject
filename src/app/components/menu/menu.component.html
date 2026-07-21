@@ -50,6 +50,10 @@
           <div class="menu-icon-wrap"><ion-icon name="star-outline"></ion-icon></div>
           <span>หอพักยอดนิยม</span>
         </div>
+        <div class="menu-item" (click)="navigate('/about')">
+          <div class="menu-icon-wrap"><ion-icon name="information-circle-outline"></ion-icon></div>
+          <span>About Us / ติดต่อเรา</span>
+        </div>
 
         <ng-container *ngIf="userRole > 0">
           <div class="menu-section-divider">

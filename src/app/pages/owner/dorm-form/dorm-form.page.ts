@@ -120,6 +120,10 @@ export class DormFormPage implements OnInit {
   };
   
   allDorms: any[] = [];
+  get filteredDorms(): any[] {
+    if (!this.formData.zone_id) return [];
+    return this.allDorms.filter(dorm => dorm.ZONE_ID === this.formData.zone_id);
+  }
   geocoder = new google.maps.Geocoder();
 
 
@@ -751,7 +755,7 @@ export class DormFormPage implements OnInit {
     
     // Reset state and open modal
     this.newFacilityName = '';
-    this.newFacilitySelectedIcon = 'star.png';
+    this.newFacilitySelectedIcon = 'assets/allIcons/' + this.availableIcons[0]; // Use first available icon as default
     this.newFacilityCustomIcon = null;
     this.isAddFacilityModalOpen = true;
   }

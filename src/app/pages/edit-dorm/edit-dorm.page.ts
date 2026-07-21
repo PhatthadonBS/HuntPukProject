@@ -212,9 +212,31 @@ export class EditDormPage implements OnInit {
       if (priceRes && priceRes.success && priceRes.data) {
         this.priceTypes = priceRes.data;
       }
+      
+      const dormsRes: any = await this.dormService.getAllDorms();
+      if (dormsRes && dormsRes.data) {
+        this.allDorms = dormsRes.data;
+      }
     } catch (error) {
       console.error('Error loading initial data:', error);
     }
+  }
+
+  allDorms: any[] = [];
+  get filteredDorms(): any[] {
+    if (!this.formData.zone_id) return [];
+    return this.allDorms.filter(dorm => dorm.ZONE_ID === this.formData.zone_id);
+  }
+
+  getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
+    return {
+      icon: {
+        url: 'assets/icon/dorm-pin.png',
+        scaledSize: new google.maps.Size(22, 22),
+      },
+      title: dorm.DORM_NAME || dorm.DORMNAME || 'หอพัก',
+      zIndex: 5
+    };
   }
 
   async loadDormData(id: number) {

@@ -113,14 +113,7 @@
               <map-marker
                 *ngFor="let dorm of dormMarkers"
                 [position]="dorm.position"
-                [title]="dorm.dormName"
-                [label]="{ text: '🏢', fontSize: '20px' }"
-                [options]="{
-                  icon: {
-                    path: 'M 0,0',
-                    scale: 0
-                  }
-                }">
+                [options]="getDormMarkerOptions(dorm)">
               </map-marker>
             </google-map>
           </div>

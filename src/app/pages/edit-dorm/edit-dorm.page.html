@@ -108,6 +108,11 @@
             <map-circle *ngIf="zoneCenter" [center]="zoneCenter" [radius]="zoneRadius" [options]="circleOptions"></map-circle>
             <!-- Marker สำหรับศูนย์กลางโซน -->
             <map-marker *ngIf="zoneCenter" [position]="zoneCenter" [options]="{ icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } }"></map-marker>
+            <!-- หมุดหอพักที่มีอยู่แล้วในระบบ -->
+            <map-marker *ngFor="let dorm of filteredDorms"
+              [position]="{lat: dorm.lat, lng: dorm.lng}"
+              [options]="getDormMarkerOptions(dorm)">
+            </map-marker>
           </google-map>
         </div>
         <p class="hint-text text-danger" style="font-size: 13px; margin-top: 8px;" *ngIf="!isWaitingForAdmin">* แตะบนแผนที่เพื่อปักหมุดแก้ไขตำแหน่งหอพัก</p>

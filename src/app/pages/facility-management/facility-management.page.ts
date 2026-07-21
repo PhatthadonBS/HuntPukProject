@@ -141,13 +141,25 @@ export class FacilityManagementPage implements OnInit {
   }
 
   async saveAddFacility() {
-    if (!this.addFacName().trim()) {
+    const trimmedName = this.addFacName().trim();
+    if (!trimmedName) {
       this.showToast('กรุณากรอกชื่อสิ่งอำนวยความสะดวก', 'warning');
       return;
     }
 
+    const exists = this.allFacilities().some(f => f.FAC_TYPE_NAME.toLowerCase() === trimmedName.toLowerCase());
+    if (exists) {
+      const alert = await this.alertCtrl.create({
+        header: 'เพิ่มไม่ได้',
+        message: `มีสิ่งอำนวยความสะดวก <strong>${trimmedName}</strong> อยู่แล้วในระบบ`,
+        buttons: ['ตกลง']
+      });
+      await alert.present();
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('fac_name', this.addFacName());
+    formData.append('fac_name', trimmedName);
     const file = this.addSelectedFile();
     if (file) {
       formData.append('icon', file);
@@ -190,14 +202,26 @@ export class FacilityManagementPage implements OnInit {
     const facId = this.editingFacId();
     if (!facId) return;
     
-    if (!this.editFacName().trim()) {
+    const trimmedName = this.editFacName().trim();
+    if (!trimmedName) {
       this.showToast('กรุณากรอกชื่อสิ่งอำนวยความสะดวก', 'warning');
+      return;
+    }
+
+    const exists = this.allFacilities().some(f => f.FAC_TYPE_ID !== facId && f.FAC_TYPE_NAME.toLowerCase() === trimmedName.toLowerCase());
+    if (exists) {
+      const alert = await this.alertCtrl.create({
+        header: 'บันทึกไม่ได้',
+        message: `มีสิ่งอำนวยความสะดวก <strong>${trimmedName}</strong> อยู่แล้วในระบบ`,
+        buttons: ['ตกลง']
+      });
+      await alert.present();
       return;
     }
 
     const formData = new FormData();
     formData.append('fac_id', facId.toString());
-    formData.append('fac_name', this.editFacName());
+    formData.append('fac_name', trimmedName);
     
     const file = this.editSelectedFile();
     if (file) {

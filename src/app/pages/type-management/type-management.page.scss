@@ -61,14 +61,14 @@ ion-content {
   background: transparent;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 12px;
 }
 
 /* ====== Skeleton Grid ====== */
 .skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 12px;
 }
 .skel-card {
@@ -181,8 +181,8 @@ ion-content {
   --border-radius: 0;
 
   @media (min-width: 600px) {
-    --width: 520px;
-    --height: 88%;
+    --width: 700px;
+    --height: 90%;
     --border-radius: 18px;
   }
 }

@@ -121,7 +121,7 @@
               (mapClick)="onZoneMarkerClick(zone)">
             </map-marker>
             <!-- หมุดหอพักที่มีอยู่แล้วในระบบ -->
-            <map-marker *ngFor="let dorm of allDorms"
+            <map-marker *ngFor="let dorm of filteredDorms"
               [position]="{lat: dorm.lat, lng: dorm.lng}"
               [options]="getDormMarkerOptions(dorm)">
             </map-marker>
@@ -200,7 +200,7 @@
           
           <div *ngIf="formData.new_facilities.length > 0" class="new-fac-list">
             <div *ngFor="let newFac of formData.new_facilities; let i = index" class="new-fac-item" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
-              <img [src]="newFac.icon.startsWith('data:') || newFac.icon.startsWith('http') ? newFac.icon : ('/assets/allicons/' + newFac.icon)" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+              <img [src]="newFac.icon.startsWith('data:') || newFac.icon.startsWith('http') ? newFac.icon : ('/assets/allIcons/' + newFac.icon)" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
               <span style="color: #333;"> <strong>{{ newFac.name }}</strong> (รออนุมัติ)</span>
               <ion-button fill="clear" color="danger" size="small" (click)="removeNewFacility(i)" style="--padding-start: 0; --padding-end: 0; height: 24px;">
                 <ion-icon name="close-circle" slot="icon-only"></ion-icon>
@@ -228,15 +228,29 @@
           </div>
           <!-- เลือกไอคอน -->
           <div class="fac-icon-section">
-            <p class="fac-icon-label">เลือกไอคอน</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <p class="fac-icon-label" style="margin: 0;">เลือกไอคอน</p>
+              <ion-button size="small" fill="outline" color="primary" (click)="customIconInput.click()">
+                <ion-icon name="cloud-upload-outline" slot="start"></ion-icon> อัปโหลดรูปภาพ
+              </ion-button>
+              <input type="file" (change)="onCustomIconSelect($event)" accept="image/*" hidden #customIconInput>
+            </div>
             <div class="fac-icon-grid">
+              <!-- Custom Icon Preview -->
+              <div class="fac-icon-cell" *ngIf="newFacilityCustomIcon"
+                [class.fac-icon-selected]="true"
+                style="border-color: var(--ion-color-primary);">
+                <img [src]="newFacilityCustomIcon" alt="custom">
+                <span class="fac-icon-tick">✓</span>
+              </div>
+
               <div
                 *ngFor="let iconFile of availableIcons"
                 class="fac-icon-cell"
-                [class.fac-icon-selected]="newFacilitySelectedIcon === 'assets/allicons/' + iconFile"
-                (click)="newFacilitySelectedIcon = 'assets/allicons/' + iconFile">
-                <img [src]="'assets/allicons/' + iconFile" [alt]="iconFile">
-                <span *ngIf="newFacilitySelectedIcon === 'assets/allicons/' + iconFile" class="fac-icon-tick">✓</span>
+                [class.fac-icon-selected]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile && !newFacilityCustomIcon"
+                (click)="selectFacilityIcon('assets/allIcons/' + iconFile)">
+                <img [src]="'assets/allIcons/' + iconFile" [alt]="iconFile">
+                <span *ngIf="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile && !newFacilityCustomIcon" class="fac-icon-tick">✓</span>
               </div>
             </div>
           </div>

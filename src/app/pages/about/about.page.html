@@ -1,0 +1,109 @@
+<ion-header class="glass-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" icon="arrow-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>About Us / ติดต่อเรา</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="about-content" [fullscreen]="true">
+  <div class="hero-section">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+    </div>
+    <div class="hero-content">
+      <img src="assets/logo1.jpg" alt="Logo" class="app-logo" onerror="this.src='https://placehold.co/200x200/FFD600/ffffff?text=LOGO'">
+      <h1>HuntPuk</h1>
+      <p>แพลตฟอร์มค้นหาหอพักที่ตอบโจทย์ไลฟ์สไตล์คุณ</p>
+    </div>
+  </div>
+
+  <div class="container fade-in-up">
+    <!-- Section: Report & Rating -->
+    <div class="card-grid">
+      <div class="glass-card interactive" (click)="openLink(errorFormUrl)">
+        <div class="card-icon-wrap error-icon">
+          <ion-icon name="bug-outline"></ion-icon>
+        </div>
+        <div class="card-text">
+          <h3>รายงานข้อผิดพลาด</h3>
+          <p>พบเจอปัญหาระหว่างใช้งาน? แจ้งให้เราทราบ</p>
+        </div>
+        <ion-icon name="open-outline" class="action-icon"></ion-icon>
+      </div>
+
+      <div class="glass-card interactive" (click)="openLink(ratingFormUrl)">
+        <div class="card-icon-wrap rating-icon">
+          <ion-icon name="star-outline"></ion-icon>
+        </div>
+        <div class="card-text">
+          <h3>ให้คะแนนระบบ</h3>
+          <p>ช่วยเราพัฒนาโดยการให้คะแนนและคำติชม</p>
+        </div>
+        <ion-icon name="open-outline" class="action-icon"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Section: Contact Info -->
+    <h2 class="section-title"><ion-icon name="call-outline"></ion-icon> ข้อมูลการติดต่อ</h2>
+    <div class="contact-section glass-card">
+      <div class="contact-item">
+        <div class="icon-circle email-bg">
+          <ion-icon name="mail-outline"></ion-icon>
+        </div>
+        <div class="item-info">
+          <h4>Email</h4>
+          <a href="mailto:support@huntpuk.com">support@huntpuk.com</a>
+        </div>
+      </div>
+
+      <div class="contact-divider"></div>
+
+      <div class="contact-item">
+        <div class="icon-circle line-bg">
+          <ion-icon name="chatbubbles-outline"></ion-icon>
+        </div>
+        <div class="item-info">
+          <h4>LINE Official</h4>
+          <a href="https://line.me/ti/p/~@huntpuk" target="_blank">@huntpuk</a>
+        </div>
+      </div>
+
+      <div class="contact-divider"></div>
+
+      <div class="contact-item">
+        <div class="icon-circle fb-bg">
+          <ion-icon name="logo-facebook"></ion-icon>
+        </div>
+        <div class="item-info">
+          <h4>Facebook Page</h4>
+          <a href="https://facebook.com/huntpuk" target="_blank">HuntPuk ค้นหาหอพัก</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Terms and Agreements -->
+    <h2 class="section-title"><ion-icon name="document-text-outline"></ion-icon> ข้อตกลงการใช้งาน</h2>
+    <div class="terms-section glass-card">
+      <div class="terms-content">
+        <p><strong>1. ข้อมูลหอพัก</strong><br>
+        ข้อมูลหอพักบนแพลตฟอร์มเกิดจากการรวบรวมและนำเข้าโดยเจ้าของหอพักหรือทีมงาน ทางเราไม่สามารถรับประกันความถูกต้อง 100% ได้ตลอดเวลา โปรดตรวจสอบข้อมูลกับทางหอพักอีกครั้งก่อนตัดสินใจ</p>
+
+        <p><strong>2. การติดต่อและธุรกรรม</strong><br>
+        HuntPuk เป็นเพียงสื่อกลางในการเชื่อมต่อผู้เช่ากับเจ้าของหอพักเท่านั้น ไม่ได้มีส่วนเกี่ยวข้องกับธุรกรรมทางการเงิน ค่าเช่า หรือสัญญาเช่าแต่อย่างใด</p>
+
+        <p><strong>3. การรักษาข้อมูลส่วนบุคคล</strong><br>
+        ข้อมูลส่วนบุคคลของคุณ เช่น อีเมล เบอร์โทรศัพท์ จะถูกเก็บรักษาไว้เป็นความลับ และใช้สำหรับการติดต่อประสานงานที่เกี่ยวข้องกับแพลตฟอร์มเท่านั้น</p>
+
+        <p><strong>4. สิทธิ์ในการระงับบัญชี</strong><br>
+        ระบบขอสงวนสิทธิ์ในการระงับหรือยกเลิกบัญชีผู้ใช้งานที่พบว่ามีพฤติกรรมไม่เหมาะสม ละเมิดลิขสิทธิ์ หรือสร้างความเดือดร้อนแก่ผู้อื่นโดยไม่ต้องแจ้งให้ทราบล่วงหน้า</p>
+      </div>
+    </div>
+    
+    <div class="footer-credit">
+      <p>&copy; 2026 HuntPuk. All rights reserved.</p>
+    </div>
+  </div>
+</ion-content>

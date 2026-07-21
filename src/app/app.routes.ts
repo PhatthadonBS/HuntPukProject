@@ -178,6 +178,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/type-management/type-management.page').then( m => m.TypeManagementPage)
   },
   {
+    path: 'about',
+    loadComponent: () => import('./pages/about/about.page').then( m => m.AboutPage)
+  },
+  {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found.page').then( m => m.NotFoundPage)
   }

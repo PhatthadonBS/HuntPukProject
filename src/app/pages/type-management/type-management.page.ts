@@ -166,6 +166,17 @@ export class TypeManagementPage implements OnInit {
     }
   }
 
+  getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
+    return {
+      icon: {
+        url: 'assets/icon/dorm-pin.png',
+        scaledSize: new google.maps.Size(22, 22),
+      },
+      title: dorm.dormName || 'หอพัก',
+      zIndex: 5
+    };
+  }
+
   getCurrentLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
