@@ -145,12 +145,8 @@
 
             <div class="room-body">
               <div class="room-detail-row">
-                <ion-icon name="cube-outline" color="medium"></ion-icon>
-                <span>ขนาด: {{ room.size || '-' }} ตร.ม.</span>
-              </div>
-              <div class="room-detail-row" style="margin-top: 10px;">
-                <ion-icon name="people-outline" color="medium"></ion-icon>
-                <span>จำนวนห้อง: {{ room.quantity || '-' }} ห้อง</span>
+                <ion-icon name="bed-outline" color="medium"></ion-icon>
+                <span>ประเภทเตียง: {{ getBedTypeName(room.bedType) }}</span>
               </div>
 
               <div class="price-title">💰 อัตราค่าเช่า</div>

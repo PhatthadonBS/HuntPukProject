@@ -13,7 +13,7 @@ import {
   bedOutline, trashOutline, addCircleOutline, locationOutline, cloudUploadOutline, closeCircle,
   locateOutline, documentTextOutline, arrowBackOutline, arrowForwardOutline, imagesOutline,
   personOutline, personAddOutline, bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline, shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline, restaurantOutline, cubeOutline,
-  refreshOutline, listOutline, homeOutline as homeOutlineIcon
+  refreshOutline, listOutline, homeOutline as homeOutlineIcon, checkmarkCircleOutline
 } from 'ionicons/icons';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DormitoryService } from '../../../services/dormitory';
@@ -22,6 +22,16 @@ import { GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle } from '@angular/
 import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
 import { DormPreviewModalComponent } from '../../../components/dorm-preview-modal/dorm-preview-modal.component';
 import { UserService } from '../../../services/user';
+
+addIcons({
+  saveOutline, homeOutline, locationOutline, wifi,
+  bedOutline, addCircleOutline, trashOutline, imageOutline,
+  cloudUploadOutline, closeCircle, locateOutline, documentTextOutline,
+  arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline, personAddOutline,
+  bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline,
+  shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline,
+  restaurantOutline, cubeOutline, refreshOutline, listOutline, checkmarkCircleOutline
+});
 
 @Component({
   selector: 'app-dorm-form',
@@ -55,7 +65,9 @@ export class DormFormPage implements OnInit {
   rejectReason: string = '';
   
   isReadOnly: boolean = false;
+  isLocating: boolean = false; // For map location loading state
   isApproved: boolean = false;
+  isSubmitting: boolean = false;
 
 
 
@@ -124,7 +136,7 @@ export class DormFormPage implements OnInit {
     if (!this.formData.zone_id) return [];
     return this.allDorms.filter(dorm => dorm.ZONE_ID === this.formData.zone_id);
   }
-  geocoder = new google.maps.Geocoder();
+  geocoder: any;
 
 
   constructor(
@@ -136,17 +148,7 @@ export class DormFormPage implements OnInit {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private actionSheetCtrl: ActionSheetController
-  ) {
-    addIcons({
-      saveOutline, homeOutline, locationOutline, wifi,
-      bedOutline, addCircleOutline, trashOutline, imageOutline,
-      cloudUploadOutline, closeCircle, locateOutline, documentTextOutline,
-      arrowBackOutline, arrowForwardOutline, imagesOutline, personOutline, personAddOutline,
-      bulbOutline, checkmarkCircle, timeOutline, snowOutline, waterOutline, shirtOutline,
-      shieldCheckmarkOutline, flashOutline, carOutline, pawOutline, barbellOutline,
-      restaurantOutline, cubeOutline, refreshOutline, listOutline
-    });
-  }
+  ) {}
 
   async ngOnInit() {
     // ✅ FIX: รองรับทุก key ที่ backend อาจส่งกลับมาใน localStorage
@@ -265,6 +267,7 @@ export class DormFormPage implements OnInit {
       }
 
       // (No longer auto-calculating zone)
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
     } catch (error) {
       console.error('❌ loadInitialData error:', error);
     }
@@ -322,14 +325,20 @@ export class DormFormPage implements OnInit {
           
         this.isApproved = (d.REQ_STATUS === 1);
         
-        if (this.router.url.includes('dorm-preview') || d.REQ_STATUS === 0 || d.REQ_STATUS === 1) {
-          if (d.REQ_STATUS === 4) {
-            this.isReadOnly = false;
-            this.formState = 'editing';
-          } else {
-            this.isReadOnly = true;
-            this.formState = 'editing'; // Keep as editing to show the form layout
-          }
+        if (d.REQ_STATUS === 2) {
+           this.isReadOnly = true;
+           this.formState = 'rejected';
+           this.rejectReason = d.REJECT_REASON || 'ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง';
+        } else if (d.REQ_STATUS === 0 || d.REQ_STATUS === 3) {
+           this.isReadOnly = true;
+           this.formState = 'pending';
+        } else if (d.REQ_STATUS === 4) {
+           this.isReadOnly = false;
+           this.formState = 'editing';
+        } else {
+           // REQ_STATUS = 1 (Approved) goes here
+           this.isReadOnly = true;
+           this.formState = 'editing';
         }
         
         this.markerOptions = { draggable: !this.isReadOnly };
@@ -398,6 +407,7 @@ export class DormFormPage implements OnInit {
         this.previews.BALCONY_IMG = d.balcony_img || null;
         this.existingGallery = d.gallery || [];
       }
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
     } catch (error) {
       this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
     } finally {
@@ -530,12 +540,21 @@ export class DormFormPage implements OnInit {
   getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
     return {
       icon: {
-        url: 'assets/icon/dorm-pin.png',
-        scaledSize: new google.maps.Size(22, 22),
+        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        scaledSize: new google.maps.Size(32, 32),
       },
-      title: dorm.DORM_NAME || dorm.DORMNAME || 'หอพัก',
-      zIndex: 5
+      title: dorm.DORM_NAME || dorm.DORMNAME,
+      zIndex: 1 // Keep existing dorms below the user's active marker
     };
+  }
+
+  async onDormMarkerClick(dorm: any) {
+    const alert = await this.alertCtrl.create({
+      header: 'ตำแหน่งซ้ำ',
+      message: `ตรงนี้มีหอพักชื่อ <b>${dorm.DORM_NAME || dorm.DORMNAME}</b> ตั้งอยู่แล้วครับ คุณไม่สามารถปักหมุดซ้ำได้`,
+      buttons: ['ตกลง']
+    });
+    await alert.present();
   }
 
   onZoneMarkerClick(zone: any) {
@@ -584,7 +603,12 @@ export class DormFormPage implements OnInit {
   }
 
   prevStep() {
-    if (this.currentStep > 1) this.currentStep--;
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      if (this.currentStep === 1) {
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+      }
+    }
   }
 
   // ==========================
@@ -624,7 +648,11 @@ export class DormFormPage implements OnInit {
   }
 
   geocodeAddress(lat: number, lng: number) {
-    this.geocoder.geocode({ location: { lat, lng }, language: 'th' }, (results, status) => {
+    if (!this.geocoder) {
+      if (typeof google === 'undefined') return;
+      this.geocoder = new google.maps.Geocoder();
+    }
+    this.geocoder.geocode({ location: { lat, lng }, language: 'th' }, (results: any, status: any) => {
       if (status === 'OK' && results && results[0]) {
         this.formData.address = results[0].formatted_address;
       }
@@ -690,6 +718,11 @@ export class DormFormPage implements OnInit {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+      this.showToast('รองรับเฉพาะไฟล์รูปภาพ JPG หรือ PNG เท่านั้น', 'warning');
+      return;
+    }
+
     // ✅ เช็คขนาดไฟล์ไม่เกิน 10MB
     if (file.size > 10 * 1024 * 1024) {
       this.showToast('ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', 'warning');
@@ -706,6 +739,10 @@ export class DormFormPage implements OnInit {
     const files = event.target.files;
     if (!files) return;
     for (let i = 0; i < files.length; i++) {
+      if (files[i].type !== 'image/jpeg' && files[i].type !== 'image/png') {
+        this.showToast(`ไฟล์ ${files[i].name} ไม่รองรับ (เฉพาะ JPG/PNG)`, 'warning');
+        continue;
+      }
       if (this.selectedFiles.OTHER_IMG.length >= 5) {
         this.showToast('อัปโหลดรูปภาพเพิ่มเติมได้สูงสุด 5 รูป', 'warning');
         break;
@@ -768,6 +805,10 @@ export class DormFormPage implements OnInit {
   onCustomIconSelect(event: any) {
     const file = event.target.files[0];
     if (file) {
+      if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+        this.showToast('รองรับเฉพาะไฟล์รูปภาพ JPG หรือ PNG เท่านั้น', 'warning');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         this.newFacilityCustomIcon = reader.result as string;
@@ -860,6 +901,8 @@ export class DormFormPage implements OnInit {
   }
 
   async processSaveData() {
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
     const loading = await this.loadingCtrl.create({
       message: 'กำลังส่งข้อมูล...',
       spinner: 'crescent'
@@ -957,6 +1000,10 @@ export class DormFormPage implements OnInit {
   submitAgain() {
     this.formState = 'editing';
     this.rejectReason = '';
+  }
+
+  viewPendingInfo() {
+    this.formState = 'editing';
   }
 
   async showToast(msg: string, color: string) {

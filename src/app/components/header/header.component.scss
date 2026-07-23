@@ -69,6 +69,7 @@ ion-header {
   
   .search-box {
     flex: 1; 
+    box-sizing: border-box;
     background: white;
     border-radius: 25px 0 0 25px; /* โค้งเฉพาะฝั่งซ้าย */
     display: flex;
@@ -95,6 +96,7 @@ ion-header {
   }
 
   .btn-search-action {
+    box-sizing: border-box;
     background: #1a1a1a; /* สีดำ */
     color: #FFD600;
     border: 2px solid #1a1a1a;
@@ -360,6 +362,7 @@ ion-header {
 
   .search-box {
     flex: 1;
+    box-sizing: border-box;
     background: white;
     border-radius: 25px 0 0 25px;
     display: flex;

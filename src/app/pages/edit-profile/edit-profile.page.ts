@@ -82,6 +82,10 @@ export class EditProfilePage implements OnInit {
       this.editData.username = userData.username || userData.USERNAME || '';
       this.fullUserData.email = userData.email || userData.EMAIL || '';
       this.editData.phone_number = userData.phone || userData.phone_number || userData.PHONE_NUMBER || '';
+
+      if (userData.profile_image || userData.PROFILE_IMAGE) {
+        this.imagePreview = userData.profile_image || userData.PROFILE_IMAGE;
+      }
     }
 
     // โหลดข้อมูลเจ้าของหอพัก (ถ้ามี)
@@ -168,6 +172,7 @@ export class EditProfilePage implements OnInit {
 
         // เซฟกลับเข้า LocalStorage
         localStorage.setItem('loggedIn', JSON.stringify(parsed));
+        window.dispatchEvent(new CustomEvent('user-profile-updated'));
       }
 
       await this.showToast('บันทึกข้อมูลเรียบร้อย', 'success');

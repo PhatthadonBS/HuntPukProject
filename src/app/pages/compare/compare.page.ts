@@ -54,6 +54,7 @@ export class ComparePage implements OnInit {
   refMode: 'me' | 'map' | 'dorm' = 'me';
   refDormIndex: number = 0;
   cameFromOtherPage: boolean = false;
+  isLocating: boolean = false;
 
   constructor(
     private dormService: DormitoryService,
@@ -241,7 +242,10 @@ export class ComparePage implements OnInit {
 
   // 📍 เปลี่ยนจุดอ้างอิงกลับเป็นตำแหน่งผู้ใช้
   setRefMode(mode: 'me') {
+    if (this.isLocating) return;
     this.refMode = mode;
+    this.isLocating = true;
+    
     // โหลด referencePoint จาก localStorage
     try {
       const stored = localStorage.getItem('userLocation');
@@ -250,6 +254,7 @@ export class ComparePage implements OnInit {
         if (loc.lat && loc.lng) {
            this.referencePoint = { lat: loc.lat, lng: loc.lng };
            this.recalcDistances();
+           this.isLocating = false;
            this.cdr.detectChanges();
            return;
         }
@@ -261,16 +266,19 @@ export class ComparePage implements OnInit {
       navigator.geolocation.getCurrentPosition((pos) => {
         this.referencePoint = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         this.recalcDistances();
+        this.isLocating = false;
         this.cdr.detectChanges();
       }, () => {
         // Fallback to default
         this.referencePoint = { lat: 16.246, lng: 103.252 };
         this.recalcDistances();
+        this.isLocating = false;
         this.cdr.detectChanges();
       });
     } else {
       this.referencePoint = { lat: 16.246, lng: 103.252 };
       this.recalcDistances();
+      this.isLocating = false;
       this.cdr.detectChanges();
     }
   }

@@ -30,10 +30,14 @@
    📌 โหมดเลือกหอพัก
    ========================================= */
 .selection-container {
-  position: relative; z-index: 1; padding: 15px 20px;
+  position: relative; z-index: 1; padding: 15px 20px 0;
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
   
   .instruction-header {
-    margin-bottom: 30px; text-align: center;
+    flex-shrink: 0;
+    margin-bottom: 20px; text-align: center;
     background: rgba(255,255,255,0.9); padding: 20px; border-radius: 20px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.05); backdrop-filter: blur(10px);
     h2 { font-size: 24px; font-weight: 900; color: var(--text-main); margin: 0; }
@@ -52,6 +56,7 @@
     }
 
     .compare-error-box {
+      flex-shrink: 0;
       margin: 0 auto 20px; max-width: 560px; background: rgba(255, 235, 205, 0.95);
       border: 1px solid #f5c26b; border-radius: 18px; padding: 16px 18px; display: flex;
       align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
@@ -69,6 +74,15 @@
 
 .dorm-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
+  grid-auto-rows: min-content;
+  align-content: start;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 100px; /* Space for the start compare button */
+  
+  &::-webkit-scrollbar { width: 6px; } 
+  &::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
 }
 
 .dorm-card {

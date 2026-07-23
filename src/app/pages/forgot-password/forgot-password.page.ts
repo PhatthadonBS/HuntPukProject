@@ -2,20 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController, ModalController } from '@ionic/angular';
-import { Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { addIcons } from 'ionicons';
 import { arrowBack, mail, key, arrowForward, checkmarkCircle, eye, eyeOff } from 'ionicons/icons';
 
 // ✅ Import Modal OTP
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
+import { SuccessModalComponent } from '../../components/success-modal/success-modal.component';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.page.html',
   styleUrls: ['./forgot-password.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule, SuccessModalComponent],
 })
 export class ForgotPasswordPage implements OnInit {
   
@@ -28,9 +29,11 @@ export class ForgotPasswordPage implements OnInit {
 
   showNewPassword: boolean = false;
   showConfirmPassword: boolean = false;
+  showSuccessModal: boolean = false;
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private alertController: AlertController,
     private modalCtrl: ModalController, // ✅ เพิ่ม ModalController
     private authService: Auth
@@ -38,7 +41,13 @@ export class ForgotPasswordPage implements OnInit {
     addIcons({ arrowBack, mail, key, arrowForward, checkmarkCircle ,eye ,eyeOff});
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['email']) {
+        this.email = params['email'];
+      }
+    });
+  }
 toggleNewPassword() {
     this.showNewPassword = !this.showNewPassword;
   }
@@ -118,19 +127,37 @@ toggleNewPassword() {
   }
 
   async successAndRedirect() {
-    const alert = await this.alertController.create({
-      header: 'สำเร็จ',
-      subHeader: '✅',
-      message: 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว',
-      buttons: [{
-        text: 'ตกลง',
-        handler: () => {
-          this.router.navigate(['/login']);
-        },
-      }],
-      cssClass: 'custom-success-alert'
-    });
-    await alert.present();
+    this.showSuccessModal = true;
+  }
+
+  async handleSuccessConfirm() {
+    this.showSuccessModal = false;
+    const isLoggedIn = !!localStorage.getItem('loggedIn');
+    if (isLoggedIn) {
+      const alert = await this.alertController.create({
+        header: 'เปลี่ยนรหัสผ่านสำเร็จ',
+        message: 'คุณต้องการใช้งานต่อด้วยรหัสผ่านใหม่ หรือออกจากระบบเพื่อเข้าสู่ระบบใหม่?',
+        buttons: [
+          {
+            text: 'ออกจากระบบ',
+            role: 'cancel',
+            handler: () => {
+              localStorage.removeItem('loggedIn');
+              this.router.navigate(['/login']);
+            }
+          },
+          {
+            text: 'ใช้งานต่อ',
+            handler: () => {
+              this.router.navigate(['/my-account']);
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   async showAlert(header: string, msg: string) {

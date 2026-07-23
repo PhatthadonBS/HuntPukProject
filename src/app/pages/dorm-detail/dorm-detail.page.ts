@@ -343,11 +343,7 @@ export class DormDetailPage implements OnInit, OnChanges {
   }
 
   goBack() {
-    if (this.isPopup) {
-      this.navCtrl.back();
-    } else {
-      this.router.navigate(['/home']);
-    }
+    this.navCtrl.back();
   }
 
   retryLoad() {

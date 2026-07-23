@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, MenuController, ViewDidEnter, ToastController, AlertController } from '@ionic/angular';
+import { IonicModule, MenuController, ViewDidEnter, ToastController, AlertController, ModalController } from '@ionic/angular';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 
@@ -23,6 +23,7 @@ import { addIcons } from 'ionicons';
 import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-modal.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
+import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 
 import {
   menuOutline, caretDownOutline, layersOutline, close,
@@ -33,7 +34,8 @@ import {
   locate, navigate, createOutline, star, lockClosedOutline,
   bedOutline, checkmarkCircleOutline, locationSharp, chevronForwardOutline,
   listOutline, starOutline, arrowForwardOutline, gitBranchOutline, logoTwitter, chatbubblesOutline, location, closeCircle,
-  personCircleOutline, alertCircleOutline, bookmark, bookmarkOutline, pinOutline, pin
+  personCircleOutline, alertCircleOutline, bookmark, bookmarkOutline, pinOutline, pin,
+  arrowDownOutline, arrowUpOutline, chevronDownOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -213,10 +215,12 @@ export class HomePage implements OnInit, ViewDidEnter {
     private menuCtrl: MenuController, 
     private cdr: ChangeDetectorRef,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController 
+    private alertCtrl: AlertController,
+    private modalCtrl: ModalController
   ) {
     addIcons({
-      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline, 'close': close, 'close-circle': closeCircle, 'location': location, 'location-outline': locationOutline, 'location-sharp': locationSharp, 'checkmark-circle': checkmarkCircle, 'checkmark-circle-outline': checkmarkCircleOutline, 'chevron-down-circle-outline': chevronDownCircleOutline, 'chevron-forward-outline': chevronForwardOutline, 'call': call, 'chatbubbles-outline': chatbubblesOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'logo-twitter': logoTwitter, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline, 'time-outline': timeOutline, 'walk-outline': walkOutline, 'car-outline': carOutline, 'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star, 'star-outline': starOutline, 'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline, 'list-outline': listOutline, 'arrow-forward-outline': arrowForwardOutline, 'git-branch-outline': gitBranchOutline, 'person-circle-outline': personCircleOutline, 'alert-circle-outline': alertCircleOutline, 'bookmark': bookmark, 'bookmark-outline': bookmarkOutline, 'pin-outline': pinOutline, 'pin': pin 
+      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline, 'close': close, 'close-circle': closeCircle, 'location': location, 'location-outline': locationOutline, 'location-sharp': locationSharp, 'checkmark-circle': checkmarkCircle, 'checkmark-circle-outline': checkmarkCircleOutline, 'chevron-down-circle-outline': chevronDownCircleOutline, 'chevron-forward-outline': chevronForwardOutline, 'call': call, 'chatbubbles-outline': chatbubblesOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'logo-twitter': logoTwitter, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline, 'time-outline': timeOutline, 'walk-outline': walkOutline, 'car-outline': carOutline, 'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star, 'star-outline': starOutline, 'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline, 'list-outline': listOutline, 'arrow-forward-outline': arrowForwardOutline, 'git-branch-outline': gitBranchOutline, 'person-circle-outline': personCircleOutline, 'alert-circle-outline': alertCircleOutline, 'bookmark': bookmark, 'bookmark-outline': bookmarkOutline, 'pin-outline': pinOutline, 'pin': pin,
+      'arrow-down-outline': arrowDownOutline, 'arrow-up-outline': arrowUpOutline, 'chevron-down-outline': chevronDownOutline
     });
 
     if (typeof google === 'object' && typeof google.maps === 'object') {
@@ -280,6 +284,14 @@ export class HomePage implements OnInit, ViewDidEnter {
       next: (res: any) => this.dormStatusList = res.data || res,
       error: () => console.error('Failed to load dorm statuses')
     });
+  }
+
+  ionViewWillLeave() {
+    this.isModalOpen = false;
+    if (this.isNavigating) {
+      this.stopNavigation();
+    }
+    this.closeDetailPanel();
   }
 
   async ionViewDidEnter() {
@@ -378,14 +390,41 @@ export class HomePage implements OnInit, ViewDidEnter {
     });
   }
 
+  isLocating: boolean = false;
+
+  async onDistanceChange(event?: any) {
+    if (!this.currentUser) {
+      this.maxDistance = 1;
+      const modal = await this.modalCtrl.create({
+        component: AlertModalComponent,
+        componentProps: {
+          title: 'สำหรับสมาชิกเท่านั้น',
+          message: 'กรุณาเข้าสู่ระบบเพื่อปรับเปลี่ยนระยะทางในการค้นหาหอพัก',
+          type: 'warning'
+        },
+        cssClass: 'custom-alert-modal'
+      });
+      await modal.present();
+      return;
+    }
+    this.performSearch();
+  }
+
   getCurrentLocation(isSilent = false) {
     if (this.selectedZone) {
       if (!isSilent) this.showToast('คุณกำลังเลือกโซนอยู่ กรุณาล้างตัวกรองโซนก่อนใช้ตำแหน่งปัจจุบัน', 'warning', 'alert-circle-outline');
       return;
     }
+    
+    if (!isSilent) this.isLocating = true;
+    
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          if (!isSilent) {
+             this.isLocating = false;
+             this.cdr.detectChanges();
+          }
           this.userLocationGranted = true;
           const newPos: google.maps.LatLngLiteral = { lat: position.coords.latitude, lng: position.coords.longitude };
           this.referencePoint = newPos;
@@ -414,7 +453,6 @@ export class HomePage implements OnInit, ViewDidEnter {
               (pos) => {
                 const newLat = pos.coords.latitude;
                 const newLng = pos.coords.longitude;
-                // Update only if moved more than 5 meters to prevent excessive change detection
                 const dist = this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, newLat, newLng);
                 if (dist > 5) {
                   this.referencePoint = { lat: newLat, lng: newLng };
@@ -427,23 +465,48 @@ export class HomePage implements OnInit, ViewDidEnter {
           }
         },
         (error) => { 
+          if (!isSilent) {
+             this.isLocating = false;
+             this.cdr.detectChanges();
+          }
           this.userLocationGranted = false;
           if (!isSilent) this.showLocationAlert(); 
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     } else { 
-      if (!isSilent) this.showToast('เบราว์เซอร์นี้ไม่รองรับการดึงตำแหน่ง (GPS)', 'danger', 'alert-circle-outline'); 
+      if (!isSilent) {
+         this.isLocating = false;
+         this.showToast('เบราว์เซอร์นี้ไม่รองรับการดึงตำแหน่ง (GPS)', 'danger', 'alert-circle-outline');
+         this.cdr.detectChanges();
+      }
     }
   }
 
   async showLocationAlert() {
-    const alert = await this.alertCtrl.create({
-      header: 'ต้องการเปิด GPS',
-      message: 'เพื่อประสบการณ์ที่ดีที่สุดในการคำนวณเส้นทางและค้นหาหอพักใกล้เคียง กรุณาอนุญาตการเข้าถึงตำแหน่งของอุปกรณ์ด้วยครับ',
-      buttons: ['รับทราบ']
+    const modal = await this.modalCtrl.create({
+      component: AlertModalComponent,
+      componentProps: {
+        title: 'ต้องการเปิด GPS',
+        message: 'เพื่อประสบการณ์ที่ดีที่สุดในการค้นหา กรุณาอนุญาตการเข้าถึงตำแหน่งของอุปกรณ์ หรือลองกดปุ่มพิกัดอีกครั้งครับ',
+        type: 'error'
+      },
+      cssClass: 'custom-alert-modal'
     });
-    await alert.present();
+    await modal.present();
+  }
+
+  async showAuthAlert() {
+    const modal = await this.modalCtrl.create({
+      component: AlertModalComponent,
+      componentProps: {
+        title: 'สำหรับสมาชิกเท่านั้น',
+        message: 'กรุณาเข้าสู่ระบบเพื่อใช้งานตัวกรองนี้ครับ',
+        type: 'warning'
+      },
+      cssClass: 'custom-alert-modal'
+    });
+    await modal.present();
   }
 
   async showToast(msg: string, color: string, icon: string) {
@@ -460,10 +523,19 @@ export class HomePage implements OnInit, ViewDidEnter {
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }
 
   pinMode: boolean = false;
-  togglePinMode() {
+  async togglePinMode() {
     // เช็คว่าล็อกอินหรือยัง
     if (!this.currentUser || !(this.currentUser.id || this.currentUser.USER_ID)) {
-      this.showToast('กรุณาเข้าสู่ระบบก่อนใช้งานโหมดย้ายตำแหน่ง', 'danger', 'log-in');
+      const modal = await this.modalCtrl.create({
+        component: AlertModalComponent,
+        componentProps: {
+          title: 'สำหรับสมาชิกเท่านั้น',
+          message: 'กรุณาเข้าสู่ระบบก่อนใช้งานโหมดย้ายตำแหน่งครับ',
+          type: 'warning'
+        },
+        cssClass: 'custom-alert-modal'
+      });
+      await modal.present();
       return;
     }
 
@@ -642,7 +714,6 @@ export class HomePage implements OnInit, ViewDidEnter {
           const targetZone = this.zoneOptions.find(z => z.ZONE_NAME === this.selectedZone);
           if (targetZone && targetZone.lat && targetZone.lng) {
             const newCenter = { lat: Number(targetZone.lat), lng: Number(targetZone.lng) };
-            this.referencePoint = newCenter;
             this.center = newCenter;
             this.zoom = 14;
             if (this.googleMapComponent?.googleMap) {
@@ -668,10 +739,11 @@ export class HomePage implements OnInit, ViewDidEnter {
         }
 
         if (this.maxDistance !== null && this.maxDistance !== undefined) {
-          this.circleCenter = this.referencePoint;
+          const searchOrigin = this.selectedZone && this.zoneCircleCenter ? this.zoneCircleCenter : this.referencePoint;
+          this.circleCenter = searchOrigin;
           this.circleRadius = this.maxDistance * 1000;
           tempDorms = tempDorms.filter((dorm: any) =>
-            this.calculateDistance(this.referencePoint.lat, this.referencePoint.lng, dorm.lat, dorm.lng) <= this.maxDistance!
+            this.calculateDistance(searchOrigin.lat, searchOrigin.lng, dorm.lat, dorm.lng) <= this.maxDistance!
           );
         } else {
           this.circleCenter = undefined;
@@ -797,6 +869,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   }
 
   closeDetailPanel() { 
+    if (this.isNavigating) return;
     this.selectedDorm = null; 
     this.isPanelMinimized = false; 
     this.isPanelLoading = false;

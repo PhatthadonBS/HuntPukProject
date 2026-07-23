@@ -1,0 +1,77 @@
+.alert-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+}
+
+.alert-card {
+  background: white;
+  border-radius: 24px;
+  padding: 30px 24px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  
+  ion-icon {
+    font-size: 32px;
+    // ✅ ion-icon ใช้ CSS variable --color แทน color ปกติ
+    // [ngStyle] ใน HTML จะ set ทั้ง color และ --color ให้ตรงกัน
+    --color: inherit;
+    color: inherit;
+  }
+}
+
+.alert-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 10px;
+}
+
+.alert-message {
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.alert-note {
+  font-size: 13px;
+  color: #999;
+  margin: -10px 0 20px;
+}
+
+.alert-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-ok {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:active {
+    transform: scale(0.96);
+  }
+}

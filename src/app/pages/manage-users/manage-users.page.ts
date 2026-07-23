@@ -144,28 +144,25 @@ export class ManageUsersPage implements OnInit {
 
   async viewDormDetail(dorm: any) {
     try {
-      const res = await this.dormService.getDormById(dorm.DORM_ID);
-      if (res && res.success && res.data) {
-        const fullDorm = Array.isArray(res.data) ? res.data[0] : res.data;
-        const modal = await this.modalCtrl.create({
-          component: DormRequestModalComponent,
-          componentProps: {
-            dorm: fullDorm,
-            owner: this.selectedOwner,
-            isViewOnly: true
-          },
-          cssClass: 'custom-modal'
-        });
-        await modal.present();
-      }
+      // ปิด popup ข้อมูลเจ้าของหอพักก่อน
+      this.isOwnerModalOpen = false;
+      
+      // รอให้ Popup ปิดเสร็จก่อนค่อยเปลี่ยนหน้า เพื่อป้องกัน Popup ค้าง
+      setTimeout(() => {
+        if (dorm.DORM_ID) {
+          this.router.navigate(['/dorm-detail', dorm.DORM_ID]);
+        }
+      }, 300);
     } catch (e) {
-      console.error('Error fetching full dorm details:', e);
+      console.error('Error navigating to dorm detail:', e);
     }
   }
 
   closeOwnerModal() {
     this.isOwnerModalOpen = false;
-    this.selectedOwner = null;
+    setTimeout(() => {
+      this.selectedOwner = null;
+    }, 300);
   }
 
   // ==========================================

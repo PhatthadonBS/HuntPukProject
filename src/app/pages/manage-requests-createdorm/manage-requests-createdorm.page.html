@@ -16,14 +16,14 @@
 
   <!-- Search + Filter: Light bg -->
   <ion-toolbar style="--background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 6px 0;">
-    <div style="max-width: 820px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 0 16px;">
+    <div style="max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 0 16px; align-items: center;">
       <!-- Search bar -->
       <ion-searchbar [(ngModel)]="searchQuery"
                      placeholder="ค้นหาชื่อหอพัก หรือเจ้าของ..."
                      mode="ios"
                      animated="true"
                      style="
-                       flex: 1;
+                       width: 100%;
                        padding: 0;
                        --background: #f3f4f6;
                        --border-radius: 12px;
@@ -39,7 +39,7 @@
                   interface="popover"
                   mode="ios"
                   style="
-                    min-width: 120px;
+                    min-width: 130px;
                     background: #fcfcfc;
                     border: 1px solid #e5e7eb;
                     border-radius: 12px;
@@ -52,6 +52,7 @@
                   ">
         <ion-select-option value="all">ทั้งหมด</ion-select-option>
         <ion-select-option value="0">รออนุมัติ</ion-select-option>
+        <ion-select-option value="3">ยื่นตรวจสอบใหม่</ion-select-option>
         <ion-select-option value="2">ปฏิเสธแล้ว</ion-select-option>
         <ion-select-option value="1">อนุมัติแล้ว</ion-select-option>
       </ion-select>
@@ -299,8 +300,8 @@
               </div>
             </div>
 
-            <!-- ===== Action Buttons (only for pending) ===== -->
-            <div class="action-section" *ngIf="item.REQ_STATUS === 0">
+            <!-- ===== Action Buttons (only for pending 0 or 3) ===== -->
+            <div class="action-section" *ngIf="item.REQ_STATUS == 0 || item.REQ_STATUS == 3">
               <div class="decision-buttons">
                 <!-- Reject -->
                 <button class="btn-decision btn-reject" (click)="reject(item)">
@@ -316,7 +317,7 @@
             </div>
 
             <!-- ===== Actions for approved/rejected ===== -->
-            <div class="action-section" *ngIf="item.REQ_STATUS !== 0">
+            <div class="action-section" *ngIf="item.REQ_STATUS !== 0 && item.REQ_STATUS !== 3">
               <div class="status-done-banner" [ngClass]="'banner-' + getReqStatusColor(item.REQ_STATUS)">
                 <ion-icon [name]="item.REQ_STATUS === 1 ? 'checkmark-circle' : 'close-circle'"></ion-icon>
                 {{ getReqStatusLabel(item.REQ_STATUS) }}

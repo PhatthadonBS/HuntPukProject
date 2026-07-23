@@ -182,6 +182,9 @@ export class DashboardPage implements OnInit {
       const reqRes = await this.dormService.getPendingRequests();
       this.pendingRequests = reqRes?.success ? reqRes.data.length : 0;
 
+      // Pre-fetch map data in background so it's instant when opened and always up-to-date
+      this.fetchMapData();
+
     } catch (err) {
       console.error('Error fetching dashboard stats', err);
       this.error = true;
@@ -203,11 +206,7 @@ export class DashboardPage implements OnInit {
     this.router.navigate(['/manage-users']);
   }
 
-  async openZoneModal() {
-    this.isZoneModalOpen = true;
-    this.isZoneMapLoading = true;
-    this.zoneMarkers = [];
-    this.zonesWithCoords = [];
+  async fetchMapData() {
     try {
       const res = await this.dormService.getZones();
       if (res?.success && res?.data?.length) {
@@ -219,13 +218,12 @@ export class DashboardPage implements OnInit {
           zoneName: z.ZONE_NAME || z.name,
           dormCount: this.stats?.zoneBreakdown?.find(b => b.zoneId === (z.ZONE_ID || z.id))?.dormCount || 0
         }));
-        if (this.zoneMarkers.length > 0) {
+        if (this.zoneMarkers.length > 0 && !this.zoneMapCenter) {
           this.zoneMapCenter = { ...(this.zoneMarkers[0]!.position) };
           this.zoneMapZoom = 13;
         }
       }
       
-      // Load all dorms to show on map
       const dormRes = await this.dormService.getAllDormsAdmin();
       if (dormRes?.success && dormRes?.data?.length) {
         this.dormMarkers = dormRes.data
@@ -237,10 +235,24 @@ export class DashboardPage implements OnInit {
             image: d.image || d.COVERIMAGE
           }));
       }
-
     } catch (e) {
-      console.error('Failed to load zones/dorms for map', e);
-    } finally {
+      console.error('Failed to load zones/dorms for map in background', e);
+    }
+  }
+
+  async openZoneModal() {
+    this.isZoneModalOpen = true;
+    
+    // If not loaded yet, wait for animation and fetch
+    if (this.zoneMarkers.length === 0 || this.dormMarkers.length === 0) {
+      this.isZoneMapLoading = true;
+      await new Promise(resolve => setTimeout(resolve, 300));
+      await this.fetchMapData();
+      this.isZoneMapLoading = false;
+    } else {
+      // Already pre-fetched in background, just wait for animation
+      this.isZoneMapLoading = true; // Briefly show loading to hide map during transition
+      await new Promise(resolve => setTimeout(resolve, 300));
       this.isZoneMapLoading = false;
     }
   }
@@ -255,6 +267,11 @@ export class DashboardPage implements OnInit {
       title: dorm.dormName || 'หอพัก',
       zIndex: 5
     };
+  }
+
+  getDormsInZone(zoneName: string) {
+    if (!this.dormMarkers) return [];
+    return this.dormMarkers.filter(d => d.zoneName === zoneName);
   }
 
   openViewModal() {

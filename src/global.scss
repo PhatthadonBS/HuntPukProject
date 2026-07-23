@@ -130,6 +130,12 @@ ion-menu[menuId="home-menu"] {
   z-index: 999999 !important;
 }
 
+.custom-alert-modal {
+  --background: transparent;
+  --box-shadow: none;
+  --backdrop-opacity: 0.5;
+}
+
 /* =========================================
    📱 Global Responsive Utilities
    ========================================= */

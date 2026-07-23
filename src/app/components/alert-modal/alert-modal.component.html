@@ -1,0 +1,17 @@
+<div class="alert-container">
+  <div class="alert-card" [@popIn]>
+    <div class="icon-circle" [ngStyle]="{'background-color': iconColor + '20'}">
+      <ion-icon [name]="iconName" [ngStyle]="{'--color': iconColor, 'color': iconColor}"></ion-icon>
+    </div>
+
+    <h2 class="alert-title">{{ title }}</h2>
+    <p class="alert-message" [innerHTML]="message"></p>
+    <p class="alert-note" *ngIf="note">{{ note }}</p>
+
+    <div class="alert-actions">
+      <button class="btn-ok" [ngStyle]="{'background-color': iconColor}" (click)="close()">
+        ตกลง
+      </button>
+    </div>
+  </div>
+</div>

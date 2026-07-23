@@ -11,7 +11,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="main-content" [scrollY]="!isComparing">
+<ion-content [fullscreen]="true" class="main-content" [scrollY]="false">
   
   <div class="bg-curve"></div>
 
@@ -54,7 +54,6 @@
         <div class="selected-badge" *ngIf="dorm.isChecked">ถูกเลือกแล้ว</div>
       </div>
     </div>
-    <div style="height: 100px;"></div>
   </div>
 
 
@@ -67,8 +66,10 @@
          <span>จุดอ้างอิงระยะทาง:</span>
        </div>
        <div class="ref-point-chips">
-         <div class="ref-chip" [class.active]="refMode === 'me'" (click)="setRefMode('me')">
-           <ion-icon name="navigate-circle-outline"></ion-icon> ตำแหน่งของฉัน
+         <div class="ref-chip" [class.active]="refMode === 'me'" [class.loading]="isLocating" (click)="!isLocating && setRefMode('me')" [style.pointer-events]="isLocating ? 'none' : 'auto'">
+           <ion-spinner *ngIf="isLocating" name="crescent" style="width: 18px; height: 18px; margin-right: 6px;"></ion-spinner>
+           <ion-icon *ngIf="!isLocating" name="navigate-circle-outline"></ion-icon>
+           {{ isLocating ? 'กำลังดึงพิกัด...' : 'ตำแหน่งของฉัน' }}
          </div>
          <div class="ref-chip" [class.active]="refMode === 'map'" (click)="openMapModal()">
            <ion-icon name="location"></ion-icon> กำหนดจุดอ้างอิง

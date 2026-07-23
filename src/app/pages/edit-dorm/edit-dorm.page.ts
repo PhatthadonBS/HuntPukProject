@@ -119,18 +119,8 @@ export class EditDormPage implements OnInit {
   // =========== Custom Facility Modal State ===========
   isAddFacilityModalOpen = false;
   newFacilityName = '';
-  newFacilitySelectedIcon = 'assets/allIcons/star.png'; // default icon
-  
-  availableIcons = [
-    'air-conditioner.png', 'bed.png', 'business-fill.png', 'business-outline.png',
-    'cabin.png', 'cable-tv.png', 'car-parking.png', 'cctv-camera.png', 'desk.png',
-    'elevator.png', 'fan.png', 'fingerprint.png', 'frig.png', 'furnitures.png',
-    'garage.png', 'gym.png', 'home.png', 'key.png', 'kitchen-set.png',
-    'laundry-machine.png', 'mart.png', 'motorcycle-parking.png', 'pet.png',
-    'policeman.png', 'quarantine.png', 'recycle-bin.png', 'seater-sofa.png',
-    'star.png', 'swimming-pool.png', 'tv.png', 'user.png', 'wardrobe.png',
-    'water-heater.png', 'wifi.png', 'woman-hair.png'
-  ];
+  newFacilitySelectedIconPreview: string | ArrayBuffer | null = null;
+  newFacilitySelectedIconFile: File | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -555,8 +545,21 @@ export class EditDormPage implements OnInit {
       return;
     }
     this.newFacilityName = '';
-    this.newFacilitySelectedIcon = 'assets/allIcons/star.png';
+    this.newFacilitySelectedIconPreview = null;
+    this.newFacilitySelectedIconFile = null;
     this.isAddFacilityModalOpen = true;
+  }
+
+  onFacIconSelect(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.newFacilitySelectedIconFile = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.newFacilitySelectedIconPreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   closeAddFacilityModal() {
@@ -580,7 +583,9 @@ export class EditDormPage implements OnInit {
     
     this.formData.new_facilities.push({
       name: trimmedName,
-      icon: this.newFacilitySelectedIcon
+      icon: '',
+      file: this.newFacilitySelectedIconFile,
+      preview: this.newFacilitySelectedIconPreview
     });
     
     this.closeAddFacilityModal();
@@ -626,7 +631,18 @@ export class EditDormPage implements OnInit {
       
       const selectedFacIds = this.facilities.filter((f: any) => f.checked).map((f: any) => f.id);
       form.append('facilities', JSON.stringify(selectedFacIds));
-      form.append('new_facilities', JSON.stringify(this.formData.new_facilities || []));
+      
+      const newFacToSave = (this.formData.new_facilities || []).map((nf: any) => ({
+        name: nf.name,
+        icon: nf.icon
+      }));
+      form.append('new_facilities', JSON.stringify(newFacToSave));
+      
+      const facWithFile = (this.formData.new_facilities || []).find((nf: any) => nf.file);
+      if (facWithFile) {
+        form.append('FACILITY_IMG', facWithFile.file);
+      }
+      
       form.append('roomTypes', JSON.stringify(this.roomTypes));
       form.append('remaining_gallery', JSON.stringify(this.existingGallery || []));
 

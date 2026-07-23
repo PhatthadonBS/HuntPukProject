@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, ToastController, AlertController, ActionSheetController } from '@ionic/angular';
+import { IonicModule, NavController, ToastController, AlertController, ActionSheetController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star, locationOutline, menuOutline, optionsOutline, closeCircle, swapVerticalOutline } from 'ionicons/icons';
@@ -9,6 +9,7 @@ import { bookmark, bookmarkOutline, locationSharp, home, search, arrowBack, star
 import { DormitoryService, Dormitory } from '../../services/dormitory'; 
 import { UserService } from '../../services/user'; 
 import { HeaderComponent } from '../../components/header/header.component'; 
+import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 
 @Component({
   selector: 'app-list',
@@ -43,6 +44,7 @@ export class ListPage implements OnInit {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController, 
     private actionSheetCtrl: ActionSheetController,
+    private modalCtrl: ModalController,
     private dormService: DormitoryService,
     private userService: UserService
   ) { 
@@ -82,6 +84,19 @@ export class ListPage implements OnInit {
         console.error('Error parsing user data', e);
       }
     }
+  }
+
+  async showAuthAlert() {
+    const modal = await this.modalCtrl.create({
+      component: AlertModalComponent,
+      componentProps: {
+        title: 'สำหรับสมาชิกเท่านั้น',
+        message: 'กรุณาเข้าสู่ระบบเพื่อใช้งานตัวกรองนี้ครับ',
+        type: 'warning'
+      },
+      cssClass: 'custom-alert-modal'
+    });
+    await modal.present();
   }
 
   async loadDorms() {

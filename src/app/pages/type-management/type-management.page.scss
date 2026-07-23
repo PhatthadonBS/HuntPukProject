@@ -61,22 +61,22 @@ ion-content {
   background: transparent;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 /* ====== Skeleton Grid ====== */
 .skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 .skel-card {
   background: rgba(255,255,255,0.85);
   border-radius: 16px;
-  padding: 20px 14px;
-  min-height: 130px;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 24px 16px;
+  min-height: 160px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .skel {
@@ -85,9 +85,9 @@ ion-content {
   border-radius: 8px;
   animation: shimmer 1.4s infinite;
 }
-.skel-icon  { width: 46px; height: 46px; border-radius: 12px; }
-.skel-label { width: 80px; height: 14px; }
-.skel-count { width: 50px; height: 22px; border-radius: 20px; }
+.skel-icon  { width: 56px; height: 56px; border-radius: 12px; }
+.skel-label { width: 100px; height: 16px; }
+.skel-count { width: 60px; height: 26px; border-radius: 20px; }
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
@@ -95,13 +95,13 @@ ion-content {
 
 .type-item {
   --background: #{$white};
-  --padding-start: 12px;
-  --inner-padding-end: 12px;
-  --min-height: 130px;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 160px;
   border-radius: 16px;
   margin-bottom: 0;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
   cursor: pointer;
   display: flex;
@@ -181,8 +181,9 @@ ion-content {
   --border-radius: 0;
 
   @media (min-width: 600px) {
-    --width: 700px;
-    --height: 90%;
+    --width: 900px;
+    --height: 95%;
+    --max-width: 95vw;
     --border-radius: 18px;
   }
 }

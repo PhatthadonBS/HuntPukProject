@@ -40,11 +40,6 @@
             <div class="card-image">
               <img [src]="dorm.image || 'assets/dorm-placeholder.jpg'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" />
 
-              <div class="rating-badge">
-                <ion-icon name="star"></ion-icon>
-                {{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : 'New' }}
-              </div>
-
               <!-- Bookmark-style Delete Button -->
               <div class="bookmark-btn active" (click)="removeFavorite($event, dorm)" *ngIf="!isCompareMode">
                 <ion-icon name="bookmark"></ion-icon>

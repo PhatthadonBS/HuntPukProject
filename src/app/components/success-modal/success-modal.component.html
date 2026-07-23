@@ -2,20 +2,17 @@
   <div class="success-card" [@popIn]>
 
     <div class="icon-circle">
-      <ion-icon name="time-outline"></ion-icon>
+      <ion-icon [name]="icon"></ion-icon>
     </div>
 
-    <h2 class="success-title">ส่งข้อมูลสำเร็จ!</h2>
+    <h2 class="success-title">{{ title }}</h2>
 
-    <p class="success-status">กำลังรอการอนุมัติ</p>
+    <p class="success-status" *ngIf="subTitle">{{ subTitle }}</p>
 
-    <p class="success-detail">
-      ระบบได้รับข้อมูลหอพักของคุณแล้ว<br>
-      กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง
-    </p>
+    <p class="success-detail" [innerHTML]="message"></p>
 
     <button class="btn-confirm" (click)="confirm()">
-      <span>ตกลงรับทราบ</span>
+      <span>{{ buttonText }}</span>
       <ion-icon name="checkmark-circle"></ion-icon>
     </button>
 

@@ -198,6 +198,7 @@ export class MyAccountPage implements OnInit {
                 parsedStore.PHONE_NUMBER = this.user.phone;
               }
               localStorage.setItem('loggedIn', JSON.stringify(parsedStore));
+              window.dispatchEvent(new CustomEvent('user-profile-updated'));
             }
           }
         }
@@ -358,6 +359,6 @@ export class MyAccountPage implements OnInit {
   }
 
   resetPasswd() {
-    this.router.navigate(['/forgot-password']);
+    this.router.navigate(['/forgot-password'], { queryParams: { email: this.user.email } });
   }
 }

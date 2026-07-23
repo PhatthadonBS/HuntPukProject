@@ -512,12 +512,12 @@ $card-radius: 20px;
 }
 
 .zone-list-item {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
   padding: 12px 14px; background: #f8fafc;
   border-radius: 12px; border: 1px solid #e2e8f0;
   cursor: pointer; transition: 0.2s;
 
-  &:hover { background: #f1f5f9; transform: translateX(4px); }
+  &:hover { background: #f1f5f9; transform: translateY(-2px); }
   &.no-data { justify-content: center; color: #94a3b8; cursor: default; &:hover { transform: none; } }
 
   .zone-list-dot {

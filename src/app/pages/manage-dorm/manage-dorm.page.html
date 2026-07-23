@@ -48,6 +48,23 @@
         </button>
       </div>
 
+      <!-- Active Filters -->
+      <div class="active-filters" *ngIf="zoneFilterQuery || statusFilterQuery || typeFilterQuery" style="display: flex; gap: 8px; margin: 0 20px 16px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 14px; color: #64748b; font-weight: bold;">กำลังกรองตาม:</span>
+        <div class="filter-chip" *ngIf="zoneFilterQuery" style="background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <ion-icon name="location"></ion-icon> โซน: {{ zoneFilterQuery }}
+        </div>
+        <div class="filter-chip" *ngIf="statusFilterQuery" style="background: #fef9c3; color: #ca8a04; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <ion-icon name="information-circle"></ion-icon> สถานะ: {{ statusFilterQuery }}
+        </div>
+        <div class="filter-chip" *ngIf="typeFilterQuery" style="background: #f3e8ff; color: #9333ea; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <ion-icon name="home"></ion-icon> ประเภท: {{ typeFilterQuery }}
+        </div>
+        <button (click)="clearFilters()" style="background: none; border: none; color: #ef4444; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px;">
+          <ion-icon name="close-circle"></ion-icon> ล้างตัวกรอง
+        </button>
+      </div>
+
       <!-- Result Count -->
       <div class="result-info">
         <span class="result-count">
@@ -126,7 +143,7 @@
                 <span class="btn-label">ลบ</span>
               </button>
 
-              <button class="action-btn btn-restore" *ngIf="item.DORM_STATUS_ID === 2 || item.DORM_STATUS_ID === 4"
+              <button class="action-btn btn-restore" *ngIf="item.DORM_STATUS_ID === 4"
                 (click)="confirmRestore(item)" title="กู้คืน">
                 <ion-icon name="refresh-outline"></ion-icon>
                 <span class="btn-label">กู้คืน</span>

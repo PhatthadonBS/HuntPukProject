@@ -25,6 +25,14 @@ import {
   sendOutline, pencilOutline
 } from 'ionicons/icons';
 
+addIcons({ 
+  add, createOutline, trashOutline, eyeOutline, star, home, 
+  alertCircleOutline, arrowBackOutline, businessOutline, 
+  homeOutline, addCircleOutline, addCircle, locationOutline,
+  chatboxEllipsesOutline, ellipse, eye, swapVerticalOutline, refreshOutline,
+  sendOutline, pencilOutline
+});
+
 @Component({
   selector: 'app-my-dorms',
   templateUrl: './my-dorms.page.html',
@@ -64,13 +72,6 @@ export class MyDormsPage implements OnInit {
     private modalCtrl: ModalController,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ 
-      add, createOutline, trashOutline, eyeOutline, star, home, 
-      alertCircleOutline, arrowBackOutline, businessOutline, 
-      homeOutline, addCircleOutline, addCircle, locationOutline,
-      chatboxEllipsesOutline, ellipse, eye, swapVerticalOutline, refreshOutline,
-      sendOutline, pencilOutline
-    });
   }
 
   ngOnInit() {
@@ -303,14 +304,9 @@ export class MyDormsPage implements OnInit {
   goToPreview(id: number) { this.router.navigate(['/dorm-preview', id]); }
   goToReviews(id: number) { this.router.navigate(['/manage-reviews'], { queryParams: { dorm_id: id }}); }
   
-  // สำหรับดูหอพักที่รออนุมัติ (REQ_STATUS=0, 2) หรือแก้ไขส่งใหม่ (REQ_STATUS=3, 4)
+  // สำหรับดูหอพักที่อยู่ในขั้นตอนคำขอ (0, 2, 3, 4)
   goToPendingView(dorm: any) {
-    if (dorm.REQ_STATUS === 4 || dorm.REQ_STATUS === 3) {
-      // ส่งกลับแก้ไข/ส่งคำร้องใหม่: ไปหน้า dorm-form
-      this.router.navigate(['/dorm-form', dorm.DORM_ID]);
-    } else {
-      // รออนุมัติ หรือ ไม่อนุมัติ: ไปหน้า dorm-preview แบบ read-only
-      this.router.navigate(['/dorm-preview', dorm.DORM_ID]);
-    }
+    // ให้ทุกสถานะของคำขอไปที่ dorm-form หมดเลย เพราะข้างในมีการจัดการ formState ('pending', 'rejected', 'editing') ไว้แล้ว
+    this.router.navigate(['/dorm-form', dorm.DORM_ID]);
   }
 }

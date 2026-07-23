@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { IonicModule, AlertController, ModalController } from '@ionic/angular';
+import { Router, NavigationEnd } from '@angular/router';
 
 import { addIcons } from 'ionicons';
 import { 
@@ -26,7 +26,8 @@ export class MenuComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router, 
     private alertCtrl: AlertController,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private modalCtrl: ModalController
   ) {
     addIcons({
       home, 
@@ -55,6 +56,12 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.isDesktop = window.innerWidth >= 1024;
     this.isOpen = this.isDesktop; // เปิด sidebar อัตโนมัติบน Desktop
     setTimeout(() => this.dispatchStateChange(), 100);
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   ngOnDestroy() {}
@@ -85,8 +92,9 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // ✅ ฟังทุกครั้งที่ navigate กลับมาหน้าที่มีเมนู
+  // ✅ ฟังทุกครั้งที่ navigate กลับมาหน้าที่มีเมนู หรือแก้ไขโปรไฟล์
   @HostListener('window:user-logged-in')
+  @HostListener('window:user-profile-updated')
   onUserLoggedIn() {
     this.checkLoginStatus();
   }
@@ -160,11 +168,22 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  isActive(path: string): boolean {
+    return this.router.url === path || this.router.url.split('?')[0] === path;
+  }
+
   async navigate(path: string) {
     if (!this.isDesktop) {
       this.isOpen = false;
       this.dispatchStateChange();
     }
+    
+    // ปิด modals ที่ค้างอยู่
+    const topModal = await this.modalCtrl.getTop();
+    if (topModal) {
+      await this.modalCtrl.dismiss();
+    }
+
     this.router.navigate([path]);
   }
 

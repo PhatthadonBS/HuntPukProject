@@ -7,7 +7,7 @@ import {
   AlertController, ToastController, LoadingController 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { arrowBack, trash, star, personCircle, timeOutline, chatbubbleEllipses } from 'ionicons/icons';
+import { arrowBack, trash, star, personCircle, timeOutline, chatbubbleEllipses, chatbubblesOutline, personOutline, trashOutline, starOutline, chatboxOutline } from 'ionicons/icons';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory';
 
@@ -38,7 +38,7 @@ export class ManageReviewsPage implements OnInit {
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController
   ) { 
-    addIcons({ arrowBack, trash, star, personCircle, timeOutline, chatbubbleEllipses });
+    addIcons({ arrowBack, trash, star, personCircle, timeOutline, chatbubbleEllipses, chatbubblesOutline, personOutline, trashOutline, starOutline, chatboxOutline });
   }
 
   ngOnInit() {

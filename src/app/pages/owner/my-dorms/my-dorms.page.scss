@@ -11,6 +11,18 @@ ion-content { --background: #{$light-bg}; }
   --border-width: 0;
   ion-title { font-weight: 700; color: $dark-text; font-size: 18px; }
   ion-back-button { color: $dark-text; }
+  
+  .add-dorm-btn {
+    --background: #fff;
+    --color: #000;
+    --border-radius: 20px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-right: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
 }
 
 .main-container {

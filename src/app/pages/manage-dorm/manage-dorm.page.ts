@@ -73,7 +73,21 @@ export class ManageDormPage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/dashboard']);
+  }
+  
+  clearFilters() {
+    this.statusFilterQuery = '';
+    this.typeFilterQuery = '';
+    this.zoneFilterQuery = '';
+    // Use replaceUrl to remove query params from URL without adding to history
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { statusFilter: null, typeFilter: null, zoneFilter: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+    this.loadAllDorms();
   }
   goToReviews(dormId: number) {
     this.router.navigate(['/manage-reviews', dormId]);

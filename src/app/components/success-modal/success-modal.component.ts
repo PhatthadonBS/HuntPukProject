@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonIcon } from '@ionic/angular/standalone';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -30,6 +30,12 @@ import { timeOutline, checkmarkCircle } from 'ionicons/icons';
   ]
 })
 export class SuccessModalComponent implements OnInit {
+  @Input() title: string = 'ส่งข้อมูลสำเร็จ!';
+  @Input() subTitle: string = 'กำลังรอการอนุมัติ';
+  @Input() message: string = 'ระบบได้รับข้อมูลหอพักของคุณแล้ว<br>กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง';
+  @Input() icon: string = 'time-outline';
+  @Input() buttonText: string = 'ตกลงรับทราบ';
+
   @Output() confirmed = new EventEmitter<void>();
 
   isVisible = false;

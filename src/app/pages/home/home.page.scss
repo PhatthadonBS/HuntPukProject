@@ -68,14 +68,16 @@ app-header {
 }
 
 .gps-fab-btn {
-  position: absolute; bottom: 90px; right: 16px; z-index: 8000;
-  width: 46px; height: 46px; background: #ffffff; color: #1976d2;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  position: absolute; bottom: 80px; right: 16px; z-index: 8000;
+  background: #ffffff; color: #1976d2;
+  border-radius: 25px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 14px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer; transition: 0.2s;
   border: 2px solid #f0f0f0;
-  
-  ion-icon { font-size: 22px; }
-  &:active { transform: scale(0.9); background: #f0f8ff; }
+  font-weight: bold; font-size: 13px;
+  ion-icon { font-size: 18px; }
+  &.disabled { opacity: 0.7; pointer-events: none; }
+  &:active { transform: scale(0.95); background: #f0f8ff; }
 }
 
 .pin-fab-btn {
@@ -660,7 +662,7 @@ ion-modal.filter-modal-custom {
 
 .navigation-overlay {
   position: absolute;
-  top: 70px;
+  top: 130px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;

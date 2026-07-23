@@ -47,6 +47,10 @@ export class DormPopularPage implements OnInit {
     this.fetchPopularDorms();
   }
 
+  onSortChange() {
+    this.fetchPopularDorms();
+  }
+
   fetchDormStatuses() {
     this.dormService.getDormStatuses().subscribe({
       next: (res: any) => this.dormStatusList = res.data || res,
@@ -66,11 +70,13 @@ export class DormPopularPage implements OnInit {
     }
   }
 
+  sortType: 'score' | 'views' = 'score';
+
   async fetchPopularDorms() {
     this.compareError = '';
     try {
       // Get up to 1000 to mimic "unlimited"
-      const res = await this.dormService.getPopularDorms(1000);
+      const res = await this.dormService.getPopularDorms(1000, this.sortType);
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         let processedDorms = res.data.map((dorm: any) => {
           const rawScore = dorm.SCORE || dorm.score || 0;
@@ -82,21 +88,14 @@ export class DormPopularPage implements OnInit {
           };
         });
         
-        // Sort by VIEW_COUNT primarily, then SCORE if needed
-        processedDorms = processedDorms
-          .sort((a: any, b: any) => {
-            const viewsA = a.VIEW_COUNT || a.views || 0;
-            const viewsB = b.VIEW_COUNT || b.views || 0;
-            if (viewsB !== viewsA) {
-               return viewsB - viewsA;
-            }
-            return parseFloat(b.SCORE || b.score || 0) - parseFloat(a.SCORE || a.score || 0);
-          });
-
         this.popularDorms = processedDorms;
       } else { this.compareError = 'ยังไม่มีข้อมูลหอพักยอดนิยมในขณะนี้'; }
     } catch (err) { this.compareError = 'เกิดข้อผิดพลาดในการดึงข้อมูล'; } 
     finally { this.cdr.detectChanges(); }
+  }
+
+  sortDorms() {
+    this.fetchPopularDorms();
   }
 
   goBack() { this.router.navigate(['/home']); }

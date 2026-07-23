@@ -1,172 +1,267 @@
-ion-content {
-  --background: #333;
+/* ==========================================
+   🎨 Variables — Minimalist Light Theme
+   ========================================== */
+$yellow:  #FFD600;
+$dark:    #1a1a1a;
+$gray:    #f4f5f7;
+$gray2:   #e8eaed;
+$mid:     #888;
+$white:   #ffffff;
+$radius:  16px;
+
+/* ==========================================
+   🏷️ Header & Content
+   ========================================== */
+.minimal-toolbar {
+  --background: #{$white};
+  --border-color: #{$gray2};
+  --border-width: 0 0 1px 0;
+  --border-style: solid;
+  padding: 4px 8px;
 }
 
-.main-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  min-height: 100%;
+.btn-back {
+  --color: #{$dark};
+  font-weight: 600;
 }
 
-.yellow-card {
-  background-color: #FFD700; // สีเหลืองธีม
-  width: 100%;
+.page-title {
+  color: $dark;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+
+.minimal-content {
+  --background: #{$gray};
+}
+
+.page-wrapper {
+  padding: 24px 16px 40px;
   max-width: 800px;
-  border-radius: 25px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  margin: 0 auto;
+}
+
+/* ==========================================
+   📑 Page Header
+   ========================================== */
+.content-header {
+  margin-bottom: 24px;
+  
+  .title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: $dark;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .review-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: $mid;
+      background: $white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      width: fit-content;
+      border: 1px solid $gray2;
+
+      ion-icon {
+        color: $yellow;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+/* ==========================================
+   ⏳ Loading State
+   ========================================== */
+.loading-center {
   display: flex;
   flex-direction: column;
-}
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
 
-.header-section {
-  margin-bottom: 20px;
-  h2 {
-    font-size: 20px;
-    font-weight: bold;
-    color: #222;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  ion-spinner {
+    width: 40px;
+    height: 40px;
+  }
+
+  .loading-text {
+    color: $mid;
+    font-size: 14px;
+    font-weight: 500;
     margin: 0;
   }
 }
 
-// === Review Card Style ===
+/* ==========================================
+   📝 Review Cards
+   ========================================== */
 .review-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 16px;
 }
 
 .review-card {
-  background-color: #fff;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  position: relative;
-  transition: transform 0.2s;
+  background-color: $white;
+  border-radius: $radius;
+  padding: 20px;
+  border: 1px solid $gray2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.05);
   }
 }
 
+/* Header inside card */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 
-  .avatar-icon {
-    font-size: 40px;
-    color: #ccc;
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    background: $gray;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $mid;
+    border: 1px solid $gray2;
+    
+    ion-icon {
+      font-size: 20px;
+    }
   }
 
   .user-text {
     .username {
-      font-weight: bold;
-      font-size: 16px;
-      color: #333;
+      font-weight: 700;
+      font-size: 15px;
+      color: $dark;
+      margin-bottom: 2px;
     }
     .date {
       font-size: 12px;
-      color: #777;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      color: #999;
     }
   }
 }
 
+/* Delete Button */
 .delete-btn {
-  color: #d32f2f;
-  background: #ffebee;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  background: transparent;
+  color: #ef4444;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   font-size: 18px;
-  transition: 0.2s;
+  border: 1px solid transparent;
+  transition: all 0.2s;
 
   &:hover {
-    background: #d32f2f;
-    color: white;
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 }
 
+/* Rating */
 .rating-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  padding-left: 5px;
-
-  .score-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: #555;
-  }
+  margin-bottom: 12px;
+  padding-left: 52px; /* align with text */
 
   .stars {
     display: flex;
     gap: 2px;
     
     ion-icon {
-      font-size: 18px;
-      color: #ddd; // สีดาวว่าง
+      font-size: 16px;
+      color: #e0e0e0; 
       
       &.filled {
-        color: #ffb300; // สีดาวเต็ม (เหลืองทอง)
+        color: $yellow;
       }
     }
   }
 
   .score-num {
     font-size: 13px;
-    color: #888;
+    font-weight: 700;
+    color: $dark;
   }
 }
 
+/* Comment text */
 .comment-box {
-  background-color: #f5f5f5;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 15px;
+  background-color: #fafafa;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
   color: #444;
-  line-height: 1.5;
-  font-style: italic;
-  border-left: 4px solid #FFD700;
+  line-height: 1.6;
+  border: 1px solid $gray2;
+  margin-left: 52px; /* align with text */
 }
 
-.no-data {
-  text-align: center;
-  padding: 40px;
-  color: #555;
-  background: rgba(255,255,255,0.5);
-  border-radius: 15px;
-
-  ion-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
-    opacity: 0.5;
-  }
-  p { margin: 0; font-size: 16px; font-weight: 500; }
-}
-
-.loading-center {
+/* ==========================================
+   🌑 Empty State
+   ========================================== */
+.no-data-row {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 30px;
+  padding: 80px 20px;
+  color: $mid;
+  gap: 12px;
+  background: $white;
+  border-radius: $radius;
+  border: 1px dashed $gray2;
+
+  .no-data-icon {
+    font-size: 48px;
+    color: $gray2;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 600;
+    color: $dark;
+    margin: 0;
+  }
 }

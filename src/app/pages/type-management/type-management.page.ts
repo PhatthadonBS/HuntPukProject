@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
-  IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
+  IonContent, IonHeader, IonTitle, IonToolbar,
   IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
   IonModal, IonButtons, IonSpinner, AlertController, ToastController
 } from '@ionic/angular/standalone';
@@ -12,7 +12,7 @@ import { MasterType, DormZone } from '../../model/dorm.model';
 import { addIcons } from 'ionicons';
 import {
   trashOutline, addCircleOutline, locateOutline, locationOutline,
-  closeOutline, chevronForwardOutline, arrowBackOutline,
+  closeOutline, chevronForwardOutline, arrowBackOutline, saveOutline,
   businessOutline, bedOutline, pricetagOutline, checkmarkCircleOutline, mapOutline, homeOutline
 } from 'ionicons/icons';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -23,7 +23,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
   styleUrls: ['./type-management.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, IonSegment, IonSegmentButton,
+    IonContent, IonHeader, IonTitle, IonToolbar,
     IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
     IonModal, IonButtons, IonSpinner,
     CommonModule, FormsModule, GoogleMapsModule
@@ -78,7 +78,7 @@ export class TypeManagementPage implements OnInit {
   ) {
     addIcons({
       trashOutline, addCircleOutline, locateOutline, locationOutline,
-      closeOutline, chevronForwardOutline, arrowBackOutline,
+      closeOutline, chevronForwardOutline, arrowBackOutline, saveOutline,
       businessOutline, bedOutline, pricetagOutline, checkmarkCircleOutline, mapOutline, homeOutline
     });
   }
@@ -122,6 +122,7 @@ export class TypeManagementPage implements OnInit {
     this.newName = '';
     this.newLat = null;
     this.newLng = null;
+    this.editingItemId = null;
     this.isModalOpen = true;
     // Load existing zones as markers when opening zone segment
     if (value === 'zone') {
@@ -133,6 +134,7 @@ export class TypeManagementPage implements OnInit {
   closeModal() {
     this.isModalOpen = false;
     this.existingZoneMarkers = [];
+    this.editingItemId = null;
   }
 
   dormMarkers: any[] = [];
@@ -155,9 +157,10 @@ export class TypeManagementPage implements OnInit {
       const dormRes = await this.dormServices.getAllDormsAdmin();
       if (dormRes?.success && dormRes?.data?.length) {
         this.dormMarkers = dormRes.data
-          .filter((d: any) => d.lat && d.lng)
+          .filter((d: any) => (d.lat || d.LAT) && (d.lng || d.LNG))
           .map((d: any) => ({
-            position: { lat: parseFloat(d.lat), lng: parseFloat(d.lng) },
+            lat: parseFloat(d.lat || d.LAT),
+            lng: parseFloat(d.lng || d.LNG),
             dormName: d.DORM_NAME || d.name
           }));
       }
@@ -166,28 +169,49 @@ export class TypeManagementPage implements OnInit {
     }
   }
 
+  get filteredDorms() {
+    return this.dormMarkers;
+  }
+
   getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
     return {
       icon: {
-        url: 'assets/icon/dorm-pin.png',
-        scaledSize: new google.maps.Size(22, 22),
+        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
       },
       title: dorm.dormName || 'หอพัก',
       zIndex: 5
     };
   }
 
+  async onDormMarkerClick(dorm: any) {
+    const alert = await this.alertController.create({
+      header: 'แจ้งเตือน',
+      message: `ตรงนี้มีหอพักชื่อ ${dorm.dormName || 'หอพัก'} ตั้งอยู่แล้วครับ คุณไม่สามารถปักหมุดซ้ำได้`,
+      buttons: ['ตกลง']
+    });
+    await alert.present();
+  }
+
+  isLocating: boolean = false;
+
   getCurrentLocation() {
+    this.isLocating = true;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          this.newLat = position.coords.latitude;
-          this.newLng = position.coords.longitude;
+          this.newLat = parseFloat(position.coords.latitude.toFixed(6));
+          this.newLng = parseFloat(position.coords.longitude.toFixed(6));
           this.center = { lat: this.newLat, lng: this.newLng };
           this.markerPosition = { ...this.center };
+          this.isLocating = false;
         },
-        () => { console.error('ไม่สามารถดึงตำแหน่งได้'); }
+        () => { 
+          console.error('ไม่สามารถดึงตำแหน่งได้');
+          this.isLocating = false;
+        }
       );
+    } else {
+      this.isLocating = false;
     }
   }
 
@@ -213,16 +237,31 @@ export class TypeManagementPage implements OnInit {
     }
   }
 
-  get currentList() {
-    return this.lists[this.selectedSegment];
+  get currentList(): any[] {
+    const key = this.selectedSegment as keyof typeof this.lists;
+    return (this.lists[key] ?? []) as any[];
   }
 
   get currentLabel() {
     return this.segments.find(s => s.value === this.selectedSegment)?.label || '';
   }
 
+  editingItemId: number | null = null;
+
   async addType() {
     if (!this.newName.trim()) return;
+
+    const currentList = (this.lists[this.selectedSegment] ?? []) as any[];
+    const existing = currentList.find((i: any) => (i?.name || i?.ZONE_NAME) === this.newName.trim());
+    if (existing) {
+      const alert = await this.alertController.create({
+        header: 'แจ้งเตือน',
+        message: `มีข้อมูลชื่อ "${this.newName.trim()}" อยู่ในระบบแล้วครับ`,
+        buttons: ['ตกลง']
+      });
+      await alert.present();
+      return;
+    }
 
     const alert = await this.alertController.create({
       header: 'ยืนยันการเพิ่ม',
@@ -280,33 +319,55 @@ export class TypeManagementPage implements OnInit {
   }
 
   async editType(item: any) {
-    const id = item.id || item.ZONE_ID;
-    const oldName = item.name || item.ZONE_NAME;
+    this.editingItemId = item.id || item.ZONE_ID;
+    this.newName = item.name || item.ZONE_NAME;
 
-    const alert = await this.alertController.create({
-      header: 'แก้ไขข้อมูล',
-      inputs: [
-        {
-          name: 'newName',
-          type: 'text',
-          value: oldName,
-          placeholder: 'ชื่อใหม่'
-        }
-      ],
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        { text: 'บันทึก', handler: (data) => {
-            if (data.newName && data.newName.trim() !== oldName) {
-              this.executeEditType(id, data.newName.trim());
-            }
-          } 
-        }
-      ]
-    });
-    await alert.present();
+    if (this.selectedSegment === 'zone') {
+      this.newLat = item.lat || item.LAT;
+      this.newLng = item.lng || item.LNG;
+      if (this.newLat && this.newLng) {
+        this.center = { lat: Number(this.newLat), lng: Number(this.newLng) };
+        this.markerPosition = { ...this.center };
+      }
+    }
+
+    // Scroll to top to show map and form
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+      (modalContent as any).scrollToTop?.(500);
+    }
   }
 
-  executeEditType(id: number, newName: string) {
+  cancelEdit() {
+    this.editingItemId = null;
+    this.newName = '';
+    this.newLat = null;
+    this.newLng = null;
+  }
+
+  async saveEdit() {
+    if (!this.newName.trim() || !this.editingItemId) return;
+
+    const currentList = (this.lists[this.selectedSegment] ?? []) as any[];
+    const existing = currentList.find((i: any) => 
+      (i?.name || i?.ZONE_NAME) === this.newName.trim() && 
+      (i?.id || i?.ZONE_ID) !== this.editingItemId
+    );
+    
+    if (existing) {
+      const alert = await this.alertController.create({
+        header: 'แจ้งเตือน',
+        message: `มีข้อมูลชื่อ "${this.newName.trim()}" อยู่ในระบบแล้วครับ`,
+        buttons: ['ตกลง']
+      });
+      await alert.present();
+      return;
+    }
+
+    this.executeEditType(this.editingItemId, this.newName.trim(), this.newLat || undefined, this.newLng || undefined);
+  }
+
+  executeEditType(id: number, newName: string, lat?: number, lng?: number) {
     let apiType = '';
     switch (this.selectedSegment) {
       case 'dormType': apiType = 'dorm'; break;
@@ -318,13 +379,17 @@ export class TypeManagementPage implements OnInit {
     }
     
     if (!apiType) return;
+    if (!newName || !newName.trim()) return;
 
     this.isSaving = true;
-    this.dormServices.updateMasterType(apiType, id, newName).subscribe({
+    this.dormServices.updateMasterType(apiType, id, newName, lat, lng).subscribe({
       next: (res) => {
         if (res.success) {
           this.loadAllData();
-          this.newName = '';
+          if (apiType === 'zone') {
+             this.loadExistingZoneMarkers();
+          }
+          this.cancelEdit();
         } else {
           this.alertController.create({
             header: 'ข้อผิดพลาด',

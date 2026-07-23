@@ -212,7 +212,8 @@ $radius:  16px;
    📋 Table Area
    ========================================== */
 .table-container {
-  overflow-x: auto;
+  /* Removed overflow-x: auto to allow position: sticky to work with the viewport */
+  width: 100%;
 }
 
 .table-header {
@@ -229,6 +230,8 @@ $radius:  16px;
   top: 0;
   z-index: 10;
   min-width: 600px;
+  /* Add subtle shadow when sticking */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 
   div {
     padding: 14px 16px;
@@ -377,14 +380,28 @@ $radius:  16px;
   }
 
   &:hover {
-    background: $gray;
-    border-color: $gray2;
-    color: $dark;
     transform: translateY(-1px);
   }
 
   &:active {
     transform: translateY(0);
+  }
+
+  &.btn-review {
+    color: #0288d1;
+    &:hover { background: rgba(2, 136, 209, 0.08); border-color: rgba(2, 136, 209, 0.2); }
+  }
+  &.btn-edit {
+    color: #f57c00;
+    &:hover { background: rgba(245, 124, 0, 0.08); border-color: rgba(245, 124, 0, 0.2); }
+  }
+  &.btn-delete {
+    color: #d32f2f;
+    &:hover { background: rgba(211, 47, 47, 0.08); border-color: rgba(211, 47, 47, 0.2); }
+  }
+  &.btn-restore {
+    color: #7cb342;
+    &:hover { background: rgba(124, 179, 66, 0.08); border-color: rgba(124, 179, 66, 0.2); }
   }
 }
 

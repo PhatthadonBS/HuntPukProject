@@ -73,8 +73,10 @@
       <ng-container *ngIf="selectedSegment === 'zone'">
         <div class="header-row">
           <ion-label class="coord-label"><ion-icon name="location-outline"></ion-icon> พิกัดโซน</ion-label>
-          <ion-button fill="outline" size="small" color="medium" (click)="getCurrentLocation()">
-            <ion-icon name="locate-outline" slot="start"></ion-icon> พิกัดปัจจุบัน
+          <ion-button fill="outline" size="small" color="medium" (click)="getCurrentLocation()" [disabled]="isLocating">
+            <ion-spinner *ngIf="isLocating" name="crescent" slot="start" style="width:16px;height:16px;"></ion-spinner>
+            <ion-icon *ngIf="!isLocating" name="locate-outline" slot="start"></ion-icon>
+            {{ isLocating ? 'กำลังดึงพิกัด...' : 'พิกัดปัจจุบัน' }}
           </ion-button>
         </div>
 
@@ -111,9 +113,10 @@
 
               <!-- Dorm markers -->
               <map-marker
-                *ngFor="let dorm of dormMarkers"
-                [position]="dorm.position"
-                [options]="getDormMarkerOptions(dorm)">
+                *ngFor="let dorm of filteredDorms"
+                [position]="{lat: dorm.lat, lng: dorm.lng}"
+                [options]="getDormMarkerOptions(dorm)"
+                (mapClick)="onDormMarkerClick(dorm)">
               </map-marker>
             </google-map>
           </div>
@@ -131,11 +134,24 @@
         </ion-item>
       </ng-container>
 
-      <ion-button expand="block" class="ion-margin-top btn-add" (click)="addType()" [disabled]="!newName.trim() || isSaving">
-        <ion-spinner name="crescent" slot="start" *ngIf="isSaving" style="width:18px;height:18px;margin-right:8px;"></ion-spinner>
-        <ion-icon slot="start" name="add-circle-outline" *ngIf="!isSaving"></ion-icon>
-        {{ isSaving ? 'กำลังเพิ่ม...' : 'เพิ่ม' + currentLabel }}
-      </ion-button>
+      <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
+        <ion-button expand="block" class="btn-add" style="flex: 1" *ngIf="!editingItemId" (click)="addType()" [disabled]="!newName.trim() || isSaving">
+          <ion-spinner name="crescent" slot="start" *ngIf="isSaving" style="width:18px;height:18px;margin-right:8px;"></ion-spinner>
+          <ion-icon slot="start" name="add-circle-outline" *ngIf="!isSaving"></ion-icon>
+          {{ isSaving ? 'กำลังเพิ่ม...' : 'เพิ่ม' + currentLabel }}
+        </ion-button>
+        
+        <ion-button expand="block" color="warning" style="flex: 1" *ngIf="editingItemId" (click)="saveEdit()" [disabled]="!newName.trim() || isSaving">
+          <ion-spinner name="crescent" slot="start" *ngIf="isSaving" style="width:18px;height:18px;margin-right:8px;"></ion-spinner>
+          <ion-icon slot="start" name="save-outline" *ngIf="!isSaving"></ion-icon>
+          {{ isSaving ? 'กำลังบันทึก...' : 'บันทึก' }}
+        </ion-button>
+
+        <ion-button expand="block" color="medium" fill="outline" style="flex: 1" *ngIf="editingItemId" (click)="cancelEdit()" [disabled]="isSaving">
+          <ion-icon slot="start" name="close-outline"></ion-icon>
+          ยกเลิก
+        </ion-button>
+      </div>
 
       <ion-list class="ion-margin-top item-list">
         <ion-item-divider>

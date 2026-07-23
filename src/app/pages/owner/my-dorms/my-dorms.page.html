@@ -6,8 +6,9 @@
     <ion-title>จัดการหอพักของฉัน</ion-title>
     
     <ion-buttons slot="end">
-      <ion-button (click)="goToAddDorm()" color="dark">
-        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      <ion-button (click)="goToAddDorm()" color="dark" class="add-dorm-btn">
+        <ion-icon name="add-circle" slot="start"></ion-icon>
+        เพิ่มหอพัก
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -120,18 +121,18 @@
               </select>
             </div>
 
-            <!-- ปุ่ม "แก้ไขและส่งใหม่" สำหรับ REQ_STATUS=4 หรือ 3 (ส่งกลับให้แก้ไข/ส่งคำร้องใหม่) -->
-            <ion-button fill="solid" size="small" color="tertiary" class="action-btn resubmit-btn"
+            <!-- ปุ่ม "แก้ไขและส่งใหม่" สำหรับ REQ_STATUS=4 (ส่งกลับให้แก้ไข) -->
+            <ion-button fill="solid" size="small" color="warning" class="action-btn resubmit-btn"
                         (click)="$event.stopPropagation(); goToPendingView(item)" 
-                        *ngIf="item.REQ_STATUS === 4 || item.REQ_STATUS === 3">
+                        *ngIf="item.REQ_STATUS === 4">
               <ion-icon name="pencil-outline" slot="start"></ion-icon>
               แก้ไขและส่งใหม่
             </ion-button>
 
-            <!-- ปุ่มดูข้อมูล สำหรับ REQ_STATUS=0 หรือ 2 -->
+            <!-- ปุ่มดูข้อมูล สำหรับ REQ_STATUS=0, 2, 3 -->
             <ion-button fill="outline" size="small" color="medium" class="action-btn"
                         (click)="$event.stopPropagation(); goToPendingView(item)" 
-                        *ngIf="item.REQ_STATUS === 0 || item.REQ_STATUS === 2">
+                        *ngIf="item.REQ_STATUS === 0 || item.REQ_STATUS === 2 || item.REQ_STATUS === 3">
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
             </ion-button>
 

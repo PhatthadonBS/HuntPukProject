@@ -1,140 +1,166 @@
-// ✅ บังคับ light theme เสมอ ไม่ตาม prefers-color-scheme ของระบบ
-// (แก้ปัญหาตัวอักษรเข้มจมไปกับพื้นหลังดำตอนเครื่องอยู่ใน dark mode)
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap');
+
 :host {
-  --background: #f4f6f8;
+  --background: #f4f5f8;
   color-scheme: light only;
+  font-family: 'Prompt', sans-serif;
 }
 
 ion-content {
-  --background: #f4f6f8;
-  --padding-bottom: 30px;
+  --background: #f4f5f8;
+  --padding-bottom: 40px;
 }
 
 // Toolbar
 .modal-toolbar {
-  --background: #ffffff;
-  --color: #111111;
-  font-weight: bold;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --background: #111111;
+  --color: #FFD54F;
+  font-family: 'Prompt', sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
   ion-title {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
+    letter-spacing: 0.5px;
   }
 
   .close-btn {
-    --color: #333;
-    background: rgba(0,0,0,0.05);
+    --color: #fff;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     width: 36px;
     height: 36px;
     margin-right: 10px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #FFD54F;
+      --color: #111;
+      transform: scale(1.1);
+    }
   }
 }
 
 // Container
 .modal-container {
-  padding: 5px;
+  padding: 10px 5px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 // Section Header
 .section-header {
   display: flex;
   align-items: center;
-  margin-top: 25px;
-  margin-bottom: 12px;
+  margin-top: 30px;
+  margin-bottom: 15px;
   
   .icon-box {
-    background: #222;
-    color: #FFD700;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+    color: #111;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 12px;
-    font-size: 18px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    margin-right: 14px;
+    font-size: 20px;
+    box-shadow: 0 4px 15px rgba(255, 179, 0, 0.3);
   }
 
   .header-text {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 800;
-    color: #333;
+    color: #111;
     letter-spacing: 0.5px;
   }
 }
 
 // Info Card (กล่องข้อมูล)
 .info-card {
-  background: white;
-  border-radius: 16px;
-  padding: 15px 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  border: 1px solid #fff;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 
   .info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
     
     &.vertical {
       flex-direction: column;
       align-items: flex-start;
-      gap: 5px;
+      gap: 8px;
     }
 
     .label {
       font-size: 14px;
-      color: #888;
-      font-weight: 500;
+      color: #777;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
 
-      ion-icon { color: #FFD700; font-size: 16px; }
+      ion-icon { color: #FFB300; font-size: 18px; }
     }
 
     .value {
       font-size: 15px;
-      color: #222;
+      color: #111;
       font-weight: 600;
       text-align: right;
 
-      &.highlight { color: #000; }
-      &.big-text { font-size: 18px; font-weight: 800; color: #000; text-align: left; }
+      &.highlight { 
+        color: #111; 
+        background: #f4f5f8;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+      &.big-text { 
+        font-size: 20px; 
+        font-weight: 800; 
+        color: #111; 
+        text-align: left; 
+      }
     }
   }
 
   .divider {
     height: 1px;
     background: #f0f0f0;
-    margin: 4px 0;
+    margin: 8px 0;
   }
 
   // Tags (Zone/Type)
   .tag-container {
     display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px dashed #ddd;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #e0e0e0;
 
     .tag {
-      background: #ffeeba;
-      color: #856404;
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-size: 12px;
+      background: #111;
+      color: #FFD54F;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
       font-weight: 700;
-      border: 1px solid #ffdf7e;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 
       &.outline {
-        background: #f4f5f7;
+        background: #f4f5f8;
         border: 1px solid #d6d9dd;
-        color: #3a3f47; // ✅ เข้มขึ้นจาก #666 ให้ตัดกับพื้นชัดเจนในทุกสภาวะ
+        color: #333; 
+        box-shadow: none;
       }
     }
   }
@@ -146,28 +172,36 @@ ion-content {
   justify-content: space-between;
   align-items: center;
   background: #f8f9fa;
-  padding: 12px 16px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  padding: 15px 20px;
+  border-radius: 16px;
+  margin-bottom: 12px;
   border: 1px solid #eee;
+  transition: all 0.3s ease;
 
   &:last-child {
     margin-bottom: 0;
+  }
+  
+  &:hover {
+    border-color: #FFD54F;
+    box-shadow: 0 4px 15px rgba(255, 213, 79, 0.1);
+    transform: translateY(-2px);
   }
 
   .room-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     
     .room-name {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
-      color: #222;
+      color: #111;
     }
     .room-bed {
       font-size: 13px;
-      color: #666;
+      color: #777;
+      font-weight: 500;
     }
   }
 
@@ -177,13 +211,14 @@ ion-content {
     align-items: flex-end;
 
     .room-price {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a1a1a;
-      background: #e3f2fd;
-      padding: 4px 10px;
-      border-radius: 8px;
-      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+      background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+      padding: 6px 14px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      box-shadow: 0 2px 8px rgba(255, 179, 0, 0.2);
 
       &:last-child {
         margin-bottom: 0;
@@ -192,15 +227,13 @@ ion-content {
   }
 }
 
-// ============================================================
-// ✅ ค่าน้ำ / ค่าไฟ — Layout การ์ดคู่ เหมือนหน้า dorm-detail
-// ============================================================
+// Utility Row (ค่าน้ำ / ค่าไฟ)
 .utility-row {
   display: flex;
-  gap: 12px;
-  margin-top: 4px;
+  gap: 15px;
+  margin-top: 5px;
 
-  @media (max-width: 420px) {
+  @media (max-width: 480px) {
     flex-direction: column;
   }
 
@@ -208,24 +241,30 @@ ion-content {
     flex: 1;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    background: white;
-    border-radius: 14px;
-    padding: 14px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f0f0f0;
+    gap: 14px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+    }
 
     .util-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
 
-      ion-icon { font-size: 20px; }
+      ion-icon { font-size: 24px; }
     }
 
     &.water .util-icon { background: #e3f2fd; color: #1976d2; }
@@ -234,25 +273,35 @@ ion-content {
     .util-text {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
+      width: 100%;
 
       .util-label {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
-        color: #888;
-        margin-bottom: 2px;
+        color: #777;
       }
 
       .util-value {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 800;
-        color: #1a1a1a; // ✅ เข้มชัด ไม่จมพื้นหลังแน่นอน
+        color: #111; 
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        
+        div {
+          background: #f8f9fa;
+          padding: 6px 10px;
+          border-radius: 8px;
+          display: flex;
+          justify-content: space-between;
+        }
 
         .rate-sub {
-          font-weight: 500;
-          color: #777;
-          font-size: 12px;
-          margin-right: 3px;
+          font-weight: 600;
+          color: #888;
+          font-size: 13px;
         }
       }
     }
@@ -261,33 +310,39 @@ ion-content {
 
 // Images Grid
 .img-grid {
-  margin-top: 5px;
+  margin-top: 10px;
 
   .col-left { padding-right: 8px; }
   .col-right { padding-left: 8px; }
 
   .img-card {
-    background: white;
-    border-radius: 12px;
-    padding: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.02);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.3s ease;
 
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      border-color: rgba(255, 213, 79, 0.5);
+    }
     &:active { transform: scale(0.97); }
 
     .img-header {
-      font-size: 13px;
-      font-weight: 600;
-      color: #555;
-      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
       text-align: center;
     }
 
     .img-wrapper {
       width: 100%;
-      height: 130px;
-      border-radius: 8px;
+      height: 140px;
+      border-radius: 12px;
       overflow: hidden;
       background: #f5f5f5;
       display: flex;
@@ -295,70 +350,89 @@ ion-content {
       align-items: center;
       border: 1px solid #eee;
 
-      ion-img {
+      img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.3s ease;
       }
+    }
+    
+    &:hover .img-wrapper img {
+      transform: scale(1.05);
     }
   }
 }
 
 // Buttons
 .action-section {
-  margin-top: 35px;
+  margin-top: 45px;
   display: flex;
   flex-direction: column;
   gap: 15px;
 
   ion-button {
-    --border-radius: 12px;
-    height: 52px;
-    font-size: 16px;
+    --border-radius: 16px;
+    height: 56px;
+    font-size: 17px;
     font-weight: 700;
     --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     margin: 0;
+    font-family: 'Prompt', sans-serif;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
 
     &.btn-approve {
-      --background: #2dd36f;
-      --background-activated: #28ba62;
+      --background: #111;
+      --color: #FFD54F;
+      --background-activated: #333;
+      --box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     }
 
     &.btn-reject {
-      --color: #eb445a;
-      --border-color: #eb445a;
+      --color: #111;
+      --border-color: #e0e0e0;
       --border-width: 2px;
-      background: white;
+      --background: #fff;
+      --background-activated: #f5f5f5;
+      
+      &:hover {
+        --border-color: #111;
+      }
     }
   }
 }
 
-// ============================================================
-// ✅ Lightbox — ขยายรูปภาพ
-// ============================================================
+// Lightbox
 .lightbox-overlay {
   position: fixed; inset: 0; z-index: 99999;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(17, 17, 17, 0.95);
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
 }
 
 .lightbox-image-wrap {
-  max-width: 90vw; max-height: 82vh;
+  max-width: 90vw; max-height: 85vh;
   img {
-    max-width: 90vw; max-height: 82vh;
+    max-width: 90vw; max-height: 85vh;
     object-fit: contain;
-    border-radius: 10px;
+    border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   }
 }
 
 .lightbox-close {
-  position: absolute; top: 22px; right: 22px; z-index: 10;
-  width: 42px; height: 42px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  position: absolute; top: 25px; right: 25px; z-index: 10;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 24px; cursor: pointer;
-  transition: background 0.2s ease;
-  &:hover { background: rgba(255, 255, 255, 0.25); }
+  color: #FFD54F; font-size: 28px; cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover { 
+    background: rgba(255, 255, 255, 0.2); 
+    transform: scale(1.1);
+  }
 }

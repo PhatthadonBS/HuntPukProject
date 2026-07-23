@@ -216,6 +216,16 @@
     background: #444;
   }
 
+  &.active {
+    background: #FFD600;
+    color: #1a1a1a;
+    font-weight: 500;
+
+    .menu-icon-wrap ion-icon {
+      color: #1a1a1a;
+    }
+  }
+
   &.dashboard-btn {
     border: 1px solid #FFD600;
     color: #FFD600;

@@ -347,9 +347,17 @@
                 *ngFor="let zone of stats?.zoneBreakdown; let i = index">
                 <div class="zone-info-row" style="display: flex; align-items: center; margin-bottom: 8px;">
                   <div class="zone-list-dot" [class]="'dot-color-' + (i % 6)"></div>
-                  <span class="zone-list-name" style="flex: 1; font-weight: bold;">{{ zone.zoneName }}</span>
+                  <span class="zone-list-name" style="flex: 1; font-weight: bold; color: #1e293b; font-size: 14px;">{{ zone.zoneName }}</span>
                   <span class="zone-list-count" style="color: #666; font-size: 0.9em;">{{ zone.dormCount }} แห่ง</span>
                 </div>
+                
+                <!-- Dorms in Zone Preview -->
+                <div class="zone-dorms-preview" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;" *ngIf="getDormsInZone(zone.zoneName).length > 0">
+                  <span *ngFor="let d of getDormsInZone(zone.zoneName)" style="font-size: 11px; background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 12px; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
+                    <ion-icon name="business" style="color: #3b82f6;"></ion-icon> {{ d.dormName }}
+                  </span>
+                </div>
+
                 <div class="zone-action-buttons" style="display: flex; gap: 8px;">
                   <ion-button style="flex: 1;" size="small" fill="outline" color="dark" (click)="viewZoneOnMap(zone.zoneName)">
                     <ion-icon name="map-outline" slot="start"></ion-icon> ดูบนแผนที่

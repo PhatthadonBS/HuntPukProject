@@ -95,8 +95,8 @@ export class ManageRequestsCreatedormPage implements OnInit {
         
         let uniqueList = Array.from(uniqueMap.values());
         
-        // เรียงลำดับความสำคัญของสถานะ: 0 (รออนุมัติ) -> 2 (ปฏิเสธ) -> 4 (ส่งกลับ) -> 1 (อนุมัติแล้ว)
-        const statusOrder: { [key: number]: number } = { 0: 1, 2: 2, 4: 3, 1: 4 };
+        // เรียงลำดับความสำคัญของสถานะ: 0 (รออนุมัติ) -> 3 (ยื่นตรวจสอบใหม่) -> 2 (ปฏิเสธ) -> 1 (อนุมัติแล้ว)
+        const statusOrder: { [key: number]: number } = { 0: 1, 3: 2, 2: 3, 1: 4 };
         uniqueList.sort((a, b) => {
           const orderA = statusOrder[a.REQ_STATUS] || 99;
           const orderB = statusOrder[b.REQ_STATUS] || 99;
@@ -139,20 +139,22 @@ export class ManageRequestsCreatedormPage implements OnInit {
     return filtered;
   }
 
-  getReqStatusLabel(status: number): string {
-    switch(status) {
+  getReqStatusLabel(status: any): string {
+    switch(Number(status)) {
       case 0: return 'รออนุมัติ';
       case 1: return 'อนุมัติแล้ว';
       case 2: return 'ปฏิเสธ';
+      case 3: return 'ยื่นตรวจสอบใหม่';
       default: return 'ไม่ทราบสถานะ';
     }
   }
 
-  getReqStatusColor(status: number): string {
-    switch(status) {
+  getReqStatusColor(status: any): string {
+    switch(Number(status)) {
       case 0: return 'warning';
       case 1: return 'success';
       case 2: return 'danger';
+      case 3: return 'warning';
       default: return 'medium';
     }
   }

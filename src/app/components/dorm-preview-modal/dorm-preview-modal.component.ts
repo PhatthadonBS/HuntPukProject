@@ -27,6 +27,7 @@ export class DormPreviewModalComponent implements OnInit {
   @Input() allImages: any;
   @Input() facilities: any[] = [];
   @Input() roomTypes: any[] = [];
+  @Input() bedTypes: any[] = [];
   @Input() zones: any[] = [];
 
   @Output() confirmed = new EventEmitter<void>();
@@ -63,5 +64,11 @@ export class DormPreviewModalComponent implements OnInit {
 
   onCancel() {
     this.cancelled.emit();
+  }
+
+  getBedTypeName(bedTypeId: any): string {
+    if (!this.bedTypes || this.bedTypes.length === 0) return 'ไม่ระบุ';
+    const bed = this.bedTypes.find(b => (b.id || b.BED_TYPE_ID)?.toString() === bedTypeId?.toString());
+    return bed ? (bed.name || bed.BED_TYPE_NAME) : 'ไม่ระบุ';
   }
 }

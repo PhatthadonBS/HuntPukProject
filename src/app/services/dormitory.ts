@@ -373,9 +373,11 @@ export class DormitoryService {
   /**
    * 13. ดึงหอพักยอดนิยม (Top Ranking)
    */
-  public async getPopularDorms(limit: number = 6): Promise<ApiResponse<any[]>> {
+  public async getPopularDorms(limit: number = 6, sortBy: 'score' | 'views' = 'score'): Promise<ApiResponse<any[]>> {
     const url = `${this.apiUrl}/dorms/popular`;
-    const params = new HttpParams().set('limit', limit.toString());
+    const params = new HttpParams()
+      .set('limit', limit.toString())
+      .set('sortBy', sortBy);
 
     try {
       const res = await lastValueFrom(
@@ -466,8 +468,8 @@ export class DormitoryService {
     return this.http.delete<any>(`${this.apiUrl}/dorms/dormTypes/${id}`);
   }
 
-  updateMasterType(type: string, id: number, name: string): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/type_management/${type}/${id}`, { name });
+  updateMasterType(type: string, id: number, name: string, lat?: number, lng?: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/type_management/${type}/${id}`, { name, lat, lng });
   }
 
   getRoomTypes(): Observable<any[]> {
