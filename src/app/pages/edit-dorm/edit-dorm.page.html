@@ -103,16 +103,42 @@
         <div class="map-wrapper" style="margin-top: 15px; height: 300px; border-radius: 8px; overflow: hidden; position: relative;" *ngIf="apiLoaded | async">
           <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
             [options]="mapOptions" (mapClick)="onMapClick($event)">
-            <map-marker [position]="markerPosition" [options]="markerOptions">
+            <map-marker #userMarker="mapMarker" [position]="markerPosition" [options]="markerOptions">
+              <map-info-window #infoWindow="mapInfoWindow">
+                <div style="text-align: center; padding: 4px;">
+                  <h3 *ngIf="duplicateDormName" style="color: red; font-size: 14px; font-weight: bold; margin: 0;">⚠️ ตำแหน่งซ้ำ</h3>
+                  <p *ngIf="duplicateDormName" style="font-size: 13px; margin: 4px 0 0;">มีหอพักชื่อ <b>{{ duplicateDormName }}</b> ตั้งอยู่แล้วครับ คุณไม่สามารถปักหมุดซ้ำได้</p>
+                  
+                  <h3 *ngIf="!duplicateDormName" style="font-size: 14px; margin: 0;">{{ currentZoneName || 'โซนที่เลือก' }}</h3>
+                </div>
+              </map-info-window>
             </map-marker>
-            <map-circle *ngIf="zoneCenter" [center]="zoneCenter" [radius]="zoneRadius" [options]="circleOptions"></map-circle>
-            <!-- Marker สำหรับศูนย์กลางโซน -->
-            <map-marker *ngIf="zoneCenter" [position]="zoneCenter" [options]="{ icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' } }"></map-marker>
+            <!-- วงกลมทุกโซน -->
+            <map-circle *ngFor="let zone of zones"
+              [center]="{lat: zone.lat, lng: zone.lng}"
+              [radius]="zone.ZONE_RADIUS || 500"
+              [options]="getZoneCircleOptions(zone)">
+            </map-circle>
+            <!-- หมุดศูนย์กลางโซนพร้อมชื่อ -->
+            <map-marker *ngFor="let zone of zones"
+              [position]="{lat: zone.lat, lng: zone.lng}"
+              [options]="getZoneMarkerOptions(zone)"
+              (mapClick)="onZoneMarkerClick(zone)">
+            </map-marker>
             <!-- หมุดหอพักที่มีอยู่แล้วในระบบ -->
-            <map-marker *ngFor="let dorm of filteredDorms"
+            <map-marker #dormMarker="mapMarker" *ngFor="let dorm of filteredDorms"
               [position]="{lat: dorm.lat, lng: dorm.lng}"
-              [options]="getDormMarkerOptions(dorm)">
+              [options]="getDormMarkerOptions(dorm)"
+              (mapClick)="onDormMarkerClick(dormMarker, dorm)">
             </map-marker>
+
+            <!-- Dorm Info Window -->
+            <map-info-window #dormInfoWindow="mapInfoWindow">
+              <div class="dorm-info-window" *ngIf="selectedDormForMap" style="text-align: center; padding: 4px;">
+                <h3 style="margin: 0; font-size: 14px; font-weight: bold; color: #1e293b;">{{ selectedDormForMap.DORM_NAME || selectedDormForMap.DORMNAME || 'หอพัก' }}</h3>
+                <p style="margin: 4px 0 0; font-size: 12px; color: red;">⚠️ ไม่สามารถปักหมุดทับได้</p>
+              </div>
+            </map-info-window>
           </google-map>
         </div>
         <p class="hint-text text-danger" style="font-size: 13px; margin-top: 8px;" *ngIf="!isWaitingForAdmin">* แตะบนแผนที่เพื่อปักหมุดแก้ไขตำแหน่งหอพัก</p>

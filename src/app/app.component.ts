@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IonicModule } from "@ionic/angular";
+import { addIcons } from 'ionicons';
+import { alertCircleOutline, checkmarkCircleOutline, informationCircleOutline, warningOutline } from 'ionicons/icons';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { environment } from '../environments/environment';
@@ -14,6 +16,15 @@ import { MenuComponent } from "./components/menu/menu.component";
 })
 export class AppComponent implements OnInit {
   api = environment.GGMAPI;
+
+  constructor() {
+    addIcons({
+      alertCircleOutline,
+      checkmarkCircleOutline,
+      informationCircleOutline,
+      warningOutline
+    });
+  }
 
   ngOnInit() {
     // ✅ ฟัง sidebar state change จาก MenuComponent

@@ -2,8 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { addIcons } from 'ionicons';
-import { alertCircleOutline, checkmarkCircleOutline, informationCircleOutline, warningOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-alert-modal',
@@ -33,12 +31,6 @@ export class AlertModalComponent implements OnInit {
   iconColor: string = '#1976d2';
 
   constructor(private modalCtrl: ModalController) {
-    addIcons({
-      'alert-circle-outline': alertCircleOutline,
-      'checkmark-circle-outline': checkmarkCircleOutline,
-      'information-circle-outline': informationCircleOutline,
-      'warning-outline': warningOutline
-    });
   }
 
   ngOnInit() {

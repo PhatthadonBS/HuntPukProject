@@ -113,11 +113,19 @@
 
               <!-- Dorm markers -->
               <map-marker
+                #dormMarker="mapMarker"
                 *ngFor="let dorm of filteredDorms"
                 [position]="{lat: dorm.lat, lng: dorm.lng}"
                 [options]="getDormMarkerOptions(dorm)"
-                (mapClick)="onDormMarkerClick(dorm)">
+                (mapClick)="onDormMarkerClick(dormMarker, dorm)">
               </map-marker>
+
+              <!-- Dorm Info Window -->
+              <map-info-window>
+                <div class="dorm-info-window" *ngIf="selectedDormForMap" style="text-align: center; padding: 4px;">
+                  <h3 style="margin: 0; font-size: 14px; font-weight: bold; color: #1e293b;">{{ selectedDormForMap.dormName || 'หอพัก' }}</h3>
+                </div>
+              </map-info-window>
             </google-map>
           </div>
         </ion-item>

@@ -1,7 +1,26 @@
 <div class="alert-container">
   <div class="alert-card" [@popIn]>
-    <div class="icon-circle" [ngStyle]="{'background-color': iconColor + '20'}">
-      <ion-icon [name]="iconName" [ngStyle]="{'--color': iconColor, 'color': iconColor}"></ion-icon>
+    <div class="icon-circle" [ngStyle]="{'background-color': iconColor + '20', 'color': iconColor}">
+      <!-- Success Icon -->
+      <svg *ngIf="type === 'success'" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" width="36" height="36">
+        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M416 128L192 384l-96-96"/>
+      </svg>
+      <!-- Error Icon -->
+      <svg *ngIf="type === 'error'" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" width="36" height="36">
+        <path d="M256 80c-8.66 0-16.58 7.36-16 16l8 216a8 8 0 008 8h0a8 8 0 008-8l8-216c.58-8.64-7.34-16-16-16z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+        <circle cx="256" cy="416" r="16" fill="currentColor"/>
+      </svg>
+      <!-- Warning Icon (Alert/Exclamation) -->
+      <svg *ngIf="type === 'warning'" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" width="36" height="36">
+        <path d="M256 80c-8.66 0-16.58 7.36-16 16l8 216a8 8 0 008 8h0a8 8 0 008-8l8-216c.58-8.64-7.34-16-16-16z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+        <circle cx="256" cy="416" r="16" fill="currentColor"/>
+      </svg>
+      <!-- Info Icon -->
+      <svg *ngIf="type === 'info'" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" width="36" height="36">
+        <path d="M256 80a176 176 0 10176 176A176 176 0 00256 80z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/>
+        <path d="M200 202.29s.84-17.5 19.5-25.82C230.14 163.36 256 160 256 160s25.86 3.36 36.5 16.47c18.66 8.32 19.5 25.82 19.5 25.82M256 200v160M208 360h96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/>
+        <circle cx="256" cy="200" r="16" fill="currentColor"/>
+      </svg>
     </div>
 
     <h2 class="alert-title">{{ title }}</h2>

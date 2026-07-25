@@ -14,7 +14,7 @@ import {
 
 import { DormitoryService } from '../../../services/dormitory';
 import { UserService } from '../../../services/user';
-import { OtpModalComponent } from '../../../components/otp-modal/otp-modal.component';
+import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
 
 import { addIcons } from 'ionicons';
 import { 
@@ -44,7 +44,7 @@ addIcons({
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
     IonBackButton, IonButton, IonIcon, IonSpinner, IonModal, IonList, IonItem, IonLabel,
     IonSegment, IonSegmentButton,
-    OtpModalComponent
+    SuccessModalComponent
   ] 
 })
 export class MyDormsPage implements OnInit {
@@ -59,6 +59,8 @@ export class MyDormsPage implements OnInit {
   // Status modal
   isStatusModalOpen: boolean = false;
   selectedDormForStatus: any = null;
+
+  showDeleteSuccessModal: boolean = false;
 
   statusOptions: any[] = [];
 
@@ -230,28 +232,27 @@ export class MyDormsPage implements OnInit {
   async confirmDelete(dormId: number) {
     const dorm = this.myDorms.find(d => d.DORM_ID === dormId);
     const dormName = dorm?.DORM_NAME || 'หอพักนี้';
-    const userEmail = this.currentUser?.email || this.currentUser?.EMAIL || '';
 
     const alert = await this.alertCtrl.create({
       header: '🗑️ ลบหอพักออกจากระบบ',
-      message: `หอพัก "${dormName}" จะถูกลบออกจากรายการของคุณ (ติดต่อผู้ดูแลระบบหากต้องการกู้คืน)\n\nกรุณากรอก Email ของคุณเพื่อยืนยัน:`,
+      message: `ข้อมูลหอพัก "<strong>${dormName}</strong>" จะถูกลบออกจากระบบอย่างถาวรและไม่สามารถกู้คืนได้<br><small class="text-danger">(หากต้องการเปิดใช้งานอีกครั้ง จะต้องทำรายการลงทะเบียนใหม่ทั้งหมด)</small><br><br>กรุณากรอกคำว่า <strong>DELETE</strong> เพื่อยืนยัน:`,
       inputs: [
         {
-          name: 'emailConfirm',
-          type: 'email',
-          placeholder: userEmail || 'ระบุ Email ของคุณ',
+          name: 'confirmText',
+          type: 'text',
+          placeholder: 'พิมพ์ DELETE เพื่อยืนยัน',
         }
       ],
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {
-          text: 'ถัดไป',
+          text: 'ยืนยัน',
           handler: (data) => {
-            if (!data.emailConfirm || data.emailConfirm.trim().toLowerCase() !== userEmail.toLowerCase()) {
-              this.showToast('Email ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง', 'danger');
+            if (!data.confirmText || data.confirmText.trim() !== 'DELETE') {
+              this.showToast('คำยืนยันไม่ถูกต้อง กรุณาพิมพ์ DELETE ตัวพิมพ์ใหญ่', 'danger');
               return false;
             }
-            this.openOtpModalForDelete(dormId, userEmail);
+            this.executeDelete(dormId);
             return true;
           }
         }
@@ -260,28 +261,12 @@ export class MyDormsPage implements OnInit {
     await alert.present();
   }
 
-  async openOtpModalForDelete(dormId: number, userEmail: string) {
-    const modal = await this.modalCtrl.create({
-      component: OtpModalComponent,
-      componentProps: { email: userEmail, mode: 'verify' },
-      cssClass: 'custom-otp-modal'
-    });
-    await modal.present();
-    const { data } = await modal.onWillDismiss();
-
-    if (data && data.success) {
-      this.executeDelete(dormId);
-    } else {
-      this.showToast('การยืนยันตัวตนถูกยกเลิก', 'warning');
-    }
-  }
-
   async executeDelete(dormId: number) {
     const loading = await this.loadingCtrl.create({ message: 'กำลังลบหอพัก...' });
     await loading.present();
     try {
       await this.dormService.changeDormStatus(dormId, 4); // soft delete
-      this.showToast('ลบหอพักออกจากระบบแล้ว (กู้คืนได้)', 'success');
+      this.showDeleteSuccessModal = true;
       await this.loadMyDorms(); 
     } catch (error) {
       this.showToast('ลบไม่สำเร็จ', 'danger');
@@ -291,7 +276,9 @@ export class MyDormsPage implements OnInit {
     }
   }
 
-
+  onDeleteSuccessConfirmed() {
+    this.showDeleteSuccessModal = false;
+  }
 
   async showToast(msg: string, color: string) {
     const toast = await this.toastCtrl.create({ message: msg, duration: 2000, color: color, position: 'bottom' });

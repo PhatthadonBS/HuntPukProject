@@ -16,7 +16,8 @@
              id="otp-input"
              placeholder="______"
              inputmode="numeric"
-             autocomplete="one-time-code">
+             autocomplete="one-time-code"
+             [disabled]="isBlocked">
       </ion-input>
     </div>
 
@@ -25,13 +26,16 @@
       shape="round" 
       class="btn-verify" 
       (click)="verify()"
-      [disabled]="isLoading"> 
+      [disabled]="isLoading || isBlocked"> 
       
       <span *ngIf="!isLoading">ยืนยัน</span>
       <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner> 
     </ion-button>
 
     <div class="resend-wrapper">
+      <p *ngIf="isBlocked" class="wait-text" style="color: #ff4961; margin-bottom: 10px;">
+         กรอกผิดเกิน 3 ครั้ง กรุณาขอรหัสใหม่
+      </p>
       <p *ngIf="timeLeft > 0" class="wait-text">
         ส่งรหัสใหม่ได้ใน <span class="timer">{{ timeLeft }}s</span>
       </p>

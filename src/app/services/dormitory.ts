@@ -161,6 +161,12 @@ export class DormitoryService {
     }
   }
 
+  public async getDormViewsStats(dormId: number): Promise<ApiResponse<any>> {
+    const url = `${this.apiUrl}/dashboard/dorm-views/${dormId}`;
+    const response = await this.http.get<ApiResponse<any>>(url).toPromise();
+    return response || { success: false, message: 'No data', data: null } as any;
+  }
+
   /**
    * เพิ่มรายการโปรด
    */

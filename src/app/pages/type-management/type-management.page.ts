@@ -15,7 +15,7 @@ import {
   closeOutline, chevronForwardOutline, arrowBackOutline, saveOutline,
   businessOutline, bedOutline, pricetagOutline, checkmarkCircleOutline, mapOutline, homeOutline
 } from 'ionicons/icons';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
 
 @Component({
   selector: 'app-type-management',
@@ -26,7 +26,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
     IonContent, IonHeader, IonTitle, IonToolbar,
     IonLabel, IonList, IonItem, IonButton, IonIcon, IonInput, IonItemDivider,
     IonModal, IonButtons, IonSpinner,
-    CommonModule, FormsModule, GoogleMapsModule
+    CommonModule, FormsModule, GoogleMapsModule, MapInfoWindow, MapMarker
   ]
 })
 export class TypeManagementPage implements OnInit {
@@ -36,6 +36,9 @@ export class TypeManagementPage implements OnInit {
   isModalOpen: boolean = false;
   isLoading: boolean = false;
   isSaving: boolean = false;
+
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
+  selectedDormForMap: any = null;
 
   lists: { [key: string]: any[] } = {
     dormType: [],
@@ -174,22 +177,21 @@ export class TypeManagementPage implements OnInit {
   }
 
   getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
+    const svgIcon = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%232563eb%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%221%22%20width%3D%2232px%22%20height%3D%2232px%22%3E%3Cpath%20d%3D%22M12%203L2%2012h3v8h5v-6h4v6h5v-8h3L12%203z%22%2F%3E%3C%2Fsvg%3E';
     return {
       icon: {
-        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        url: svgIcon,
+        scaledSize: new google.maps.Size(32, 32),
+        anchor: new google.maps.Point(16, 16)
       },
       title: dorm.dormName || 'หอพัก',
       zIndex: 5
     };
   }
 
-  async onDormMarkerClick(dorm: any) {
-    const alert = await this.alertController.create({
-      header: 'แจ้งเตือน',
-      message: `ตรงนี้มีหอพักชื่อ ${dorm.dormName || 'หอพัก'} ตั้งอยู่แล้วครับ คุณไม่สามารถปักหมุดซ้ำได้`,
-      buttons: ['ตกลง']
-    });
-    await alert.present();
+  onDormMarkerClick(marker: MapMarker, dorm: any) {
+    this.selectedDormForMap = dorm;
+    this.infoWindow.open(marker);
   }
 
   isLocating: boolean = false;

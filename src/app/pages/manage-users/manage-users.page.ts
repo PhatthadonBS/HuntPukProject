@@ -9,7 +9,7 @@ import {
 } from '@ionic/angular/standalone';
 import { UserService, UserRegPostReq } from '../../services/user';
 import { DormitoryService } from '../../services/dormitory';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DormRequestModalComponent } from '../../components/dorm-request-modal/dorm-request-modal.component';
 import { addIcons } from 'ionicons';
 import { 
@@ -52,6 +52,7 @@ export class ManageUsersPage implements OnInit {
     private userService: UserService,
     private dormService: DormitoryService,
     private router: Router,
+    private route: ActivatedRoute,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private modalCtrl: ModalController
@@ -60,11 +61,20 @@ export class ManageUsersPage implements OnInit {
   }
 
   ngOnInit() {
+    this.checkQueryParams();
     this.loadAllUsers();
   }
 
   ionViewWillEnter() {
+    this.checkQueryParams();
     this.loadAllUsers();
+  }
+  
+  checkQueryParams() {
+    const params = this.route.snapshot.queryParams;
+    if (params['roleFilter']) {
+      this.filterType = params['roleFilter'];
+    }
   }
 
   async loadAllUsers() {

@@ -47,8 +47,12 @@ addIcons({
   ]
 })
 export class DormFormPage implements OnInit {
-  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
-  @ViewChild(MapMarker) marker!: MapMarker;
+  @ViewChild('infoWindow') infoWindow!: MapInfoWindow;
+  @ViewChild('dormInfoWindow') dormInfoWindow!: MapInfoWindow;
+  @ViewChild('userMarker') marker!: MapMarker;
+
+  duplicateDormName: string | null = null;
+  selectedDormForMap: any = null;
 
   currentStep: number = 1;
   dormId: number = 0;
@@ -548,13 +552,11 @@ export class DormFormPage implements OnInit {
     };
   }
 
-  async onDormMarkerClick(dorm: any) {
-    const alert = await this.alertCtrl.create({
-      header: 'ตำแหน่งซ้ำ',
-      message: `ตรงนี้มีหอพักชื่อ <b>${dorm.DORM_NAME || dorm.DORMNAME}</b> ตั้งอยู่แล้วครับ คุณไม่สามารถปักหมุดซ้ำได้`,
-      buttons: ['ตกลง']
-    });
-    await alert.present();
+  onDormMarkerClick(marker: MapMarker, dorm: any) {
+    this.selectedDormForMap = dorm;
+    if (this.dormInfoWindow) {
+      this.dormInfoWindow.open(marker);
+    }
   }
 
   onZoneMarkerClick(zone: any) {

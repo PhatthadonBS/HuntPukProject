@@ -22,6 +22,10 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   interval: any;
   isLoading: boolean = false;
 
+  wrongAttempts: number = 0;
+  resendAttempts: number = 0;
+  isBlocked: boolean = false;
+
   constructor(
     private modalCtrl: ModalController,
     private authService: Auth,
@@ -45,7 +49,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
 
   startTimer() {
     this.stopTimer();
-    this.timeLeft = 60;
+    this.timeLeft = (this.resendAttempts >= 3) ? 180 : 60;
     this.interval = setInterval(() => {
       if(this.timeLeft > 0) this.timeLeft--;
       else this.stopTimer();
@@ -61,6 +65,10 @@ export class OtpModalComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       await this.authService.reqOTP(this.email);
       this.showToast('ส่งรหัส OTP ใหม่แล้ว', 'success');
+      this.resendAttempts++;
+      this.wrongAttempts = 0;
+      this.isBlocked = false;
+      this.otp = '';
       this.startTimer();
     } catch (error) {
       this.showToast('ส่ง OTP ไม่สำเร็จ', 'danger');
@@ -70,6 +78,11 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   }
 
   async verify() {
+    if (this.isBlocked) {
+      this.showToast('คุณกรอกผิดเกิน 3 ครั้ง กรุณาขอรหัส OTP ใหม่', 'danger');
+      return;
+    }
+
     const otpCode = this.otp;
     if (otpCode.length < 6) return;
 
@@ -80,10 +93,17 @@ export class OtpModalComponent implements OnInit, OnDestroy {
       this.modalCtrl.dismiss({ success: true, otp: otpCode });
     } catch (error) {
       console.error(error);
-      this.showToast('รหัส OTP ไม่ถูกต้อง', 'danger');
-      // เคลียร์ค่า
-      this.otp = '';
-      setTimeout(() => document.getElementById('otp-input')?.focus(), 100);
+      this.wrongAttempts++;
+      
+      if (this.wrongAttempts >= 3) {
+        this.isBlocked = true;
+        this.showToast('กรอกผิดเกิน 3 ครั้ง กรุณารอขอ OTP ใหม่', 'danger');
+        this.otp = '';
+      } else {
+        this.showToast(`รหัส OTP ไม่ถูกต้อง (ผิดครั้งที่ ${this.wrongAttempts}/3)`, 'danger');
+        this.otp = '';
+        setTimeout(() => document.getElementById('otp-input')?.focus(), 100);
+      }
     } finally {
       this.isLoading = false;
     }

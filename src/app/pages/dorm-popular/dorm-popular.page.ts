@@ -87,6 +87,21 @@ export class DormPopularPage implements OnInit {
             isChecked: false 
           };
         });
+        // Sort locally to ensure correct display
+        processedDorms = processedDorms.sort((a: any, b: any) => {
+          const viewsA = a.VIEW_COUNT || a.views || 0;
+          const viewsB = b.VIEW_COUNT || b.views || 0;
+          const scoreA = parseFloat(a.SCORE || a.score || 0);
+          const scoreB = parseFloat(b.SCORE || b.score || 0);
+          
+          if (this.sortType === 'views') {
+            if (viewsB !== viewsA) return viewsB - viewsA;
+            return scoreB - scoreA;
+          } else {
+            if (scoreB !== scoreA) return scoreB - scoreA;
+            return viewsB - viewsA;
+          }
+        });
         
         this.popularDorms = processedDorms;
       } else { this.compareError = 'ยังไม่มีข้อมูลหอพักยอดนิยมในขณะนี้'; }

@@ -76,7 +76,7 @@
         </div>
 
         <!-- Users Card -->
-        <div class="stat-card card-purple clickable" (click)="goToManageUsers()" id="user-card">
+        <div class="stat-card card-purple clickable" (click)="openUserModal()" id="user-card">
           <div class="card-glow"></div>
           <div class="card-icon-wrap">
             <ion-icon name="people-outline"></ion-icon>
@@ -169,7 +169,7 @@
           </button>
         </div>
         <div class="dorm-views-list">
-          <div class="dorm-view-item" *ngFor="let dorm of stats.allDormViews; let i = index">
+          <div class="dorm-view-item" *ngFor="let dorm of stats.allDormViews; let i = index" (click)="openDormViewStatsModal(dorm)" style="cursor: pointer;">
             <span class="dorm-rank" [class.gold]="i===0 && dormViewsSortOrder === 'desc'" [class.silver]="i===1 && dormViewsSortOrder === 'desc'" [class.bronze]="i===2 && dormViewsSortOrder === 'desc'">#{{ i+1 }}</span>
             <span class="dorm-view-name">{{ dorm.dormName }}</span>
             <div class="dorm-view-bar-wrap">
@@ -233,43 +233,18 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="user-stats-grid">
-            <div class="user-stat-item blue-stat">
-              <div class="user-stat-icon">👥</div>
-              <div class="user-stat-info">
-                <span class="user-stat-label">สมาชิก (Member)</span>
-                <span class="user-stat-value">{{ stats?.memberCount | number }}</span>
-              </div>
-            </div>
-            <div class="user-stat-item purple-stat">
-              <div class="user-stat-icon">🏠</div>
-              <div class="user-stat-info">
-                <span class="user-stat-label">เจ้าของหอ (Owner)</span>
-                <span class="user-stat-value">{{ stats?.ownerCount | number }}</span>
-              </div>
-            </div>
-            <div class="user-stat-item green-stat full-width-stat">
-              <div class="user-stat-icon">✅</div>
-              <div class="user-stat-info">
-                <span class="user-stat-label">ผู้ใช้งานที่ Active</span>
-                <span class="user-stat-value">{{ stats?.userStatusBreakdown?.activeUsers | number }}</span>
-              </div>
-            </div>
-            <div class="user-stat-item gray-stat">
-              <div class="user-stat-icon">⏸️</div>
-              <div class="user-stat-info">
-                <span class="user-stat-label">ปิดการใช้งาน</span>
-                <span class="user-stat-value">{{ stats?.userStatusBreakdown?.deactiveUsers | number }}</span>
-              </div>
-            </div>
-            <div class="user-stat-item red-stat">
-              <div class="user-stat-icon">🚫</div>
-              <div class="user-stat-info">
-                <span class="user-stat-label">ถูกระงับ (Banned)</span>
-                <span class="user-stat-value">{{ stats?.userStatusBreakdown?.bannedUsers | number }}</span>
+          <p class="modal-hint" style="margin-top: 0; margin-bottom: 16px;">กดที่ส่วนของกราฟเพื่อจัดการบทบาทนั้น</p>
+          
+          <div class="charts-row" style="grid-template-columns: 1fr; margin-bottom: 20px;">
+            <div class="chart-panel">
+              <h3 class="chart-label">บทบาทผู้ใช้งาน</h3>
+              <div class="chart-wrap" style="display: flex; justify-content: center;">
+                <canvas #userRoleCanvas style="max-width: 280px;"></canvas>
               </div>
             </div>
           </div>
+
+
         </div>
       </div>
     </div>
@@ -333,10 +308,24 @@
 
                 <!-- Dorm markers -->
                 <map-marker
+                  #dormMarker="mapMarker"
                   *ngFor="let dorm of dormMarkers"
                   [position]="dorm.position"
-                  [options]="getDormMarkerOptions(dorm)">
+                  [options]="getDormMarkerOptions(dorm)"
+                  (mapClick)="openDormInfoWindow(dormMarker, dorm)">
                 </map-marker>
+
+                <!-- Dorm Info Window -->
+                <map-info-window>
+                  <div class="dorm-info-window" *ngIf="selectedDormForMap" style="text-align: center; padding: 4px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #1e293b;">{{ selectedDormForMap.dormName }}</h3>
+                    <button class="manage-dorm-btn" 
+                            style="background: #eab308; color: #1e293b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                            (click)="goToManageDormWithSearch(selectedDormForMap.dormName)">
+                      <ion-icon name="settings-outline"></ion-icon> จัดการหอพัก
+                    </button>
+                  </div>
+                </map-info-window>
               </google-map>
             </div>
 
@@ -437,6 +426,80 @@
               </table>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- DORM VIEW STATS MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-backdrop" *ngIf="isDormViewStatsModalOpen" (click)="closeDormViewStatsModal()">
+      <div class="modal-dialog view-modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="modal-icon-wrap blue-icon">
+              <ion-icon name="stats-chart-outline"></ion-icon>
+            </div>
+            <h2>{{ selectedDormForViews?.dormName || 'ยอดเข้าชมหอพัก' }}</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeDormViewStatsModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        <p class="modal-hint">กดที่กราฟแท่งเพื่อดูรายละเอียดรายเดือน</p>
+        <div class="modal-body">
+          <div class="view-total-banner" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6);">
+            <span class="view-total-label" style="color: #bfdbfe;">ยอดรวมทั้งหมด</span>
+            <span class="view-total-number" style="color: #fff;">{{ selectedDormForViews?.views | number }}</span>
+            <span class="view-total-unit" style="color: #bfdbfe;">ครั้ง</span>
+          </div>
+
+          <div class="zone-loading" *ngIf="isDormViewStatsLoading">
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>กำลังโหลดข้อมูล...</span>
+          </div>
+
+          <ng-container *ngIf="!isDormViewStatsLoading">
+            <!-- Bar Chart -->
+            <div class="chart-wrap bar-chart-wrap" [hidden]="!hasDormViewStatsData">
+              <canvas #dormViewStatsCanvas></canvas>
+            </div>
+            <div *ngIf="!hasDormViewStatsData" style="text-align: center; padding: 20px; color: #64748b;">
+              ไม่มีข้อมูลยอดเข้าชมรายปีสำหรับหอพักนี้
+            </div>
+
+            <!-- Monthly Table (show after click) -->
+            <div class="monthly-table-section" *ngIf="selectedDormYearForTable">
+              <div class="monthly-table-header">
+                <span>📅 รายละเอียดรายเดือน ปี <strong>{{ selectedDormYearForTable }}</strong></span>
+                <button class="clear-btn" (click)="selectedDormYearForTable = null">✕ ปิด</button>
+              </div>
+              <div class="monthly-table-wrap">
+                <table class="monthly-table">
+                  <thead>
+                    <tr>
+                      <th>เดือน</th>
+                      <th>ยอดเข้าชม</th>
+                      <th>สัดส่วน</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let row of getDormMonthlyTableData()">
+                      <td>{{ getMonthName(row.month) }}</td>
+                      <td class="count-cell">{{ row.count | number }}</td>
+                      <td>
+                        <div class="mini-bar">
+                          <div class="mini-bar-fill"
+                            [style.width.%]="(row.count / getDormTotalViewsForYear(selectedDormYearForTable!)) * 100">
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
         </div>
       </div>
     </div>

@@ -5,11 +5,7 @@
     </ion-buttons>
     <ion-title>จัดการคำร้องขอ</ion-title>
   </ion-toolbar>
-</ion-header>
-
-<ion-content>
-  <div class="main-container">
-    
+  <div class="sticky-header-container">
     <div class="header-card">
       <div class="icon-wrapper">
         <ion-icon name="people"></ion-icon>
@@ -23,13 +19,20 @@
       <ion-searchbar [(ngModel)]="searchQuery" (ionInput)="searchRequests()" placeholder="ค้นหาชื่อ, นามสกุล หรือเบอร์โทรศัพท์..." animated="true"></ion-searchbar>
     </div>
 
-    <div class="table-card fade-in">
-      
+    <div class="table-header-container">
       <div class="table-header">
         <div class="col-name">ชื่อผู้ใช้งาน</div>
         <div class="col-status">สถานะ</div>
         <div class="col-action">ข้อมูลต่างๆ</div>
       </div>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content>
+  <div class="main-container">
+    
+    <div class="table-card fade-in">
 
       <div *ngIf="isLoading" class="loading-state">
         <ion-spinner name="crescent"></ion-spinner>

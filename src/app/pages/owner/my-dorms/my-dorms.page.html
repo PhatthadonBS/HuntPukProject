@@ -191,3 +191,14 @@
     </div>
   </ng-template>
 </ion-modal>
+
+<!-- Success Modal for Delete -->
+<app-success-modal
+  *ngIf="showDeleteSuccessModal"
+  title="ลบหอพักสำเร็จ"
+  subTitle="ข้อมูลถูกลบออกจากระบบแล้ว"
+  message="หอพักของคุณถูกลบออกจากระบบอย่างสมบูรณ์แล้ว หากต้องการใช้งานอีกครั้งต้องลงทะเบียนใหม่"
+  icon="trash-outline"
+  buttonText="ตกลง"
+  (confirmed)="onDeleteSuccessConfirmed()">
+</app-success-modal>

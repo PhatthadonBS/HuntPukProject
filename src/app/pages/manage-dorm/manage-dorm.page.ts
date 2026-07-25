@@ -138,15 +138,7 @@ export class ManageDormPage implements OnInit {
 
     // Filter by Status Query from Dashboard
     if (this.statusFilterQuery) {
-      let statusId = 0;
-      if (this.statusFilterQuery === 'เปิดบริการ') statusId = 1;
-      else if (this.statusFilterQuery === 'ปิดปรับปรุง') statusId = 2;
-      else if (this.statusFilterQuery === 'ห้องเต็ม') statusId = 3;
-      else if (this.statusFilterQuery === 'ถูกลบ') statusId = 4;
-      
-      if (statusId > 0) {
-        temp = temp.filter(d => d.DORM_STATUS_ID === statusId);
-      }
+      temp = temp.filter(d => d.DORM_STATUS_NAME === this.statusFilterQuery);
     }
 
     if (this.typeFilterQuery) {

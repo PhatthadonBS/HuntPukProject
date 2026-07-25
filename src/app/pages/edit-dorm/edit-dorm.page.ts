@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -44,6 +44,13 @@ export class EditDormPage implements OnInit {
   
   apiLoaded: Observable<boolean>;
   isMapModalOpen: boolean = false;
+
+  @ViewChild('infoWindow') infoWindow!: MapInfoWindow;
+  @ViewChild('dormInfoWindow') dormInfoWindow!: MapInfoWindow;
+  @ViewChild('userMarker') marker!: MapMarker;
+
+  duplicateDormName: string | null = null;
+  selectedDormForMap: any = null;
   center: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   markerPosition: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
   zoom = 15;
@@ -216,6 +223,45 @@ export class EditDormPage implements OnInit {
   get filteredDorms(): any[] {
     if (!this.formData.zone_id) return [];
     return this.allDorms.filter(dorm => dorm.ZONE_ID === this.formData.zone_id);
+  }
+
+  // ========== Map zone/dorm display helpers ==========
+  getZoneCircleOptions(zone: any): google.maps.CircleOptions {
+    const isSelected = this.formData.zone_id === zone.ZONE_ID;
+    return {
+      fillColor: isSelected ? '#f59e0b' : '#4285F4',
+      fillOpacity: isSelected ? 0.18 : 0.10,
+      strokeColor: isSelected ? '#f59e0b' : '#4285F4',
+      strokeOpacity: isSelected ? 0.8 : 0.5,
+      strokeWeight: isSelected ? 2.5 : 1.5,
+      clickable: false
+    };
+  }
+
+  getZoneMarkerOptions(zone: any): google.maps.MarkerOptions {
+    const isSelected = this.formData.zone_id === zone.ZONE_ID;
+    return {
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: isSelected ? '#f59e0b' : '#4285F4',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 2,
+      },
+      title: zone.ZONE_NAME,
+      label: {
+        text: zone.ZONE_NAME || '',
+        color: '#333',
+        fontSize: '11px',
+        fontWeight: '600'
+      }
+    };
+  }
+
+  onZoneMarkerClick(zone: any) {
+    this.applyZone(zone);
+    this.presentToast(`เลือกโซน: ${zone.ZONE_NAME}`, 'success');
   }
 
   getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
@@ -393,6 +439,13 @@ export class EditDormPage implements OnInit {
       this.markerPosition = { lat: this.formData.lat, lng: this.formData.lng };
       this.detectAndSelectZone(this.formData.lat, this.formData.lng);
       this.geocodeAddress(this.formData.lat, this.formData.lng);
+      this.checkDuplicateLocation(this.formData.lat, this.formData.lng);
+
+      setTimeout(() => {
+        if (this.infoWindow && this.marker) {
+          this.infoWindow.open(this.marker);
+        }
+      }, 400);
     }
   }
 
@@ -469,6 +522,27 @@ export class EditDormPage implements OnInit {
     if (zone.lat && zone.lng) {
       this.zoneCenter = { lat: zone.lat, lng: zone.lng };
       this.zoneRadius = zone.ZONE_RADIUS || 500;
+    }
+  }
+
+  onDormMarkerClick(marker: MapMarker, dorm: any) {
+    this.selectedDormForMap = dorm;
+    if (this.dormInfoWindow) {
+      this.dormInfoWindow.open(marker);
+    }
+  }
+
+  checkDuplicateLocation(lat: number, lng: number) {
+    this.duplicateDormName = null;
+    if (this.allDorms.length === 0) return;
+    for (const dorm of this.allDorms) {
+      if (dorm.lat && dorm.lng && dorm.DORM_ID !== this.dormId) { // ข้ามการเช็คหอพักตัวเอง
+        const dist = this.getDistanceFromLatLonInKm(lat, lng, dorm.lat, dorm.lng);
+        if (dist < 0.02) { // less than 20 meters
+          this.duplicateDormName = dorm.DORM_NAME || dorm.DORMNAME;
+          break;
+        }
+      }
     }
   }
 
