@@ -6,13 +6,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { environment } from '../environments/environment';
 import { MenuComponent } from "./components/menu/menu.component";
+import { RatingPromptComponent } from "./components/rating-prompt/rating-prompt.component";
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, MenuComponent],
+  imports: [IonicModule, CommonModule, RouterModule, MenuComponent, RatingPromptComponent],
 })
 export class AppComponent implements OnInit {
   api = environment.GGMAPI;

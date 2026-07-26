@@ -218,6 +218,16 @@ export class DormFormPage implements OnInit {
     }
   }
 
+  // ย้อนกลับโดยดูว่าเข้ามาจากหน้าไหน
+  goBack() {
+    const from = this.route.snapshot.queryParamMap.get('from');
+    if (from === 'manage-dorm') {
+      this.router.navigate(['/manage-dorm']);
+    } else {
+      this.router.navigate(['/my-dorms']);
+    }
+  }
+
   async loadDormOwners() {
     this.dormOwners = await this.userService.getDormOwners();
     if (this.dormOwners.length > 0) {

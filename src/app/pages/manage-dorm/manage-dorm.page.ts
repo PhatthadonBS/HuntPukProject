@@ -95,7 +95,7 @@ export class ManageDormPage implements OnInit {
 
   // ไปหน้าเพิ่มหอพัก
   goToAddDorm() {
-    this.router.navigate(['/dorm-form']); 
+    this.router.navigate(['/dorm-form'], { queryParams: { from: 'manage-dorm' } }); 
   }
 
   async loadAllDorms() {

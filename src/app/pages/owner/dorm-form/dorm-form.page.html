@@ -1,7 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="warning">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/my-dorms" text="ย้อนกลับ" color="dark"></ion-back-button>
+      <ion-button (click)="goBack()" color="dark">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        ย้อนกลับ
+      </ion-button>
     </ion-buttons>
     <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">
       {{ dormId ? 'ข้อมูลหอพัก' : 'ลงทะเบียนหอพัก' }}

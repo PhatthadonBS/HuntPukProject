@@ -15,7 +15,8 @@ import { addIcons } from 'ionicons';
 import { 
   personOutline, trashOutline, searchOutline, personAddOutline, 
   createOutline, filterOutline, caretDown, close, mail, call, personCircle, arrowBackOutline,
-  warningOutline, refreshOutline, documentTextOutline, settingsOutline
+  warningOutline, refreshOutline, documentTextOutline, settingsOutline,
+  businessOutline, chevronForwardOutline, addCircleOutline, peopleOutline, closeOutline
 } from 'ionicons/icons';
 @Component({
   selector: 'app-manage-users',
@@ -57,7 +58,7 @@ export class ManageUsersPage implements OnInit {
     private toastCtrl: ToastController,
     private modalCtrl: ModalController
   ) { 
-    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline, 'warning-outline': warningOutline, 'refresh-outline': refreshOutline, 'document-text-outline': documentTextOutline, 'settings-outline': settingsOutline });
+    addIcons({ personOutline, trashOutline, searchOutline, personAddOutline, createOutline, filterOutline, caretDown, close, mail, call, 'person-circle': personCircle, 'arrow-back-outline': arrowBackOutline, 'warning-outline': warningOutline, 'refresh-outline': refreshOutline, 'document-text-outline': documentTextOutline, 'settings-outline': settingsOutline, 'business-outline': businessOutline, 'chevron-forward-outline': chevronForwardOutline, 'add-circle-outline': addCircleOutline, 'people-outline': peopleOutline, 'close-outline': closeOutline });
   }
 
   ngOnInit() {
@@ -179,9 +180,28 @@ export class ManageUsersPage implements OnInit {
   // ส่วนจัดการเพิ่มสมาชิกใหม่
   // ==========================================
 
-  openAddModal() {
+  isTypeSelectOpen = false;
+
+  openTypeSelectModal() {
+    this.isTypeSelectOpen = true;
+  }
+
+  closeTypeSelectModal() {
+    this.isTypeSelectOpen = false;
+  }
+
+  selectMemberType(type: 'general' | 'owner') {
+    this.isTypeSelectOpen = false;
+    if (type === 'general') {
+      this.isAddModalOpen = true;
+      this.newUser = { username: '', password: '', email: '', phone_number: '', role_type_id: 1 };
+    } else {
+      this.router.navigate(['/requests']);
+    }
+  }
+
+  async openAddModal() {
     this.isAddModalOpen = true;
-    // ✅ Reset Form (role เป็น 1 เสมอ)
     this.newUser = { username: '', password: '', email: '', phone_number: '', role_type_id: 1 };
   }
 

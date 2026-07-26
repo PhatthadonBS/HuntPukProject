@@ -89,7 +89,8 @@ export class HomePage implements OnInit, ViewDidEnter {
   maxDistance: number = 1;
   zoneOptions: any[] = [];
   minScore: number | null = null;
-  maxWater: number | null = null;
+  maxWaterUnit: number | null = null;  // ค่าน้ำแบบรายหน่วย
+  maxWaterLump: number | null = null;  // ค่าน้ำแบบเหมา
   maxElect: number | null = null;
 
   // 🗺️ Map loading state
@@ -684,14 +685,15 @@ export class HomePage implements OnInit, ViewDidEnter {
            !!this.selectedZone ||
            (this.maxDistance !== null && this.maxDistance !== undefined && this.maxDistance !== 1) || 
            (this.minScore !== null && this.minScore !== undefined && this.minScore !== 0) || 
-           (this.maxWater !== null && this.maxWater !== undefined && this.maxWater !== 0) || 
+           (this.maxWaterUnit !== null && this.maxWaterUnit !== undefined && this.maxWaterUnit !== 0) || 
+           (this.maxWaterLump !== null && this.maxWaterLump !== undefined && this.maxWaterLump !== 0) || 
            (this.maxElect !== null && this.maxElect !== undefined && this.maxElect !== 0);
   }
 
   clearAllFilters() {
     this.minPrice = null; this.maxPrice = null; this.selectedZone = '';
-    this.maxDistance = 1; this.minScore = null; this.maxWater = null;
-    this.maxElect = null;
+    this.maxDistance = 1; this.minScore = null; this.maxWaterUnit = null;
+    this.maxWaterLump = null; this.maxElect = null;
     this.zoneCircleCenter = undefined; this.zoneCircleRadius = 0;
     this.circleCenter = this.referencePoint;
     this.circleRadius = 1000;
@@ -750,7 +752,8 @@ export class HomePage implements OnInit, ViewDidEnter {
         }
 
         if (this.minScore !== null && this.minScore !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
-        if (this.maxWater !== null && this.maxWater !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT <= this.maxWater! || dorm.WATER_LUMP <= this.maxWater!);
+        if (this.maxWaterUnit !== null && this.maxWaterUnit !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT > 0 && dorm.WATER_UNIT <= this.maxWaterUnit!);
+        if (this.maxWaterLump !== null && this.maxWaterLump !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_LUMP > 0 && dorm.WATER_LUMP <= this.maxWaterLump!);
         if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms as any[];

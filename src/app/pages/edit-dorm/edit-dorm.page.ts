@@ -261,7 +261,7 @@ export class EditDormPage implements OnInit {
 
   onZoneMarkerClick(zone: any) {
     this.applyZone(zone);
-    this.presentToast(`เลือกโซน: ${zone.ZONE_NAME}`, 'success');
+    this.showToast(`เลือกโซน: ${zone.ZONE_NAME}`, 'success');
   }
 
   getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {

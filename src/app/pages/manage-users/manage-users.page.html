@@ -1,7 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="admin-toolbar">
     <ion-buttons slot="start">
-      <ion-button routerLink="/home" class="custom-back-btn">
+      <ion-button routerLink="/dashboard" class="custom-back-btn">
         <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -32,11 +32,60 @@
           </button>
         </div>
 
-        <div class="add-section" (click)="openAddModal()">
+        <div class="add-section" (click)="openTypeSelectModal()">
           <ion-icon name="add-circle-outline"></ion-icon>
           <span>เพิ่มสมาชิก</span>
         </div>
       </div>
+
+      <!-- =========================================
+           Custom Member Type Selection Modal
+           ========================================= -->
+      <div class="type-select-overlay" *ngIf="isTypeSelectOpen" (click)="closeTypeSelectModal()">
+        <div class="type-select-card" (click)="$event.stopPropagation()">
+          
+          <!-- Header -->
+          <div class="type-select-header">
+            <div class="type-select-icon-wrap">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <h2>เพิ่มสมาชิกใหม่</h2>
+            <p>เลือกประเภทสมาชิกที่ต้องการเพิ่มเข้าระบบ</p>
+          </div>
+
+          <!-- Options -->
+          <div class="type-select-options">
+            <button class="type-option-btn member-btn" (click)="selectMemberType('general')">
+              <div class="option-icon">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+              <div class="option-text">
+                <span class="option-title">สมาชิกทั่วไป</span>
+                <span class="option-desc">ผู้ใช้ที่ค้นหาและจองหอพัก</span>
+              </div>
+              <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+            </button>
+
+            <button class="type-option-btn owner-btn" (click)="selectMemberType('owner')">
+              <div class="option-icon">
+                <ion-icon name="business-outline"></ion-icon>
+              </div>
+              <div class="option-text">
+                <span class="option-title">เจ้าของหอพัก</span>
+                <span class="option-desc">ผู้ลงทะเบียนและจัดการหอพัก</span>
+              </div>
+              <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
+            </button>
+          </div>
+
+          <!-- Cancel -->
+          <button class="type-cancel-btn" (click)="closeTypeSelectModal()">
+            <ion-icon name="close-outline"></ion-icon>
+            ยกเลิก
+          </button>
+        </div>
+      </div>
+
 
       <div class="result-info" style="margin: 10px 0 15px; font-size: 14px; color: #475569; font-weight: 600;">
         พบ {{ displayedUsers.length }} รายการ

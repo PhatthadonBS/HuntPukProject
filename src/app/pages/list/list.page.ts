@@ -33,7 +33,8 @@ export class ListPage implements OnInit {
   maxPrice: number | null = null;
   selectedZone: string = '';
   minScore: number | null = null;
-  maxWater: number | null = null;
+  maxWaterUnit: number | null = null;  // ค่าน้ำแบบรายหน่วย
+  maxWaterLump: number | null = null;  // ค่าน้ำแบบเหมา
   maxElect: number | null = null;
   zoneOptions: any[] = [];
   currentSort: string = ''; // 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'score_desc'
@@ -148,7 +149,8 @@ export class ListPage implements OnInit {
         })) as any[];
         
         if (this.minScore !== null && this.minScore !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
-        if (this.maxWater !== null && this.maxWater !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT <= this.maxWater! || dorm.WATER_LUMP <= this.maxWater!);
+        if (this.maxWaterUnit !== null && this.maxWaterUnit !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT > 0 && dorm.WATER_UNIT <= this.maxWaterUnit!);
+        if (this.maxWaterLump !== null && this.maxWaterLump !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_LUMP > 0 && dorm.WATER_LUMP <= this.maxWaterLump!);
         if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms;
@@ -165,7 +167,7 @@ export class ListPage implements OnInit {
   
   clearAllFilters() {
     this.minPrice = null; this.maxPrice = null; this.selectedZone = '';
-    this.minScore = null; this.maxWater = null; this.maxElect = null;
+    this.minScore = null; this.maxWaterUnit = null; this.maxWaterLump = null; this.maxElect = null;
   }
 
   applyFilter() { this.setOpen(false); this.performSearch(); }

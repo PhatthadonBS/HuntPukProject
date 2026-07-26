@@ -5,7 +5,7 @@ import {
   IonContent, IonHeader, IonTitle, IonToolbar, 
   IonButtons, IonButton, IonIcon, IonSpinner,
   IonSegment, IonSegmentButton, IonLabel, IonBadge, IonTextarea, IonSearchbar,
-  IonSelect, IonSelectOption, AlertController, ToastController
+  IonSelect, IonSelectOption, AlertController, ToastController, NavController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -52,6 +52,7 @@ export class ManageRequestsCreatedormPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private router: Router,
+    private navCtrl: NavController
   ) { 
     addIcons({ 
       arrowBack, person, business, calendar, checkmarkCircle, 
@@ -70,7 +71,7 @@ export class ManageRequestsCreatedormPage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/home']); 
+    this.navCtrl.back(); 
   }
 
   // ====== Load all requests ======
