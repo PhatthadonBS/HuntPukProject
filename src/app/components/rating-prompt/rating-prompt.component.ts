@@ -40,9 +40,9 @@ const INITIAL_DELAY_MS = 5 * 60 * 1000;   // รอ 5 นาทีแรกก�
             <ion-icon name="star-outline"></ion-icon>
             ให้คะแนนเลย!
           </button>
-          <button class="btn-about" (click)="onGoAbout()">
+          <button class="btn-about" (click)="onGoSupport()">
             <ion-icon name="arrow-forward-outline"></ion-icon>
-            ให้คะแนนในหน้า About
+            ให้คะแนนในภายหลัง
           </button>
         </div>
 
@@ -281,12 +281,12 @@ export class RatingPromptComponent implements OnInit, OnDestroy {
     this.rated.emit();
   }
 
-  /** ผู้ใช้ต้องการให้คะแนนในหน้า About */
-  onGoAbout() {
+  /** ผู้ใช้ต้องการให้คะแนนในหน้า Support */
+  onGoSupport() {
     this.isVisible = false;
-    // บันทึกว่ากด "ไปให้ที่หน้า About" แทนการ dismiss
+    // บันทึกว่ากด "ไปให้ที่หน้า Support" แทนการ dismiss
     // ไม่นับเป็น dismiss เพื่อให้ยังแจ้งอีกถ้าไม่ได้ให้
-    this.router.navigate(['/about']);
+    this.router.navigate(['/support']);
   }
 
   /** ผู้ใช้กด "ทีหลัง" หรือ backdrop */

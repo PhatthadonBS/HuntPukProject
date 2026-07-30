@@ -8,7 +8,7 @@ import {
   home, listOutline, starOutline, person, personCircleOutline, 
   key, create, business, heartOutline, logOutOutline, cubeOutline,
   close, chevronBackOutline, barChartOutline, peopleOutline,
-  documentTextOutline, gridOutline, informationCircleOutline
+  documentTextOutline, gridOutline, informationCircleOutline, chatbubblesOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -47,7 +47,8 @@ export class MenuComponent implements OnInit, OnDestroy {
       peopleOutline,
       documentTextOutline,
       gridOutline,
-      informationCircleOutline
+      informationCircleOutline,
+      chatbubblesOutline
     });
   }
 

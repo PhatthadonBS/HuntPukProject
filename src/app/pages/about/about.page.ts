@@ -2,12 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { HeaderComponent } from '../../components/header/header.component';
-import { TeamModalComponent, TeamMember } from '../../components/team-modal/team-modal.component';
 import { addIcons } from 'ionicons';
 import {
   bugOutline, starOutline, callOutline, documentTextOutline,
   mailOutline, logoFacebook, chatbubblesOutline, arrowBackOutline,
-  openOutline, peopleOutline
+  openOutline, codeSlashOutline
 } from 'ionicons/icons';
 import { RouterModule } from '@angular/router';
 
@@ -16,31 +15,33 @@ import { RouterModule } from '@angular/router';
   templateUrl: './about.page.html',
   styleUrls: ['./about.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, RouterModule, HeaderComponent, TeamModalComponent]
+  imports: [CommonModule, IonicModule, RouterModule, HeaderComponent]
 })
 export class AboutPage implements OnInit {
-  feedbackFormUrl = 'https://forms.gle/yAFcXB5iZoXUj3qFA';
-  ratingFormUrl = 'https://forms.gle/gwsN7eyL9iaEaDKR8';
 
-  showTeamModal = false;
+  // TODO: เปลี่ยนชื่อ, ตำแหน่ง, avatar (ตัวอักษรย่อ) และลิงก์ Facebook/เบอร์โทร ให้ถูกต้อง
+  advisor: any = {
+    name: 'ผู้ช่วยศาสตราจารย์ ดร.สำรวน เวียงสมุทร',
+    role: 'อาจารย์ที่ปรึกษา',
+    avatar: 'T',
+    avatarColor: '#ff4d4d',
+    avatarTextColor: '#ffffff',
+  };
 
-  // TODO: เปลี่ยนชื่อ, ตำแหน่ง, avatar (ตัวอักษรย่อ) และลิงก์ Facebook ให้ถูกต้อง
-  teamMembers: TeamMember[] = [
+  teamMembers: any[] = [
     {
-      name: 'ชื่อผู้จัดทำ คนที่ 1',
-      role: 'Frontend Developer',
+      name: 'นายอรรมนาถ แป้นโสม',
+      role: 'Frontend Developer,Backend Developer',
       avatar: 'P',
       avatarColor: '#FFD600',
       avatarTextColor: '#1a1a1a',
-      facebookUrl: 'https://facebook.com/'
     },
     {
-      name: 'ชื่อผู้จัดทำ คนที่ 2',
-      role: 'Backend Developer',
+      name: 'นายพัทธดนย์ สุดหลักทอง',
+      role: 'Frontend Developer,Backend Developer',
       avatar: 'P',
       avatarColor: '#1877f2',
       avatarTextColor: '#ffffff',
-      facebookUrl: 'https://facebook.com/'
     }
   ];
 
@@ -55,7 +56,7 @@ export class AboutPage implements OnInit {
       'chatbubbles-outline': chatbubblesOutline,
       'arrow-back-outline': arrowBackOutline,
       'open-outline': openOutline,
-      'people-outline': peopleOutline,
+      'code-slash-outline': codeSlashOutline
     });
   }
 

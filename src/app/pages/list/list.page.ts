@@ -10,13 +10,14 @@ import { DormitoryService, Dormitory } from '../../services/dormitory';
 import { UserService } from '../../services/user'; 
 import { HeaderComponent } from '../../components/header/header.component'; 
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
+import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, HeaderComponent] 
+  imports: [CommonModule, FormsModule, IonicModule, HeaderComponent, RequireLoginModalComponent] 
 })
 export class ListPage implements OnInit {
 
@@ -209,15 +210,16 @@ export class ListPage implements OnInit {
     event.preventDefault(); 
 
     if (!this.currentUser || this.currentUserId === 0) {
-        const alert = await this.alertCtrl.create({
-            header: 'แจ้งเตือน',
-            message: 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อเลือกหอพักที่คุณสนใจครับ',
-            buttons: [
-                { text: 'ยกเลิก', role: 'cancel' },
-                { text: 'เข้าสู่ระบบ', handler: () => this.router.navigate(['/login']) }
-            ]
+        const modal = await this.modalCtrl.create({
+            component: RequireLoginModalComponent,
+            cssClass: 'custom-alert-modal'
         });
-        await alert.present();
+        await modal.present();
+        
+        const { role } = await modal.onDidDismiss();
+        if (role === 'login') {
+            this.router.navigate(['/login']);
+        }
         return;
     }
 

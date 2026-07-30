@@ -1,0 +1,65 @@
+<ion-header class="glass-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" icon="arrow-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Support / แจ้งปัญหา</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="support-content" [fullscreen]="true">
+  <div class="hero-section">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+      </div>
+      <h1>ศูนย์ช่วยเหลือ</h1>
+      <p>มีปัญหาการใช้งานหรือต้องการเสนอแนะ บอกเราได้เลย</p>
+    </div>
+  </div>
+
+  <div class="container fade-in-up">
+
+    <!-- Report & Rating Cards -->
+    <div class="card-grid">
+      <div class="glass-card interactive" (click)="openLink(feedbackFormUrl)">
+        <div class="card-icon-wrap error-icon">
+          <ion-icon name="bug-outline"></ion-icon>
+        </div>
+        <div class="card-text">
+          <h3>รายงานข้อผิดพลาด</h3>
+          <p>พบเจอปัญหาระหว่างใช้งาน? แจ้งให้เราทราบ</p>
+        </div>
+        <ion-icon name="open-outline" class="action-icon"></ion-icon>
+      </div>
+
+      <div class="glass-card interactive" (click)="openLink(ratingFormUrl)">
+        <div class="card-icon-wrap rating-icon">
+          <ion-icon name="star-outline"></ion-icon>
+        </div>
+        <div class="card-text">
+          <h3>ให้คะแนนระบบ</h3>
+          <p>ช่วยเราพัฒนาโดยการให้คะแนนและคำติชม</p>
+        </div>
+        <ion-icon name="open-outline" class="action-icon"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Contact Info -->
+    <h2 class="section-title"><ion-icon name="call-outline"></ion-icon> แจ้งปัญหาโดยตรงติดต่อทีมงาน</h2>
+    <div class="contact-section glass-card">
+      <div class="contact-item">
+        <div class="icon-circle email-bg"><ion-icon name="mail-outline"></ion-icon></div>
+        <div class="item-info">
+          <h4>Email Support (สำหรับติดต่อทางเว็บโดยเฉพาะ)</h4>
+          <a href="mailto:noreply.huntpuk@gmail.com">noreply.huntpuk@gmail.com</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

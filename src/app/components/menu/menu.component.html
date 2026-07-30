@@ -51,7 +51,11 @@
         </div>
         <div class="menu-item" [class.active]="isActive('/about')" (click)="navigate('/about')">
           <div class="menu-icon-wrap"><ion-icon name="information-circle-outline"></ion-icon></div>
-          <span>About Us / ติดต่อเรา</span>
+          <span>About Us / ทีมผู้จัดทำ</span>
+        </div>
+        <div class="menu-item" [class.active]="isActive('/support')" (click)="navigate('/support')">
+          <div class="menu-icon-wrap"><ion-icon name="chatbubbles-outline"></ion-icon></div>
+          <span>Support / แจ้งปัญหา</span>
         </div>
 
         <ng-container *ngIf="userRole > 0">

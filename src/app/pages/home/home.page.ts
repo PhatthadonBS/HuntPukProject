@@ -24,6 +24,7 @@ import { DormDetailPage } from '../dorm-detail/dorm-detail.page';
 import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-modal.component';
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
+import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
 
 import {
   menuOutline, caretDownOutline, layersOutline, close,
@@ -47,7 +48,7 @@ import {
     CommonModule, FormsModule, IonicModule, RouterModule,
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
     HeaderComponent, MapDirectionsRenderer, MapCircle, MapMarker,
-    WelcomeModalComponent, SplashScreenComponent
+    WelcomeModalComponent, SplashScreenComponent, RequireLoginModalComponent
   ],
 })
 export class HomePage implements OnInit, ViewDidEnter {
@@ -1062,15 +1063,16 @@ export class HomePage implements OnInit, ViewDidEnter {
     event.preventDefault(); 
 
     if (!this.currentUser || !(this.currentUser.id || this.currentUser.USER_ID)) {
-        const alert = await this.alertCtrl.create({
-            header: 'แจ้งเตือน',
-            message: 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อเลือกหอพักที่คุณสนใจครับ',
-            buttons: [
-                { text: 'ยกเลิก', role: 'cancel' },
-                { text: 'เข้าสู่ระบบ', handler: () => this.router.navigate(['/login']) }
-            ]
+        const modal = await this.modalCtrl.create({
+            component: RequireLoginModalComponent,
+            cssClass: 'custom-alert-modal'
         });
-        await alert.present();
+        await modal.present();
+        
+        const { role } = await modal.onDidDismiss();
+        if (role === 'login') {
+            this.router.navigate(['/login']);
+        }
         return;
     }
 

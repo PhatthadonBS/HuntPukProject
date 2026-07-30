@@ -23,70 +23,57 @@
 
   <div class="container fade-in-up">
 
-    <!-- Report & Rating Cards -->
-    <div class="card-grid">
-      <div class="glass-card interactive" (click)="openLink(feedbackFormUrl)">
-        <div class="card-icon-wrap error-icon">
-          <ion-icon name="bug-outline"></ion-icon>
+
+
+    <!-- Team Section -->
+    <h2 class="section-title"><ion-icon name="code-slash-outline"></ion-icon> ทีมผู้พัฒนา</h2>
+    
+    <div class="team-hierarchy">
+      <!-- Advisor -->
+      <div class="advisor-row">
+        <div class="member-card advisor-card">
+          <!-- Profile Icon -->
+          <div class="member-avatar"
+               [style.background]="advisor.avatarColor"
+               [style.color]="advisor.avatarTextColor">
+            {{ advisor.avatar }}
+          </div>
+          <!-- Name & Role -->
+          <h3>{{ advisor.name }}</h3>
+          <span class="role-badge">{{ advisor.role }}</span>
+          
+    
+          </div>
         </div>
-        <div class="card-text">
-          <h3>รายงานข้อผิดพลาด</h3>
-          <p>พบเจอปัญหาระหว่างใช้งาน? แจ้งให้เราทราบ</p>
-        </div>
-        <ion-icon name="open-outline" class="action-icon"></ion-icon>
       </div>
 
-      <div class="glass-card interactive" (click)="openLink(ratingFormUrl)">
-        <div class="card-icon-wrap rating-icon">
-          <ion-icon name="star-outline"></ion-icon>
-        </div>
-        <div class="card-text">
-          <h3>ให้คะแนนระบบ</h3>
-          <p>ช่วยเราพัฒนาโดยการให้คะแนนและคำติชม</p>
-        </div>
-        <ion-icon name="open-outline" class="action-icon"></ion-icon>
-      </div>
-    </div>
-
-    <!-- Team Banner Button -->
-    <div class="team-banner" (click)="showTeamModal = true">
-      <div class="team-banner-left">
-        <div class="team-avatars-preview">
-          <div class="preview-avatar" style="background: #FFD600; color: #1a1a1a;">P</div>
-          <div class="preview-avatar" style="background: #1877f2; color: #fff;">P</div>
-        </div>
-        <div class="team-banner-text">
-          <h3>ทีมผู้จัดทำ</h3>
-          <p>ดูข้อมูลและช่องทางติดต่อแอดมิน</p>
+      <!-- Developers -->
+      <div class="developer-row">
+        <div class="member-card" *ngFor="let member of teamMembers; let i = index"
+             [style.animation-delay]="(i * 0.1) + 's'">
+          <!-- Profile Icon -->
+          <div class="member-avatar"
+               [style.background]="member.avatarColor"
+               [style.color]="member.avatarTextColor">
+            {{ member.avatar }}
+          </div>
+          <!-- Name & Role -->
+          <h3>{{ member.name }}</h3>
+          <span class="role-badge">{{ member.role }}</span>
+          
+          
         </div>
       </div>
-      <ion-icon name="people-outline" class="team-banner-right"></ion-icon>
     </div>
 
     <!-- Contact Info -->
-    <h2 class="section-title"><ion-icon name="call-outline"></ion-icon> ข้อมูลการติดต่อ</h2>
+    <h2 class="section-title"><ion-icon name="call-outline"></ion-icon> ข้อมูลการติดต่อทีมงาน HuntPuk</h2>
     <div class="contact-section glass-card">
       <div class="contact-item">
         <div class="icon-circle email-bg"><ion-icon name="mail-outline"></ion-icon></div>
         <div class="item-info">
           <h4>Email</h4>
-          <a href="mailto:support@huntpuk.com">support@huntpuk.com</a>
-        </div>
-      </div>
-      <div class="contact-divider"></div>
-      <div class="contact-item">
-        <div class="icon-circle line-bg"><ion-icon name="chatbubbles-outline"></ion-icon></div>
-        <div class="item-info">
-          <h4>LINE Official</h4>
-          <a href="https://line.me/ti/p/~@huntpuk" target="_blank">@huntpuk</a>
-        </div>
-      </div>
-      <div class="contact-divider"></div>
-      <div class="contact-item">
-        <div class="icon-circle fb-bg"><ion-icon name="logo-facebook"></ion-icon></div>
-        <div class="item-info">
-          <h4>Facebook Page</h4>
-          <a href="https://facebook.com/huntpuk" target="_blank">HuntPuk ค้นหาหอพัก</a>
+          <a href="mailto:noreply.huntpuk@gmail.com">noreply.huntpuk@gmail.com</a>
         </div>
       </div>
     </div>
@@ -109,13 +96,8 @@
     <div class="footer-credit">
       <p>&copy; 2026 HuntPuk. All rights reserved.</p>
     </div>
-  </div>
+ 
 
-  <!-- ✅ Team Popup Component -->
-  <app-team-modal
-    [isOpen]="showTeamModal"
-    [members]="teamMembers"
-    (closed)="showTeamModal = false">
-  </app-team-modal>
+
 
 </ion-content>
