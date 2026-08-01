@@ -11,8 +11,13 @@
 <ion-content class="dark-content">
   <div class="main-container">
     
-    <div *ngIf="compareError" class="error-box">
+    <div *ngIf="compareError" class="empty-state-card">
+      <ion-icon name="alert-circle-outline" class="empty-icon"></ion-icon>
+      <h3>ขออภัยครับ</h3>
       <p>{{ compareError }}</p>
+      <ion-button fill="solid" shape="round" color="warning" class="retry-btn" (click)="fetchPopularDorms()">
+        ลองใหม่อีกครั้ง
+      </ion-button>
     </div>
 
     <div class="yellow-card" *ngIf="popularDorms.length > 0">

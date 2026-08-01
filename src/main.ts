@@ -8,6 +8,7 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 // ✅ 2. นำเข้าไฟล์ Interceptor ที่เราเพิ่งสร้าง (เช็ค path ให้ตรงกับที่ไฟล์คุณอยู่นะครับ)
 import { authInterceptor } from './app/interceptors/auth-interceptor'; 
+import { environment } from './environments/environment';
 
 bootstrapApplication(AppComponent, {
   providers: [

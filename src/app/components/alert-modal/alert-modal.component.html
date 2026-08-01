@@ -1,4 +1,4 @@
-<div class="alert-container">
+<div class="alert-container" [class.map-centered]="isMapCentered">
   <div class="alert-card" [@popIn]>
     <div class="icon-circle" [ngStyle]="{'background-color': iconColor + '20', 'color': iconColor}">
       <!-- Success Icon -->

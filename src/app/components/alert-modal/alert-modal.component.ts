@@ -26,6 +26,7 @@ export class AlertModalComponent implements OnInit {
   @Input() message: string = '';
   @Input() note: string = '';
   @Input() type: 'success' | 'warning' | 'error' | 'info' = 'info';
+  @Input() isMapCentered: boolean = false;
 
   iconName: string = 'information-circle-outline';
   iconColor: string = '#1976d2';

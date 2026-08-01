@@ -288,6 +288,12 @@ export class HomePage implements OnInit, ViewDidEnter {
     });
   }
 
+  ionViewWillEnter() {
+    // 🧹 เคลียร์ State การเลือกหอพักทุกครั้งที่กลับมาหน้า Home
+    // เพื่อป้องกันบั๊กที่หอพักยังถูกเลือกค้างไว้หลังจากกลับมาจากหน้า Login
+    this.closeDetailPanel();
+  }
+
   ionViewWillLeave() {
     this.isModalOpen = false;
     if (this.isNavigating) {
@@ -602,9 +608,23 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.dorms = [...this.allDorms];
         // ✅ Call performSearch to apply initial radius filter
         this.performSearch();
+      } else {
+        this.showToast('ไม่พบข้อมูลหอพักในระบบขณะนี้', 'warning', 'alert-circle-outline');
       }
     } catch (err) {
       console.error('Search Dorms Error:', err);
+      // เปลี่ยนมาใช้ AlertModalComponent ตามคำแนะนำ
+      const modal = await this.modalCtrl.create({
+        component: AlertModalComponent,
+        componentProps: {
+          title: 'เกิดข้อผิดพลาด',
+          message: 'ไม่สามารถโหลดข้อมูลหอพักได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตหรือเซิร์ฟเวอร์',
+          type: 'error',
+          isMapCentered: true
+        },
+        cssClass: 'custom-alert-modal'
+      });
+      await modal.present();
     }
   }
 
@@ -764,15 +784,19 @@ export class HomePage implements OnInit, ViewDidEnter {
         if (this.dorms.length === 0) {
           setTimeout(async () => {
             const hasFilter = this.hasActiveFilter();
-            const alert = await this.alertCtrl.create({
-              header: 'ไม่พบหอพัก',
-              message: hasFilter 
-                ? 'ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้ กรุณาลองปรับตัวกรองหรือขยายระยะทางเพิ่มเติม' 
-                : 'ไม่พบหอพักในบริเวณนี้ กรุณาลองขยายระยะทางเพิ่มเติม (เช่น 2 กม. หรือ 3 กม.)',
-              cssClass: 'top-alert',
-              buttons: ['ตกลง']
+            const modal = await this.modalCtrl.create({
+              component: AlertModalComponent,
+              componentProps: {
+                title: 'ไม่พบหอพัก',
+                message: hasFilter 
+                  ? 'ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้ กรุณาลองปรับตัวกรองหรือขยายระยะทางเพิ่มเติม' 
+                  : 'ไม่พบหอพักในบริเวณนี้ กรุณาลองขยายระยะทางเพิ่มเติม (เช่น 2 กม. หรือ 3 กม.)',
+                type: 'warning',
+                isMapCentered: true
+              },
+              cssClass: 'custom-alert-modal'
             });
-            await alert.present();
+            await modal.present();
           }, 300);
         }
 
@@ -791,8 +815,25 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.dorms = [];
         this.circleCenter = undefined;
         this.zoneCircleCenter = undefined;
+        this.cdr.detectChanges();
+        setTimeout(async () => {
+          const modal = await this.modalCtrl.create({
+            component: AlertModalComponent,
+            componentProps: {
+              title: 'ไม่พบข้อมูล',
+              message: 'ไม่พบหอพักจากระบบ กรุณาลองใหม่อีกครั้ง',
+              type: 'warning',
+              isMapCentered: true
+            },
+            cssClass: 'custom-alert-modal'
+          });
+          await modal.present();
+        }, 300);
       }
-    } catch (err) { console.error('Search Error:', err); }
+    } catch (err) { 
+      console.error('Search Error:', err); 
+      this.showToast('เกิดข้อผิดพลาดในการค้นหาหอพัก', 'danger', 'alert-circle-outline');
+    }
   }
 
   getDormMinPrice(dorm: any): number {

@@ -530,11 +530,15 @@ export class DormFormPage implements OnInit {
     };
   }
 
-  getZoneMarkerOptions(zone: any): google.maps.MarkerOptions {
+  getZoneMarkerOptions(zone: any): any {
     const isSelected = this.formData.zone_id === zone.ZONE_ID;
+    // SymbolPath.CIRCLE = 0 (numeric fallback to avoid runtime error if google not loaded yet)
+    const circlePath = (typeof google !== 'undefined' && google?.maps?.SymbolPath)
+      ? google.maps.SymbolPath.CIRCLE
+      : 0;
     return {
       icon: {
-        path: google.maps.SymbolPath.CIRCLE,
+        path: circlePath,
         scale: 10,
         fillColor: isSelected ? '#f59e0b' : '#4285F4',
         fillOpacity: 1,
@@ -551,14 +555,17 @@ export class DormFormPage implements OnInit {
     };
   }
 
-  getDormMarkerOptions(dorm: any): google.maps.MarkerOptions {
+  getDormMarkerOptions(dorm: any): any {
+    const scaledSize = (typeof google !== 'undefined' && google?.maps?.Size)
+      ? new google.maps.Size(32, 32)
+      : undefined;
     return {
       icon: {
         url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-        scaledSize: new google.maps.Size(32, 32),
+        ...(scaledSize ? { scaledSize } : {})
       },
       title: dorm.DORM_NAME || dorm.DORMNAME,
-      zIndex: 1 // Keep existing dorms below the user's active marker
+      zIndex: 1
     };
   }
 
