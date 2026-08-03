@@ -70,16 +70,16 @@
             <div class="menu-icon-wrap"><ion-icon name="key"></ion-icon></div>
             <span>ร้องขอเป็นเจ้าของหอพัก</span>
           </div>
-          <ng-container *ngIf="userRole === 2 || userRole === 3">
-            <div class="menu-item" [class.active]="isActive('/dorm-form')" (click)="navigate('/dorm-form')">
-              <div class="menu-icon-wrap"><ion-icon name="create"></ion-icon></div>
-              <span>ลงทะเบียนหอพัก</span>
-            </div>
-            <div class="menu-item" [class.active]="isActive('/my-dorms')" (click)="navigate('/my-dorms')">
-              <div class="menu-icon-wrap"><ion-icon name="business"></ion-icon></div>
-              <span>หอพักของฉัน</span>
-            </div>
-          </ng-container>
+          <!-- เจ้าของหอพัก + Admin: ลงทะเบียนหอพัก -->
+          <div class="menu-item" *ngIf="userRole === 2 || userRole === 3" [class.active]="isActive('/dorm-form')" (click)="navigate('/dorm-form')">
+            <div class="menu-icon-wrap"><ion-icon name="create"></ion-icon></div>
+            <span>ลงทะเบียนหอพัก</span>
+          </div>
+          <!-- เจ้าของหอพักเท่านั้น: หอพักของฉัน -->
+          <div class="menu-item" *ngIf="userRole === 2" [class.active]="isActive('/my-dorms')" (click)="navigate('/my-dorms')">
+            <div class="menu-icon-wrap"><ion-icon name="business"></ion-icon></div>
+            <span>หอพักของฉัน</span>
+          </div>
           <div class="menu-item" *ngIf="userRole === 1" [class.active]="isActive('/favorites')" (click)="navigate('/favorites')">
             <div class="menu-icon-wrap"><ion-icon name="heart-outline"></ion-icon></div>
             <span>รายการโปรด</span>

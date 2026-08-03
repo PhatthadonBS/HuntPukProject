@@ -14,6 +14,8 @@ import { BaseChartDirective } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
 import { DormitoryService } from '../../services/dormitory';
 import { UserService } from '../../services/user';
+import { OwnerRequestService } from '../../services/owner-request';
+import { firstValueFrom } from 'rxjs';
 import { HeaderComponent } from '../../components/header/header.component';
 import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-modal.component';
 import { GoogleMapsModule, MapInfoWindow, MapMarker } from '@angular/google-maps';
@@ -90,6 +92,9 @@ export class DashboardPage implements OnInit {
 
   stats: DashboardStats | null = null;
   pendingRequests: number = 0;
+  pendingDormReqs: number = 0;
+  pendingOwnerReqs: number = 0;
+  isRequestModalOpen = false;
 
   showWelcomeModal = false;
   today: Date = new Date();
@@ -132,6 +137,7 @@ export class DashboardPage implements OnInit {
     public router: Router,
     private dormService: DormitoryService,
     private userService: UserService,
+    private ownerReqService: OwnerRequestService,
     private actionSheetCtrl: ActionSheetController
   ) {
     addIcons({
@@ -191,8 +197,14 @@ export class DashboardPage implements OnInit {
         this.error = true;
       }
 
-      const reqRes = await this.dormService.getPendingRequests();
-      this.pendingRequests = reqRes?.success ? reqRes.data.length : 0;
+      const [reqRes, ownerReqRes] = await Promise.all([
+        this.dormService.getPendingRequests(),
+        firstValueFrom(this.ownerReqService.getAllRequests()).catch(() => [])
+      ]);
+      
+      this.pendingDormReqs = reqRes?.success && reqRes.data ? reqRes.data.length : 0;
+      this.pendingOwnerReqs = ownerReqRes && Array.isArray(ownerReqRes) ? ownerReqRes.length : 0;
+      this.pendingRequests = this.pendingDormReqs + this.pendingOwnerReqs;
 
       // Pre-fetch map data in background so it's instant when opened and always up-to-date
       this.fetchMapData();
@@ -666,16 +678,17 @@ export class DashboardPage implements OnInit {
     if (keyword) this.router.navigate(['/list']);
   }
 
-  async openRequestActionSheet() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'เลือกหน้าจัดการคำขอรออนุมัติ',
-      buttons: [
-        { text: 'คำขอเพิ่มหอพัก', icon: 'business', handler: () => { this.router.navigate(['/manage-requests-createdorm']); } },
-        { text: 'คำขอสิทธิ์เจ้าของหอพัก', icon: 'person-circle', handler: () => { this.router.navigate(['/manage-requests-dorm-owner']); } },
-        { text: 'ยกเลิก', icon: 'close', role: 'cancel' }
-      ]
-    });
-    await actionSheet.present();
+  openRequestModal() { this.isRequestModalOpen = true; }
+  closeRequestModal() { this.isRequestModalOpen = false; }
+
+  goToManageRequestsCreateDorm() {
+    this.closeRequestModal();
+    this.router.navigate(['/manage-requests-createdorm']);
+  }
+
+  goToManageRequestsOwner() {
+    this.closeRequestModal();
+    this.router.navigate(['/manage-requests-dorm-owner']);
   }
 
   openMenu() { window.dispatchEvent(new CustomEvent('toggle-sidebar')); }

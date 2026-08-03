@@ -13,22 +13,22 @@
 
   <!-- Step Indicator -->
   <div class="step-indicator" *ngIf="formState === 'editing'">
-    <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+    <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1" (click)="goToStep(1)" style="cursor: pointer;">
       <span class="step-num">1</span>
       <span class="step-label">ทั่วไป</span>
     </div>
     <div class="step-line" [class.active]="currentStep > 1"></div>
-    <div class="step" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
+    <div class="step" [class.active]="currentStep >= 2" [class.done]="currentStep > 2" (click)="goToStep(2)" style="cursor: pointer;">
       <span class="step-num">2</span>
       <span class="step-label">สิ่งอำนวยฯ</span>
     </div>
     <div class="step-line" [class.active]="currentStep > 2"></div>
-    <div class="step" [class.active]="currentStep >= 3" [class.done]="currentStep > 3">
+    <div class="step" [class.active]="currentStep >= 3" [class.done]="currentStep > 3" (click)="goToStep(3)" style="cursor: pointer;">
       <span class="step-num">3</span>
       <span class="step-label">ห้องพัก</span>
     </div>
     <div class="step-line" [class.active]="currentStep > 3"></div>
-    <div class="step" [class.active]="currentStep >= 4">
+    <div class="step" [class.active]="currentStep >= 4" (click)="goToStep(4)" style="cursor: pointer;">
       <span class="step-num">4</span>
       <span class="step-label">รูปภาพ</span>
     </div>

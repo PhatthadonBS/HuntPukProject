@@ -1,7 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="warning">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/my-dorms" text="ย้อนกลับ" color="dark"></ion-back-button>
+      <ion-button (click)="goBack()" color="dark">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        ย้อนกลับ
+      </ion-button>
     </ion-buttons>
     <ion-title class="ion-text-center" style="color: #000; font-weight: bold;">แก้ไขข้อมูลหอพัก</ion-title>
     <ion-buttons slot="end">
@@ -170,6 +173,13 @@
           <ion-input type="number" [(ngModel)]="formData.elect_unit" placeholder="เช่น 8" [disabled]="isWaitingForAdmin"></ion-input>
         </ion-item>
       </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons-container">
+        <ion-button expand="block" color="warning" shape="round" (click)="activeSegment = 'facilities'">
+          ถัดไป (สิ่งอำนวยความสะดวก) <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
     </div>
 
     <div *ngIf="activeSegment === 'facilities'" class="fade-in">
@@ -227,6 +237,16 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons-container" style="display: flex; gap: 10px;">
+        <ion-button expand="block" fill="outline" color="medium" shape="round" style="flex: 1;" (click)="activeSegment = 'general'">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon> ย้อนกลับ
+        </ion-button>
+        <ion-button expand="block" color="warning" shape="round" style="flex: 1;" (click)="activeSegment = 'rooms'">
+          ถัดไป (ห้องพัก) <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
       </div>
     </div>
 
@@ -313,6 +333,16 @@
             </ion-item>
           </div>
         </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons-container" style="display: flex; gap: 10px;">
+        <ion-button expand="block" fill="outline" color="medium" shape="round" style="flex: 1;" (click)="activeSegment = 'facilities'">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon> ย้อนกลับ
+        </ion-button>
+        <ion-button expand="block" color="warning" shape="round" style="flex: 1;" (click)="activeSegment = 'images'">
+          ถัดไป (รูปภาพ) <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
       </div>
     </div>
 
@@ -407,6 +437,19 @@
             </ion-button>
           </div>
         </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons-container" style="display: flex; gap: 10px;">
+        <ion-button expand="block" fill="outline" color="medium" shape="round" style="flex: 1;" (click)="activeSegment = 'rooms'">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon> ย้อนกลับ
+        </ion-button>
+        <ion-button expand="block" color="dark" shape="round" style="flex: 1; font-weight: bold;" (click)="onSubmit()" *ngIf="!isWaitingForAdmin && !isViewOnly && !isResubmitMode">
+          <ion-icon name="save-outline" slot="start"></ion-icon> บันทึกข้อมูล
+        </ion-button>
+        <ion-button expand="block" color="success" shape="round" style="flex: 1; font-weight: bold;" (click)="onSubmit()" *ngIf="isResubmitMode">
+          <ion-icon name="send-outline" slot="start"></ion-icon> ส่งข้อมูลใหม่
+        </ion-button>
       </div>
 
     </div>

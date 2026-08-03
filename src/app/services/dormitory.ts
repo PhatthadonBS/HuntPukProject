@@ -474,8 +474,8 @@ export class DormitoryService {
     return this.http.delete<any>(`${this.apiUrl}/dorms/dormTypes/${id}`);
   }
 
-  updateMasterType(type: string, id: number, name: string, lat?: number, lng?: number): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/type_management/${type}/${id}`, { name, lat, lng });
+  updateMasterType(type: string, id: number, name: string, lat?: number, lng?: number, radius?: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/type_management/${type}/${id}`, { name, lat, lng, radius });
   }
 
   getRoomTypes(): Observable<any[]> {
@@ -518,8 +518,8 @@ export class DormitoryService {
     return this.http.delete<any>(`${this.apiUrl}/dorms/dormStatuses/${id}`);
   }
 
-  addZone(name: string, lat: number, lng: number): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/dorms/zones`, { name, lat, lng });
+  addZone(name: string, lat: number, lng: number, radius: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/dorms/zones`, { name, lat, lng, radius });
   }
   deleteZone(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/dorms/zones/${id}`);

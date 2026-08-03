@@ -25,12 +25,13 @@ import { WelcomeModalComponent } from '../../components/welcome-modal/welcome-mo
 import { SplashScreenComponent } from '../../components/splash-screen/splash-screen.component';
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
+import { ActionConfirmModalComponent } from '../../components/action-confirm-modal/action-confirm-modal.component';
 
 import {
   menuOutline, caretDownOutline, layersOutline, close,
   locationOutline, checkmarkCircle, chevronDownCircleOutline,
-  call, chatbubbleEllipsesOutline, logoFacebook,
-  logoInstagram, paperPlaneOutline, optionsOutline,
+  call, chatbubbleEllipsesOutline, chatbubbleEllipses, logoFacebook,
+  logoInstagram, paperPlaneOutline, paperPlane, optionsOutline,
   navigateCircleOutline, timeOutline, walkOutline, carOutline,
   locate, navigate, createOutline, star, lockClosedOutline,
   bedOutline, checkmarkCircleOutline, locationSharp, chevronForwardOutline,
@@ -48,7 +49,8 @@ import {
     CommonModule, FormsModule, IonicModule, RouterModule,
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
     HeaderComponent, MapDirectionsRenderer, MapCircle, MapMarker,
-    WelcomeModalComponent, SplashScreenComponent, RequireLoginModalComponent
+    WelcomeModalComponent, SplashScreenComponent, RequireLoginModalComponent,
+    ActionConfirmModalComponent
   ],
 })
 export class HomePage implements OnInit, ViewDidEnter {
@@ -221,7 +223,7 @@ export class HomePage implements OnInit, ViewDidEnter {
     private modalCtrl: ModalController
   ) {
     addIcons({
-      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline, 'close': close, 'close-circle': closeCircle, 'location': location, 'location-outline': locationOutline, 'location-sharp': locationSharp, 'checkmark-circle': checkmarkCircle, 'checkmark-circle-outline': checkmarkCircleOutline, 'chevron-down-circle-outline': chevronDownCircleOutline, 'chevron-forward-outline': chevronForwardOutline, 'call': call, 'chatbubbles-outline': chatbubblesOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'logo-twitter': logoTwitter, 'paper-plane-outline': paperPlaneOutline, 'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline, 'time-outline': timeOutline, 'walk-outline': walkOutline, 'car-outline': carOutline, 'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star, 'star-outline': starOutline, 'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline, 'list-outline': listOutline, 'arrow-forward-outline': arrowForwardOutline, 'git-branch-outline': gitBranchOutline, 'person-circle-outline': personCircleOutline, 'alert-circle-outline': alertCircleOutline, 'bookmark': bookmark, 'bookmark-outline': bookmarkOutline, 'pin-outline': pinOutline, 'pin': pin,
+      'menu-outline': menuOutline, 'caret-down-outline': caretDownOutline, 'layers-outline': layersOutline, 'close': close, 'close-circle': closeCircle, 'location': location, 'location-outline': locationOutline, 'location-sharp': locationSharp, 'checkmark-circle': checkmarkCircle, 'checkmark-circle-outline': checkmarkCircleOutline, 'chevron-down-circle-outline': chevronDownCircleOutline, 'chevron-forward-outline': chevronForwardOutline, 'call': call, 'chatbubbles-outline': chatbubblesOutline, 'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'chatbubble-ellipses': chatbubbleEllipses, 'logo-facebook': logoFacebook, 'logo-instagram': logoInstagram, 'logo-twitter': logoTwitter, 'paper-plane-outline': paperPlaneOutline, 'paper-plane': paperPlane, 'options-outline': optionsOutline, 'navigate-circle-outline': navigateCircleOutline, 'time-outline': timeOutline, 'walk-outline': walkOutline, 'car-outline': carOutline, 'locate': locate, 'navigate': navigate, 'create-outline': createOutline, 'star': star, 'star-outline': starOutline, 'lock-closed-outline': lockClosedOutline, 'bed-outline': bedOutline, 'list-outline': listOutline, 'arrow-forward-outline': arrowForwardOutline, 'git-branch-outline': gitBranchOutline, 'person-circle-outline': personCircleOutline, 'alert-circle-outline': alertCircleOutline, 'bookmark': bookmark, 'bookmark-outline': bookmarkOutline, 'pin-outline': pinOutline, 'pin': pin,
       'arrow-down-outline': arrowDownOutline, 'arrow-up-outline': arrowUpOutline, 'chevron-down-outline': chevronDownOutline
     });
 
@@ -778,7 +780,21 @@ export class HomePage implements OnInit, ViewDidEnter {
         if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);
 
         this.dorms = tempDorms as any[];
-  
+
+        // ถ้า selectedDorm ถูก filter ออกจากรัศมีใหม่ ให้ล้างการเลือกและเส้นทาง
+        if (this.selectedDorm) {
+          const stillExists = this.dorms.some(
+            (d: any) => Number(d.DORM_ID) === Number(this.selectedDorm.DORM_ID)
+          );
+          if (!stillExists) {
+            this.selectedDorm = null;
+            this.directionsResult = undefined;
+            this.directLinePath = undefined;
+            this.altRouteRenderers = [];
+            this.isNavigating = false;
+          }
+        }
+
         this.cdr.detectChanges();
 
         if (this.dorms.length === 0) {
@@ -1117,65 +1133,77 @@ export class HomePage implements OnInit, ViewDidEnter {
         return;
     }
 
-    const currentUserId = Number(this.currentUser.id || this.currentUser.USER_ID);
-
-    if (dorm.isChecked) {
-        const alert = await this.alertCtrl.create({
-            header: 'ยกเลิกการสนใจ',
-            message: 'คุณต้องการยกเลิกการสนใจหอพักนี้ใช่หรือไม่?',
-            buttons: [
-                { text: 'ไม่', role: 'cancel' },
-                { 
-                  text: 'ใช่, ยกเลิก', 
-                  handler: async () => {
-                    try {
-                        await this.dormService.removeFavorite(currentUserId, dorm.DORM_ID || dorm.id);
-                        dorm.isChecked = false;
-                        const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
-                        if (targetInAll) targetInAll.isChecked = false;
-                        this.showToast('ยกเลิกการสนใจเรียบร้อย', 'medium', 'bookmark-outline');
-                        this.cdr.detectChanges();
-                    } catch (error) {
-                        this.showToast('เกิดข้อผิดพลาดในการยกเลิก', 'danger', 'alert-circle-outline');
-                    }
-                  }
-                }
-            ]
-        });
-        await alert.present();
+    const userRole = this.currentUser.role_id || this.currentUser.ROLE_ID;
+    if (userRole === 2 || userRole === 3) {
+        this.showToast('แอดมินหรือเจ้าของหอพักไม่สามารถกดรายการโปรดได้', 'warning', 'alert-circle-outline');
         return;
     }
 
-    const alert = await this.alertCtrl.create({
-        header: 'ยืนยัน',
-        message: 'คุณสนใจหอพักนี้ใช่หรือไม่?',
-        buttons: [
-            { text: 'ยกเลิก', role: 'cancel' },
-            { 
-              text: 'ใช่, สนใจ', 
-              handler: async () => {
-                try {
-                  await this.dormService.addFavorite(currentUserId, dorm.DORM_ID || dorm.id);
-                  dorm.isChecked = true; 
-                  const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
-                  if (targetInAll) targetInAll.isChecked = true;
-                  this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการสนใจเรียบร้อย!`, 'success', 'bookmark');
-                  this.cdr.detectChanges();
-                } catch (error: any) {
-                  if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
-                     dorm.isChecked = true;
-                     const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
-                     if (targetInAll) targetInAll.isChecked = true;
-                     this.showToast('หอพักนี้มีในรายการสนใจแล้วครับ', 'warning', 'bookmark');
-                     this.cdr.detectChanges();
-                  } else {
-                     this.showToast('เกิดข้อผิดพลาดในการบันทึก', 'danger', 'alert-circle-outline');
-                  }
-                }
-              }
+    const currentUserId = Number(this.currentUser.id || this.currentUser.USER_ID);
+
+    if (dorm.isChecked) {
+        const modal = await this.modalCtrl.create({
+            component: ActionConfirmModalComponent,
+            componentProps: {
+                title: 'ยกเลิกการสนใจ',
+                message: 'คุณต้องการยกเลิกการสนใจหอพักนี้ใช่หรือไม่?',
+                confirmText: 'ใช่, ยกเลิก',
+                cancelText: 'ไม่',
+                type: 'danger'
+            },
+            cssClass: 'custom-alert-modal'
+        });
+        await modal.present();
+        
+        const { role } = await modal.onDidDismiss();
+        if (role === 'confirm') {
+            try {
+                await this.dormService.removeFavorite(currentUserId, dorm.DORM_ID || dorm.id);
+                dorm.isChecked = false;
+                const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
+                if (targetInAll) targetInAll.isChecked = false;
+                this.showToast('ยกเลิกการสนใจเรียบร้อย', 'medium', 'bookmark-outline');
+                this.cdr.detectChanges();
+            } catch (error) {
+                this.showToast('เกิดข้อผิดพลาดในการยกเลิก', 'danger', 'alert-circle-outline');
             }
-        ]
+        }
+        return;
+    }
+
+    const modal = await this.modalCtrl.create({
+        component: ActionConfirmModalComponent,
+        componentProps: {
+            title: 'ยืนยัน',
+            message: 'คุณสนใจหอพักนี้ใช่หรือไม่?',
+            confirmText: 'ใช่, สนใจ',
+            cancelText: 'ยกเลิก',
+            type: 'confirm'
+        },
+        cssClass: 'custom-alert-modal'
     });
-    await alert.present();
+    await modal.present();
+    
+    const { role } = await modal.onDidDismiss();
+    if (role === 'confirm') {
+        try {
+            await this.dormService.addFavorite(currentUserId, dorm.DORM_ID || dorm.id);
+            dorm.isChecked = true; 
+            const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
+            if (targetInAll) targetInAll.isChecked = true;
+            this.showToast(`เพิ่ม "${dorm.DORM_NAME}" ลงรายการสนใจเรียบร้อย!`, 'success', 'bookmark');
+            this.cdr.detectChanges();
+        } catch (error: any) {
+            if (error.status === 409 || (error.error && error.error.message === 'Duplicate')) {
+                dorm.isChecked = true;
+                const targetInAll = this.allDorms.find(d => Number(d.DORM_ID) === Number(dorm.DORM_ID || dorm.id));
+                if (targetInAll) targetInAll.isChecked = true;
+                this.showToast('หอพักนี้มีในรายการสนใจแล้วครับ', 'warning', 'bookmark');
+                this.cdr.detectChanges();
+            } else {
+                this.showToast('เกิดข้อผิดพลาดในการบันทึก', 'danger', 'alert-circle-outline');
+            }
+        }
+    }
   }
 }

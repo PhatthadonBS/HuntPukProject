@@ -173,6 +173,16 @@ export class EditDormPage implements OnInit {
     }
   }
 
+  // ย้อนกลับโดยดูว่าเข้ามาจากหน้าไหน
+  goBack() {
+    const from = this.route.snapshot.queryParamMap.get('from');
+    if (from === 'manage-dorm') {
+      this.router.navigate(['/manage-dorm']);
+    } else {
+      this.router.navigate(['/my-dorms']);
+    }
+  }
+
   async loadInitialData() {
     try {
       const zoneRes = await this.dormService.getZones();
@@ -739,9 +749,14 @@ export class EditDormPage implements OnInit {
       
       this.showToast('บันทึกข้อมูลสำเร็จ!', 'success');
       
-      // ดันกลับไปที่หน้าจัดการหอพัก
+      // กลับไปหน้าที่เข้ามา
+      const from = this.route.snapshot.queryParamMap.get('from');
       setTimeout(() => {
-        this.router.navigate(['/my-dorms']);
+        if (from === 'manage-dorm') {
+          this.router.navigate(['/manage-dorm']);
+        } else {
+          this.router.navigate(['/my-dorms']);
+        }
       }, 800);
 
     } catch (error: any) {

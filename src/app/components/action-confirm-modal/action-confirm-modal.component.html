@@ -1,0 +1,26 @@
+<div class="alert-container">
+  <div class="alert-card" [@popIn]>
+    <div class="icon-circle" [ngStyle]="{'background-color': iconBgColor, 'color': iconColor}">
+      <svg *ngIf="type === 'confirm'" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" width="36" height="36">
+        <path d="M256 80c-8.66 0-16.58 7.36-16 16l8 216a8 8 0 008 8h0a8 8 0 008-8l8-216c.58-8.64-7.34-16-16-16z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+        <circle cx="256" cy="416" r="16" fill="currentColor"/>
+      </svg>
+      <svg *ngIf="type === 'danger'" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" width="36" height="36">
+        <path d="M256 80c-8.66 0-16.58 7.36-16 16l8 216a8 8 0 008 8h0a8 8 0 008-8l8-216c.58-8.64-7.34-16-16-16z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+        <circle cx="256" cy="416" r="16" fill="currentColor"/>
+      </svg>
+    </div>
+
+    <h2 class="alert-title">{{ title }}</h2>
+    <p class="alert-message" [innerHTML]="message"></p>
+
+    <div class="alert-actions">
+      <button class="btn-cancel" (click)="cancel()">
+        {{ cancelText }}
+      </button>
+      <button class="btn-confirm" [ngClass]="type" (click)="confirm()">
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

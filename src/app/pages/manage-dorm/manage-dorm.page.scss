@@ -403,6 +403,10 @@ $radius:  16px;
     color: #0288d1;
     &:hover { background: rgba(2, 136, 209, 0.08); border-color: rgba(2, 136, 209, 0.2); }
   }
+  &.btn-view {
+    color: #7c3aed;
+    &:hover { background: rgba(124, 58, 237, 0.08); border-color: rgba(124, 58, 237, 0.2); }
+  }
   &.btn-edit {
     color: #f57c00;
     &:hover { background: rgba(245, 124, 0, 0.08); border-color: rgba(245, 124, 0, 0.2); }

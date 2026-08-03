@@ -110,7 +110,7 @@
         </div>
 
         <!-- Pending Requests Card -->
-        <div class="stat-card card-orange clickable" (click)="openRequestActionSheet()" id="req-card">
+        <div class="stat-card card-orange clickable" (click)="openRequestModal()" id="req-card">
           <div class="card-glow"></div>
           <div class="card-icon-wrap">
             <ion-icon name="alert-circle-outline"></ion-icon>
@@ -156,7 +156,7 @@
       <div class="stat-card card-dorm-views" id="dorm-view-card" *ngIf="stats.allDormViews?.length">
         <div class="card-glow"></div>
         <div class="dorm-views-header">
-          <div class="card-icon-wrap"><ion-icon name="stats-chart-outline"></ion-icon></div>
+          <div class="card-icon-wrap blue-icon"><ion-icon name="bar-chart-outline"></ion-icon></div>
           <div class="card-body">
             <span class="card-label">ยอดการเข้าชมหอพัก</span>
             <div class="card-value-row">
@@ -438,7 +438,7 @@
         <div class="modal-head">
           <div class="modal-title-group">
             <div class="modal-icon-wrap blue-icon">
-              <ion-icon name="stats-chart-outline"></ion-icon>
+              <ion-icon name="bar-chart-outline"></ion-icon>
             </div>
             <h2>{{ selectedDormForViews?.dormName || 'ยอดเข้าชมหอพัก' }}</h2>
           </div>
@@ -500,6 +500,49 @@
               </div>
             </div>
           </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- REQUEST MODAL -->
+    <!-- ============================================ -->
+    <div class="modal-backdrop" *ngIf="isRequestModalOpen" (click)="closeRequestModal()">
+      <div class="modal-dialog small-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div class="modal-title-group">
+            <div class="modal-icon-wrap orange-icon">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+            </div>
+            <h2>จัดการคำขอรออนุมัติ</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeRequestModal()">
+            <ion-icon name="close"></ion-icon>
+          </button>
+        </div>
+        
+        <div class="modal-body request-menu-list">
+          <div class="request-menu-item" (click)="goToManageRequestsCreateDorm()">
+            <div class="icon-text">
+              <div class="icon-wrap blue"><ion-icon name="business"></ion-icon></div>
+              <span>คำขอเพิ่มหอพัก</span>
+            </div>
+            <div class="status-indicator">
+              <div class="pending-dot" *ngIf="pendingDormReqs > 0"></div>
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="request-menu-item" (click)="goToManageRequestsOwner()">
+            <div class="icon-text">
+              <div class="icon-wrap purple"><ion-icon name="person-circle"></ion-icon></div>
+              <span>คำขอสิทธิ์เจ้าของหอพัก</span>
+            </div>
+            <div class="status-indicator">
+              <div class="pending-dot" *ngIf="pendingOwnerReqs > 0"></div>
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </div>
         </div>
       </div>
     </div>

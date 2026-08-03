@@ -188,30 +188,37 @@
           <div class="contact-list-container">
             <div class="inline-box-title"><ion-icon name="chatbubbles-outline"></ion-icon> ช่องทางการติดต่อ</div>
             
-            <a *ngIf="selectedDorm.phone && selectedDorm.phone !== '-'" [href]="'tel:' + selectedDorm.phone" class="contact-btn phone">
+            <a [href]="selectedDorm.phone && selectedDorm.phone !== '-' ? 'tel:' + selectedDorm.phone : 'javascript:void(0)'" class="contact-btn phone" [class.disabled]="!selectedDorm.phone || selectedDorm.phone === '-'">
               <div class="icon-wrap"><ion-icon name="call"></ion-icon></div>
-              <span class="contact-text">{{ selectedDorm.phone }}</span>
+              <span class="contact-text">{{ selectedDorm.phone && selectedDorm.phone !== '-' ? selectedDorm.phone : 'ไม่ระบุเบอร์โทร' }}</span>
             </a>
             
-            <a *ngIf="selectedDorm.line && selectedDorm.line !== '-'" [href]="selectedDorm.line" target="_blank" class="contact-btn line">
-              <div class="icon-wrap"><ion-icon name="chatbubble-ellipses-outline"></ion-icon></div>
-              <span class="contact-text">แอด LINE</span>
+            <a [href]="selectedDorm.line && selectedDorm.line !== '-' ? selectedDorm.line : 'javascript:void(0)'" target="_blank" class="contact-btn line" [class.disabled]="!selectedDorm.line || selectedDorm.line === '-'">
+              <div class="icon-wrap"><ion-icon name="chatbubble-ellipses"></ion-icon></div>
+              <span class="contact-text">{{ selectedDorm.line && selectedDorm.line !== '-' ? 'LINE' : 'ไม่ระบุ LINE' }}</span>
             </a>
             
-            <a *ngIf="selectedDorm.facebook && selectedDorm.facebook !== '-'" [href]="selectedDorm.facebook" target="_blank" class="contact-btn fb">
+            <a [href]="selectedDorm.facebook && selectedDorm.facebook !== '-' ? selectedDorm.facebook : 'javascript:void(0)'" target="_blank" class="contact-btn fb" [class.disabled]="!selectedDorm.facebook || selectedDorm.facebook === '-'">
               <div class="icon-wrap"><ion-icon name="logo-facebook"></ion-icon></div>
-              <span class="contact-text">Facebook Page</span>
+              <span class="contact-text">{{ selectedDorm.facebook && selectedDorm.facebook !== '-' ? 'Facebook' : 'ไม่ระบุ Facebook' }}</span>
             </a>
 
-            <a *ngIf="selectedDorm.instagram && selectedDorm.instagram !== '-'" [href]="selectedDorm.instagram" target="_blank" class="contact-btn ig">
+            <a [href]="selectedDorm.instagram && selectedDorm.instagram !== '-' ? selectedDorm.instagram : 'javascript:void(0)'" target="_blank" class="contact-btn ig" [class.disabled]="!selectedDorm.instagram || selectedDorm.instagram === '-'">
               <div class="icon-wrap"><ion-icon name="logo-instagram"></ion-icon></div>
-              <span class="contact-text">Instagram</span>
+              <span class="contact-text">{{ selectedDorm.instagram && selectedDorm.instagram !== '-' ? 'Instagram' : 'ไม่ระบุ IG' }}</span>
             </a>
 
-            <a *ngIf="selectedDorm.x && selectedDorm.x !== '-'" [href]="selectedDorm.x" target="_blank" class="contact-btn x">
+            <a [href]="selectedDorm.x && selectedDorm.x !== '-' ? selectedDorm.x : 'javascript:void(0)'" target="_blank" class="contact-btn x" [class.disabled]="!selectedDorm.x || selectedDorm.x === '-'">
               <div class="icon-wrap"><ion-icon name="logo-twitter"></ion-icon></div>
-              <span class="contact-text">X (Twitter)</span>
+              <span class="contact-text">{{ selectedDorm.x && selectedDorm.x !== '-' ? 'X (Twitter)' : 'ไม่ระบุ X' }}</span>
             </a>
+
+            <a [href]="selectedDorm.telegram && selectedDorm.telegram !== '-' ? selectedDorm.telegram : 'javascript:void(0)'" target="_blank" class="contact-btn telegram" [class.disabled]="!selectedDorm.telegram || selectedDorm.telegram === '-'">
+              <div class="icon-wrap"><ion-icon name="paper-plane"></ion-icon></div>
+              <span class="contact-text">{{ selectedDorm.telegram && selectedDorm.telegram !== '-' ? 'Telegram' : 'ไม่ระบุ Telegram' }}</span>
+            </a>
+
+
           </div>
 
           <div class="travel-section" style="margin-top: 25px;">

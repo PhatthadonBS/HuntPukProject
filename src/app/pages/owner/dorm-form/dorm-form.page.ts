@@ -581,8 +581,24 @@ export class DormFormPage implements OnInit {
     this.showToast(`เลือกโซน: ${zone.ZONE_NAME}`, 'success');
   }
   // ==========================
+  // ==========================
   // Step Navigation
   // ==========================
+  goToStep(step: number) {
+    if (step < this.currentStep) {
+      this.currentStep = step;
+    } else if (step > this.currentStep) {
+      while (this.currentStep < step) {
+        const oldStep = this.currentStep;
+        this.nextStep();
+        // ถ้าไม่เปลี่ยน step แสดงว่าติด validation ให้หยุดการกระโดด
+        if (this.currentStep === oldStep) {
+          break;
+        }
+      }
+    }
+  }
+
   nextStep() {
     if (this.currentStep === 1) {
       if (!this.formData.name?.trim()) {

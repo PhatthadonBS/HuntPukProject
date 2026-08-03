@@ -132,6 +132,11 @@
                 <span class="btn-label">รีวิว</span>
               </button>
 
+              <button class="action-btn btn-view" (click)="goToDormDetail(item.DORM_ID)" title="ดูข้อมูลหอพัก">
+                <ion-icon name="eye-outline"></ion-icon>
+                <span class="btn-label">ดู</span>
+              </button>
+
               <button class="action-btn btn-edit" (click)="goToDetail(item.DORM_ID)" title="แก้ไขข้อมูล">
                 <ion-icon name="create-outline"></ion-icon>
                 <span class="btn-label">แก้ไข</span>

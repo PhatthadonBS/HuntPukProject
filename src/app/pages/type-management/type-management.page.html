@@ -89,11 +89,25 @@
               <map-circle
                 *ngFor="let em of existingZoneMarkers"
                 [center]="em.position"
-                [radius]="500"
+                [radius]="em.radius || 500"
                 [options]="{
                   fillColor: '#FFD600',
                   fillOpacity: 0.2,
                   strokeColor: '#FFD600',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2
+                }">
+              </map-circle>
+
+              <!-- Dynamic circle for new/editing zone -->
+              <map-circle
+                *ngIf="selectedSegment === 'zone' && markerPosition"
+                [center]="markerPosition"
+                [radius]="newRadius || 500"
+                [options]="{
+                  fillColor: '#FF0000',
+                  fillOpacity: 0.15,
+                  strokeColor: '#FF0000',
                   strokeOpacity: 0.8,
                   strokeWeight: 2
                 }">
@@ -140,6 +154,11 @@
         <ion-item class="form-item">
           <ion-input type="number" [(ngModel)]="newLng" (ionChange)="onInputCoordChange()"></ion-input>
         </ion-item>
+
+        <span class="field-label">ระยะรัศมีโซน (เมตร)</span>
+        <ion-item class="form-item">
+          <ion-input type="number" [(ngModel)]="newRadius" placeholder="เช่น 500"></ion-input>
+        </ion-item>
       </ng-container>
 
       <div class="action-buttons" style="display: flex; gap: 10px; margin-top: 16px;">
@@ -170,7 +189,7 @@
           <ion-label>
             <h2 class="type-name">{{ item.name || item.ZONE_NAME }}</h2>
             <p *ngIf="item.lat && item.lng" class="coord-sub">
-              Lat: {{ item.lat }}, Lng: {{ item.lng }}
+              Lat: {{ item.lat }}, Lng: {{ item.lng }} <span *ngIf="item.radius || item.RADIUS">, รัศมี: {{ item.radius || item.RADIUS }} ม.</span>
             </p>
           </ion-label>
           <div slot="end" style="display: flex; gap: 4px;">

@@ -11,14 +11,15 @@ import {
 import { UserService } from '../../services/user'; 
 import { DormitoryService } from '../../services/dormitory';
 import { Auth } from '../../services/auth';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, LoadingController, ToastController, AlertController, IonModal } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, LoadingController, ToastController, AlertController, IonModal, ModalController } from '@ionic/angular/standalone';
+import { ActionConfirmModalComponent } from '../../components/action-confirm-modal/action-confirm-modal.component';
 
 @Component({
   selector: 'app-my-account',
   templateUrl: './my-account.page.html',
   styleUrls: ['./my-account.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, IonModal]
+  imports: [CommonModule, FormsModule, IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonSpinner, IonModal, ActionConfirmModalComponent]
 })
 export class MyAccountPage implements OnInit {
   user: any = {};
@@ -37,7 +38,8 @@ export class MyAccountPage implements OnInit {
     private dormService: DormitoryService,
     private authService: Auth,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private modalCtrl: ModalController
   ) { 
     addIcons({ 
       person, mail, create, arrowBack, 'arrow-forward': arrowForward, 
@@ -336,26 +338,24 @@ export class MyAccountPage implements OnInit {
   }
 
   async logout() {
-    const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการออกจากระบบ',
-      message: 'คุณต้องการออกจากระบบใช่หรือไม่?',
-      buttons: [
-        {
-          text: 'ยกเลิก',
-          role: 'cancel',
-          cssClass: 'secondary',
-        },
-        {
-          text: 'ออกจากระบบ',
-          handler: () => {
-            localStorage.removeItem('loggedIn');
-            this.router.navigate(['/login']);
-          },
-        },
-      ],
+    const modal = await this.modalCtrl.create({
+      component: ActionConfirmModalComponent,
+      componentProps: {
+        title: 'ยืนยันการออกจากระบบ',
+        message: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+        confirmText: 'ออกจากระบบ',
+        cancelText: 'ยกเลิก',
+        type: 'danger'
+      },
+      cssClass: 'custom-alert-modal'
     });
+    await modal.present();
 
-    await alert.present();
+    const { role } = await modal.onDidDismiss();
+    if (role === 'confirm') {
+      localStorage.removeItem('loggedIn');
+      this.router.navigate(['/login']);
+    }
   }
 
   resetPasswd() {

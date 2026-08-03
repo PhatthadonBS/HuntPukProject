@@ -2,16 +2,17 @@ import { Component, EventEmitter, Input, Output, OnInit, HostListener } from '@a
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { search, personCircle, personCircleOutline, logOutOutline, closeCircle, personAddOutline, logInOutline } from 'ionicons/icons';
+import { ActionConfirmModalComponent } from '../action-confirm-modal/action-confirm-modal.component';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, ActionConfirmModalComponent]
 })
 export class HeaderComponent implements OnInit {
 
@@ -28,7 +29,7 @@ export class HeaderComponent implements OnInit {
   suggestions: any[] = [];  // รายการ dropdown ที่กรองแล้ว
   showSuggestions: boolean = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private modalCtrl: ModalController) {
     addIcons({ search, personCircle, personCircleOutline, logOutOutline, closeCircle, personAddOutline, logInOutline });
   }
 
@@ -85,9 +86,25 @@ export class HeaderComponent implements OnInit {
 
   goToHome() { this.router.navigate(['/home']); }
 
-  logout() {
-    localStorage.removeItem('loggedIn');
-    window.location.reload();
+  async logout() {
+    const modal = await this.modalCtrl.create({
+      component: ActionConfirmModalComponent,
+      componentProps: {
+        title: 'ยืนยันการออกจากระบบ',
+        message: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+        confirmText: 'ออกจากระบบ',
+        cancelText: 'ยกเลิก',
+        type: 'danger'
+      },
+      cssClass: 'custom-alert-modal'
+    });
+    await modal.present();
+
+    const { role } = await modal.onDidDismiss();
+    if (role === 'confirm') {
+      localStorage.removeItem('loggedIn');
+      window.location.reload();
+    }
   }
 
   goToMyAccount() {

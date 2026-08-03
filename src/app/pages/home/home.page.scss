@@ -237,7 +237,16 @@ app-header {
     &.fb { background: #eff6ff; border: 1px solid #bfdbfe; .icon-wrap { background: #1877f2; } }
     &.ig { background: #fdf4ff; border: 1px solid #fbcfe8; .icon-wrap { background: #d946ef; } }
     &.x { background: #f1f5f9; border: 1px solid #cbd5e1; .icon-wrap { background: #0f1419; } }
+    &.telegram { background: #f0f9ff; border: 1px solid #bae6fd; .icon-wrap { background: #0088cc; } }
     
+    &.disabled {
+      background: #f3f4f6 !important;
+      border: 1px solid #e5e7eb !important;
+      pointer-events: none;
+      .icon-wrap { background: #9ca3af !important; }
+      .contact-text { color: #9ca3af !important; }
+    }
+
     &:active { transform: scale(0.98); }
   }
 }

@@ -11,7 +11,7 @@ import {
   arrowBack, create, trash, refresh, search, person, add, list, 
   listOutline, businessOutline, personOutline, settingsOutline, 
   searchOutline, closeCircle, addOutline, chatbubbleOutline, 
-  createOutline, trashOutline, refreshOutline 
+  createOutline, trashOutline, refreshOutline, eyeOutline 
 } from 'ionicons/icons'; 
 import { Router, ActivatedRoute } from '@angular/router';
 import { DormitoryService } from '../../services/dormitory'; 
@@ -51,7 +51,7 @@ export class ManageDormPage implements OnInit {
       arrowBack, create, trash, refresh, search, person, add, list, 
       listOutline, businessOutline, personOutline, settingsOutline, 
       searchOutline, closeCircle, addOutline, chatbubbleOutline, 
-      createOutline, trashOutline, refreshOutline, chatbubbleEllipses 
+      createOutline, trashOutline, refreshOutline, chatbubbleEllipses, eyeOutline 
     });
   }
 
@@ -93,6 +93,10 @@ export class ManageDormPage implements OnInit {
     this.router.navigate(['/manage-reviews', dormId]);
   }
 
+  // ดูข้อมูลหอพัก (ไม่ใช่ edit)
+  goToDormDetail(dormId: number) {
+    this.router.navigate(['/dorm-detail', dormId]);
+  }
   // ไปหน้าเพิ่มหอพัก
   goToAddDorm() {
     this.router.navigate(['/dorm-form'], { queryParams: { from: 'manage-dorm' } }); 
@@ -154,7 +158,7 @@ export class ManageDormPage implements OnInit {
 
   // ไปหน้าแก้ไขหอพัก
   goToDetail(dormId: number) {
-    this.router.navigate(['/edit-dorm', dormId]); 
+    this.router.navigate(['/edit-dorm', dormId], { queryParams: { from: 'manage-dorm' } }); 
   }
 
   // ฟังก์ชันลบ (soft delete — เปลี่ยนสถานะเป็น 4 ยังกู้คืนได้)

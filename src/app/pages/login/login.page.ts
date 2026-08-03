@@ -225,7 +225,15 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
       }
 
     } catch (error: any) {
-      const serverMessage = error.error?.message || error.error || error.message || '';
+      let serverMessage = error.error?.message || error.error || error.message || '';
+      if (typeof serverMessage !== 'string') {
+        try {
+          serverMessage = JSON.stringify(serverMessage);
+        } catch (e) {
+          serverMessage = String(serverMessage);
+        }
+      }
+      
       let displayMsg = 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์';
       if (serverMessage.includes('ไม่มีข้อมูล') || error.status === 404)
         displayMsg = 'ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง';
@@ -233,13 +241,13 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
         displayMsg = 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
       else if (error.status === 500)
         displayMsg = 'ระบบเซิร์ฟเวอร์ขัดข้องชั่วคราว กรุณาลองใหม่ภายหลัง';
-      else if (typeof serverMessage === 'string' && serverMessage.length > 0)
+      else if (serverMessage.length > 0 && serverMessage !== '{}')
         displayMsg = serverMessage;
 
       if (error.status === 401 || error.status === 404) {
         this.recordFailedAttempt();
       }
-      this.showAlert('พบข้อผิดพลาด', displayMsg);
+      await this.showAlert('พบข้อผิดพลาด', displayMsg);
     } finally {
       this.isLoading = false;
     }

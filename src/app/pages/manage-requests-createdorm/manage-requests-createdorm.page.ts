@@ -71,7 +71,7 @@ export class ManageRequestsCreatedormPage implements OnInit {
   }
 
   goBack() {
-    this.navCtrl.back(); 
+    this.navCtrl.navigateBack(['/dashboard']); 
   }
 
   // ====== Load all requests ======

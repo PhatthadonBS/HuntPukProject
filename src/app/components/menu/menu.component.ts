@@ -10,13 +10,14 @@ import {
   close, chevronBackOutline, barChartOutline, peopleOutline,
   documentTextOutline, gridOutline, informationCircleOutline, chatbubblesOutline
 } from 'ionicons/icons';
+import { ActionConfirmModalComponent } from '../action-confirm-modal/action-confirm-modal.component';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [CommonModule, IonicModule, ActionConfirmModalComponent]
 })
 export class MenuComponent implements OnInit, OnDestroy {
   currentUser: any = null;
@@ -189,26 +190,28 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   async logout() {
-    const alert = await this.alertCtrl.create({
-      header: 'ยืนยัน',
-      message: 'ต้องการออกจากระบบใช่หรือไม่?',
-      buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
-        {
-          text: 'ออกจากระบบ',
-          role: 'destructive',
-          handler: async () => {
-            localStorage.removeItem('loggedIn');
-            this.currentUser = null;
-            if (!this.isDesktop) {
-              this.isOpen = false;
-              this.dispatchStateChange();
-            }
-            this.router.navigate(['/login']);
-          }
-        }
-      ]
+    const modal = await this.modalCtrl.create({
+      component: ActionConfirmModalComponent,
+      componentProps: {
+        title: 'ยืนยันการออกจากระบบ',
+        message: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+        confirmText: 'ออกจากระบบ',
+        cancelText: 'ยกเลิก',
+        type: 'danger'
+      },
+      cssClass: 'custom-alert-modal'
     });
-    await alert.present();
+    await modal.present();
+
+    const { role } = await modal.onDidDismiss();
+    if (role === 'confirm') {
+      localStorage.removeItem('loggedIn');
+      this.currentUser = null;
+      if (!this.isDesktop) {
+        this.isOpen = false;
+        this.dispatchStateChange();
+      }
+      this.router.navigate(['/login']);
+    }
   }
 }

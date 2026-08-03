@@ -52,6 +52,7 @@ export class TypeManagementPage implements OnInit {
   newName: string = '';
   newLat: number | null = null;
   newLng: number | null = null;
+  newRadius: number | null = null;
 
   center: google.maps.LatLngLiteral = { lat: 16.245279, lng: 103.250106 };
   zoom = 14;
@@ -70,7 +71,7 @@ export class TypeManagementPage implements OnInit {
   ];
 
   highlightItem: string = '';
-  existingZoneMarkers: { position: google.maps.LatLngLiteral; title: string; }[] = [];
+  existingZoneMarkers: { position: google.maps.LatLngLiteral; title: string; radius: number }[] = [];
 
   constructor(
     private dormServices: DormitoryService,
@@ -125,6 +126,7 @@ export class TypeManagementPage implements OnInit {
     this.newName = '';
     this.newLat = null;
     this.newLng = null;
+    this.newRadius = null;
     this.editingItemId = null;
     this.isModalOpen = true;
     // Load existing zones as markers when opening zone segment
@@ -150,7 +152,8 @@ export class TypeManagementPage implements OnInit {
           .filter((z: any) => z.lat && z.lng)
           .map((z: any) => ({
             position: { lat: parseFloat(z.lat), lng: parseFloat(z.lng) },
-            title: z.ZONE_NAME || z.name || 'ไม่ระบุชื่อ'
+            title: z.ZONE_NAME || z.name || 'ไม่ระบุชื่อ',
+            radius: z.RADIUS || z.radius || 500
           }));
         if (this.existingZoneMarkers.length > 0) {
           this.center = { ...(this.existingZoneMarkers[0]!.position) };
@@ -284,7 +287,7 @@ export class TypeManagementPage implements OnInit {
       case 'bedType': obs$ = this.dormServices.addBedType(this.newName); break;
       case 'priceType': obs$ = this.dormServices.addPriceType(this.newName); break;
       case 'dormStatus': obs$ = this.dormServices.addDormStatus(this.newName); break;
-      case 'zone': obs$ = this.dormServices.addZone(this.newName, this.newLat || 0, this.newLng || 0); break;
+      case 'zone': obs$ = this.dormServices.addZone(this.newName, this.newLat || 0, this.newLng || 0, this.newRadius || 500); break;
     }
 
     if (obs$) {
@@ -294,6 +297,7 @@ export class TypeManagementPage implements OnInit {
           this.newName = '';
           this.newLat = null;
           this.newLng = null;
+          this.newRadius = null;
           this.loadAllData();
           this.showToast('เพิ่มข้อมูลสำเร็จ!', 'success');
         },
@@ -327,6 +331,7 @@ export class TypeManagementPage implements OnInit {
     if (this.selectedSegment === 'zone') {
       this.newLat = item.lat || item.LAT;
       this.newLng = item.lng || item.LNG;
+      this.newRadius = item.radius || item.RADIUS || 500;
       if (this.newLat && this.newLng) {
         this.center = { lat: Number(this.newLat), lng: Number(this.newLng) };
         this.markerPosition = { ...this.center };
@@ -345,6 +350,7 @@ export class TypeManagementPage implements OnInit {
     this.newName = '';
     this.newLat = null;
     this.newLng = null;
+    this.newRadius = null;
   }
 
   async saveEdit() {
@@ -366,10 +372,10 @@ export class TypeManagementPage implements OnInit {
       return;
     }
 
-    this.executeEditType(this.editingItemId, this.newName.trim(), this.newLat || undefined, this.newLng || undefined);
+    this.executeEditType(this.editingItemId, this.newName.trim(), this.newLat || undefined, this.newLng || undefined, this.newRadius || undefined);
   }
 
-  executeEditType(id: number, newName: string, lat?: number, lng?: number) {
+  executeEditType(id: number, newName: string, lat?: number, lng?: number, radius?: number) {
     let apiType = '';
     switch (this.selectedSegment) {
       case 'dormType': apiType = 'dorm'; break;
@@ -384,7 +390,7 @@ export class TypeManagementPage implements OnInit {
     if (!newName || !newName.trim()) return;
 
     this.isSaving = true;
-    this.dormServices.updateMasterType(apiType, id, newName, lat, lng).subscribe({
+    this.dormServices.updateMasterType(apiType, id, newName, lat, lng, radius).subscribe({
       next: (res) => {
         if (res.success) {
           this.loadAllData();
