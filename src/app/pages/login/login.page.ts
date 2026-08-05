@@ -15,6 +15,12 @@ const LOCKOUT_MS   = 15 * 60 * 1000; // lockout 15 นาที
 const WINDOW_MS    = 15 * 60 * 1000; // นับใน window 15 นาที
 const STORAGE_KEY  = 'hp_login_attempts';
 
+// 🕐 Inactivity logout: 1 ชั่วโมง (ใช้เฉพาะเมื่อไม่ได้ tick remember)
+const INACTIVITY_MS = 60 * 60 * 1000;
+// Key สำหรับเช็คว่า session อยู่ใน storage ไหน
+export const SESSION_STORAGE_KEY = 'loggedIn';
+export const SESSION_TYPE_KEY    = 'hp_session_type'; // 'local' | 'session'
+
 interface AttemptRecord { count: number; firstAt: number; lockedUntil?: number; }
 
 @Component({
@@ -148,6 +154,30 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
   }
 
   // ==========================================
+  // ⏰ Inactivity Auto-logout (ใช้เมื่อไม่ได้ tick remember)
+  // ==========================================
+  private inactivityTimer?: any;
+  private boundResetInactivity = () => this.resetInactivityTimer();
+
+  private startInactivityTimer() {
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    events.forEach(e => window.addEventListener(e, this.boundResetInactivity));
+    this.resetInactivityTimer();
+  }
+
+  private resetInactivityTimer() {
+    if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
+    this.inactivityTimer = setTimeout(() => {
+      // หมดเวลา 1 ชั่วโมง ไม่มี activity — logout ทันที
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      localStorage.removeItem(SESSION_TYPE_KEY);
+      const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+      events.forEach(e => window.removeEventListener(e, this.boundResetInactivity));
+      this.router.navigate(['/login']);
+    }, INACTIVITY_MS);
+  }
+
+  // ==========================================
   togglePasswordVisibility() { this.showPassword = !this.showPassword; }
   goHome() { this.router.navigate(['/home']); }
 
@@ -172,7 +202,7 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
 
     try {
       const normalizedEmail = this.email.trim().toLowerCase();
-      const res = (await this.authService.login(normalizedEmail, this.password)) as any;
+      const res = (await this.authService.login(normalizedEmail, this.password, this.rememberMe)) as any;
 
       if (res && res.logged_in) {
         const roleId = res.user.role_id;
@@ -195,7 +225,18 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
             showWelcome:    true,
             loginAt:        Date.now()
           };
-          localStorage.setItem('loggedIn', JSON.stringify(userData));
+
+          // 🔐 ถ้า rememberMe → เก็บใน localStorage (ค้างข้ามแท็บ/browser)
+          //    ถ้าไม่ tick  → เก็บใน sessionStorage (หายเมื่อปิดแท็บ)
+          if (this.rememberMe) {
+            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userData));
+            localStorage.setItem(SESSION_TYPE_KEY, 'local');
+          } else {
+            sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userData));
+            localStorage.setItem(SESSION_TYPE_KEY, 'session');
+            // เริ่ม inactivity timer สำหรับ session-only login
+            this.startInactivityTimer();
+          }
 
           if (this.rememberMe) {
             localStorage.setItem('rememberLogin', JSON.stringify({ email: normalizedEmail, password: this.password }));

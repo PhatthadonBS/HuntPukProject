@@ -96,15 +96,15 @@ export class Auth {
   // ==========================================
   // 🌟 3. ส่วนเข้าสู่ระบบและการกู้คืน (Auth & Recover)
   // ==========================================
-  public async login(email: string, password: string) {
+  public async login(email: string, password: string, rememberMe: boolean = false) {
     const url = this.endpoint.API_ENDPOINT + '/auth/login';
     try {
-      const obj = { email, password };
+      const obj = { email, password, rememberMe };
       const res = await lastValueFrom(this.http.post<any>(url, obj));
       return res;
     } catch (error) {
       console.error('API Error:', error);
-      throw error; 
+      throw error;
     }
   }
 

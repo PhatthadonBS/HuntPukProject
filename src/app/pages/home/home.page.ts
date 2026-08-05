@@ -86,6 +86,7 @@ export class HomePage implements OnInit, ViewDidEnter {
   dorms: Dormitory[] = [];
   allDorms: Dormitory[] = [];
   isModalOpen = false;
+  isNotFoundModalOpen = false;
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedZone: string = '';
@@ -113,6 +114,8 @@ export class HomePage implements OnInit, ViewDidEnter {
   isPanelMinimized: boolean = false;
   
   isDesktop: boolean = false;
+  isAlertShowing: boolean = false;
+  searchTimeout: any;
 
   // ⭕ จุดอ้างอิงและวงกลม
   referencePoint: google.maps.LatLngLiteral = { lat: 16.246, lng: 103.252 };
@@ -724,7 +727,16 @@ export class HomePage implements OnInit, ViewDidEnter {
 
   applyFilter() { this.setOpen(false); this.performSearch(); }
 
-  async performSearch() {
+  performSearch() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this._doPerformSearch();
+    }, 300);
+  }
+
+  async _doPerformSearch() {
     try {
       const res = await this.dormService.searchDorms(
         this.searchText, 
@@ -798,22 +810,31 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.cdr.detectChanges();
 
         if (this.dorms.length === 0) {
-          setTimeout(async () => {
-            const hasFilter = this.hasActiveFilter();
-            const modal = await this.modalCtrl.create({
-              component: AlertModalComponent,
-              componentProps: {
-                title: 'ไม่พบหอพัก',
-                message: hasFilter 
-                  ? 'ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้ กรุณาลองปรับตัวกรองหรือขยายระยะทางเพิ่มเติม' 
-                  : 'ไม่พบหอพักในบริเวณนี้ กรุณาลองขยายระยะทางเพิ่มเติม (เช่น 2 กม. หรือ 3 กม.)',
-                type: 'warning',
-                isMapCentered: true
-              },
-              cssClass: 'custom-alert-modal'
-            });
-            await modal.present();
-          }, 300);
+          if (!this.isAlertShowing) {
+            this.isAlertShowing = true;
+            setTimeout(async () => {
+              const top = await this.modalCtrl.getTop();
+              if (top) {
+                this.isAlertShowing = false;
+                return;
+              }
+              const hasFilter = this.hasActiveFilter();
+              const modal = await this.modalCtrl.create({
+                component: AlertModalComponent,
+                componentProps: {
+                  title: 'ไม่พบหอพัก',
+                  message: hasFilter 
+                    ? 'ไม่มีหอพักที่ตรงกับเงื่อนไขที่คุณตั้งไว้ กรุณาลองปรับตัวกรองหรือขยายระยะทางเพิ่มเติม' 
+                    : 'ไม่พบหอพักในบริเวณนี้ กรุณาลองขยายระยะทางเพิ่มเติม (เช่น 2 กม. หรือ 3 กม.)',
+                  type: 'warning',
+                  isMapCentered: true
+                },
+                cssClass: 'custom-alert-modal'
+              });
+              modal.onDidDismiss().then(() => this.isAlertShowing = false);
+              await modal.present();
+            }, 300);
+          }
         }
 
         if (!this.selectedZone && this.dorms.length > 0) {
@@ -832,19 +853,28 @@ export class HomePage implements OnInit, ViewDidEnter {
         this.circleCenter = undefined;
         this.zoneCircleCenter = undefined;
         this.cdr.detectChanges();
-        setTimeout(async () => {
-          const modal = await this.modalCtrl.create({
-            component: AlertModalComponent,
-            componentProps: {
-              title: 'ไม่พบข้อมูล',
-              message: 'ไม่พบหอพักจากระบบ กรุณาลองใหม่อีกครั้ง',
-              type: 'warning',
-              isMapCentered: true
-            },
-            cssClass: 'custom-alert-modal'
-          });
-          await modal.present();
-        }, 300);
+        if (!this.isAlertShowing) {
+          this.isAlertShowing = true;
+          setTimeout(async () => {
+            const top = await this.modalCtrl.getTop();
+            if (top) {
+              this.isAlertShowing = false;
+              return;
+            }
+            const modal = await this.modalCtrl.create({
+              component: AlertModalComponent,
+              componentProps: {
+                title: 'ไม่พบข้อมูล',
+                message: 'ไม่พบหอพักจากระบบ กรุณาลองใหม่อีกครั้ง',
+                type: 'warning',
+                isMapCentered: true
+              },
+              cssClass: 'custom-alert-modal'
+            });
+            modal.onDidDismiss().then(() => this.isAlertShowing = false);
+            await modal.present();
+          }, 300);
+        }
       }
     } catch (err) { 
       console.error('Search Error:', err); 
@@ -1019,7 +1049,10 @@ export class HomePage implements OnInit, ViewDidEnter {
   goToDetail() {
     if (this.selectedDorm) {
       const dormId = this.selectedDorm.DORM_ID || this.selectedDorm.id;
-      if (dormId) this.router.navigate(['/dorm-detail', dormId]);
+      if (dormId) {
+        this.selectedDorm = null; // ปิด Panel/Modal ก่อนเปลี่ยนหน้า
+        this.router.navigate(['/dorm-detail', dormId]);
+      }
     }
   }
 

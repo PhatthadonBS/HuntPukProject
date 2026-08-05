@@ -1,30 +1,31 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { SESSION_STORAGE_KEY, SESSION_TYPE_KEY } from '../pages/login/login.page';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // 1. ดึงข้อมูลผู้ใช้จาก localStorage
-  const storedData = localStorage.getItem('loggedIn');
   let token = '';
 
-  if (storedData) {
-    try {
-      const userObj = JSON.parse(storedData);
-      // ⚠️ ตรงนี้เช็คให้ชัวร์นะครับว่าตอน Login สำเร็จ คุณเก็บ Token ไว้ในชื่อ userObj.token หรือชื่ออื่น
-      token = userObj.token; 
-    } catch (e) {
-      console.error('Error parsing token from localStorage', e);
+  try {
+    const sessionType = localStorage.getItem(SESSION_TYPE_KEY);
+
+    if (sessionType === 'session') {
+      // ❌ ไม่ได้ tick remember → อ่านจาก sessionStorage (หายเมื่อปิดแท็บ)
+      const storedData = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (storedData) token = JSON.parse(storedData)?.token || '';
+    } else {
+      // ✅ tick remember → อ่านจาก localStorage (ค้างข้ามแท็บ)
+      const storedData = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (storedData) token = JSON.parse(storedData)?.token || '';
     }
+  } catch (e) {
+    console.error('Error parsing token from storage', e);
   }
 
-  // 2. ถ้ามี Token ให้โคลน Request แล้วแนบ Header
   if (token) {
     const clonedReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+      setHeaders: { Authorization: `Bearer ${token}` }
     });
     return next(clonedReq);
   }
 
-  // 3. ถ้าไม่มี Token ก็ปล่อยผ่านไปแบบปกติ
   return next(req);
-};
+};

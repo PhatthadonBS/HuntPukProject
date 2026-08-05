@@ -9,6 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { UserRegPostReq } from '../../model/req/user_reg_post_req';
+import Swal from 'sweetalert2';
 
 // Import Icons
 import { addIcons } from 'ionicons';
@@ -37,6 +38,8 @@ export class RegisterPage implements OnInit {
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
   isSubmitting: boolean = false;
+  emailError: boolean = false;
+  passwordError: boolean = false;
 
   roleId: number = 2; // 2=ผู้เช่า, 3=เจ้าของหอ
   tempUserData: UserRegPostReq | null = null; 
@@ -82,25 +85,52 @@ export class RegisterPage implements OnInit {
   async onNextStep() {
     if (this.isSubmitting) return;
 
+    this.emailError = false;
+    this.passwordError = false;
+
     if (!this.username || !this.email || !this.password || !this.confirmPassword || !this.phone) {
-      this.showAlert('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
+      Swal.fire({
+        icon: 'warning',
+        title: 'ข้อมูลไม่ครบ',
+        text: 'กรุณากรอกข้อมูลให้ครบทุกช่อง',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#ffc107',
+        background: '#1a1a1a',
+        color: '#fff'
+      });
       return;
     }
     if (!this.isValidEmail(this.email)) {
-      this.showAlert('อีเมลไม่ถูกต้อง', 'กรุณากรอกรูปแบบอีเมลให้ถูกต้อง');
+      this.emailError = true;
       return;
     }
     const passRegex = /^[a-zA-Z0-9]{8,}$/; 
     if (!passRegex.test(this.password)) {
-      this.showAlert('รหัสผ่านไม่ถูกต้อง', 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร (a-z, A-Z, 0-9)');
+      this.passwordError = true;
       return;
     }
     if (this.password !== this.confirmPassword) {
-      this.showAlert('รหัสผ่านไม่ตรงกัน', 'กรุณายืนยันรหัสผ่านใหม่อีกครั้ง');
+      Swal.fire({
+        icon: 'error',
+        title: 'รหัสผ่านไม่ตรงกัน',
+        text: 'กรุณายืนยันรหัสผ่านใหม่อีกครั้ง',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#ffc107',
+        background: '#1a1a1a',
+        color: '#fff'
+      });
       return;
     }
     if (!this.isValidPhone(this.phone)) {
-      this.showAlert('เบอร์โทรศัพท์ไม่ถูกต้อง', 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก');
+      Swal.fire({
+        icon: 'error',
+        title: 'เบอร์โทรศัพท์ไม่ถูกต้อง',
+        text: 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#ffc107',
+        background: '#1a1a1a',
+        color: '#fff'
+      });
       return;
     }
 
@@ -122,7 +152,15 @@ export class RegisterPage implements OnInit {
         hashedData = await this.authService.register(this.tempUserData);
       } catch (err: any) {
         const msg = err?.error?.message || err?.message || 'อีเมลหรือเบอร์โทรนี้ถูกใช้งานแล้ว';
-        this.showAlert('สมัครไม่สำเร็จ', msg);
+        Swal.fire({
+          icon: 'error',
+          title: 'สมัครไม่สำเร็จ',
+          text: msg,
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#ffc107',
+          background: '#1a1a1a',
+          color: '#fff'
+        });
         this.isSubmitting = false;
         return;
       }
@@ -155,7 +193,15 @@ export class RegisterPage implements OnInit {
       }
       if (errorMsg === '[object Object]') errorMsg = 'อีเมลนี้เป็นสมาชิกอยู่แล้ว หรือ รูปแบบข้อมูลซ้ำซ้อนในระบบ';
 
-      this.showAlert('ไม่สามารถสมัครได้', errorMsg);
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่สามารถสมัครได้',
+        text: errorMsg,
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#ffc107',
+        background: '#1a1a1a',
+        color: '#fff'
+      });
       this.isSubmitting = false; // ถ้า Error ให้ปลดล็อกปุ่มทันที
     } 
   }
@@ -197,21 +243,41 @@ export class RegisterPage implements OnInit {
        await this.authService.registerSec2(this.tempUserData, true);
 
        console.log('🎉 บันทึกสำเร็จ!');
-       const alert = await this.alertController.create({
-        header: 'สำเร็จ!',
-        subHeader: '✅',
-        message: 'สมัครสมาชิกและยืนยันตัวตนเรียบร้อยแล้ว',
-        buttons: [{
-          text: 'ไปหน้าเข้าสู่ระบบ',
-          handler: () => { this.router.navigate(['/login']); }
-        }],
-      });
-      await alert.present();
+       
+       // Clear form data
+       this.username = '';
+       this.email = '';
+       this.password = '';
+       this.confirmPassword = '';
+       this.phone = '';
+       this.emailError = false;
+       this.passwordError = false;
+
+       await Swal.fire({
+         icon: 'success',
+         title: 'สำเร็จ!',
+         text: 'สมัครสมาชิกและยืนยันตัวตนเรียบร้อยแล้ว',
+         confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
+         confirmButtonColor: '#28a745',
+         background: '#1a1a1a',
+         color: '#fff',
+         timer: 3000,
+         timerProgressBar: true
+       });
+       this.router.navigate(['/login']);
 
     } catch (error: any) {
       console.error('❌ บันทึกข้อมูลพลาด:', error);
       const msg = error?.error?.message || error?.message || 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
-      this.showAlert('ผิดพลาด', msg);
+      Swal.fire({
+        icon: 'error',
+        title: 'ผิดพลาด',
+        text: msg,
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#ffc107',
+        background: '#1a1a1a',
+        color: '#fff'
+      });
     } finally {
       this.isSubmitting = false;
     }

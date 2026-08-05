@@ -20,17 +20,18 @@
         <ion-icon name="person" color="medium"></ion-icon>
       </div>
 
-      <div class="custom-input">
+      <div class="custom-input" [style.border]="emailError ? '1px solid #ff4d4f' : ''">
+        <p *ngIf="emailError" style="color: #ff4d4f; font-size: 12px; margin: -10px 0 5px 0; position: absolute; top: -15px; left: 10px;">* กรุณากรอกรูปแบบอีเมลให้ถูกต้อง</p>
         <input type="email" placeholder="อีเมล" [(ngModel)]="email">
         <ion-icon name="mail" color="medium"></ion-icon>
       </div>
 
-      <div class="custom-input">
+      <div class="custom-input" [style.border]="passwordError ? '1px solid #ff4d4f' : ''" style="margin-top: 20px;">
+        <p *ngIf="passwordError" style="color: #ff4d4f; font-size: 12px; margin: -10px 0 5px 0; position: absolute; top: -15px; left: 10px;">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</p>
         <input 
           [type]="showPassword ? 'text' : 'password'" 
           placeholder="รหัสผ่าน" 
-          [(ngModel)]="password"
-          maxlength="8">
+          [(ngModel)]="password">
         
         <ion-icon 
           [name]="showPassword ? 'eye' : 'eye-off'" 
@@ -44,8 +45,7 @@
         <input 
           [type]="showConfirmPassword ? 'text' : 'password'" 
           placeholder="รหัสผ่านอีกครั้ง" 
-          [(ngModel)]="confirmPassword"
-          maxlength="8">
+          [(ngModel)]="confirmPassword">
         
         <ion-icon 
           [name]="showConfirmPassword ? 'eye' : 'eye-off'" 

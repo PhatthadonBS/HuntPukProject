@@ -8,7 +8,7 @@ import { addIcons } from 'ionicons';
 import { 
   arrowBack, star, trophy, bookmark, bookmarkOutline,
   call, callOutline, documentTextOutline, chatbubbleEllipsesOutline, 
-  logoFacebook, locationOutline, checkmarkCircleOutline, alertCircleOutline
+  logoFacebook, locationOutline, checkmarkCircleOutline, alertCircleOutline, timeOutline, mapOutline
 } from 'ionicons/icons';
 import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
 import { ActionConfirmModalComponent } from '../../components/action-confirm-modal/action-confirm-modal.component';
@@ -42,6 +42,8 @@ export class DormPopularPage implements OnInit {
       'chatbubble-ellipses-outline': chatbubbleEllipsesOutline, 'logo-facebook': logoFacebook,
       'location-outline': locationOutline, 'checkmark-circle-outline': checkmarkCircleOutline,
       'alert-circle-outline': alertCircleOutline,
+      'time-outline': timeOutline,
+      'map-outline': mapOutline,
       eyeOutline: 'eye-outline' // For views
     });
   }

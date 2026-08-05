@@ -25,6 +25,7 @@ export class OtpModalComponent implements OnInit, OnDestroy {
   wrongAttempts: number = 0;
   resendAttempts: number = 0;
   isBlocked: boolean = false;
+  errorMessage: string = '';
 
   constructor(
     private modalCtrl: ModalController,
@@ -77,9 +78,13 @@ export class OtpModalComponent implements OnInit, OnDestroy {
     }
   }
 
+  clearError() {
+    this.errorMessage = '';
+  }
+
   async verify() {
     if (this.isBlocked) {
-      this.showToast('คุณกรอกผิดเกิน 3 ครั้ง กรุณาขอรหัส OTP ใหม่', 'danger');
+      this.errorMessage = 'คุณกรอกผิดเกิน 3 ครั้ง กรุณาขอรหัส OTP ใหม่';
       return;
     }
 
@@ -97,10 +102,10 @@ export class OtpModalComponent implements OnInit, OnDestroy {
       
       if (this.wrongAttempts >= 3) {
         this.isBlocked = true;
-        this.showToast('กรอกผิดเกิน 3 ครั้ง กรุณารอขอ OTP ใหม่', 'danger');
+        this.errorMessage = 'กรอกผิดเกิน 3 ครั้ง กรุณารอขอ OTP ใหม่';
         this.otp = '';
       } else {
-        this.showToast(`รหัส OTP ไม่ถูกต้อง (ผิดครั้งที่ ${this.wrongAttempts}/3)`, 'danger');
+        this.errorMessage = `รหัส OTP ไม่ถูกต้อง (ผิดครั้งที่ ${this.wrongAttempts}/3)`;
         this.otp = '';
         setTimeout(() => document.getElementById('otp-input')?.focus(), 100);
       }

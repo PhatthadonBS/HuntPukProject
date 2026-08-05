@@ -8,6 +8,10 @@
     <h2>ยืนยันตัวตน</h2>
     <p>รหัส OTP 6 หลักถูกส่งไปที่<br><strong>{{ email }}</strong></p>
 
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
     <div class="otp-input-wrapper">
       <ion-input type="text"
              [(ngModel)]="otp"
@@ -17,7 +21,8 @@
              placeholder="______"
              inputmode="numeric"
              autocomplete="one-time-code"
-             [disabled]="isBlocked">
+             [disabled]="isBlocked"
+             (ionInput)="clearError()">
       </ion-input>
     </div>
 

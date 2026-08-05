@@ -330,8 +330,10 @@
   <!-- Mobile: Bottom Sheet -->
   <ion-modal class="mobile-bottom-sheet" 
              [isOpen]="selectedDorm != null && !isDesktop && !isNavigating" 
-             [initialBreakpoint]="0.5" 
-             [breakpoints]="[0, 0.5, 0.9]" 
+             [initialBreakpoint]="0.45" 
+             [breakpoints]="[0, 0.45, 0.9]" 
+             handle="true"
+             handleBehavior="cycle"
              (didDismiss)="closeDetailPanel()">
     <ng-template>
       <ion-content>

@@ -65,11 +65,12 @@
                  <span>{{ dorm.SCORE | number:'1.1-1' }}</span>
                </div>
 
-               <p class="zone"><ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}</p>
+               <p class="zone"><ion-icon name="location"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}</p>
+               <p class="address" *ngIf="dorm.ADDRESS"><ion-icon name="map-outline"></ion-icon> {{ dorm.ADDRESS }}</p>
 
-               <p class="update-date" *ngIf="dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE">
+               <p class="update-date" *ngIf="dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE || dorm.UPDATE_AT">
                  <ion-icon name="time-outline"></ion-icon>
-                 อัปเดต: {{ (dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE) | date:'d MMM yyyy' }}
+                 อัปเดต: {{ (dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE || dorm.UPDATE_AT) | date:'d MMM yyyy' }}
                </p>
             </div>
 

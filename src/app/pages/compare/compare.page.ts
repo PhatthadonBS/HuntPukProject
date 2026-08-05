@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, NavController } from '@ionic/angular';
+import { IonicModule, AlertController, NavController, ModalController } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpClientJsonpModule } from '@angular/common/http';
 import { GoogleMapsModule, MapMarker, MapDirectionsRenderer } from '@angular/google-maps';
@@ -16,6 +16,7 @@ import {
   logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle, 
   location, closeCircle, call, chatbubbleEllipsesOutline, trashOutline
 } from 'ionicons/icons';
+import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 
 @Component({
   selector: 'app-compare',
@@ -24,7 +25,8 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule, IonicModule, RouterModule,
-    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker, MapDirectionsRenderer
+    HttpClientModule, HttpClientJsonpModule, GoogleMapsModule, MapMarker, MapDirectionsRenderer,
+    AlertModalComponent
   ]
 })
 export class ComparePage implements OnInit {
@@ -62,7 +64,8 @@ export class ComparePage implements OnInit {
     private alertCtrl: AlertController,
     private cdr: ChangeDetectorRef,
     private httpClient: HttpClient,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private modalCtrl: ModalController
   ) { 
     addIcons({ 
       checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
@@ -178,12 +181,16 @@ export class ComparePage implements OnInit {
         ? 'สมาชิกเปรียบเทียบได้สูงสุด 5 หอพักครับ' 
         : 'บุคคลทั่วไปเปรียบเทียบได้สูงสุด 2 หอพัก\n(เข้าสู่ระบบเพื่อเปรียบเทียบได้มากขึ้น)';
 
-      const alert = await this.alertCtrl.create({
-        header: header,
-        message: msg,
-        buttons: ['ตกลง']
+      const modal = await this.modalCtrl.create({
+        component: AlertModalComponent,
+        componentProps: {
+          title: header,
+          message: msg,
+          type: 'warning'
+        },
+        cssClass: 'custom-alert-modal'
       });
-      await alert.present();
+      await modal.present();
     }
   }
 
@@ -383,13 +390,16 @@ export class ComparePage implements OnInit {
   }
 
   async showAlert(header: string, msg: string) {
-    const alert = await this.alertCtrl.create({
-      header: header,
-      message: msg,
-      buttons: ['ตกลง'],
-      cssClass: 'custom-alert'
+    const modal = await this.modalCtrl.create({
+      component: AlertModalComponent,
+      componentProps: {
+        title: header,
+        message: msg,
+        type: 'warning'
+      },
+      cssClass: 'custom-alert-modal'
     });
-    await alert.present();
+    await modal.present();
   }
 
   getWaterLump(item: any): string {
