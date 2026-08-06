@@ -5,11 +5,10 @@ import {
   IonicModule, 
   AlertController, 
   ModalController
-} from '@ionic/angular'; // 🌟 เอา LoadingController ออกแล้ว
+} from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { UserRegPostReq } from '../../model/req/user_reg_post_req';
-import Swal from 'sweetalert2';
 
 // Import Icons
 import { addIcons } from 'ionicons';
@@ -17,6 +16,7 @@ import { arrowBack, person, key, call, mail, arrowForward, eye, eyeOff } from 'i
 
 // Import Modal Component
 import { OtpModalComponent } from '../../components/otp-modal/otp-modal.component';
+import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 
 @Component({
   selector: 'app-register',
@@ -49,7 +49,6 @@ export class RegisterPage implements OnInit {
     private alertController: AlertController,
     private modalCtrl: ModalController,
     private authService: Auth
-    // 🌟 เอา private loadingCtrl ออกไปแล้วครับ
   ) {
     addIcons({ arrowBack, person, key, call, mail, arrowForward, eye, eyeOff });
   }
@@ -70,13 +69,18 @@ export class RegisterPage implements OnInit {
     return re.test(phone);
   }
 
-  async showAlert(header: string, message: string) {
-    const alert = await this.alertController.create({
-      header,
-      message,
-      buttons: ['ตกลง'],
+  async showAlert(header: string, message: string, type: 'success'|'warning'|'error'|'info' = 'warning') {
+    const modal = await this.modalCtrl.create({
+      component: AlertModalComponent,
+      cssClass: 'auto-height-modal',
+      componentProps: {
+        title: header,
+        message: message,
+        type: type
+      }
     });
-    await alert.present();
+    await modal.present();
+    return modal.onDidDismiss();
   }
 
   // ==========================================
@@ -89,15 +93,7 @@ export class RegisterPage implements OnInit {
     this.passwordError = false;
 
     if (!this.username || !this.email || !this.password || !this.confirmPassword || !this.phone) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'ข้อมูลไม่ครบ',
-        text: 'กรุณากรอกข้อมูลให้ครบทุกช่อง',
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#ffc107',
-        background: '#1a1a1a',
-        color: '#fff'
-      });
+      this.showAlert('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
       return;
     }
     if (!this.isValidEmail(this.email)) {
@@ -110,27 +106,11 @@ export class RegisterPage implements OnInit {
       return;
     }
     if (this.password !== this.confirmPassword) {
-      Swal.fire({
-        icon: 'error',
-        title: 'รหัสผ่านไม่ตรงกัน',
-        text: 'กรุณายืนยันรหัสผ่านใหม่อีกครั้ง',
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#ffc107',
-        background: '#1a1a1a',
-        color: '#fff'
-      });
+      this.showAlert('รหัสผ่านไม่ตรงกัน', 'กรุณายืนยันรหัสผ่านใหม่อีกครั้ง');
       return;
     }
     if (!this.isValidPhone(this.phone)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'เบอร์โทรศัพท์ไม่ถูกต้อง',
-        text: 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก',
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#ffc107',
-        background: '#1a1a1a',
-        color: '#fff'
-      });
+      this.showAlert('เบอร์โทรศัพท์ไม่ถูกต้อง', 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก');
       return;
     }
 
@@ -152,15 +132,7 @@ export class RegisterPage implements OnInit {
         hashedData = await this.authService.register(this.tempUserData);
       } catch (err: any) {
         const msg = err?.error?.message || err?.message || 'อีเมลหรือเบอร์โทรนี้ถูกใช้งานแล้ว';
-        Swal.fire({
-          icon: 'error',
-          title: 'สมัครไม่สำเร็จ',
-          text: msg,
-          confirmButtonText: 'ตกลง',
-          confirmButtonColor: '#ffc107',
-          background: '#1a1a1a',
-          color: '#fff'
-        });
+        this.showAlert('สมัครไม่สำเร็จ', msg, 'error');
         this.isSubmitting = false;
         return;
       }
@@ -171,15 +143,11 @@ export class RegisterPage implements OnInit {
       // Update tempUserData with hashed password so we don't have to hash it again
       this.tempUserData = isHashed ? { ...this.tempUserData, password: rawSec1.password } : this.tempUserData;
 
-      console.log('🚀 โค้ดวิ่งทะลุไปยิง API ส่งอีเมลแล้ว (ไม่มี Loading กวนใจ!)...');
-      await this.authService.reqOTP_Register(this.email);
-      console.log('✅ API ส่งอีเมลสำเร็จ!');
+      console.log('🚀 โค้ดวิ่งทะลุไปยิง API ส่งอีเมลแล้ว...');
       
-      // หน่วงเวลาให้ UI หายใจนิดนึง แล้วเปิด OTP
-      setTimeout(() => {
-        this.openOtpModal();
-      }, 300);
-      
+      this.isSubmitting = false; // ปลดล็อกปุ่มให้ Alert ทำงานได้ปกติ
+      await this.showTermsAndConditions();
+
     } catch (error: any) {
       console.log('💥 API เกิด Error:', error);
       let errorMsg = 'ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง';
@@ -193,17 +161,95 @@ export class RegisterPage implements OnInit {
       }
       if (errorMsg === '[object Object]') errorMsg = 'อีเมลนี้เป็นสมาชิกอยู่แล้ว หรือ รูปแบบข้อมูลซ้ำซ้อนในระบบ';
 
-      Swal.fire({
-        icon: 'error',
-        title: 'ไม่สามารถสมัครได้',
-        text: errorMsg,
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#ffc107',
-        background: '#1a1a1a',
-        color: '#fff'
-      });
+      this.showAlert('ไม่สามารถสมัครได้', errorMsg, 'error');
       this.isSubmitting = false; // ถ้า Error ให้ปลดล็อกปุ่มทันที
     } 
+  }
+
+  // ==========================================
+  // 🌟 แสดงข้อตกลงและเงื่อนไขการใช้งานก่อนไปหน้า OTP
+  // ==========================================
+  async showTermsAndConditions() {
+    const alert = await this.alertController.create({
+      header: 'ข้อตกลงและเงื่อนไขการใช้งานเว็บแอปพลิเคชัน HuntPuk',
+      message: `
+        <div style="text-align: left; max-height: 50vh; overflow-y: auto; font-size: 14px; line-height: 1.6;">
+          <p style="margin-bottom: 12px">
+            <strong>1. บทนำและการยอมรับข้อตกลง</strong><br />
+            &emsp;ยินดีต้อนรับสู่แอปพลิเคชัน HuntPuk การที่คุณดาวน์โหลด ติดตั้ง หรือใช้งานแอปพลิเคชันนี้ ถือว่าคุณได้อ่าน เข้าใจ และยอมรับที่จะผูกพันตามข้อตกลงและเงื่อนไขการใช้งานฉบับนี้ทุกประการ
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>2. วัตถุประสงค์ของการให้บริการ</strong><br />
+            &emsp;HuntPuk เป็นเพียง "สื่อกลาง" ในการรวบรวมและแสดงข้อมูลหอพักรอบมหาวิทยาลัย แอปพลิเคชันไม่มีส่วนเกี่ยวข้องในการทำธุรกรรม การทำสัญญาเช่า หรือการรับ-จ่ายเงินมัดจำใดๆ ระหว่างผู้เช่าและผู้ให้เช่าทั้งสิ้น
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>3. การสมัครสมาชิกและความปลอดภัยของบัญชี</strong><br />
+            &emsp;ผู้ใช้งานต้องให้ข้อมูลที่เป็นความจริง ถูกต้อง และรักษารหัสผ่านของตนเองให้เป็นความลับ
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>4. กฎระเบียบและข้อควรปฏิบัติของผู้ใช้งาน</strong><br />
+            &emsp;ห้ามมิให้ลงประกาศหอพักปลอม หรือมีเจตนาหลอกลวง หากตรวจสอบพบทางแอปพลิเคชันมีสิทธิ์ลบบัญชีทันที
+            &emsp;สำหรับนิสิต/นักศึกษาโปรดใช้วิจารณญาณในการตัดสินใจ แอปพลิเคชันเป็นเพียงสื่อกลางเท่านั้น ผู้ใช้งานควรตรวจสอบสถานที่จริงและรายละเอียดสัญญากับเจ้าของหอพักโดยตรงก่อนทำการโอนเงินมัดจำทุกครั้ง
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>5. สิทธิในทรัพย์สินทางปัญญา</strong><br />
+            &emsp;ข้อมูล รูปภาพ หรือข้อความที่ผู้ใช้งานอัปโหลดลงในระบบ ผู้ใช้งานจะต้องเป็นเจ้าของลิขสิทธิ์ หรือได้รับอนุญาตอย่างถูกต้อง
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>6. ข้อจำกัดความรับผิดชอบ</strong><br />
+            &emsp;แอปพลิเคชัน HuntPuk จะไม่รับผิดชอบต่อความเสียหายใดๆ รวมถึงการถูกหลอกลวงจากการทำธุรกรรมระหว่างผู้เช่าและเจ้าของหอพัก
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>7. นโยบายความเป็นส่วนตัว</strong><br />
+            &emsp;ทางแอปพลิเคชันจะเก็บรวบรวมข้อมูลส่วนบุคคลของคุณ เพื่อใช้ในการให้บริการและพัฒนาแอปพลิเคชันเท่านั้น
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>8. การยกเลิกบัญชีผู้ใช้</strong><br />
+            &emsp;เราขอสงวนสิทธิ์ในการระงับหรือยกเลิกบัญชีผู้ใช้งานทันที หากตรวจพบการละเมิดข้อตกลง
+          </p>
+          <p style="margin-bottom: 12px">
+            <strong>9. การเปลี่ยนแปลงข้อตกลง</strong><br />
+            &emsp;ทีมผู้พัฒนาขอสงวนสิทธิ์ในการแก้ไขหรือเปลี่ยนแปลงข้อตกลงนี้ได้ตลอดเวลา
+          </p>
+        </div>
+      `,
+      inputs: [
+        {
+          name: 'accept',
+          type: 'checkbox',
+          label: 'ฉันได้อ่านและยอมรับข้อตกลงและเงื่อนไข',
+          value: 'accepted'
+        }
+      ],
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          handler: () => {
+            this.isSubmitting = false;
+          }
+        },
+        {
+          text: 'ยอมรับและดำเนินการต่อ',
+          handler: async (data) => {
+            if (data && data.includes('accepted')) {
+              this.isSubmitting = true;
+              await this.authService.reqOTP_Register(this.email);
+              console.log('✅ API ส่งอีเมลสำเร็จ!');
+              setTimeout(() => {
+                this.openOtpModal();
+              }, 300);
+              return true;
+            } else {
+              this.showAlert('แจ้งเตือน', 'คุณต้องกดยอมรับข้อตกลงก่อนดำเนินการต่อ');
+              return false; // Prevent modal from closing
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   // ==========================================
@@ -253,31 +299,23 @@ export class RegisterPage implements OnInit {
        this.emailError = false;
        this.passwordError = false;
 
-       await Swal.fire({
-         icon: 'success',
-         title: 'สำเร็จ!',
-         text: 'สมัครสมาชิกและยืนยันตัวตนเรียบร้อยแล้ว',
-         confirmButtonText: 'ไปหน้าเข้าสู่ระบบ',
-         confirmButtonColor: '#28a745',
-         background: '#1a1a1a',
-         color: '#fff',
-         timer: 3000,
-         timerProgressBar: true
+       const alert = await this.modalCtrl.create({
+        component: AlertModalComponent,
+        componentProps: {
+          title: 'สำเร็จ!',
+          message: 'สมัครสมาชิกและยืนยันตัวตนเรียบร้อยแล้ว',
+          type: 'success'
+        },
+        cssClass: 'auto-height-modal'
        });
+       await alert.present();
+       await alert.onDidDismiss();
        this.router.navigate(['/login']);
 
     } catch (error: any) {
       console.error('❌ บันทึกข้อมูลพลาด:', error);
-      const msg = error?.error?.message || error?.message || 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
-      Swal.fire({
-        icon: 'error',
-        title: 'ผิดพลาด',
-        text: msg,
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#ffc107',
-        background: '#1a1a1a',
-        color: '#fff'
-      });
+       const msg = error?.error?.message || error?.message || 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+       this.showAlert('ผิดพลาด', msg, 'error');
     } finally {
       this.isSubmitting = false;
     }

@@ -334,13 +334,12 @@ ion-modal.detail-modal {
   }
 }
 
-/* --- Action Buttons --- */
 .action-buttons {
   display: flex;
   gap: 12px;
   margin-top: 28px;
 
-  button {
+  .btn-reject, .btn-approve {
     flex: 1;
     padding: 14px 12px;
     border-radius: 14px;

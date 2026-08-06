@@ -12,13 +12,14 @@ import {
 } from 'ionicons/icons';
 import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
 import { ActionConfirmModalComponent } from '../../components/action-confirm-modal/action-confirm-modal.component';
+import { ThaiDatePipe } from '../../pipes/thai-date-pipe';
 
 @Component({
   selector: 'app-dorm-popular',
   templateUrl: './dorm-popular.page.html',
   styleUrls: ['./dorm-popular.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RequireLoginModalComponent, ActionConfirmModalComponent]
+  imports: [CommonModule, FormsModule, IonicModule, RequireLoginModalComponent, ActionConfirmModalComponent, ThaiDatePipe]
 })
 export class DormPopularPage implements OnInit {
 

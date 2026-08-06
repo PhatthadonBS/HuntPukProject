@@ -15,12 +15,14 @@ import {
 } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
 
+import { ThaiDatePipe } from '../../pipes/thai-date-pipe';
+
 @Component({
   selector: 'app-dorm-detail',
   templateUrl: './dorm-detail.page.html',
   styleUrls: ['./dorm-detail.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, ThaiDatePipe]
 })
 export class DormDetailPage implements OnInit, OnChanges {
 

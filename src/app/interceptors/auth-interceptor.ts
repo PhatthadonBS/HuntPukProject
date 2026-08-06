@@ -5,17 +5,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   let token = '';
 
   try {
-    const sessionType = localStorage.getItem(SESSION_TYPE_KEY);
-
-    if (sessionType === 'session') {
-      // ❌ ไม่ได้ tick remember → อ่านจาก sessionStorage (หายเมื่อปิดแท็บ)
-      const storedData = sessionStorage.getItem(SESSION_STORAGE_KEY);
-      if (storedData) token = JSON.parse(storedData)?.token || '';
-    } else {
-      // ✅ tick remember → อ่านจาก localStorage (ค้างข้ามแท็บ)
-      const storedData = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (storedData) token = JSON.parse(storedData)?.token || '';
-    }
+    const storedData = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (storedData) token = JSON.parse(storedData)?.token || '';
   } catch (e) {
     console.error('Error parsing token from storage', e);
   }

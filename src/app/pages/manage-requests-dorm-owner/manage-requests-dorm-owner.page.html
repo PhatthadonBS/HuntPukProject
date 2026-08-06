@@ -71,99 +71,99 @@
     </div>
   </div>
 
-  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" class="detail-modal">
-    <ng-template>
-      <div class="modal-content" *ngIf="selectedReq">
+</ion-content>
+
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()" class="detail-modal">
+  <ng-template>
+    <div class="modal-content" *ngIf="selectedReq">
+      
+      <div class="modal-header">
+        <h3>รายละเอียดคำขอ</h3>
+        <ion-icon name="close" (click)="closeModal()"></ion-icon>
+      </div>
+
+      <div class="profile-preview">
+        <img [src]="selectedReq.profile_img" class="profile-pic" (error)="handleImageError($event)">
+      </div>
+
+      <div class="info-list">
+        <div class="info-item">
+          <label>ชื่อ-นามสกุล:</label>
+          <span>{{ selectedReq.first_name }} {{ selectedReq.last_name }}</span>
+        </div>
+        <div class="info-item">
+          <label>เบอร์โทรศัพท์:</label>
+          <span>{{ selectedReq.phone_number }}</span>
+        </div>
         
-        <div class="modal-header">
-          <h3>รายละเอียดคำขอ</h3>
-          <ion-icon name="close" (click)="closeModal()"></ion-icon>
-        </div>
-
-        <div class="profile-preview">
-          <img [src]="selectedReq.profile_img" class="profile-pic" (error)="handleImageError($event)">
-        </div>
-
-        <div class="info-list">
-          <div class="info-item">
-            <label>ชื่อ-นามสกุล:</label>
-            <span>{{ selectedReq.first_name }} {{ selectedReq.last_name }}</span>
+        <div class="divider">ช่องทางติดต่อ</div>
+    <div class="social-links">
+          
+          <div class="social-row">
+             <a *ngIf="selectedReq.facebook" [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
+               <ion-icon name="logo-facebook"></ion-icon> Facebook
+             </a>
+             <div *ngIf="!selectedReq.facebook" class="social-btn fb" style="opacity: 0.5; filter: grayscale(1);">
+               <ion-icon name="logo-facebook"></ion-icon> Facebook
+             </div>
+             <span class="social-text">{{ selectedReq.facebook || 'ไม่ระบุ' }}</span>
           </div>
-          <div class="info-item">
-            <label>เบอร์โทรศัพท์:</label>
-            <span>{{ selectedReq.phone_number }}</span>
+
+          <div class="social-row">
+             <div class="social-btn line" [ngStyle]="!selectedReq.line ? {'opacity': '0.5', 'filter': 'grayscale(1)'} : {}">
+               <ion-icon name="chatbubbles"></ion-icon> Line
+             </div>
+             <span class="social-text">{{ selectedReq.line || 'ไม่ระบุ' }}</span>
+          </div>
+
+          <div class="social-row">
+            <a *ngIf="selectedReq.instagram" [href]="selectedReq.instagram" target="_blank" class="social-btn ig">
+              <ion-icon name="logo-instagram"></ion-icon> Instagram
+            </a>
+            <div *ngIf="!selectedReq.instagram" class="social-btn ig" style="opacity: 0.5; filter: grayscale(1);">
+              <ion-icon name="logo-instagram"></ion-icon> Instagram
+            </div>
+            <span class="social-text">{{ selectedReq.instagram || 'ไม่ระบุ' }}</span>
           </div>
           
-          <div class="divider">ช่องทางติดต่อ</div>
-      <div class="social-links">
-            
-            <div class="social-row">
-               <a *ngIf="selectedReq.facebook" [href]="selectedReq.facebook" target="_blank" class="social-btn fb">
-                 <ion-icon name="logo-facebook"></ion-icon> Facebook
-               </a>
-               <div *ngIf="!selectedReq.facebook" class="social-btn fb" style="opacity: 0.5; filter: grayscale(1);">
-                 <ion-icon name="logo-facebook"></ion-icon> Facebook
-               </div>
-               <span class="social-text">{{ selectedReq.facebook || 'ไม่ระบุ' }}</span>
+          <div class="social-row">
+            <a *ngIf="selectedReq.x" [href]="selectedReq.x" target="_blank" class="social-btn x-tw">
+              <ion-icon name="logo-twitter"></ion-icon> X
+            </a>
+            <div *ngIf="!selectedReq.x" class="social-btn x-tw" style="opacity: 0.5; filter: grayscale(1);">
+              <ion-icon name="logo-twitter"></ion-icon> X
             </div>
-
-            <div class="social-row">
-               <div class="social-btn line" [ngStyle]="!selectedReq.line ? {'opacity': '0.5', 'filter': 'grayscale(1)'} : {}">
-                 <ion-icon name="chatbubbles"></ion-icon> Line
-               </div>
-               <span class="social-text">{{ selectedReq.line || 'ไม่ระบุ' }}</span>
-            </div>
-
-            <div class="social-row">
-              <a *ngIf="selectedReq.instagram" [href]="selectedReq.instagram" target="_blank" class="social-btn ig">
-                <ion-icon name="logo-instagram"></ion-icon> Instagram
-              </a>
-              <div *ngIf="!selectedReq.instagram" class="social-btn ig" style="opacity: 0.5; filter: grayscale(1);">
-                <ion-icon name="logo-instagram"></ion-icon> Instagram
-              </div>
-              <span class="social-text">{{ selectedReq.instagram || 'ไม่ระบุ' }}</span>
-            </div>
-            
-            <div class="social-row">
-              <a *ngIf="selectedReq.x" [href]="selectedReq.x" target="_blank" class="social-btn x-tw">
-                <ion-icon name="logo-twitter"></ion-icon> X
-              </a>
-              <div *ngIf="!selectedReq.x" class="social-btn x-tw" style="opacity: 0.5; filter: grayscale(1);">
-                <ion-icon name="logo-twitter"></ion-icon> X
-              </div>
-              <span class="social-text">{{ selectedReq.x || 'ไม่ระบุ' }}</span>
-            </div>
-
-            <div class="social-row">
-              <a *ngIf="selectedReq.telegram" [href]="selectedReq.telegram" target="_blank" class="social-btn tg">
-                <ion-icon name="paper-plane"></ion-icon> Telegram
-              </a>
-              <div *ngIf="!selectedReq.telegram" class="social-btn tg" style="opacity: 0.5; filter: grayscale(1);">
-                <ion-icon name="paper-plane"></ion-icon> Telegram
-              </div>
-              <span class="social-text">{{ selectedReq.telegram || 'ไม่ระบุ' }}</span>
-            </div>
-
+            <span class="social-text">{{ selectedReq.x || 'ไม่ระบุ' }}</span>
           </div>
-        </div>
 
-        <div class="action-buttons" *ngIf="selectedReq.status === 'pending'">
-          <button class="btn-reject" (click)="updateStatus(selectedReq, 'rejected')">
-            <ion-icon name="close-circle"></ion-icon> ปฏิเสธ
-          </button>
-          <button class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">
-            <ion-icon name="checkmark-circle"></ion-icon> อนุมัติสิทธิ์
-          </button>
-        </div>
+          <div class="social-row">
+            <a *ngIf="selectedReq.telegram" [href]="selectedReq.telegram" target="_blank" class="social-btn tg">
+              <ion-icon name="paper-plane"></ion-icon> Telegram
+            </a>
+            <div *ngIf="!selectedReq.telegram" class="social-btn tg" style="opacity: 0.5; filter: grayscale(1);">
+              <ion-icon name="paper-plane"></ion-icon> Telegram
+            </div>
+            <span class="social-text">{{ selectedReq.telegram || 'ไม่ระบุ' }}</span>
+          </div>
 
-        <div class="action-note" *ngIf="selectedReq.status !== 'pending'">
-          <p>สถานะปัจจุบัน: 
-            <strong [ngClass]="selectedReq.status">{{ getStatusLabel(selectedReq.status) }}</strong>
-          </p>
         </div>
-
       </div>
-    </ng-template>
-  </ion-modal>
 
-</ion-content>
+      <div class="action-buttons" *ngIf="selectedReq.status === 'pending'">
+        <div class="btn-reject" (click)="updateStatus(selectedReq, 'rejected')">
+          <ion-icon name="close-circle"></ion-icon> ปฏิเสธ
+        </div>
+        <div class="btn-approve" (click)="updateStatus(selectedReq, 'approved')">
+          <ion-icon name="checkmark-circle"></ion-icon> อนุมัติสิทธิ์
+        </div>
+      </div>
+
+      <div class="action-note" *ngIf="selectedReq.status !== 'pending'">
+        <p>สถานะปัจจุบัน: 
+          <strong [ngClass]="selectedReq.status">{{ getStatusLabel(selectedReq.status) }}</strong>
+        </p>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>

@@ -31,6 +31,7 @@ export class RequestsPage implements OnInit, ViewWillEnter {
   isSubmitted: boolean = false;
   isSuccess: boolean = false; 
   isSubmitting: boolean = false; 
+  isRejectedRetry: boolean = false;
 
   isAdmin: boolean = false;
   membersList: any[] = [];
@@ -58,6 +59,7 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     this.isSubmitted = false;
     this.isSubmitting = false;
     this.isSuccess = false;
+    this.isRejectedRetry = false;
     this.selectedFile = null; 
     this.previewImage = null; 
     
@@ -85,10 +87,38 @@ export class RequestsPage implements OnInit, ViewWillEnter {
              if (roleId === 3) {
                  this.isAdmin = true;
                  this.loadMembers();
+             } else {
+                 this.fetchMyRequestData();
              }
         } else { this.forceLogout(); }
       } catch (e) { this.forceLogout(); }
     } else { this.forceLogout(); }
+  }
+
+  fetchMyRequestData() {
+    this.ownerRequestService.getMyDormOwnerReq().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const data = res.data;
+          // ถ้าถูกปฏิเสธ (REQ_STATUS === 2) ให้นำข้อมูลเดิมมาใส่
+          if (data.REQ_STATUS === 2) {
+            this.isRejectedRetry = true;
+            this.formData.first_name = data.FIRST_NAME || '';
+            this.formData.last_name = data.LAST_NAME || '';
+            this.formData.facebook = data.FACEBOOK || '';
+            this.formData.line = data.LINE || '';
+            this.formData.instagram = data.INSTAGRAM || '';
+            this.formData.x = data.X || '';
+            this.formData.telegram = data.TELEGRAM || '';
+            this.previewImage = data.PROFILE_IMAGE || null;
+            // แจ้งผู้ใช้ว่าเป็นการส่งข้อมูลใหม่แทนที่ข้อมูลเดิมที่ถูกปฏิเสธ
+          }
+        }
+      },
+      error: (err) => {
+        console.error('No previous request found or error', err);
+      }
+    });
   }
 
   async loadMembers() {
@@ -148,10 +178,33 @@ export class RequestsPage implements OnInit, ViewWillEnter {
     if (!phoneRe.test(this.formData.phone_number)) {
       this.errorMessage = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (10 หลัก เริ่มต้นด้วย 0)'; return;
     }
-    if (!this.selectedFile) {
+    if (!this.selectedFile && !this.isRejectedRetry) {
       this.errorMessage = 'กรุณาอัปโหลดรูปโปรไฟล์'; return;
     }
     
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการขอสิทธิ์',
+      message: this.isRejectedRetry ? 'คุณต้องการส่งข้อมูลชุดใหม่เพื่อแทนที่คำขอเดิมที่ถูกปฏิเสธหรือไม่?' : 'คุณแน่ใจหรือไม่ว่าต้องการขอสิทธิ์เป็นเจ้าของหอพัก?',
+      buttons: [
+        {
+          text: 'ยกเลิก',
+          role: 'cancel',
+          handler: () => {
+            this.isSubmitting = false;
+          }
+        },
+        {
+          text: 'ยืนยัน',
+          handler: () => {
+            this.proceedSubmit();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  proceedSubmit() {
     console.log('✅ ข้อมูลครบถ้วน เตรียมส่ง API...');
     this.isSubmitting = true; // 🌟 ล็อกปุ่มให้เป็นตัวหมุนๆ (Spinner)
     
@@ -159,7 +212,9 @@ export class RequestsPage implements OnInit, ViewWillEnter {
       console.log('🚀 โค้ดวิ่งทะลุไปหาหลังบ้านแล้ว (ไม่มี Loading มากวนใจ!)');
       
       const formData = new FormData();
-      formData.append('file', this.selectedFile); 
+      if (this.selectedFile) {
+        formData.append('file', this.selectedFile); 
+      }
       formData.append('user_id', this.formData.user_id.toString());
       formData.append('first_name', this.formData.first_name);
       formData.append('last_name', this.formData.last_name);
@@ -169,6 +224,10 @@ export class RequestsPage implements OnInit, ViewWillEnter {
       formData.append('instagram', this.formData.instagram || '');
       formData.append('x', this.formData.x || '');
       formData.append('telegram', this.formData.telegram || '');
+      
+      if (this.isRejectedRetry) {
+        formData.append('override', 'true');
+      }
 
       this.ownerRequestService.requestToBeOwner(formData).subscribe({
         next: (res) => {

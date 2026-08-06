@@ -43,6 +43,8 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
   attemptsLeft   = MAX_ATTEMPTS;
   private countdownTimer?: any;
 
+  hasError: boolean = false;
+
   @ViewChild('emailInput', { static: false }) emailInput!: ElementRef;
 
   constructor(
@@ -169,7 +171,7 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
     if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
     this.inactivityTimer = setTimeout(() => {
       // หมดเวลา 1 ชั่วโมง ไม่มี activity — logout ทันที
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      localStorage.removeItem(SESSION_STORAGE_KEY);
       localStorage.removeItem(SESSION_TYPE_KEY);
       const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
       events.forEach(e => window.removeEventListener(e, this.boundResetInactivity));
@@ -182,19 +184,20 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
   goHome() { this.router.navigate(['/home']); }
 
   async login() {
+    this.hasError = false;
+
     if (this.isLocked) {
       this.showAlert('⛔ บัญชีถูกล็อกชั่วคราว', `กรุณารอ ${this.lockCountdown} แล้วลองใหม่ เนื่องจากพยายามเข้าสู่ระบบผิดพลาดหลายครั้ง`);
       return;
     }
     if (this.isLoading) return;
 
-    if (!this.email?.trim()) {
-      this.showAlert('กรอกข้อมูลไม่ครบ', 'กรุณาระบุอีเมลของคุณ');
-      setTimeout(() => this.emailInput?.nativeElement?.focus(), 100);
-      return;
-    }
-    if (!this.password) {
-      this.showAlert('กรอกข้อมูลไม่ครบ', 'กรุณาระบุรหัสผ่าน');
+    if (!this.email?.trim() || !this.password) {
+      this.hasError = true;
+      this.showAlert('⚠️ กรอกข้อมูลไม่ครบ', 'กรุณาระบุอีเมลและรหัสผ่านให้ครบถ้วน');
+      if (!this.email?.trim()) {
+        setTimeout(() => this.emailInput?.nativeElement?.focus(), 100);
+      }
       return;
     }
 
@@ -226,22 +229,17 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
             loginAt:        Date.now()
           };
 
-          // 🔐 ถ้า rememberMe → เก็บใน localStorage (ค้างข้ามแท็บ/browser)
-          //    ถ้าไม่ tick  → เก็บใน sessionStorage (หายเมื่อปิดแท็บ)
-          if (this.rememberMe) {
-            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userData));
-            localStorage.setItem(SESSION_TYPE_KEY, 'local');
-          } else {
-            sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userData));
-            localStorage.setItem(SESSION_TYPE_KEY, 'session');
-            // เริ่ม inactivity timer สำหรับ session-only login
-            this.startInactivityTimer();
-          }
+          // ✅ บันทึก loggedIn ลง localStorage เสมอเพื่อให้ทั้งแอปมองเห็น
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userData));
 
           if (this.rememberMe) {
+            localStorage.setItem(SESSION_TYPE_KEY, 'local');
             localStorage.setItem('rememberLogin', JSON.stringify({ email: normalizedEmail, password: this.password }));
           } else {
+            localStorage.setItem(SESSION_TYPE_KEY, 'session');
             localStorage.removeItem('rememberLogin');
+            // เริ่ม inactivity timer สำหรับ session-only login (แต่ยังใช้ localStorage อยู่)
+            this.startInactivityTimer();
           }
 
           window.dispatchEvent(new CustomEvent('user-logged-in'));
@@ -250,12 +248,14 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
           else              this.router.navigate(['/home']);
 
         } else {
+          this.hasError = true;
           this.recordFailedAttempt();
           this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'บัญชีของคุณถูกระงับหรือไม่มีสิทธิ์เข้าใช้งาน');
-          localStorage.removeItem('loggedIn');
+          localStorage.removeItem(SESSION_STORAGE_KEY);
         }
 
       } else {
+        this.hasError = true;
         this.recordFailedAttempt();
         if (this.isLocked) {
           this.showAlert('⛔ บัญชีถูกล็อก', `พยายามเข้าสู่ระบบผิดพลาด ${MAX_ATTEMPTS} ครั้ง กรุณารอ 15 นาที`);
@@ -285,7 +285,8 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
       else if (serverMessage.length > 0 && serverMessage !== '{}')
         displayMsg = serverMessage;
 
-      if (error.status === 401 || error.status === 404) {
+      if (error.status === 401 || error.status === 404 || error.status === 400) {
+        this.hasError = true;
         this.recordFailedAttempt();
       }
       await this.showAlert('พบข้อผิดพลาด', displayMsg);

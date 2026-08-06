@@ -20,18 +20,18 @@
         <ion-icon name="person" color="medium"></ion-icon>
       </div>
 
-      <div class="custom-input" [style.border]="emailError ? '1px solid #ff4d4f' : ''">
-        <p *ngIf="emailError" style="color: #ff4d4f; font-size: 12px; margin: -10px 0 5px 0; position: absolute; top: -15px; left: 10px;">* กรุณากรอกรูปแบบอีเมลให้ถูกต้อง</p>
-        <input type="email" placeholder="อีเมล" [(ngModel)]="email">
+      <div class="custom-input" [class.has-error]="emailError">
+        <input type="email" placeholder="อีเมล" [(ngModel)]="email" (focus)="emailError = false">
         <ion-icon name="mail" color="medium"></ion-icon>
       </div>
+      <p *ngIf="emailError" class="error-msg">* กรุณากรอกรูปแบบอีเมลให้ถูกต้อง</p>
 
-      <div class="custom-input" [style.border]="passwordError ? '1px solid #ff4d4f' : ''" style="margin-top: 20px;">
-        <p *ngIf="passwordError" style="color: #ff4d4f; font-size: 12px; margin: -10px 0 5px 0; position: absolute; top: -15px; left: 10px;">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</p>
+      <div class="custom-input" [class.has-error]="passwordError">
         <input 
           [type]="showPassword ? 'text' : 'password'" 
           placeholder="รหัสผ่าน" 
-          [(ngModel)]="password">
+          [(ngModel)]="password"
+          (focus)="passwordError = false">
         
         <ion-icon 
           [name]="showPassword ? 'eye' : 'eye-off'" 
@@ -40,6 +40,7 @@
           color="medium">
         </ion-icon>
       </div>
+      <p *ngIf="passwordError" class="error-msg">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</p>
 
       <div class="custom-input">
         <input 

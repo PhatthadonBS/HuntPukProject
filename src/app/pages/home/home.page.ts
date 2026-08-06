@@ -26,6 +26,7 @@ import { SplashScreenComponent } from '../../components/splash-screen/splash-scr
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
 import { ActionConfirmModalComponent } from '../../components/action-confirm-modal/action-confirm-modal.component';
+import { ThaiDatePipe } from '../../pipes/thai-date-pipe';
 
 import {
   menuOutline, caretDownOutline, layersOutline, close,
@@ -50,7 +51,7 @@ import {
     HttpClientModule, HttpClientJsonpModule, GoogleMapsModule,
     HeaderComponent, MapDirectionsRenderer, MapCircle, MapMarker,
     WelcomeModalComponent, SplashScreenComponent, RequireLoginModalComponent,
-    ActionConfirmModalComponent
+    ActionConfirmModalComponent, ThaiDatePipe
   ],
 })
 export class HomePage implements OnInit, ViewDidEnter {

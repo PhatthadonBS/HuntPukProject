@@ -70,7 +70,7 @@
 
                <p class="update-date" *ngIf="dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE || dorm.UPDATE_AT">
                  <ion-icon name="time-outline"></ion-icon>
-                 อัปเดต: {{ (dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE || dorm.UPDATE_AT) | date:'d MMM yyyy' }}
+                 อัปเดต: {{ (dorm.UPDATED_AT || dorm.updated_at || dorm.CREATE_DATE || dorm.UPDATE_AT) | thaiDate }}
                </p>
             </div>
 

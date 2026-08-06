@@ -173,7 +173,7 @@
 
           <div *ngIf="selectedDorm.UPDATE_AT || selectedDorm.updated_at" style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; margin-bottom: 10px;">
             <ion-icon name="time-outline" style="font-size: 14px;"></ion-icon>
-            <span>อัปเดตข้อมูล: <strong style="color: #555;">{{ (selectedDorm.UPDATE_AT || selectedDorm.updated_at) | date:'dd/MM/yyyy' }}</strong></span>
+            <span>อัปเดตข้อมูล: <strong style="color: #555;">{{ (selectedDorm.UPDATE_AT || selectedDorm.updated_at) | thaiDate }}</strong></span>
           </div>
 
 
@@ -301,7 +301,7 @@
                 <div class="rev-avatar">{{ (rev.USERNAME || 'U').substring(0,1).toUpperCase() }}</div>
                 <div class="rev-meta">
                   <span class="rev-name">{{ rev.USERNAME || 'ผู้ใช้งานไม่ระบุชื่อ' }}</span>
-                  <span class="rev-date">{{ rev.CREATE_AT | date:'dd/MM/yyyy' }}</span>
+                  <span class="rev-date">{{ rev.CREATE_AT | thaiDate }}</span>
                 </div>
                 <div class="rev-score"><ion-icon name="star"></ion-icon> {{ rev.SCORE }}</div>
               </div>

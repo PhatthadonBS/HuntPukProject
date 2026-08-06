@@ -5,7 +5,7 @@ import {
   IonContent, IonHeader, IonTitle, IonToolbar,
   IonButtons, IonBackButton, IonButton, IonIcon,
   IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-  IonCheckbox, IonList, LoadingController, ToastController, AlertController, ActionSheetController
+  IonCheckbox, IonList, IonSpinner, LoadingController, ToastController, AlertController, ActionSheetController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -42,7 +42,7 @@ addIcons({
     IonContent, IonHeader, IonTitle, IonToolbar,
     IonButtons, IonBackButton, IonButton, IonIcon,
     IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
-    IonCheckbox, IonList, CommonModule, FormsModule, GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle,
+    IonCheckbox, IonList, IonSpinner, CommonModule, FormsModule, GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle,
     SuccessModalComponent, DormPreviewModalComponent, RouterModule
   ]
 })
@@ -758,9 +758,9 @@ export class DormFormPage implements OnInit {
       return;
     }
 
-    // ✅ เช็คขนาดไฟล์ไม่เกิน 10MB
-    if (file.size > 10 * 1024 * 1024) {
-      this.showToast('ไฟล์ใหญ่เกินไป (สูงสุด 10MB)', 'warning');
+    // ✅ เช็คขนาดเกิน 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      this.showToast('ขนาดไฟล์ใหญ่เกินไป (สูงสุด 5MB)', 'warning');
       return;
     }
 
@@ -770,28 +770,63 @@ export class DormFormPage implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  onPaste(event: ClipboardEvent, field: string) {
+    if (this.isReadOnly) return;
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item && item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            this.showToast('ภาพที่วางมีขนาดใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+            return;
+          }
+          this.selectedFiles[field] = file;
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.previews[field] = reader.result;
+          };
+          reader.readAsDataURL(file);
+          this.showToast('วางรูปภาพสำเร็จ', 'success');
+        }
+        break; // Process only the first image pasted
+      }
+    }
+  }
+
   onGallerySelect(event: any) {
     const files = event.target.files;
     if (!files) return;
+
+    const currentCount = this.selectedFiles.OTHER_IMG.length;
+    if (currentCount + files.length > 5) {
+      this.showToast('คุณอัปโหลดรูปภาพได้สูงสุด 5 รูป', 'warning');
+      return;
+    }
+
+    let hasOversized = false;
     for (let i = 0; i < files.length; i++) {
       if (files[i].type !== 'image/jpeg' && files[i].type !== 'image/png') {
         this.showToast(`ไฟล์ ${files[i].name} ไม่รองรับ (เฉพาะ JPG/PNG)`, 'warning');
         continue;
       }
-      if (this.selectedFiles.OTHER_IMG.length >= 5) {
-        this.showToast('อัปโหลดรูปภาพเพิ่มเติมได้สูงสุด 5 รูป', 'warning');
-        break;
+      if (files[i].size > 5 * 1024 * 1024) {
+        hasOversized = true;
+      } else {
+        this.selectedFiles.OTHER_IMG.push(files[i]);
+        const reader = new FileReader();
+        reader.onload = (e) => { this.previews.OTHER_IMG.push(e.target?.result); };
+        reader.readAsDataURL(files[i]);
       }
-      if (files[i].size > 10 * 1024 * 1024) continue; // ข้ามไฟล์ใหญ่เกิน
-      this.selectedFiles.OTHER_IMG.push(files[i]);
-      const reader = new FileReader();
-      reader.onload = () => { this.previews.OTHER_IMG.push(reader.result); };
-      reader.readAsDataURL(files[i]);
+    }
+
+    if (hasOversized) {
+      this.showToast('มีรูปภาพบางรูปขนาดเกิน 5MB จึงไม่ถูกเพิ่ม', 'warning');
     }
   }
-
-  // ✅ Paste handler removed - caused confusion (pasted to wrong field)
-  // Users should click the upload button for each field instead.
 
   removeGalleryImage(index: number, isExisting: boolean = false) {
     if (isExisting) {
@@ -805,7 +840,6 @@ export class DormFormPage implements OnInit {
   // =========== Custom Facility Modal State ===========
   isAddFacilityModalOpen = false;  // controls overlay div (not ion-modal)
   newFacilityName = '';
-  newFacilitySelectedIcon = 'star.png'; // default icon
   newFacilityCustomIcon: string | null = null; // store base64 string
   
   availableIcons = [
@@ -820,21 +854,19 @@ export class DormFormPage implements OnInit {
   ];
 
   suggestNewFacility() {
-    if (this.formData.new_facilities.length >= 3) {
-      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 3 รายการ', 'warning');
+    if (this.formData.new_facilities.length >= 4) {
+      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 4 รายการ', 'warning');
       return;
     }
     
     // Reset state and open modal
     this.newFacilityName = '';
-    this.newFacilitySelectedIcon = 'assets/allIcons/' + this.availableIcons[0]; // Use first available icon as default
     this.newFacilityCustomIcon = null;
     this.isAddFacilityModalOpen = true;
   }
 
   selectFacilityIcon(iconFile: string) {
-    this.newFacilitySelectedIcon = iconFile;
-    this.newFacilityCustomIcon = null; // Clear custom icon if they pick a standard one
+    //
   }
 
   onCustomIconSelect(event: any) {
@@ -842,6 +874,10 @@ export class DormFormPage implements OnInit {
     if (file) {
       if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
         this.showToast('รองรับเฉพาะไฟล์รูปภาพ JPG หรือ PNG เท่านั้น', 'warning');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        this.showToast('ขนาดไอคอนใหญ่เกินไป (สูงสุด 5MB)', 'warning');
         return;
       }
       const reader = new FileReader();
@@ -868,22 +904,30 @@ export class DormFormPage implements OnInit {
     const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
     
     if (existsInMain || existsInNew) {
-      const alert = await this.alertCtrl.create({
-        header: 'เพิ่มไม่ได้',
-        message: `มีสิ่งอำนวยความสะดวก <strong>${trimmedName}</strong> อยู่แล้วในระบบ หรืออยู่ในรายการที่รอเพิ่มแล้ว`,
-        buttons: ['ตกลง']
-      });
-      await alert.present();
+      this.showToast(`สิ่งอำนวยความสะดวก "${trimmedName}" มีอยู่แล้วในระบบ`, 'danger');
       return;
     }
     
-    // 3. Add to new facilities
-    this.formData.new_facilities.push({
-      name: trimmedName,
-      icon: this.newFacilityCustomIcon ? this.newFacilityCustomIcon : this.newFacilitySelectedIcon
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการเพิ่ม',
+      message: `ต้องการเพิ่ม "${trimmedName}" ใช่หรือไม่?<br>สิทธิ์คงเหลือ: ${4 - this.formData.new_facilities.length - 1} รายการ`,
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ตกลง',
+          handler: () => {
+            // 3. Add to new facilities
+            this.formData.new_facilities.push({
+              name: trimmedName,
+              icon: this.newFacilityCustomIcon ? this.newFacilityCustomIcon : ''
+            });
+            this.closeAddFacilityModal();
+            this.showToast('เพิ่มสิ่งอำนวยความสะดวกสำเร็จ', 'success');
+          }
+        }
+      ]
     });
-    
-    this.closeAddFacilityModal();
+    await alert.present();
   }
 
   removeNewFacility(index: number) {
@@ -1019,6 +1063,8 @@ export class DormFormPage implements OnInit {
       console.error('❌ createDorm error:', error);
       console.error('📩 Server message:', serverMsg);
       this.showToast(`บันทึกไม่สำเร็จ: ${serverMsg}`, 'danger');
+    } finally {
+      this.isSubmitting = false;
     }
   }
 
@@ -1029,16 +1075,17 @@ export class DormFormPage implements OnInit {
   // ✅ เรียกตอนกด "ตกลงรับทราบ" ใน success-modal
   onSuccessConfirmed() {
     this.showSuccessModal = false;
-    this.formState = 'pending';
+    this.router.navigate(['/my-dorms']);
   }
 
   submitAgain() {
     this.formState = 'editing';
+    this.isReadOnly = false;
     this.rejectReason = '';
   }
 
   viewPendingInfo() {
-    this.formState = 'editing';
+    this.router.navigate(['/my-dorms']);
   }
 
   async showToast(msg: string, color: string) {

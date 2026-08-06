@@ -123,6 +123,13 @@ ion-content { --background: transparent; }
     box-shadow: 0 8px 20px rgba(255, 215, 0, 0.15);
     ion-icon:not(.eye-icon) { color: $msu-dark; }
   }
+
+  &.has-error {
+    border-color: #ff4d4d;
+    background: #fffafa;
+    box-shadow: 0 4px 15px rgba(255, 77, 77, 0.15);
+    ion-icon:not(.eye-icon) { color: #ff4d4d; }
+  }
 }
 
 // ============================================================

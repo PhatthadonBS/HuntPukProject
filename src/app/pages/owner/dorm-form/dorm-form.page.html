@@ -252,28 +252,19 @@
           <!-- เลือกไอคอน -->
           <div class="fac-icon-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <p class="fac-icon-label" style="margin: 0;">เลือกไอคอน</p>
+              <p class="fac-icon-label" style="margin: 0;">อัปโหลดรูปภาพ (ทางเลือก)</p>
               <ion-button size="small" fill="outline" color="primary" (click)="customIconInput.click()">
                 <ion-icon name="cloud-upload-outline" slot="start"></ion-icon> อัปโหลดรูปภาพ
               </ion-button>
               <input type="file" (change)="onCustomIconSelect($event)" accept="image/jpeg, image/png" hidden #customIconInput>
             </div>
-            <div class="fac-icon-grid">
+            <div class="fac-icon-grid" *ngIf="newFacilityCustomIcon">
               <!-- Custom Icon Preview -->
-              <div class="fac-icon-cell" *ngIf="newFacilityCustomIcon"
+              <div class="fac-icon-cell"
                 [class.fac-icon-selected]="true"
                 style="border-color: var(--ion-color-primary);">
                 <img [src]="newFacilityCustomIcon" alt="custom">
                 <span class="fac-icon-tick">✓</span>
-              </div>
-
-              <div
-                *ngFor="let iconFile of availableIcons"
-                class="fac-icon-cell"
-                [class.fac-icon-selected]="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile && !newFacilityCustomIcon"
-                (click)="selectFacilityIcon('assets/allIcons/' + iconFile)">
-                <img [src]="'assets/allIcons/' + iconFile" [alt]="iconFile">
-                <span *ngIf="newFacilitySelectedIcon === 'assets/allIcons/' + iconFile && !newFacilityCustomIcon" class="fac-icon-tick">✓</span>
               </div>
             </div>
           </div>
@@ -346,7 +337,7 @@
       <div class="section-card" *ngIf="!isApproved">
         <h3><ion-icon name="document-text-outline"></ion-icon> เอกสารยืนยันตัวตน <span class="req">*</span></h3>
         <p class="hint-text">รูปใบอนุญาตประกอบกิจการหอพัก หรือรูปเจ้าของถ่ายคู่กับบัตรประชาชน <br> <span class="text-danger">(ถ้าแอดมินตรวจสอบเสร็จระบบจะทำการลบออกจากระบบทันที)</span></p>
-        <div class="img-upload-box" (click)="isReadOnly ? null : licenseInput.click()" [class.has-image]="previews.LICENSE_IMG">
+        <div class="img-upload-box" tabindex="0" (paste)="onPaste($event, 'LICENSE_IMG')" (click)="isReadOnly ? null : licenseInput.click()" [class.has-image]="previews.LICENSE_IMG">
             <img [src]="previews.LICENSE_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
             <div class="overlay">
               <ion-icon name="cloud-upload-outline"></ion-icon>
@@ -363,7 +354,7 @@
         <div class="section-card">
           <h3><ion-icon name="image-outline"></ion-icon> รูปหน้าปกหอพัก <span class="req">*</span></h3>
           <p class="hint-text">รูปภาพด้านหน้าอาคาร หรือรูปที่สวยที่สุดของหอพัก</p>
-          <div class="img-upload-box" (click)="isReadOnly ? null : frontInput.click()" [class.has-image]="previews.FRONT_DORM_IMG">
+          <div class="img-upload-box" tabindex="0" (paste)="onPaste($event, 'FRONT_DORM_IMG')" (click)="isReadOnly ? null : frontInput.click()" [class.has-image]="previews.FRONT_DORM_IMG">
             <img [src]="previews.FRONT_DORM_IMG || 'assets/placeholder-landscape.png'" class="preview-img">
             <div class="overlay">
               <ion-icon name="cloud-upload-outline"></ion-icon>
@@ -382,7 +373,7 @@
           <p class="hint-text">กดที่รูปหรือปุ่มด้านล่างเพื่ออัปโหลดภาพแต่ละมุม &bull; <span class="text-danger"><strong>1-5 จำเป็นต้องใส่</strong></span>, ระเบียงไม่บังคับ</p>
 
           <div class="grid-3-col">
-            <div class="img-mini-box">
+            <div class="img-mini-box" tabindex="0" (paste)="onPaste($event, 'BED_IMG')">
               <label>1. เตียงนอน <span class="req">*</span></label>
               <img [src]="previews.BED_IMG || 'assets/placeholder-square.png'"
                 (click)="isReadOnly ? null : bedInput.click()" [class.uploaded]="previews.BED_IMG">
@@ -391,7 +382,7 @@
               <input #bedInput type="file" (change)="onFileSelect($event, 'BED_IMG')" accept="image/jpeg, image/png" hidden>
             </div>
 
-            <div class="img-mini-box">
+            <div class="img-mini-box" tabindex="0" (paste)="onPaste($event, 'WALL_IMG')">
               <label>2. ผนังปลายเตียง <span class="req">*</span></label>
               <img [src]="previews.WALL_IMG || 'assets/placeholder-square.png'"
                 (click)="isReadOnly ? null : wallInput.click()" [class.uploaded]="previews.WALL_IMG">
@@ -400,7 +391,7 @@
               <input #wallInput type="file" (change)="onFileSelect($event, 'WALL_IMG')" accept="image/jpeg, image/png" hidden>
             </div>
 
-            <div class="img-mini-box">
+            <div class="img-mini-box" tabindex="0" (paste)="onPaste($event, 'CEILING_IMG')">
               <label>3. เพดาน <span class="req">*</span></label>
               <img [src]="previews.CEILING_IMG || 'assets/placeholder-square.png'"
                 (click)="isReadOnly ? null : ceilingInput.click()" [class.uploaded]="previews.CEILING_IMG">
@@ -409,7 +400,7 @@
               <input #ceilingInput type="file" (change)="onFileSelect($event, 'CEILING_IMG')" accept="image/jpeg, image/png" hidden>
             </div>
 
-            <div class="img-mini-box">
+            <div class="img-mini-box" tabindex="0" (paste)="onPaste($event, 'FLOOR_IMG')">
               <label>4. ฝั่งติดประตู <span class="req">*</span></label>
               <img [src]="previews.FLOOR_IMG || 'assets/placeholder-square.png'"
                 (click)="isReadOnly ? null : floorInput.click()" [class.uploaded]="previews.FLOOR_IMG">
@@ -418,7 +409,7 @@
               <input #floorInput type="file" (change)="onFileSelect($event, 'FLOOR_IMG')" accept="image/jpeg, image/png" hidden>
             </div>
 
-            <div class="img-mini-box">
+            <div class="img-mini-box" tabindex="0" (paste)="onPaste($event, 'BATHROOM_IMG')">
               <label>5. ห้องน้ำ <span class="req">*</span></label>
               <img [src]="previews.BATHROOM_IMG || 'assets/placeholder-square.png'"
                 (click)="isReadOnly ? null : bathInput.click()" [class.uploaded]="previews.BATHROOM_IMG">
@@ -427,7 +418,7 @@
               <input #bathInput type="file" (change)="onFileSelect($event, 'BATHROOM_IMG')" accept="image/jpeg, image/png" hidden>
             </div>
 
-            <div class="img-mini-box">
+            <div class="img-mini-box" tabindex="0" (paste)="onPaste($event, 'BALCONY_IMG')">
               <label>6. ระเบียง (ถ้ามี)</label>
               <img [src]="previews.BALCONY_IMG || 'assets/placeholder-square.png'"
                 (click)="isReadOnly ? null : balconyInput.click()" [class.uploaded]="previews.BALCONY_IMG">

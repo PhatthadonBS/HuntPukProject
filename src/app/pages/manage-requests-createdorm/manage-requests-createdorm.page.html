@@ -188,10 +188,10 @@
               <div class="room-item" *ngFor="let room of (expandedDormData.rooms || expandedDormData.ROOMS)">
                 <div class="room-name-col">
                   <div class="room-name">{{ room.ROOM_TYPE_NAME || room.ROOM_TYPE || 'ไม่ระบุประเภท' }}</div>
-                  <div class="room-bed" *ngIf="room.BED_TYPE_NAME || room.BED_TYPE || room.BED_TYPE_ID">
-                    <ion-icon name="bed-outline"></ion-icon> {{ room.BED_TYPE_NAME || room.BED_TYPE || 'เตียง' }}
+                  <div class="room-bed" *ngIf="room.BED_TYPE_NAME || room.BED_TYPE || room.bedType || room.BED_TYPE_ID">
+                    <ion-icon name="bed-outline"></ion-icon> {{ room.BED_TYPE_NAME || room.BED_TYPE || room.bedType || 'เตียง' }}
                   </div>
-                  <div class="room-bed" *ngIf="!(room.BED_TYPE_NAME || room.BED_TYPE || room.BED_TYPE_ID)">
+                  <div class="room-bed" *ngIf="!(room.BED_TYPE_NAME || room.BED_TYPE || room.bedType || room.BED_TYPE_ID)">
                     <ion-icon name="bed-outline"></ion-icon> ไม่ระบุประเภทเตียง
                   </div>
                 </div>

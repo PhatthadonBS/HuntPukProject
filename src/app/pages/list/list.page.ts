@@ -12,13 +12,14 @@ import { HeaderComponent } from '../../components/header/header.component';
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 import { RequireLoginModalComponent } from '../../components/require-login-modal/require-login-modal.component';
 import { ActionConfirmModalComponent } from '../../components/action-confirm-modal/action-confirm-modal.component';
+import { ThaiDatePipe } from '../../pipes/thai-date-pipe';
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, HeaderComponent, RequireLoginModalComponent, ActionConfirmModalComponent] 
+  imports: [CommonModule, FormsModule, IonicModule, HeaderComponent, RequireLoginModalComponent, ActionConfirmModalComponent, ThaiDatePipe] 
 })
 export class ListPage implements OnInit {
 

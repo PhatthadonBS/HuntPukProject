@@ -46,8 +46,12 @@ export class OwnerRequestService {
   requestToBeOwner(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/user/dormOwner`, formData);
   }
+  // 2. User ดึงคำขอของตัวเอง
+  getMyDormOwnerReq(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/myDormOwnerReq`);
+  }
 
-  // 2. Admin ดึงคำขอทั้งหมด
+  // 3. Admin ดึงคำขอทั้งหมด
   getAllRequests(): Observable<OwnerRequest[]> {
     return this.http.get<any>(`${this.apiUrl}/user/dormOwnerReq`).pipe(
       map(res => {

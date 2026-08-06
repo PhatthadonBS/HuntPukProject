@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, 
+  IonContent, IonHeader, IonTitle, IonToolbar, IonFooter,
   IonButtons, IonBackButton, IonButton, IonIcon, 
   IonSegment, IonSegmentButton, IonLabel, 
   IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
@@ -29,7 +29,7 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./edit-dorm.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, 
+    IonContent, IonHeader, IonTitle, IonToolbar, IonFooter,
     IonButtons, IonBackButton, IonButton, IonIcon, 
     IonSegment, IonSegmentButton, IonLabel,
     IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
@@ -581,6 +581,10 @@ export class EditDormPage implements OnInit {
   onFileSelect(event: any, field: string) {
     const file = event.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        this.showToast('ขนาดไฟล์ใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+        return;
+      }
       this.selectedFiles[field] = file;
       const reader = new FileReader();
       reader.onload = () => {
@@ -593,11 +597,16 @@ export class EditDormPage implements OnInit {
   onGallerySelect(event: any) {
     const files = event.target.files;
     if (files) {
+      let hasOversized = false;
       for (let i = 0; i < files.length; i++) {
         const totalCount = this.existingGallery.length + this.selectedFiles.OTHER_IMG.length;
         if (totalCount >= 5) {
           this.showToast('อัปโหลดรูปภาพเพิ่มเติมได้สูงสุด 5 รูป', 'warning');
           break;
+        }
+        if (files[i].size > 5 * 1024 * 1024) {
+          hasOversized = true;
+          continue;
         }
         this.selectedFiles.OTHER_IMG.push(files[i]);
         const reader = new FileReader();
@@ -605,6 +614,38 @@ export class EditDormPage implements OnInit {
           this.previews.OTHER_IMG.push(reader.result);
         };
         reader.readAsDataURL(files[i]);
+      }
+      if (hasOversized) {
+        this.showToast('มีรูปภาพบางรูปขนาดเกิน 5MB จึงไม่ถูกเพิ่ม', 'warning');
+      }
+    }
+  }
+
+  // ==========================
+  // Paste Image Handler
+  // ==========================
+  onPaste(event: ClipboardEvent, field: string) {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item && item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            this.showToast('ภาพที่วางมีขนาดใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+            return;
+          }
+          this.selectedFiles[field] = file;
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.previews[field] = reader.result;
+          };
+          reader.readAsDataURL(file);
+          this.showToast('วางรูปภาพสำเร็จ', 'success');
+        }
+        break;
       }
     }
   }
@@ -624,8 +665,8 @@ export class EditDormPage implements OnInit {
   }
 
   suggestNewFacility() {
-    if (this.formData.new_facilities.length >= 3) {
-      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 3 รายการ', 'warning');
+    if (this.formData.new_facilities.length >= 4) {
+      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 4 รายการ', 'warning');
       return;
     }
     this.newFacilityName = '';
@@ -637,6 +678,10 @@ export class EditDormPage implements OnInit {
   onFacIconSelect(event: any) {
     const file = event.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        this.showToast('ขนาดไอคอนใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+        return;
+      }
       this.newFacilitySelectedIconFile = file;
       const reader = new FileReader();
       reader.onload = () => {
@@ -650,7 +695,7 @@ export class EditDormPage implements OnInit {
     this.isAddFacilityModalOpen = false;
   }
 
-  confirmAddFacility() {
+  async confirmAddFacility() {
     const trimmedName = this.newFacilityName ? this.newFacilityName.trim() : '';
     if (!trimmedName) {
       this.showToast('กรุณาระบุชื่อสิ่งอำนวยความสะดวก', 'warning');
@@ -661,18 +706,31 @@ export class EditDormPage implements OnInit {
     const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
     
     if (existsInMain || existsInNew) {
-      this.showToast('สิ่งอำนวยความสะดวกนี้มีอยู่แล้ว', 'warning');
+      this.showToast('สิ่งอำนวยความสะดวกนี้มีอยู่แล้ว', 'danger');
       return;
     }
-    
-    this.formData.new_facilities.push({
-      name: trimmedName,
-      icon: '',
-      file: this.newFacilitySelectedIconFile,
-      preview: this.newFacilitySelectedIconPreview
+
+    const alert = await this.alertCtrl.create({
+      header: 'ยืนยันการเพิ่ม',
+      message: `ต้องการเพิ่ม "${trimmedName}" ใช่หรือไม่?<br>สิทธิ์คงเหลือ: ${4 - this.formData.new_facilities.length - 1} รายการ`,
+      buttons: [
+        { text: 'ยกเลิก', role: 'cancel' },
+        {
+          text: 'ตกลง',
+          handler: () => {
+            this.formData.new_facilities.push({
+              name: trimmedName,
+              icon: '',
+              file: this.newFacilitySelectedIconFile,
+              preview: this.newFacilitySelectedIconPreview
+            });
+            this.closeAddFacilityModal();
+            this.showToast('เพิ่มสิ่งอำนวยความสะดวกสำเร็จ', 'success');
+          }
+        }
+      ]
     });
-    
-    this.closeAddFacilityModal();
+    await alert.present();
   }
 
   removeNewFacility(index: number) {

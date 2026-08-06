@@ -17,7 +17,7 @@
 
       <div class="form-section">
         
-        <div class="custom-input">
+        <div class="custom-input" [class.has-error]="hasError">
           <input 
             #emailInput
             type="email" 
@@ -28,7 +28,7 @@
           <ion-icon name="person" color="medium"></ion-icon>
         </div>
 
-        <div class="custom-input">
+        <div class="custom-input" [class.has-error]="hasError">
           <input 
             [type]="showPassword ? 'text' : 'password'" 
             placeholder="รหัสผ่าน" 

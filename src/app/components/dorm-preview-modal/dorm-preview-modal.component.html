@@ -8,23 +8,7 @@
     </div>
 
     <div class="modal-body">
-      <!-- Tabs (Segment) inside modal body -->
-      <div style="position: sticky; top: 0; z-index: 10; background: white; padding: 10px 0; border-bottom: 1px solid #eee;">
-        <ion-segment [(ngModel)]="activeSegment" mode="md" color="warning">
-          <ion-segment-button value="general">
-            <ion-label>ข้อมูลทั่วไป</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="facilities">
-            <ion-label>สิ่งอำนวยฯ</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="rooms">
-            <ion-label>ห้องพัก</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="images">
-            <ion-label>รูปภาพ</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </div>
+      <!-- Removed ion-segment to make it a continuous scroll like dorm-detail -->
 
       <div class="bg-light" style="min-height: 100%;">
         
@@ -34,8 +18,8 @@
           <span>โหมดดูตัวอย่าง (ไม่ได้บันทึกข้อมูล)</span>
         </div>
 
-        <!-- ==================== GENERAL TAB ==================== -->
-        <div *ngIf="activeSegment === 'general'" class="fade-in">
+        <!-- ==================== GENERAL INFO ==================== -->
+        <div class="fade-in" style="padding: 16px;">
           
           <div class="hero-banner">
             <img [src]="coverImage || 'https://placehold.co/600x400?text=No+Image'" onerror="this.src='https://placehold.co/600x400?text=No+Image'" alt="Dorm Cover" />
@@ -91,8 +75,8 @@
           </div>
         </div>
 
-        <!-- ==================== FACILITIES TAB ==================== -->
-        <div *ngIf="activeSegment === 'facilities'" class="fade-in" style="padding: 16px;">
+        <!-- ==================== FACILITIES ==================== -->
+        <div class="fade-in" style="padding: 16px 16px 0 16px;">
           
           <div class="info-card">
             <h3><ion-icon name="star-outline" color="warning"></ion-icon> สิ่งอำนวยความสะดวก</h3>
@@ -131,8 +115,8 @@
           </div>
         </div>
 
-        <!-- ==================== ROOMS TAB ==================== -->
-        <div *ngIf="activeSegment === 'rooms'" class="fade-in" style="padding: 16px;">
+        <!-- ==================== ROOMS ==================== -->
+        <div class="fade-in" style="padding: 16px 16px 0 16px;">
           
           <div class="room-card" *ngFor="let room of roomTypes; let i = index">
             <div class="room-header">
@@ -167,8 +151,8 @@
           </div>
         </div>
 
-        <!-- ==================== IMAGES TAB ==================== -->
-        <div *ngIf="activeSegment === 'images'" class="fade-in" style="padding: 16px;">
+        <!-- ==================== IMAGES ==================== -->
+        <div class="fade-in" style="padding: 16px;">
           
           <div class="info-card">
             <h3><ion-icon name="image-outline" color="primary"></ion-icon> รูปภาพส่วนประกอบห้อง</h3>

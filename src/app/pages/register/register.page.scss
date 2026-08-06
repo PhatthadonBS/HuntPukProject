@@ -216,3 +216,17 @@ ion-content {
     transform: translateY(0);
   }
 }
+
+.has-error {
+  border: 1.5px solid #ff4d4f !important;
+}
+
+.error-msg {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin: -10px 0 15px 15px;
+  text-align: left;
+  display: block;
+  font-weight: 500;
+  animation: fadeInDown 0.3s ease-out;
+}

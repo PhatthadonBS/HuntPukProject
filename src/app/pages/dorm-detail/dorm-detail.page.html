@@ -48,7 +48,7 @@
 
 <div class="update-date-row" *ngIf="dormData.UPDATE_AT || dormData.updated_at">
   <ion-icon name="time-outline"></ion-icon>
-  <span>อัปเดตข้อมูล: <strong>{{ (dormData.UPDATE_AT || dormData.updated_at) | date:'dd/MM/yyyy' }}</strong></span>
+  <span>อัปเดตข้อมูล: <strong>{{ (dormData.UPDATE_AT || dormData.updated_at) | thaiDate }}</strong></span>
 </div>
 
       <ion-button expand="block" class="nav-btn" (click)="goToNavigate()">
@@ -218,7 +218,7 @@
                 <div class="avatar">{{ (item.USERNAME || 'U').substring(0,1).toUpperCase() }}</div>
                 <div class="meta">
                   <div class="name">{{ item.USERNAME || 'Unknown User' }}</div>
-                  <div class="date">{{ item.CREATE_AT | date:'dd/MM/yyyy' }}</div>
+                  <div class="date">{{ item.CREATE_AT | thaiDate }}</div>
                 </div>
                 <div class="review-score"><ion-icon name="star"></ion-icon> {{ item.SCORE }}</div>
               </div>
