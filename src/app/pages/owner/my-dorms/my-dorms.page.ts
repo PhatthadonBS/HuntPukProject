@@ -9,7 +9,7 @@ import {
   IonBackButton, IonButton, IonIcon, IonSpinner, IonModal, IonList, IonItem, IonLabel,
   IonSegment, IonSegmentButton,
   AlertController, ToastController, 
-  LoadingController, ModalController 
+  LoadingController, ModalController, IonicSafeString 
 } from '@ionic/angular/standalone';
 
 import { DormitoryService } from '../../../services/dormitory';
@@ -235,7 +235,7 @@ export class MyDormsPage implements OnInit {
 
     const alert = await this.alertCtrl.create({
       header: '🗑️ ลบหอพักออกจากระบบ',
-      message: `ข้อมูลหอพัก "<strong>${dormName}</strong>" จะถูกลบออกจากระบบอย่างถาวรและไม่สามารถกู้คืนได้<br><small class="text-danger">(หากต้องการเปิดใช้งานอีกครั้ง จะต้องทำรายการลงทะเบียนใหม่ทั้งหมด)</small><br><br>กรุณากรอกคำว่า <strong>DELETE</strong> เพื่อยืนยัน:`,
+      message: new IonicSafeString(`ข้อมูลหอพัก "<strong>${dormName}</strong>" จะถูกลบออกจากระบบอย่างถาวรและไม่สามารถกู้คืนได้<br><small class="text-danger">(หากต้องการเปิดใช้งานอีกครั้ง จะต้องทำรายการลงทะเบียนใหม่ทั้งหมด)</small><br><br>กรุณากรอกคำว่า <strong>DELETE</strong> เพื่อยืนยัน:`),
       inputs: [
         {
           name: 'confirmText',

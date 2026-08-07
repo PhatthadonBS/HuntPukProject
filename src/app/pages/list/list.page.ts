@@ -151,7 +151,13 @@ export class ListPage implements OnInit {
           isChecked: this.allDorms.find(ad => ad.DORM_ID === d.DORM_ID)?.isChecked 
         })) as any[];
         
-        if (this.minScore !== null && this.minScore !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore!);
+        if (this.minScore !== null && this.minScore !== undefined) {
+          if (this.minScore === 5) {
+            tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE === 5);
+          } else {
+            tempDorms = tempDorms.filter((dorm: any) => dorm.SCORE >= this.minScore! && dorm.SCORE < (this.minScore! + 1));
+          }
+        }
         if (this.maxWaterUnit !== null && this.maxWaterUnit !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_UNIT > 0 && dorm.WATER_UNIT <= this.maxWaterUnit!);
         if (this.maxWaterLump !== null && this.maxWaterLump !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.WATER_LUMP > 0 && dorm.WATER_LUMP <= this.maxWaterLump!);
         if (this.maxElect !== null && this.maxElect !== undefined) tempDorms = tempDorms.filter((dorm: any) => dorm.ELECT_UNIT <= this.maxElect!);

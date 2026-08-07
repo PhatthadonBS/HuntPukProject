@@ -165,7 +165,7 @@ export class ManageDormPage implements OnInit {
   async confirmRemove(dorm: any) {
     const alert = await this.alertCtrl.create({
       header: '🗑️ ลบหอพักออกจากระบบ',
-      message: `หอพัก "${dorm.DORM_NAME}" จะถูกซ่อนออกจากรายการ แต่สามารถกู้คืนได้ภายหลัง\n\nยืนยันการลบ?`,
+      message: `หอพัก "${dorm.DORM_NAME}" จะถูกลบออกจากระบบและไม่สามารถกู้คืนได้\n\nยืนยันการลบ?`,
       buttons: [
         { text: 'ยกเลิก', role: 'cancel' },
         {

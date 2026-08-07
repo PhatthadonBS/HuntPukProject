@@ -113,16 +113,23 @@ toggleNewPassword() {
 
     } catch (error: any) {
       console.error(error);
-      this.showAlert('ข้อผิดพลาด', 'ไม่พบอีเมลในระบบ หรือเกิดข้อผิดพลาด');
+      let msg = 'ไม่พบอีเมลในระบบ หรือเกิดข้อผิดพลาด';
+      const rawError = error?.error;
+      if (error?.name === 'HttpErrorResponse' && error.status === 0) {
+        msg = 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง';
+      } else if (rawError?.isTrusted || JSON.stringify(rawError).includes('isTrusted')) {
+        msg = 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง';
+      }
+      this.showAlert('ข้อผิดพลาด', msg);
     }
   }
 
   // STEP 2: บันทึกรหัสผ่านใหม่
   async confirmReset() {
     // Validation
-    const regex = /^[a-zA-Z0-9]{8,}$/;
+    const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{8,}$/;
     if (!regex.test(this.newPassword)) {
-      this.showAlert('รูปแบบไม่ถูกต้อง', 'รหัสผ่านต้องเป็นตัวอักษร a-z, A-Z และตัวเลข 0-9 รวมกันอย่างน้อย 8 ตัวอักษร');
+      this.showAlert('รูปแบบไม่ถูกต้อง', 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร และประกอบด้วยตัวอักษรภาษาอังกฤษ (a-z) ผสมกับตัวเลข (0-9)');
       return;
     }
 
@@ -139,7 +146,14 @@ toggleNewPassword() {
 
     } catch (error: any) {
       console.error(error);
-      this.showAlert('ผิดพลาด', 'ไม่สามารถเปลี่ยนรหัสผ่านได้');
+      let msg = 'ไม่สามารถเปลี่ยนรหัสผ่านได้';
+      const rawError = error?.error;
+      if (error?.name === 'HttpErrorResponse' && error.status === 0) {
+        msg = 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง';
+      } else if (rawError?.isTrusted || JSON.stringify(rawError).includes('isTrusted')) {
+        msg = 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง';
+      }
+      this.showAlert('ผิดพลาด', msg);
     }
   }
 

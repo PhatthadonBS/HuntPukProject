@@ -1,7 +1,7 @@
-﻿import { Component, OnInit, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core'; 
+import { Component, OnInit, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core'; 
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ToastController, NavController, AlertController } from '@ionic/angular';
+import { IonicModule, ToastController, NavController, AlertController, ModalController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { 
@@ -54,7 +54,7 @@ export class DormDetailPage implements OnInit, OnChanges {
   ownerInfo: any = null;
   dormStatusList: any[] = [];
 
-  // โ… Lightbox เธชเธณเธซเธฃเธฑเธเธเธขเธฒเธขเธฃเธนเธ โ€” เนเธเนเนเธ”เนเธ—เธฑเนเธเธฃเธนเธเธซเธเนเธฒเธซเธญเนเธฅเธฐเธฃเธนเธเนเธเธฅเน€เธฅเธญเธฃเธต
+  // ✅ Lightbox สำหรับขยายรูป — ใช้ได้ทั้งรูปหน้าหอและรูปแกลเลอรี
   isLightboxOpen: boolean = false;
   lightboxImages: string[] = [];
   lightboxIndex: number = 0;
@@ -70,7 +70,8 @@ export class DormDetailPage implements OnInit, OnChanges {
     private dormService: DormitoryService, 
     private toastCtrl: ToastController,
     private alertCtrl: AlertController, 
-    private cdr: ChangeDetectorRef, private modalCtrl: ModalController 
+    private cdr: ChangeDetectorRef,
+    private modalCtrl: ModalController
   ) { 
     addIcons({ 
       star, 'star-half': starHalf, 'star-outline': starOutline, arrowBack, 'location-sharp': locationSharp,
@@ -102,8 +103,8 @@ export class DormDetailPage implements OnInit, OnChanges {
       } catch (e) { console.error('Error parsing user data'); }
     }
 
-    // โ… เธเธฅเธฑเธเธกเธฒเนเธเน snapshot เนเธเธเน€เธ”เธดเธก (synchronous, เธญเนเธฒเธเธเนเธฒเธ—เธฑเธเธ—เธตเนเธกเนเธ•เนเธญเธเธเธถเนเธ observable emit)
-    // เน€เธงเธญเธฃเนเธเธฑเธ subscribe เธเนเธญเธเธซเธเนเธฒเธเธตเนเธ—เธณเนเธซเน production build เธเธฒเธเธเธฃเธ“เธตเนเธกเน trigger callback เน€เธฅเธข
+    // ✅ กลับมาใช้ snapshot แบบเดิม (synchronous, อ่านค่าทันทีไม่ต้องพึ่ง observable emit)
+    // เวอร์ชัน subscribe ก่อนหน้านี้ทำให้ production build บางกรณีไม่ trigger callback เลย
     this.isError = false;
     this.errorMessage = '';
 
@@ -126,22 +127,22 @@ export class DormDetailPage implements OnInit, OnChanges {
   }
 
   get waterDetail(): string {
-    if (!this.dormData) return 'เธเธณเธฅเธฑเธเนเธซเธฅเธ”...';
+    if (!this.dormData) return 'กำลังโหลด...';
     const lump = Number(this.dormData.water_lump || this.dormData.WATER_LUMP || 0);
     const unit = Number(this.dormData.water_unit || this.dormData.WATER_UNIT || 0);
     
-    if (lump > 0 && unit > 0) return `เน€เธซเธกเธฒ ${lump} เธ./เธ”. เธซเธฃเธทเธญ ${unit} เธ./เธซเธเนเธงเธข`;
-    if (lump > 0) return `เน€เธซเธกเธฒเธเนเธฒเธข ${lump} เธ./เน€เธ”เธทเธญเธ`;
-    if (unit > 0) return `${unit} เธเธฒเธ—/เธซเธเนเธงเธข`;
-    return 'เธเนเธฒเธขเธ•เธฒเธกเธเธดเธฅเธฃเธฑเธเธฏ / เธชเธญเธเธ–เธฒเธก';
+    if (lump > 0 && unit > 0) return `เหมา ${lump} บ./ด. หรือ ${unit} บ./หน่วย`;
+    if (lump > 0) return `เหมาจ่าย ${lump} บ./เดือน`;
+    if (unit > 0) return `${unit} บาท/หน่วย`;
+    return 'จ่ายตามบิลรัฐฯ / สอบถาม';
   }
 
   get electDetail(): string {
-    if (!this.dormData) return 'เธเธณเธฅเธฑเธเนเธซเธฅเธ”...';
+    if (!this.dormData) return 'กำลังโหลด...';
     const unit = Number(this.dormData.elect_unit || this.dormData.ELECT_UNIT || 0);
     
-    if (unit > 0) return `${unit} เธเธฒเธ—/เธซเธเนเธงเธข`;
-    return 'เธเนเธฒเธขเธ•เธฒเธกเธเธดเธฅเธฃเธฑเธเธฏ / เธชเธญเธเธ–เธฒเธก';
+    if (unit > 0) return `${unit} บาท/หน่วย`;
+    return 'จ่ายตามบิลรัฐฯ / สอบถาม';
   }
 
   async loadDormDetail(id: number) {
@@ -170,7 +171,7 @@ export class DormDetailPage implements OnInit, OnChanges {
         const apiData = res.data;
         this.dormData = Array.isArray(apiData) ? apiData[0] : apiData;
 
-        // โ… เธฃเธงเธกเธฃเธนเธเธชเนเธงเธเธ•เนเธฒเธเน เธเธญเธเธซเนเธญเธเธเธฑเธเน€เธเนเธฒเนเธเนเธ gallery เน€เธเธทเนเธญเนเธซเนเนเธชเธ”เธเธเธฅเนเธเธซเธเนเธฒ detail
+        // ✅ รวมรูปส่วนต่างๆ ของห้องพักเข้าไปใน gallery เพื่อให้แสดงผลในหน้า detail
         const roomImages = [
           this.dormData.ceiling_img, 
           this.dormData.wall_img, 
@@ -187,20 +188,20 @@ export class DormDetailPage implements OnInit, OnChanges {
         this.loadReviews();
       } else {
         this.isError = true;
-        this.errorMessage = 'เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธซเธญเธเธฑเธ';
+        this.errorMessage = 'ไม่พบข้อมูลหอพัก';
       }
     } catch (error: any) {
       this.isError = true;
       if (timeoutTriggered || error?.message === 'TIMEOUT') {
-        this.errorMessage = 'เนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเนเธกเนเนเธ”เน\nเธเธฃเธธเธ“เธฒเธเธ” "เธฅเธญเธเนเธซเธกเน" เธญเธตเธเธเธฃเธฑเนเธ';
+        this.errorMessage = 'โหลดข้อมูลไม่ได้\nกรุณากด "ลองใหม่" อีกครั้ง';
       } else if (error?.status === 0) {
-        this.errorMessage = 'เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เน€เธเธทเนเธญเธกเธ•เนเธญ Server เนเธ”เน';
+        this.errorMessage = 'ไม่สามารถเชื่อมต่อ Server ได้';
       } else if (error?.status === 404) {
-        this.errorMessage = 'เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธซเธญเธเธฑเธเธเธตเน';
+        this.errorMessage = 'ไม่พบข้อมูลหอพักนี้';
       } else if (error?.status === 500) {
-        this.errorMessage = 'Server Error เธเธฃเธธเธ“เธฒเธฅเธญเธเนเธซเธกเน';
+        this.errorMessage = 'Server Error กรุณาลองใหม่';
       } else {
-        this.errorMessage = 'เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ” เธเธฃเธธเธ“เธฒเธฅเธญเธเนเธซเธกเน';
+        this.errorMessage = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
       }
     } finally {
       this.isLoading = false;
@@ -211,7 +212,7 @@ export class DormDetailPage implements OnInit, OnChanges {
   prepareOwnerInfo() {
     if (this.dormData) {
       this.ownerInfo = {
-        firstName: this.dormData.FIRST_NAME || 'เนเธกเนเธฃเธฐเธเธธ',
+        firstName: this.dormData.FIRST_NAME || 'ไม่ระบุ',
         lastName: this.dormData.LAST_NAME || '',
         phone: this.dormData.phone || this.dormData.OWNER_PHONE || '-',
         line: this.dormData.line || this.dormData.OWNER_LINE || '-',
@@ -274,15 +275,15 @@ export class DormDetailPage implements OnInit, OnChanges {
 
   async submitReview() {
     if (this.newReview.score === 0) {
-      this.showToast('เธเธฃเธธเธ“เธฒเนเธซเนเธเธฐเนเธเธเธ”เธฒเธงเธเนเธญเธเธชเนเธเธฃเธตเธงเธดเธง', 'warning'); return;
+      this.showToast('กรุณาให้คะแนนดาวก่อนส่งรีวิว', 'warning'); return;
     }
     
     const alert = await this.alertCtrl.create({
-      header: 'เธขเธทเธเธขเธฑเธเธเธฒเธฃเธฃเธตเธงเธดเธง',
-      message: 'เธเธธเธ“เธ•เนเธญเธเธเธฒเธฃเธชเนเธเธฃเธตเธงเธดเธงเธเธตเนเนเธเนเธซเธฃเธทเธญเนเธกเน? เธเนเธญเธเธงเธฃเธฃเธฐเธงเธฑเธ:เธซเธฒเธเธฃเธตเธงเธดเธงเธ–เธนเธเธชเนเธเนเธเนเธฅเนเธง เธเธฐเนเธกเนเธชเธฒเธกเธฒเธฃเธ–เนเธเนเนเธเธซเธฃเธทเธญเธฅเธเนเธ”เนเนเธเธ เธฒเธขเธซเธฅเธฑเธ',
+      header: 'ยืนยันการรีวิว',
+      message: 'คุณต้องการส่งรีวิวนี้ใช่หรือไม่? ข้อควรระวัง:หากรีวิวถูกส่งไปแล้ว จะไม่สามารถแก้ไขหรือลบได้ในภายหลัง',
       buttons: [
-        { text: 'เธขเธเน€เธฅเธดเธ', role: 'cancel' },
-        { text: 'เธขเธทเธเธขเธฑเธ', handler: () => { this.processSubmitReview(); } }
+        { text: 'ยกเลิก', role: 'cancel' },
+        { text: 'ยืนยัน', handler: () => { this.processSubmitReview(); } }
       ]
     });
     
@@ -292,16 +293,16 @@ export class DormDetailPage implements OnInit, OnChanges {
   async processSubmitReview() {
     try {
       await this.dormService.addReview(this.currentUserId, this.dormData.DORM_ID, this.newReview.score, this.newReview.comment);
-      this.showToast('เธเธญเธเธเธธเธ“เธชเธณเธซเธฃเธฑเธเธเธฒเธฃเธฃเธตเธงเธดเธง!', 'success');
+      this.showToast('ขอบคุณสำหรับการรีวิว!', 'success');
       this.newReview = { score: 0, comment: '' };
       this.loadReviews(); 
     } catch (error: any) {
-      const msg = error.error?.message || 'เธชเนเธเธฃเธตเธงเธดเธงเนเธกเนเธชเธณเน€เธฃเนเธ';
+      const msg = error.error?.message || 'ส่งรีวิวไม่สำเร็จ';
       this.showToast(msg, 'danger');
     }
   }
 
-  // โ… เน€เธเธดเธ” Lightbox เธเธขเธฒเธขเธฃเธนเธ โ€” เธฃเธญเธเธฃเธฑเธเธ—เธฑเนเธเธฃเธนเธเธซเธเนเธฒเธซเธญ (เน€เธ”เธตเนเธขเธง) เนเธฅเธฐเธฃเธนเธเนเธเธฅเน€เธฅเธญเธฃเธต (เน€เธฅเธทเนเธญเธเธเนเธฒเธข-เธเธงเธฒเนเธ”เน)
+  // ✅ เปิด Lightbox ขยายรูป — รองรับทั้งรูปหน้าหอ (เดี่ยว) และรูปแกลเลอรี (เลื่อนซ้าย-ขวาได้)
   viewImage(imgUrl: string) {
     const gallery: string[] = (this.dormData?.gallery && this.dormData.gallery.length > 0)
       ? this.dormData.gallery
@@ -309,7 +310,7 @@ export class DormDetailPage implements OnInit, OnChanges {
 
     const heroImg = this.dormData?.image || 'assets/dorm-placeholder.jpg';
 
-    // เธฃเธงเธกเธฃเธนเธเธซเธเนเธฒเธซเธญ + เนเธเธฅเน€เธฅเธญเธฃเธตเน€เธเนเธเธเธธเธ”เน€เธ”เธตเธขเธง เนเธกเนเธเนเธณเธเธฑเธ เน€เธเธทเนเธญเน€เธฅเธทเนเธญเธเธ”เธนเธ•เนเธญเน€เธเธทเนเธญเธเนเธ”เน
+    // รวมรูปหน้าหอ + แกลเลอรีเป็นชุดเดียว ไม่ซ้ำกัน เพื่อเลื่อนดูต่อเนื่องได้
     const allImages = [heroImg, ...gallery].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
 
     this.lightboxImages = allImages.length > 0 ? allImages : [imgUrl];
@@ -344,16 +345,20 @@ export class DormDetailPage implements OnInit, OnChanges {
     return parseFloat(rawScore);
   }
 
-    cancelPreview() {
-    this.modalCtrl.dismiss(null, 'cancel');
+  goBack() {
+    this.navCtrl.back();
   }
 
   confirmPreview() {
-    this.modalCtrl.dismiss(null, 'confirm');
+    if (this.isPopup) {
+      this.modalCtrl.dismiss(null, 'confirm');
+    }
   }
 
-  goBack() {
-    this.navCtrl.back();
+  cancelPreview() {
+    if (this.isPopup) {
+      this.modalCtrl.dismiss(null, 'cancel');
+    }
   }
 
   retryLoad() {
@@ -376,7 +381,7 @@ export class DormDetailPage implements OnInit, OnChanges {
 
     if (!targetLat || !targetLng) {
       console.error('Missing coordinates in dormData:', d);
-      this.showToast('เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธเธดเธเธฑเธ”เธเธญเธเธซเธญเธเธฑเธเธเธตเน', 'warning');
+      this.showToast('ไม่พบข้อมูลพิกัดของหอพักนี้', 'warning');
       return;
     }
 

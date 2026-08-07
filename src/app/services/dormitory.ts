@@ -461,7 +461,20 @@ export class DormitoryService {
     }
   }
 
-  // ==========================================
+  public async cancelDormRequest(dormId: number): Promise<any> {
+    const url = `${this.apiUrl}/dorms/cancel-request/${dormId}`;
+    try {
+      const response = await lastValueFrom(
+        this.http.put(url, {})
+      );
+      return response;
+    } catch (error) {
+      console.error('Error cancelling dorm request:', error);
+      throw error;
+    }
+  }
+
+  // ============== API Endpoints สำหรับ Dropdown ต่างๆ ============================
   // Admin Methods for Type Management
   // ==========================================
   getDormTypes(): Observable<any[]> {

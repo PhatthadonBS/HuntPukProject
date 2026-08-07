@@ -17,30 +17,44 @@
 
       <div class="form-section">
         
-        <div class="custom-input" [class.has-error]="hasError">
-          <input 
-            #emailInput
-            type="email" 
-            placeholder="อีเมล" 
-            [(ngModel)]="email" 
-            (keyup.enter)="login()"
-            [disabled]="isLoading">
-          <ion-icon name="person" color="medium"></ion-icon>
+        <!-- Email Input -->
+        <div class="input-group">
+          <div class="custom-input" [class.has-error]="emailErrorMsg || hasError">
+            <input 
+              #emailInput
+              type="email" 
+              placeholder="อีเมล" 
+              [(ngModel)]="email" 
+              (keyup.enter)="login()"
+              (input)="emailErrorMsg = ''; hasError = false"
+              [disabled]="isLoading">
+            <ion-icon name="person" color="medium"></ion-icon>
+          </div>
+          <div class="error-msg" *ngIf="emailErrorMsg">
+            {{ emailErrorMsg }}
+          </div>
         </div>
 
-        <div class="custom-input" [class.has-error]="hasError">
-          <input 
-            [type]="showPassword ? 'text' : 'password'" 
-            placeholder="รหัสผ่าน" 
-            [(ngModel)]="password"
-            (keyup.enter)="login()"
-            [disabled]="isLoading">
-          <ion-icon 
-            [name]="showPassword ? 'eye' : 'eye-off'" 
-            (click)="togglePasswordVisibility()" 
-            color="medium"
-            class="eye-icon">
-          </ion-icon>
+        <!-- Password Input -->
+        <div class="input-group">
+          <div class="custom-input" [class.has-error]="passwordErrorMsg || hasError">
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              placeholder="รหัสผ่าน" 
+              [(ngModel)]="password"
+              (keyup.enter)="login()"
+              (input)="passwordErrorMsg = ''; hasError = false"
+              [disabled]="isLoading">
+            <ion-icon 
+              [name]="showPassword ? 'eye' : 'eye-off'" 
+              (click)="togglePasswordVisibility()" 
+              color="medium"
+              class="eye-icon">
+            </ion-icon>
+          </div>
+          <div class="error-msg" *ngIf="passwordErrorMsg">
+            {{ passwordErrorMsg }}
+          </div>
         </div>
 
         <!-- ✅ แถว: จดจำการเข้าสู่ระบบ | ลืมรหัสผ่าน -->

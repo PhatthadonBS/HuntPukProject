@@ -2,8 +2,9 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, ViewDidEnter } from '@ionic/angular';
+import { IonicModule, ViewDidEnter } from '@ionic/angular';
 import { Auth } from '../../services/auth';
+import Swal from 'sweetalert2';
 import { addIcons } from 'ionicons';
 import { arrowBack, key, person, eye, eyeOff, logInOutline, checkmark, lockClosedOutline, timeOutline } from 'ionicons/icons';
 
@@ -44,12 +45,13 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
   private countdownTimer?: any;
 
   hasError: boolean = false;
+  emailErrorMsg: string = '';
+  passwordErrorMsg: string = '';
 
   @ViewChild('emailInput', { static: false }) emailInput!: ElementRef;
 
   constructor(
     private router: Router,
-    private alertController: AlertController,
     private authService: Auth
   ) {
     addIcons({ arrowBack, person, key, eye, eyeOff, logInOutline, checkmark, lockClosedOutline, timeOutline });
@@ -184,20 +186,40 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
   goHome() { this.router.navigate(['/home']); }
 
   async login() {
+    this.emailErrorMsg = '';
+    this.passwordErrorMsg = '';
     this.hasError = false;
 
     if (this.isLocked) {
-      this.showAlert('⛔ บัญชีถูกล็อกชั่วคราว', `กรุณารอ ${this.lockCountdown} แล้วลองใหม่ เนื่องจากพยายามเข้าสู่ระบบผิดพลาดหลายครั้ง`);
+      Swal.fire({
+        icon: 'error',
+        title: 'บัญชีถูกล็อกชั่วคราว',
+        text: `กรุณารอ ${this.lockCountdown} แล้วลองใหม่ เนื่องจากพยายามเข้าสู่ระบบผิดพลาดหลายครั้ง`,
+        confirmButtonColor: '#1a1a1a',
+        confirmButtonText: 'ตกลง',
+        background: '#ffffff',
+        heightAuto: false,
+        customClass: { popup: 'custom-swal-popup' }
+      });
       return;
     }
     if (this.isLoading) return;
 
     if (!this.email?.trim() || !this.password) {
-      this.hasError = true;
-      this.showAlert('⚠️ กรอกข้อมูลไม่ครบ', 'กรุณาระบุอีเมลและรหัสผ่านให้ครบถ้วน');
-      if (!this.email?.trim()) {
-        setTimeout(() => this.emailInput?.nativeElement?.focus(), 100);
-      }
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรอกข้อมูลไม่ครบ',
+        text: 'กรุณาระบุอีเมลและรหัสผ่านให้ครบถ้วน',
+        confirmButtonColor: '#1a1a1a',
+        confirmButtonText: 'ตกลง',
+        background: '#ffffff',
+        heightAuto: false,
+        customClass: { popup: 'custom-swal-popup' }
+      }).then(() => {
+        if (!this.email?.trim()) {
+          setTimeout(() => this.emailInput?.nativeElement?.focus(), 100);
+        }
+      });
       return;
     }
 
@@ -250,55 +272,111 @@ export class LoginPage implements OnInit, OnDestroy, ViewDidEnter {
         } else {
           this.hasError = true;
           this.recordFailedAttempt();
-          this.showAlert('เข้าสู่ระบบไม่สำเร็จ', 'บัญชีของคุณถูกระงับหรือไม่มีสิทธิ์เข้าใช้งาน');
+          Swal.fire({
+            icon: 'error',
+            title: 'เข้าสู่ระบบไม่สำเร็จ',
+            text: 'บัญชีของคุณถูกระงับหรือไม่มีสิทธิ์เข้าใช้งาน',
+            confirmButtonColor: '#1a1a1a',
+            confirmButtonText: 'ตกลง',
+            heightAuto: false,
+            customClass: { popup: 'custom-swal-popup' }
+          });
           localStorage.removeItem(SESSION_STORAGE_KEY);
         }
 
       } else {
+        this.passwordErrorMsg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
         this.hasError = true;
         this.recordFailedAttempt();
         if (this.isLocked) {
-          this.showAlert('⛔ บัญชีถูกล็อก', `พยายามเข้าสู่ระบบผิดพลาด ${MAX_ATTEMPTS} ครั้ง กรุณารอ 15 นาที`);
-        } else {
-          this.showAlert('เข้าสู่ระบบไม่สำเร็จ',
-            `อีเมลหรือรหัสผ่านไม่ถูกต้อง (เหลืออีก ${this.attemptsLeft} ครั้งก่อนถูกล็อก)`);
+          Swal.fire({
+            icon: 'error',
+            title: 'บัญชีถูกล็อก',
+            text: `พยายามเข้าสู่ระบบผิดพลาด ${MAX_ATTEMPTS} ครั้ง กรุณารอ 15 นาที`,
+            confirmButtonColor: '#1a1a1a',
+            confirmButtonText: 'ตกลง',
+            heightAuto: false,
+            customClass: { popup: 'custom-swal-popup' }
+          });
         }
       }
 
     } catch (error: any) {
+      // 1. จัดการ Network Error หรือเซิร์ฟเวอร์ดับ (Status 0)
+      if (error.status === 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'ขาดการเชื่อมต่อ',
+          text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบอินเทอร์เน็ตของคุณ',
+          confirmButtonColor: '#1a1a1a',
+          confirmButtonText: 'ตกลง',
+          heightAuto: false,
+          customClass: { popup: 'custom-swal-popup' }
+        });
+        this.isLoading = false;
+        return;
+      }
+
+      // 2. ดึงข้อความแจ้งเตือนจากระบบ
       let serverMessage = error.error?.message || error.error || error.message || '';
       if (typeof serverMessage !== 'string') {
-        try {
-          serverMessage = JSON.stringify(serverMessage);
-        } catch (e) {
-          serverMessage = String(serverMessage);
+        if (serverMessage?.isTrusted) {
+          serverMessage = 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+        } else {
+          try {
+            serverMessage = JSON.stringify(serverMessage);
+          } catch (e) {
+            serverMessage = String(serverMessage);
+          }
         }
       }
       
       let displayMsg = 'เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์';
-      if (serverMessage.includes('ไม่มีข้อมูล') || error.status === 404)
-        displayMsg = 'ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง';
-      else if (serverMessage.includes('รหัสผ่าน') || error.status === 401)
-        displayMsg = 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
-      else if (error.status === 500)
+      if (serverMessage.includes('ไม่มีข้อมูล') || error.status === 404) {
+        this.emailErrorMsg = 'ไม่พบอีเมลนี้ในระบบ กรุณาตรวจสอบอีกครั้ง';
+      } else if (serverMessage.includes('รหัสผ่าน') || error.status === 401) {
+        this.passwordErrorMsg = 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
+      } else if (error.status === 500) {
         displayMsg = 'ระบบเซิร์ฟเวอร์ขัดข้องชั่วคราว กรุณาลองใหม่ภายหลัง';
-      else if (serverMessage.length > 0 && serverMessage !== '{}')
+      } else if (serverMessage.length > 0 && serverMessage !== '{}') {
         displayMsg = serverMessage;
+      }
 
       if (error.status === 401 || error.status === 404 || error.status === 400) {
         this.hasError = true;
         this.recordFailedAttempt();
       }
-      await this.showAlert('พบข้อผิดพลาด', displayMsg);
+
+      // Show popup only if it's not handled by inline error
+      if (!this.emailErrorMsg && !this.passwordErrorMsg) {
+        Swal.fire({
+          icon: 'error',
+          title: 'พบข้อผิดพลาด',
+          text: displayMsg,
+          confirmButtonColor: '#1a1a1a',
+          confirmButtonText: 'ตกลง',
+          heightAuto: false,
+          customClass: { popup: 'custom-swal-popup' }
+        });
+      }
+
+      // If user got locked out from this attempt
+      if (this.isLocked) {
+        this.emailErrorMsg = '';
+        this.passwordErrorMsg = '';
+        Swal.fire({
+          icon: 'error',
+          title: 'บัญชีถูกล็อก',
+          text: `พยายามเข้าสู่ระบบผิดพลาด ${MAX_ATTEMPTS} ครั้ง กรุณารอ 15 นาที`,
+          confirmButtonColor: '#1a1a1a',
+          confirmButtonText: 'ตกลง',
+          heightAuto: false,
+          customClass: { popup: 'custom-swal-popup' }
+        });
+      }
+
     } finally {
       this.isLoading = false;
     }
-  }
-
-  async showAlert(header: string, message: string) {
-    const alert = await this.alertController.create({
-      header, message, buttons: ['ตกลง'], cssClass: 'custom-alert',
-    });
-    await alert.present();
   }
 }

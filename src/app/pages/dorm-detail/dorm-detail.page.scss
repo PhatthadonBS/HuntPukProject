@@ -1,5 +1,5 @@
-/* =========================================
-   🎨 Theme & Base (Luxury Yellow/Dark Theme)
+﻿/* =========================================
+   ๐จ Theme & Base (Luxury Yellow/Dark Theme)
    ========================================= */
 $msu-yellow: #FFD600;
 $msu-dark: #1a1a1a;
@@ -10,20 +10,20 @@ $text-dark: #1a1a1a;
 .custom-content { --background: #f7f8fc; }
 
 /* =========================================
-   🏞️ 1. Hero Image (ภาพหัวเว็บ)
+   ๐๏ธ 1. Hero Image (เธ เธฒเธเธซเธฑเธงเน€เธงเนเธ)
    ========================================= */
 .hero-header {
   position: relative; width: 100%; height: 280px; background: #ddd;
   
   img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
   
-  /* ✅ ไล่สีดำกันตัวหนังสือจม — ลดความเข้มลงให้สมดุล ไม่บังภาพมากเกินไป */
+  /* โ… เนเธฅเนเธชเธตเธ”เธณเธเธฑเธเธ•เธฑเธงเธซเธเธฑเธเธชเธทเธญเธเธก โ€” เธฅเธ”เธเธงเธฒเธกเน€เธเนเธกเธฅเธเนเธซเนเธชเธกเธ”เธธเธฅ เนเธกเนเธเธฑเธเธ เธฒเธเธกเธฒเธเน€เธเธดเธเนเธ */
   .hero-overlay {
     position: absolute; bottom: 0; left: 0; width: 100%; height: 45%;
     background: linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 100%); pointer-events: none;
   }
 
-  /* ปุ่ม Back ย้อนกลับ */
+  /* เธเธธเนเธก Back เธขเนเธญเธเธเธฅเธฑเธ */
   .floating-back-btn {
     position: absolute; top: 20px; left: 20px; z-index: 10;
     width: 45px; height: 45px; background: rgba(0,0,0,0.5); border-radius: 50%;
@@ -32,7 +32,7 @@ $text-dark: #1a1a1a;
     &:active { transform: scale(0.9); }
   }
 
-  /* ✅ ปุ่มขยายรูป — มุมขวาบน บอกชัดว่ากดดูขยายได้ */
+  /* โ… เธเธธเนเธกเธเธขเธฒเธขเธฃเธนเธ โ€” เธกเธธเธกเธเธงเธฒเธเธ เธเธญเธเธเธฑเธ”เธงเนเธฒเธเธ”เธ”เธนเธเธขเธฒเธขเนเธ”เน */
   .hero-expand-hint {
     position: absolute; top: 20px; right: 20px; z-index: 10;
     width: 40px; height: 40px; background: rgba(0,0,0,0.5); border-radius: 50%;
@@ -43,11 +43,11 @@ $text-dark: #1a1a1a;
 }
 
 /* =========================================
-   🏠 2. Main Info Card (การ์ดชื่อหอพักยกตัวลอย)
+   ๐  2. Main Info Card (เธเธฒเธฃเนเธ”เธเธทเนเธญเธซเธญเธเธฑเธเธขเธเธ•เธฑเธงเธฅเธญเธข)
    ========================================= */
 .main-info-card {
   background: $card-bg; border-radius: 35px 35px 0 0; 
-  padding: 28px 25px 25px 25px; margin-top: -28px; /* ✅ ลดจาก -40px ให้บังภาพน้อยลง สมดุลขึ้น */
+  padding: 28px 25px 25px 25px; margin-top: -28px; /* โ… เธฅเธ”เธเธฒเธ -40px เนเธซเนเธเธฑเธเธ เธฒเธเธเนเธญเธขเธฅเธ เธชเธกเธ”เธธเธฅเธเธถเนเธ */
   position: relative; z-index: 5;
   box-shadow: 0 -12px 30px rgba(0,0,0,0.08);
 
@@ -82,7 +82,7 @@ $text-dark: #1a1a1a;
 }
 
 /* =========================================
-   🗂️ 3. Tabs & Content
+   ๐—๏ธ 3. Tabs & Content
    ========================================= */
 .custom-tabs {
   display: flex; background: $card-bg; border-bottom: 2px solid #eee; padding: 0 20px;
@@ -96,7 +96,7 @@ $text-dark: #1a1a1a;
 .tab-content { padding: 20px; }
 
 /* =========================================
-   📦 4. Content Boxes (กล่องข้อมูลย่อย)
+   ๐“ฆ 4. Content Boxes (เธเธฅเนเธญเธเธเนเธญเธกเธนเธฅเธขเนเธญเธข)
    ========================================= */
 .premium-box {
   background: $card-bg; border-radius: 20px; padding: 20px; margin-bottom: 16px;
@@ -111,7 +111,7 @@ $text-dark: #1a1a1a;
   .empty-text { font-size: 13px; color: #bbb; text-align: center; font-style: italic; }
 }
 
-/* สิ่งอำนวยความสะดวก */
+/* เธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธ */
 .amenities-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
   .amenity-item {
@@ -122,13 +122,13 @@ $text-dark: #1a1a1a;
 
     ion-icon { font-size: 20px; color: $msu-yellow; flex-shrink: 0; }
 
-    // ✅ wrapper สำหรับ icon รูปภาพ
+    // โ… wrapper เธชเธณเธซเธฃเธฑเธ icon เธฃเธนเธเธ เธฒเธ
     .fac-icon-wrap {
       width: 28px; height: 28px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
 
-    // ✅ รูปภาพ icon — ซ่อนก่อน แล้ว fade-in เมื่อโหลดเสร็จ (ป้องกันกระพริบ)
+    // โ… เธฃเธนเธเธ เธฒเธ icon โ€” เธเนเธญเธเธเนเธญเธ เนเธฅเนเธง fade-in เน€เธกเธทเนเธญเนเธซเธฅเธ”เน€เธชเธฃเนเธ (เธเนเธญเธเธเธฑเธเธเธฃเธฐเธเธฃเธดเธ)
     .fac-icon {
       width: 24px; height: 24px; object-fit: contain;
       border-radius: 6px; flex-shrink: 0;
@@ -137,7 +137,7 @@ $text-dark: #1a1a1a;
       &.loaded { opacity: 1; }
     }
 
-    // ✅ fallback ion-icon ถ้าไม่มีรูป
+    // โ… fallback ion-icon เธ–เนเธฒเนเธกเนเธกเธตเธฃเธนเธ
     .fac-fallback-icon {
       font-size: 20px; color: $msu-yellow;
     }
@@ -146,7 +146,7 @@ $text-dark: #1a1a1a;
   }
 }
 
-/* ประเภทห้องพัก */
+/* เธเธฃเธฐเน€เธ เธ—เธซเนเธญเธเธเธฑเธ */
 .room-list {
   display: flex; flex-direction: column; gap: 10px;
 
@@ -175,7 +175,7 @@ $text-dark: #1a1a1a;
   }
 }
 
-/* รูดดูรูปภาพ */
+/* เธฃเธนเธ”เธ”เธนเธฃเธนเธเธ เธฒเธ */
 .gallery-scroll {
   display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px;
   &::-webkit-scrollbar { height: 6px; } &::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
@@ -188,7 +188,7 @@ $text-dark: #1a1a1a;
 }
 
 /* =========================================
-   👤 5. Owner Card (เหมือน Host Airbnb)
+   ๐‘ค 5. Owner Card (เน€เธซเธกเธทเธญเธ Host Airbnb)
    ========================================= */
 .owner-premium-card {
   background: #ffffff; 
@@ -217,7 +217,7 @@ $text-dark: #1a1a1a;
     }
   }
 /* =========================================
-   👤 Contact Grid (ช่องทางติดต่อ)
+   ๐‘ค Contact Grid (เธเนเธญเธเธ—เธฒเธเธ•เธดเธ”เธ•เนเธญ)
    ========================================= */
 .contact-grid { 
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px; 
@@ -243,7 +243,7 @@ $text-dark: #1a1a1a;
     ion-icon { font-size: 18px; flex-shrink: 0; }
     .contact-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* 🌟 เพิ่มสถานะปุ่มที่ไม่มีข้อมูลให้เป็นสีเทา */
+    /* ๐ เน€เธเธดเนเธกเธชเธ–เธฒเธเธฐเธเธธเนเธกเธ—เธตเนเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเนเธซเนเน€เธเนเธเธชเธตเน€เธ—เธฒ */
     &.disabled {
       background: #e0e0e0 !important;
       color: #999 !important;
@@ -255,7 +255,7 @@ $text-dark: #1a1a1a;
 }
 
 /* =========================================
-   ⭐ 6. Reviews Section
+   โญ 6. Reviews Section
    ========================================= */
 .write-review-card {
   background: #ffffff; border-radius: 24px; padding: 25px; margin-bottom: 30px; 
@@ -360,7 +360,7 @@ $text-dark: #1a1a1a;
   }
 }
 
-/* 🌟 CSS ป้ายสถานะหอพักบนรูปปก */
+/* ๐ CSS เธเนเธฒเธขเธชเธ–เธฒเธเธฐเธซเธญเธเธฑเธเธเธเธฃเธนเธเธเธ */
 .status-badge {
   position: absolute; bottom: 20px; left: 20px; z-index: 10;
   padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: 900; color: #fff;
@@ -370,7 +370,7 @@ $text-dark: #1a1a1a;
   &.closed, &.status-2 { background: #7f8c8d; }
 }
 
-/* 🌟 CSS โซนราคา (รองรับรายเดือนและรายเทอม) */
+/* ๐ CSS เนเธเธเธฃเธฒเธเธฒ (เธฃเธญเธเธฃเธฑเธเธฃเธฒเธขเน€เธ”เธทเธญเธเนเธฅเธฐเธฃเธฒเธขเน€เธ—เธญเธก) */
 .price-container {
   display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; margin-top: -10px;
   
@@ -384,7 +384,7 @@ $text-dark: #1a1a1a;
   }
 }
 
-/* 🌟 CSS ปุ่มนำทาง & ค่าน้ำค่าไฟ */
+/* ๐ CSS เธเธธเนเธกเธเธณเธ—เธฒเธ & เธเนเธฒเธเนเธณเธเนเธฒเนเธ */
 .nav-btn {
   --background: #FFD600; --color: #1a1a1a; --border-radius: 12px;
   margin: 15px 0; font-weight: bold; box-shadow: 0 4px 10px rgba(255, 214, 0, 0.3);
@@ -415,7 +415,7 @@ $text-dark: #1a1a1a;
 @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
 /* =========================================
-   🖼️ 7. Lightbox — ขยายรูปภาพ
+   ๐–ผ๏ธ 7. Lightbox โ€” เธเธขเธฒเธขเธฃเธนเธเธ เธฒเธ
    ========================================= */
 .lightbox-overlay {
   position: fixed; inset: 0; z-index: 99999;
@@ -513,3 +513,23 @@ $text-dark: #1a1a1a;
     font-weight: 600;
   }
 }
+
+/* Preview Modal Actions */
+.preview-toolbar {
+  --background: #fff;
+}
+.preview-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+  .action-btn {
+    flex: 1;
+    margin: 0;
+    --border-radius: 8px;
+    font-weight: 600;
+  }
+}
+

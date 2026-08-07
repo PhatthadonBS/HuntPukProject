@@ -1,4 +1,4 @@
-﻿<ion-content [fullscreen]="true" class="custom-content">
+<ion-content [fullscreen]="true" class="custom-content">
   
   <div *ngIf="dormData" class="detail-wrapper">
     
@@ -12,7 +12,7 @@
            (click)="viewImage(dormData.image || 'assets/dorm-placeholder.jpg')">
       <div class="hero-overlay"></div>
 
-      <!-- โ… เธเธธเนเธกเธเธขเธฒเธขเธฃเธนเธ โ€” เธเธญเธเธเธนเนเนเธเนเธงเนเธฒเธฃเธนเธเธเธตเนเธเธ”เธ”เธนเธเธขเธฒเธขเนเธ”เน -->
+      <!-- ✅ ปุ่มขยายรูป — บอกผู้ใช้ว่ารูปนี้กดดูขยายได้ -->
       <div class="hero-expand-hint" (click)="viewImage(dormData.image || 'assets/dorm-placeholder.jpg')">
         <ion-icon name="expand-outline"></ion-icon>
       </div>
@@ -29,41 +29,41 @@
       
       <div class="price-container">
         <div class="price-chip" *ngIf="dormData.start_price">
-          เธฃเธฒเธขเน€เธ”เธทเธญเธ <span>เธฟ {{ dormData.start_price | number }}</span>
+          รายเดือน <span>฿ {{ dormData.start_price | number }}</span>
         </div>
         <div class="price-chip term" *ngIf="dormData.term_price || dormData.TERM_PRICE">
-          เธฃเธฒเธขเน€เธ—เธญเธก <span>เธฟ {{ dormData.term_price || dormData.TERM_PRICE | number }}</span>
+          รายเทอม <span>฿ {{ dormData.term_price || dormData.TERM_PRICE | number }}</span>
         </div>
       </div>
       
       <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
       <div class="type-badge" *ngIf="dormData.DORM_TYPE_NAME">
-        เธเธฃเธฐเน€เธ เธ—: {{ dormData.DORM_TYPE_NAME }}
+        ประเภท: {{ dormData.DORM_TYPE_NAME }}
       </div>
 
 <div class="location-row">
   <ion-icon name="location-sharp"></ion-icon>
-  <p>{{ dormData.ADDRESS || dormData.address || 'เนเธกเนเธฃเธฐเธเธธเธ—เธตเนเธญเธขเธนเน' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
+  <p>{{ dormData.ADDRESS || dormData.address || 'ไม่ระบุที่อยู่' }} <span *ngIf="dormData.zone || dormData.ZONE_NAME">({{ dormData.zone || dormData.ZONE_NAME }})</span></p>
 </div>
 
 <div class="update-date-row" *ngIf="dormData.UPDATE_AT || dormData.updated_at">
   <ion-icon name="time-outline"></ion-icon>
-  <span>เธญเธฑเธเน€เธ”เธ•เธเนเธญเธกเธนเธฅ: <strong>{{ (dormData.UPDATE_AT || dormData.updated_at) | thaiDate }}</strong></span>
+  <span>อัปเดตข้อมูล: <strong>{{ (dormData.UPDATE_AT || dormData.updated_at) | thaiDate }}</strong></span>
 </div>
 
-      <ion-button expand="block" class="nav-btn" (click)="goToNavigate()">
+      <ion-button *ngIf="!isPopup" expand="block" class="nav-btn" (click)="goToNavigate()">
         <ion-icon name="navigate-circle-outline" slot="start"></ion-icon>
-        เธเธณเธ—เธฒเธเนเธเธซเธญเธเธฑเธเธเธตเน
+        นำทางไปหอพักนี้
       </ion-button>
 
       <div class="utility-row">
         <div class="util-box water">
           <ion-icon name="water-outline"></ion-icon>
           <div class="util-text">
-            <span class="label">เธเนเธฒเธเนเธณ</span>
+            <span class="label">ค่าน้ำ</span>
             <div class="val">
-              <div class="rate-line"><span class="sub-label">เธซเธเนเธงเธข:</span> {{ dormData.water_unit || dormData.WATER_UNIT ? (dormData.water_unit || dormData.WATER_UNIT) + ' เธ.' : 'เนเธกเนเธฃเธฐเธเธธ' }}</div>
-              <div class="rate-line"><span class="sub-label">เน€เธซเธกเธฒ:</span> {{ dormData.water_lump || dormData.WATER_LUMP ? (dormData.water_lump || dormData.WATER_LUMP) + ' เธ./เธ”.' : 'เนเธกเนเธฃเธฐเธเธธ' }}</div>
+              <div class="rate-line"><span class="sub-label">หน่วย:</span> {{ dormData.water_unit || dormData.WATER_UNIT ? (dormData.water_unit || dormData.WATER_UNIT) + ' บ.' : 'ไม่ระบุ' }}</div>
+              <div class="rate-line"><span class="sub-label">เหมา:</span> {{ dormData.water_lump || dormData.WATER_LUMP ? (dormData.water_lump || dormData.WATER_LUMP) + ' บ./ด.' : 'ไม่ระบุ' }}</div>
             </div>
           </div>
         </div>
@@ -71,9 +71,9 @@
         <div class="util-box elect">
           <ion-icon name="flash-outline"></ion-icon>
           <div class="util-text">
-            <span class="label">เธเนเธฒเนเธ</span>
+            <span class="label">ค่าไฟ</span>
             <div class="val">
-              <div class="rate-line"><span class="sub-label">เธซเธเนเธงเธข:</span> {{ dormData.elect_unit || dormData.ELECT_UNIT ? (dormData.elect_unit || dormData.ELECT_UNIT) + ' เธ.' : 'เนเธกเนเธฃเธฐเธเธธ' }}</div>
+              <div class="rate-line"><span class="sub-label">หน่วย:</span> {{ dormData.elect_unit || dormData.ELECT_UNIT ? (dormData.elect_unit || dormData.ELECT_UNIT) + ' บ.' : 'ไม่ระบุ' }}</div>
             </div>
           </div>
         </div>
@@ -84,13 +84,13 @@
           <ion-icon name="star"></ion-icon>
           <span class="score">{{ averageScore | number:'1.1-1' }}</span>
         </div>
-        <span class="reviews-count">เธเธฒเธเธเธนเนเนเธเนเธเธฒเธ {{ reviews.length }} เธฃเธตเธงเธดเธง</span>
+        <span class="reviews-count">จากผู้ใช้งาน {{ reviews.length }} รีวิว</span>
       </div>
     </div>
 
     <div class="custom-tabs">
-      <div class="tab-btn" [class.active]="activeTab === 'info'" (click)="switchTab('info')">เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”</div>
-      <div class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">เธฃเธตเธงเธดเธงเธ—เธตเนเธเธฑเธ ({{ reviews.length }})</div>
+      <div class="tab-btn" [class.active]="activeTab === 'info'" (click)="switchTab('info')">รายละเอียด</div>
+      <div class="tab-btn" *ngIf="!isPopup" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">รีวิวที่พัก ({{ reviews.length }})</div>
     </div>
 
     <div class="tab-content">
@@ -98,22 +98,22 @@
       <div *ngIf="activeTab === 'info'" class="info-tab fade-in">
         
 <div class="premium-box" *ngIf="dormData.rooms && dormData.rooms.length > 0">
-          <h3><ion-icon name="bed-outline"></ion-icon> เธเธฃเธฐเน€เธ เธ—เธซเนเธญเธเธเธฑเธ</h3>
+          <h3><ion-icon name="bed-outline"></ion-icon> ประเภทห้องพัก</h3>
           <div class="room-list">
             
             <div class="room-item" *ngFor="let room of dormData.rooms">
-              <!-- เธเธฑเนเธเธเนเธฒเธข: เธเธทเนเธญเธซเนเธญเธ เนเธฅเธฐ เธเธฃเธฐเน€เธ เธ—เน€เธ•เธตเธขเธ -->
+              <!-- ฝั่งซ้าย: ชื่อห้อง และ ประเภทเตียง -->
               <div class="room-info">
-                <span class="room-name">{{ room.ROOM_TYPE_NAME }}</span>
+                <span class="room-name">{{ room.ROOM_TYPE_NAME || room.roomType || 'ไม่ระบุห้อง' }}</span>
                 <span class="room-bed" *ngIf="room.bedType && room.bedType !== '-'">
                   ({{ room.bedType }})
                 </span>
               </div>
               
-              <!-- เธเธฑเนเธเธเธงเธฒ: เธฃเธฒเธเธฒ -->
+              <!-- ฝั่งขวา: ราคา -->
               <div class="room-prices-list">
                 <span class="room-price" *ngFor="let p of room.prices" style="background: #f4f4f4; color: #333; border: 1px solid #ddd;">
-                  {{ p.name }}: {{ p.price > 0 ? 'เธฟ' + (p.price | number) : 'เนเธกเนเธฃเธฐเธเธธ' }}
+                  {{ p.name }}: {{ p.price > 0 ? '฿' + (p.price | number) : 'ไม่ระบุ' }}
                 </span>
               </div>
             </div>
@@ -122,32 +122,32 @@
         </div>
         
         <div class="premium-box">
-          <h3><ion-icon name="checkmark-circle-outline"></ion-icon> เธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธ</h3>
+          <h3><ion-icon name="checkmark-circle-outline"></ion-icon> สิ่งอำนวยความสะดวก</h3>
           <div class="amenities-grid" *ngIf="facilitiesList.length > 0">
             <div class="amenity-item" *ngFor="let fac of facilitiesList">
               <div class="fac-icon-wrap">
-                <!-- เนเธชเธ”เธเธฃเธนเธเธ เธฒเธเธ–เนเธฒเธกเธต URL, เธเนเธญเธเธ•เธญเธเนเธซเธฅเธ”, fade-in เน€เธกเธทเนเธญเนเธซเธฅเธ”เน€เธชเธฃเนเธ -->
+                <!-- แสดงรูปภาพถ้ามี URL, ซ่อนตอนโหลด, fade-in เมื่อโหลดเสร็จ -->
                 <img *ngIf="fac.icon"
                      [src]="fac.icon"
                      class="fac-icon"
                      (load)="$event.target.classList.add('loaded')"
                      (error)="$event.target.style.display='none'; fac.icon = ''">
-                <!-- เธ–เนเธฒเนเธกเนเธกเธตเธฃเธนเธ เนเธชเธ”เธ ion-icon เนเธ—เธ -->
+                <!-- ถ้าไม่มีรูป แสดง ion-icon แทน -->
                 <ion-icon *ngIf="!fac.icon" name="checkmark-circle-outline" class="fac-fallback-icon"></ion-icon>
               </div>
               <span>{{ fac.name }}</span>
             </div>
           </div>
-          <p class="empty-text" *ngIf="facilitiesList.length === 0">- เนเธกเนเธฃเธฐเธเธธเธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธ -</p>
+          <p class="empty-text" *ngIf="facilitiesList.length === 0">- ไม่ระบุสิ่งอำนวยความสะดวก -</p>
         </div>
 
         <div class="premium-box">
-           <h3><ion-icon name="document-text-outline"></ion-icon> เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เน€เธเธดเนเธกเน€เธ•เธดเธก</h3>
-           <p class="desc-text">{{ dormData.description || (dormData.ADD_DORM_DATA || 'เนเธกเนเธกเธตเธเนเธญเธกเธนเธฅเธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”') }}</p>
+           <h3><ion-icon name="document-text-outline"></ion-icon> รายละเอียดเพิ่มเติม</h3>
+           <p class="desc-text">{{ dormData.description || (dormData.ADD_DORM_DATA || 'ไม่มีข้อมูลรายละเอียด') }}</p>
         </div>
 
         <div class="premium-box" *ngIf="dormData.gallery && dormData.gallery.length > 0">
-          <h3><ion-icon name="image-outline"></ion-icon> เธฃเธนเธเธ เธฒเธเน€เธเธดเนเธกเน€เธ•เธดเธก</h3>
+          <h3><ion-icon name="image-outline"></ion-icon> รูปภาพเพิ่มเติม</h3>
           <div class="gallery-scroll">
             <div class="gallery-item" *ngFor="let img of dormData.gallery" (click)="viewImage(img)">
               <img [src]="img" onerror="this.src='https://placehold.co/300x200?text=No+Image'">
@@ -159,59 +159,59 @@
           <div class="owner-header">
             <div class="owner-avatar"><ion-icon name="person"></ion-icon></div>
             <div class="owner-title">
-              <h4>เธเธธเธ“ {{ ownerInfo.firstName }} {{ ownerInfo.lastName }}</h4>
-              <span>เธเธนเนเธ”เธนเนเธฅเธซเธญเธเธฑเธ</span>
+              <h4>คุณ {{ ownerInfo.firstName }} {{ ownerInfo.lastName }}</h4>
+              <span>ผู้ดูแลหอพัก</span>
             </div>
           </div>
 <div class="contact-grid">
                   <a [href]="ownerInfo.phone !== '-' ? 'tel:' + ownerInfo.phone : 'javascript:void(0)'" class="contact-btn phone" [class.disabled]="ownerInfo.phone === '-'">
                     <ion-icon name="call"></ion-icon> 
-                    <span class="contact-label">{{ ownerInfo.phone !== '-' ? ownerInfo.phone : 'เนเธกเนเธฃเธฐเธเธธเน€เธเธญเธฃเนเนเธ—เธฃ' }}</span>
+                    <span class="contact-label">{{ ownerInfo.phone !== '-' ? ownerInfo.phone : 'ไม่ระบุเบอร์โทร' }}</span>
                   </a>
                   <a [href]="ownerInfo.line !== '-' ? ownerInfo.line : 'javascript:void(0)'" target="_blank" class="contact-btn line" [class.disabled]="ownerInfo.line === '-'">
                     <ion-icon name="chatbubble-ellipses"></ion-icon> 
-                    <span class="contact-label">{{ ownerInfo.line !== '-' ? 'LINE' : 'เนเธกเนเธฃเธฐเธเธธ LINE' }}</span>
+                    <span class="contact-label">{{ ownerInfo.line !== '-' ? 'LINE' : 'ไม่ระบุ LINE' }}</span>
                   </a>
                   <a [href]="ownerInfo.facebook !== '-' ? ownerInfo.facebook : 'javascript:void(0)'" target="_blank" class="contact-btn fb" [class.disabled]="ownerInfo.facebook === '-'">
                     <ion-icon name="logo-facebook"></ion-icon> 
-                    <span class="contact-label">{{ ownerInfo.facebook !== '-' ? 'Facebook' : 'เนเธกเนเธฃเธฐเธเธธ Facebook' }}</span>
+                    <span class="contact-label">{{ ownerInfo.facebook !== '-' ? 'Facebook' : 'ไม่ระบุ Facebook' }}</span>
                   </a>
                   <a [href]="ownerInfo.instagram !== '-' ? ownerInfo.instagram : 'javascript:void(0)'" target="_blank" class="contact-btn ig" [class.disabled]="ownerInfo.instagram === '-'">
                     <ion-icon name="logo-instagram"></ion-icon> 
-                    <span class="contact-label">{{ ownerInfo.instagram !== '-' ? 'Instagram' : 'เนเธกเนเธฃเธฐเธเธธ IG' }}</span>
+                    <span class="contact-label">{{ ownerInfo.instagram !== '-' ? 'Instagram' : 'ไม่ระบุ IG' }}</span>
                   </a>
                   <a [href]="ownerInfo.x !== '-' ? ownerInfo.x : 'javascript:void(0)'" target="_blank" class="contact-btn x" [class.disabled]="ownerInfo.x === '-'">
                     <ion-icon name="logo-twitter"></ion-icon> 
-                    <span class="contact-label">{{ ownerInfo.x !== '-' ? 'X (Twitter)' : 'เนเธกเนเธฃเธฐเธเธธ X' }}</span>
+                    <span class="contact-label">{{ ownerInfo.x !== '-' ? 'X (Twitter)' : 'ไม่ระบุ X' }}</span>
                   </a>
                   <a [href]="ownerInfo.telegram !== '-' ? ownerInfo.telegram : 'javascript:void(0)'" target="_blank" class="contact-btn telegram" [class.disabled]="ownerInfo.telegram === '-'">
                     <ion-icon name="paper-plane"></ion-icon> 
-                    <span class="contact-label">{{ ownerInfo.telegram !== '-' ? 'Telegram' : 'เนเธกเนเธฃเธฐเธเธธ Telegram' }}</span>
+                    <span class="contact-label">{{ ownerInfo.telegram !== '-' ? 'Telegram' : 'ไม่ระบุ Telegram' }}</span>
                   </a>
                 </div>
         </div>
 
       </div>
 
-      <div *ngIf="activeTab === 'reviews'" class="reviews-tab fade-in">
+      <div *ngIf="activeTab === 'reviews' && !isPopup" class="reviews-tab fade-in">
         
         <div class="write-review-card" *ngIf="currentUserId > 0 && currentUserRole !== 2 && !hasReviewed">
-          <h3>เนเธซเนเธเธฐเนเธเธเธซเธญเธเธฑเธเธเธตเน</h3>
+          <h3>ให้คะแนนหอพักนี้</h3>
           <div class="rating-input">
             <ion-icon *ngFor="let s of [1,2,3,4,5]" [name]="s <= newReview.score ? 'star' : 'star-outline'" [class.active]="s <= newReview.score" (click)="setRating(s)"></ion-icon>
           </div>
-          <ion-textarea id="reviewComment" name="reviewComment" [(ngModel)]="newReview.comment" placeholder="เธเธฃเธธเธ“เธฒเน€เธเธตเธขเธเธฃเธตเธงเธดเธง (เธเธญเธเน€เธฅเนเธฒเธเธฃเธฐเธชเธเธเธฒเธฃเธ“เนเธเธญเธเธเธธเธ“)..." rows="3"></ion-textarea>
-          <button class="submit-btn" (click)="submitReview()">เธชเนเธเธฃเธตเธงเธดเธง</button>
+          <ion-textarea id="reviewComment" name="reviewComment" [(ngModel)]="newReview.comment" placeholder="กรุณาเขียนรีวิว (บอกเล่าประสบการณ์ของคุณ)..." rows="3"></ion-textarea>
+          <button class="submit-btn" (click)="submitReview()">ส่งรีวิว</button>
         </div>
 
-        <div *ngIf="hasReviewed" class="status-box success">โ… เธเธธเธ“เนเธ”เนเธฃเธตเธงเธดเธงเธซเธญเธเธฑเธเธเธตเนเนเธเนเธฅเนเธง</div>
-        <div *ngIf="currentUserId > 0 && currentUserRole === 2" class="status-box warning">โ ๏ธ เน€เธเนเธฒเธเธญเธเธซเธญเธเธฑเธเนเธกเนเธชเธฒเธกเธฒเธฃเธ–เธฃเธตเธงเธดเธงเนเธ”เน</div>
-        <div *ngIf="currentUserId === 0" class="status-box normal">๐”’ เธเธฃเธธเธ“เธฒเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธเน€เธเธทเนเธญเน€เธเธตเธขเธเธฃเธตเธงเธดเธง</div>
+        <div *ngIf="hasReviewed" class="status-box success">✅ คุณได้รีวิวหอพักนี้ไปแล้ว</div>
+        <div *ngIf="currentUserId > 0 && currentUserRole === 2" class="status-box warning">⚠️ เจ้าของหอพักไม่สามารถรีวิวได้</div>
+        <div *ngIf="currentUserId === 0" class="status-box normal">🔒 กรุณาเข้าสู่ระบบเพื่อเขียนรีวิว</div>
 
         <div class="review-list">
           <div *ngIf="isLoadingReviews" class="loading-spinner"><ion-spinner></ion-spinner></div>
           <ng-container *ngIf="!isLoadingReviews">
-            <div *ngIf="reviews.length === 0" class="empty-text">เธขเธฑเธเนเธกเนเธกเธตเธฃเธตเธงเธดเธง เน€เธเนเธเธเธเนเธฃเธเธ—เธตเนเธฃเธตเธงเธดเธงเน€เธฅเธข!</div>
+            <div *ngIf="reviews.length === 0" class="empty-text">ยังไม่มีรีวิว เป็นคนแรกที่รีวิวเลย!</div>
 
             <div class="user-review-card" *ngFor="let item of reviews">
               <div class="reviewer-top">
@@ -233,26 +233,26 @@
   </div>
 
   <div *ngIf="!dormData" class="loading-fullscreen">
-     <!-- เนเธชเธ”เธ Error -->
+     <!-- แสดง Error -->
      <div *ngIf="isError" class="error-container">
        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
        <p class="error-msg">{{ errorMessage }}</p>
        <ion-button expand="block" (click)="retryLoad()" class="retry-btn">
-         เธฅเธญเธเนเธซเธกเนเธญเธตเธเธเธฃเธฑเนเธ
+         ลองใหม่อีกครั้ง
        </ion-button>
        <ion-button expand="block" fill="outline" (click)="goBack()" class="back-btn">
-         เธเธฅเธฑเธเธซเธเนเธฒเธซเธฅเธฑเธ
+         กลับหน้าหลัก
        </ion-button>
      </div>
-     <!-- เนเธชเธ”เธ Loading -->
+     <!-- แสดง Loading -->
      <div *ngIf="!isError && isLoading">
        <ion-spinner name="crescent"></ion-spinner>
-       <p>เธเธณเธฅเธฑเธเนเธซเธฅเธ”...</p>
+       <p>กำลังโหลด...</p>
      </div>
   </div>
 
   <!-- ============================================ -->
-  <!-- ๐–ผ๏ธ Lightbox โ€” เธเธขเธฒเธขเธ”เธนเธฃเธนเธเธ เธฒเธ (เธซเธเนเธฒเธซเธญ + เนเธเธฅเน€เธฅเธญเธฃเธต) -->
+  <!-- 🖼️ Lightbox — ขยายดูรูปภาพ (หน้าหอ + แกลเลอรี) -->
   <!-- ============================================ -->
   <div class="lightbox-overlay" *ngIf="isLightboxOpen" (click)="closeLightbox()">
 
@@ -280,13 +280,18 @@
 
 </ion-content>
 
+<!-- ✅ แสดงปุ่มยืนยัน/ยกเลิก เมื่ออยู่ในโหมด Preview -->
 <ion-footer *ngIf="isPopup" class="ion-no-border">
-  <div class="modal-footer">
-    <ion-button fill="outline" color="medium" (click)="cancelPreview()">
-      กลับไปแก้ไข
-    </ion-button>
-    <ion-button color="success" (click)="confirmPreview()">
-      ยืนยันส่งข้อมูล
-    </ion-button>
-  </div>
+  <ion-toolbar class="preview-toolbar">
+    <div class="preview-actions">
+      <ion-button expand="block" color="warning" (click)="cancelPreview()" class="action-btn">
+        <ion-icon name="close-circle" slot="start"></ion-icon>
+        กลับไปแก้ไข
+      </ion-button>
+      <ion-button expand="block" color="success" (click)="confirmPreview()" class="action-btn">
+        <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+        ยืนยันส่งข้อมูล
+      </ion-button>
+    </div>
+  </ion-toolbar>
 </ion-footer>

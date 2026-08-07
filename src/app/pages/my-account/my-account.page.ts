@@ -321,7 +321,8 @@ export class MyAccountPage implements OnInit {
                 if (success) {
                   this.showToast('ลบบัญชีสำเร็จ', 'success');
                   localStorage.removeItem('loggedIn');
-                  this.router.navigate(['/login']);
+                  window.dispatchEvent(new CustomEvent('user-logged-out'));
+                  this.router.navigate(['/home']);
                   return true;
                 } else {
                   throw new Error('Delete account failed');
@@ -359,6 +360,7 @@ export class MyAccountPage implements OnInit {
     const { role } = await modal.onDidDismiss();
     if (role === 'confirm') {
       localStorage.removeItem('loggedIn');
+      window.dispatchEvent(new CustomEvent('user-logged-out'));
       this.router.navigate(['/login']);
     }
   }

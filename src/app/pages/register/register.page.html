@@ -15,10 +15,11 @@
     <div class="glass-card">
       <div class="form-section fade-in">
       
-      <div class="custom-input">
-        <input type="text" placeholder="ชื่อผู้ใช้" [(ngModel)]="username">
+      <div class="custom-input" [class.has-error]="usernameError">
+        <input type="text" placeholder="ชื่อผู้ใช้" [(ngModel)]="username" (focus)="usernameError = false">
         <ion-icon name="person" color="medium"></ion-icon>
       </div>
+      <p *ngIf="usernameError" class="error-msg">* ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร</p>
 
       <div class="custom-input" [class.has-error]="emailError">
         <input type="email" placeholder="อีเมล" [(ngModel)]="email" (focus)="emailError = false">
@@ -40,7 +41,7 @@
           color="medium">
         </ion-icon>
       </div>
-      <p *ngIf="passwordError" class="error-msg">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</p>
+      <p *ngIf="passwordError" class="error-msg">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร และต้องมีภาษาอังกฤษ (a-z) ผสมตัวเลข (0-9) ไม่รองรับภาษาไทย</p>
 
       <div class="custom-input">
         <input 

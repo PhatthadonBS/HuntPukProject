@@ -194,8 +194,6 @@ export class ManageUsersPage implements OnInit {
   // ส่วนจัดการเพิ่มสมาชิกใหม่
   // ==========================================
 
-  isTypeSelectOpen = false;
-
   openTypeSelectModal() {
     this.isTypeSelectOpen = true;
   }

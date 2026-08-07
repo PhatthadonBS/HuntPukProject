@@ -42,6 +42,7 @@ export class RegisterPage implements OnInit {
   isSubmitting: boolean = false;
   emailError: boolean = false;
   passwordError: boolean = false;
+  usernameError: boolean = false;
 
   roleId: number = 2; // 2=ผู้เช่า, 3=เจ้าของหอ
   tempUserData: UserRegPostReq | null = null; 
@@ -104,21 +105,29 @@ export class RegisterPage implements OnInit {
   // ==========================================
   // 🌟 STEP 1: กดปุ่มสมัครสมาชิก
   // ==========================================
+  // 🌟 STEP 1: กดปุ่มสมัครสมาชิก
+  // ==========================================
   async onNextStep() {
     if (this.isSubmitting) return;
 
     this.emailError = false;
     this.passwordError = false;
+    this.usernameError = false;
 
     if (!this.username || !this.email || !this.password || !this.confirmPassword || !this.phone) {
       this.showAlert('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่อง');
+      return;
+    }
+    
+    if (this.username.length < 3) {
+      this.usernameError = true;
       return;
     }
     if (!this.isValidEmail(this.email)) {
       this.emailError = true;
       return;
     }
-    const passRegex = /^[a-zA-Z0-9]{8,}$/; 
+    const passRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{8,}$/; 
     if (!passRegex.test(this.password)) {
       this.passwordError = true;
       return;
@@ -149,7 +158,36 @@ export class RegisterPage implements OnInit {
       try {
         hashedData = await this.authService.register(this.tempUserData);
       } catch (err: any) {
-        const msg = err?.error?.message || err?.message || 'อีเมลหรือเบอร์โทรนี้ถูกใช้งานแล้ว';
+        let msg = 'อีเมลหรือเบอร์โทรนี้ถูกใช้งานแล้ว หรือข้อมูลไม่ถูกต้อง';
+        
+        const rawError = err?.error;
+
+        // เช็คกรณีเชื่อมต่อ Server ไม่ได้ (Network Error / CORS)
+        if (err?.name === 'HttpErrorResponse' && err.status === 0) {
+          msg = 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง';
+        } else if (rawError?.isTrusted || JSON.stringify(rawError).includes('isTrusted')) {
+          msg = 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง';
+        } else if (typeof rawError === 'string') {
+           try {
+             const parsed = JSON.parse(rawError);
+             if (parsed.errors && parsed.errors.length > 0 && parsed.errors[0].message) {
+               msg = parsed.errors[0].message;
+             } else if (parsed.message) {
+               msg = parsed.message;
+             }
+           } catch (e) {
+             msg = rawError;
+           }
+        } else if (rawError?.errors && rawError.errors.length > 0 && rawError.errors[0].message) {
+          msg = rawError.errors[0].message;
+        } else if (rawError?.message) {
+          msg = rawError.message;
+        } else if (err?.message) {
+          msg = err.message;
+        }
+
+        if (msg === '[object Object]') msg = 'อีเมลนี้เป็นสมาชิกอยู่แล้ว หรือ รูปแบบข้อมูลซ้ำซ้อนในระบบ';
+
         this.showAlert('สมัครไม่สำเร็จ', msg, 'error');
         this.isSubmitting = false;
         return;

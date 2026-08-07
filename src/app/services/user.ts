@@ -150,7 +150,7 @@ export class UserService {
 
   // 3.6 ลบบัญชีผู้ใช้ถาวร (Hard Delete) สำหรับ Manage Users
   async hardDeleteAccount(userId: number): Promise<boolean> {
-    const url = `${this.apiUrl}/spec/harddelaccount/${userId}`;
+    const url = `${this.apiUrl}/admin/users/hardDelete/${userId}`;
     try {
       const stored = localStorage.getItem('loggedIn');
       let token = '';
