@@ -958,6 +958,15 @@ export class DormFormPage implements OnInit {
     }
 
     // Show Preview Modal using DormDetailPage
+    const finalOwnerId = (this.isAdmin && this.selectedOwnerId) ? this.selectedOwnerId : this.ownerId;
+    let ownerProfile: any = null;
+    try {
+      ownerProfile = await this.userService.getUserProfile(finalOwnerId);
+    } catch (err) {
+      console.warn('Could not fetch owner profile for preview', err);
+      ownerProfile = this.currentUser; // fallback
+    }
+
     const previewData = {
       DORM_NAME: this.formData.name || 'ไม่ได้ระบุชื่อหอพัก',
       ADDRESS: this.formData.address || 'ไม่ได้ระบุที่อยู่',
@@ -982,14 +991,14 @@ export class DormFormPage implements OnInit {
       })),
       image: this.previews.FRONT_DORM_IMG || 'assets/dorm-placeholder.jpg',
       gallery: this.previews.OTHER_IMG || [],
-      FIRST_NAME: this.currentUser?.FIRST_NAME || this.currentUser?.USER_FNAME || this.currentUser?.USER_FIRSTNAME || this.currentUser?.fname || 'เจ้าของหอพัก',
-      LAST_NAME: this.currentUser?.LAST_NAME || this.currentUser?.USER_LNAME || this.currentUser?.USER_LASTNAME || this.currentUser?.lname || '',
-      phone: this.currentUser?.PHONE || this.currentUser?.PHONE_NUMBER || '-',
-      line: this.currentUser?.LINE_ID || this.currentUser?.line_id || '-',
-      facebook: this.currentUser?.FACEBOOK || this.currentUser?.facebook || '-',
-      instagram: this.currentUser?.IG || this.currentUser?.instagram || '-',
-      x: this.currentUser?.X || this.currentUser?.x || '-',
-      telegram: this.currentUser?.TELEGRAM || this.currentUser?.telegram || '-'
+      FIRST_NAME: ownerProfile?.FIRST_NAME || ownerProfile?.USER_FNAME || ownerProfile?.USER_FIRSTNAME || ownerProfile?.fname || 'เจ้าของหอพัก',
+      LAST_NAME: ownerProfile?.LAST_NAME || ownerProfile?.USER_LNAME || ownerProfile?.USER_LASTNAME || ownerProfile?.lname || '',
+      phone: ownerProfile?.PHONE || ownerProfile?.PHONE_NUMBER || '-',
+      line: ownerProfile?.LINE || ownerProfile?.LINE_ID || ownerProfile?.line_id || '-',
+      facebook: ownerProfile?.FACEBOOK || ownerProfile?.facebook || '-',
+      instagram: ownerProfile?.INSTAGRAM || ownerProfile?.IG || ownerProfile?.instagram || '-',
+      x: ownerProfile?.X || ownerProfile?.x || '-',
+      telegram: ownerProfile?.TELEGRAM || ownerProfile?.telegram || '-'
     };
 
     const modal = await this.modalCtrl.create({

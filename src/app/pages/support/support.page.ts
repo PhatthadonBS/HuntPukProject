@@ -13,8 +13,8 @@ import { bugOutline, starOutline, callOutline, mailOutline, openOutline, arrowBa
   imports: [CommonModule, IonicModule, HeaderComponent]
 })
 export class SupportPage implements OnInit {
-  feedbackFormUrl = 'https://forms.gle/yAFcXB5iZoXUj3qFA';
-  ratingFormUrl = 'https://forms.gle/gwsN7eyL9iaEaDKR8';
+  feedbackFormUrl = 'https://forms.gle/RRH2sh7uX7by7t1D9';
+  ratingFormUrl = 'https://forms.gle/84VCo4wycEcUQsWU9';
 
   constructor() {
     addIcons({

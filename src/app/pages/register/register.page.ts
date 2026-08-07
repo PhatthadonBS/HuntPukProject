@@ -127,7 +127,7 @@ export class RegisterPage implements OnInit {
       this.emailError = true;
       return;
     }
-    const passRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9]{8,}$/; 
+    const passRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/; 
     if (!passRegex.test(this.password)) {
       this.passwordError = true;
       return;

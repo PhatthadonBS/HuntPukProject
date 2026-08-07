@@ -41,7 +41,7 @@
           color="medium">
         </ion-icon>
       </div>
-      <p *ngIf="passwordError" class="error-msg">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร และต้องมีภาษาอังกฤษ (a-z) ผสมตัวเลข (0-9) ไม่รองรับภาษาไทย</p>
+      <p *ngIf="passwordError" class="error-msg">* รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร ประกอบด้วยภาษาอังกฤษและตัวเลขอย่างน้อยอย่างละ 1 ตัว (มีหรือไม่มีอักขระพิเศษก็ได้)</p>
 
       <div class="custom-input">
         <input 
@@ -58,7 +58,7 @@
       </div>
 
       <div class="warning-text" style="font-size: 12px; color: #666; margin-bottom: 15px; padding-left: 10px; opacity: 0.9;">
-         <p style="margin: 2px 0;">* เป็นตัวอักษร a-z ผสมตัวเลข 0-9 เท่านั้น</p>
+         <p style="margin: 2px 0;">* ประกอบด้วยภาษาอังกฤษและตัวเลขอย่างน้อยอย่างละ 1 ตัว (อักขระพิเศษจะมีหรือไม่ก็ได้)</p>
          <p style="margin: 2px 0;">* ความยาวอย่างน้อย 8 ตัวอักษร</p>
       </div>
 

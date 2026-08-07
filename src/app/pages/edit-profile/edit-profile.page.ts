@@ -9,6 +9,7 @@ import {
   logoFacebook, chatbubbles, logoInstagram, logoTwitter, paperPlane, cameraOutline
 } from 'ionicons/icons';
 import { Auth } from '../../services/auth'; 
+import { UserService } from '../../services/user';
 
 @Component({
   selector: 'app-edit-profile',
@@ -46,7 +47,8 @@ export class EditProfilePage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private alertController: AlertController,
-    private authService: Auth 
+    private authService: Auth,
+    private userService: UserService 
   ) {
     addIcons({ 
       closeOutline, personOutline, callOutline, mailOutline, trashOutline,
@@ -59,7 +61,7 @@ export class EditProfilePage implements OnInit {
     this.loadUserData();
   }
 
-  loadUserData() {
+  async loadUserData() {
     const navState = this.router.getCurrentNavigation()?.extras.state;
     let userData = navState ? navState['user'] : null;
     let ownerData = navState ? navState['ownerData'] : null;
@@ -69,7 +71,26 @@ export class EditProfilePage implements OnInit {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          userData = parsed.user ? parsed.user : parsed;
+          const baseUser = parsed.user ? parsed.user : parsed;
+          
+          // Fetch complete data from API since navState is missing
+          if (baseUser && (baseUser.id || baseUser.user_id || baseUser.USER_ID)) {
+             const uid = baseUser.id || baseUser.user_id || baseUser.USER_ID;
+             const rawData = await this.userService.getUserProfile(uid);
+             if (rawData) {
+                userData = {
+                  ...baseUser,
+                  ...rawData
+                };
+                if (userData.ROLE_TYPE_ID === 2 || userData.role_id === 2) {
+                   ownerData = rawData;
+                }
+             } else {
+                userData = baseUser;
+             }
+          } else {
+             userData = baseUser;
+          }
         } catch (e) {}
       }
     }
@@ -90,13 +111,13 @@ export class EditProfilePage implements OnInit {
 
     // โหลดข้อมูลเจ้าของหอพัก (ถ้ามี)
     if (ownerData && this.isOwner) {
-      this.ownerEditData.first_name = ownerData.first_name || '';
-      this.ownerEditData.last_name = ownerData.last_name || '';
-      this.ownerEditData.facebook = ownerData.facebook || '';
-      this.ownerEditData.line = ownerData.line || '';
-      this.ownerEditData.instagram = ownerData.instagram || '';
-      this.ownerEditData.x = ownerData.x || '';
-      this.ownerEditData.telegram = ownerData.telegram || '';
+      this.ownerEditData.first_name = ownerData.first_name || ownerData.FIRST_NAME || '';
+      this.ownerEditData.last_name = ownerData.last_name || ownerData.LAST_NAME || '';
+      this.ownerEditData.facebook = ownerData.facebook || ownerData.FACEBOOK || '';
+      this.ownerEditData.line = ownerData.line || ownerData.LINE || '';
+      this.ownerEditData.instagram = ownerData.instagram || ownerData.INSTAGRAM || '';
+      this.ownerEditData.x = ownerData.x || ownerData.X || '';
+      this.ownerEditData.telegram = ownerData.telegram || ownerData.TELEGRAM || '';
       
       if (ownerData.PROFILE_IMAGE || ownerData.profile_image) {
         this.imagePreview = ownerData.PROFILE_IMAGE || ownerData.profile_image;
@@ -174,9 +195,10 @@ export class EditProfilePage implements OnInit {
         localStorage.setItem('loggedIn', JSON.stringify(parsed));
         window.dispatchEvent(new CustomEvent('user-profile-updated'));
       }
-
       await this.showToast('บันทึกข้อมูลเรียบร้อย', 'success');
-      this.router.navigate(['/my-account']); 
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
 
     } catch (error: any) { 
       console.error('Update Error:', error);
