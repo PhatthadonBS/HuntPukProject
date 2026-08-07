@@ -199,7 +199,7 @@
                 <i *ngIf="fac.isFontAwesome" [class]="fac.icon" class="fac-fa-icon"></i>
                 <!-- URL รูปภาพ -->
                 <img *ngIf="!fac.isFontAwesome && fac.icon"
-                  [src]="fac.icon" class="fac-icon-img"
+                  [src]="getIconPath(fac.icon)" class="fac-icon-img"
                   (error)="$any($event.target).src='assets/icon/favicon.png'">
                 <!-- Fallback ถ้าไม่มีไอคอน -->
                 <ion-icon *ngIf="!fac.icon" name="home-outline" class="fac-ion-icon"></ion-icon>

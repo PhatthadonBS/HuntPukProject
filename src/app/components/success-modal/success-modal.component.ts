@@ -35,8 +35,11 @@ export class SuccessModalComponent implements OnInit {
   @Input() message: string = 'ระบบได้รับข้อมูลหอพักของคุณแล้ว<br>กรุณารอผู้ดูแลระบบตรวจสอบภายใน 24 ชั่วโมง';
   @Input() icon: string = 'time-outline';
   @Input() buttonText: string = 'ตกลงรับทราบ';
+  @Input() showCancelButton: boolean = false;
+  @Input() cancelButtonText: string = 'ยกเลิก';
 
   @Output() confirmed = new EventEmitter<void>();
+  @Output() canceled = new EventEmitter<void>();
 
   isVisible = false;
 
@@ -56,5 +59,10 @@ export class SuccessModalComponent implements OnInit {
   confirm() {
     this.isVisible = false;
     setTimeout(() => this.confirmed.emit(), 200);
+  }
+
+  cancel() {
+    this.isVisible = false;
+    setTimeout(() => this.canceled.emit(), 200);
   }
 }

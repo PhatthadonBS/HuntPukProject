@@ -130,10 +130,18 @@ ion-menu[menuId="home-menu"] {
   z-index: 999999 !important;
 }
 
-.custom-alert-modal {
-  --background: transparent;
-  --box-shadow: none;
-  --backdrop-opacity: 0.5;
+ion-modal.custom-alert-modal {
+  --background: transparent !important;
+  --box-shadow: none !important;
+
+  &::part(content) {
+    background: transparent !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
 }
 
 

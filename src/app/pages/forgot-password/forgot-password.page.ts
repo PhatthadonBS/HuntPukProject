@@ -30,6 +30,7 @@ export class ForgotPasswordPage implements OnInit {
   showNewPassword: boolean = false;
   showConfirmPassword: boolean = false;
   showSuccessModal: boolean = false;
+  isLoggedIn: boolean = false;
 
   constructor(
     private router: Router,
@@ -47,6 +48,22 @@ export class ForgotPasswordPage implements OnInit {
         this.email = params['email'];
       }
     });
+  }
+
+  ionViewWillEnter() {
+    this.isLoggedIn = !!localStorage.getItem('loggedIn');
+    // Reset state in case page is cached by Ionic
+    this.step = 1;
+    this.newPassword = '';
+    this.confirmPassword = '';
+    
+    // Read email from query params again just in case
+    const emailParam = this.route.snapshot.queryParamMap.get('email');
+    if (emailParam) {
+      this.email = emailParam;
+    } else {
+      this.email = '';
+    }
   }
 toggleNewPassword() {
     this.showNewPassword = !this.showNewPassword;
@@ -103,9 +120,9 @@ toggleNewPassword() {
   // STEP 2: บันทึกรหัสผ่านใหม่
   async confirmReset() {
     // Validation
-    const regex = /^[a-z0-9]{8}$/;
+    const regex = /^[a-zA-Z0-9]{8,}$/;
     if (!regex.test(this.newPassword)) {
-      this.showAlert('รูปแบบไม่ถูกต้อง', 'รหัสผ่านต้องเป็น a-z และ 0-9 รวมกัน 8 ตัวอักษรเท่านั้น');
+      this.showAlert('รูปแบบไม่ถูกต้อง', 'รหัสผ่านต้องเป็นตัวอักษร a-z, A-Z และตัวเลข 0-9 รวมกันอย่างน้อย 8 ตัวอักษร');
       return;
     }
 
@@ -132,32 +149,17 @@ toggleNewPassword() {
 
   async handleSuccessConfirm() {
     this.showSuccessModal = false;
-    const isLoggedIn = !!localStorage.getItem('loggedIn');
-    if (isLoggedIn) {
-      const alert = await this.alertController.create({
-        header: 'เปลี่ยนรหัสผ่านสำเร็จ',
-        message: 'คุณต้องการใช้งานต่อด้วยรหัสผ่านใหม่ หรือออกจากระบบเพื่อเข้าสู่ระบบใหม่?',
-        buttons: [
-          {
-            text: 'ออกจากระบบ',
-            role: 'cancel',
-            handler: () => {
-              localStorage.removeItem('loggedIn');
-              this.router.navigate(['/login']);
-            }
-          },
-          {
-            text: 'ใช้งานต่อ',
-            handler: () => {
-              this.router.navigate(['/my-account']);
-            }
-          }
-        ]
-      });
-      await alert.present();
+    if (this.isLoggedIn) {
+      this.router.navigate(['/my-account']);
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  handleSuccessCancel() {
+    this.showSuccessModal = false;
+    localStorage.removeItem('loggedIn');
+    this.router.navigate(['/login']);
   }
 
   async showAlert(header: string, msg: string) {

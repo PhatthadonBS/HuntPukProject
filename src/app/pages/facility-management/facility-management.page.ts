@@ -75,6 +75,14 @@ export class FacilityManagementPage implements OnInit {
     this.loadFacilityRequests();
   }
 
+  getIconPath(iconPath: string): string {
+    if (!iconPath) return '';
+    if (iconPath.startsWith('assets/icon/')) {
+      return iconPath.replace('assets/icon/', 'assets/allIcons/');
+    }
+    return iconPath;
+  }
+
   loadAllFacilities() {
     this.isLoading.set(true);
     this.dormSv.getFacilities().subscribe({

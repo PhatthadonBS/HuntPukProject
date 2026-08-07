@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -20,7 +20,7 @@ import { DormitoryService } from '../../../services/dormitory';
 import { lastValueFrom } from 'rxjs';
 import { GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle } from '@angular/google-maps';
 import { SuccessModalComponent } from '../../../components/success-modal/success-modal.component';
-import { DormPreviewModalComponent } from '../../../components/dorm-preview-modal/dorm-preview-modal.component';
+import { DormDetailPage } from '../../dorm-detail/dorm-detail.page';
 import { UserService } from '../../../services/user';
 
 addIcons({
@@ -43,7 +43,7 @@ addIcons({
     IonButtons, IonBackButton, IonButton, IonIcon,
     IonLabel, IonItem, IonInput, IonTextarea, IonSelect, IonSelectOption,
     IonCheckbox, IonList, IonSpinner, CommonModule, FormsModule, GoogleMapsModule, MapInfoWindow, MapMarker, MapCircle,
-    SuccessModalComponent, DormPreviewModalComponent, RouterModule
+    SuccessModalComponent, DormDetailPage, RouterModule
   ]
 })
 export class DormFormPage implements OnInit {
@@ -59,10 +59,10 @@ export class DormFormPage implements OnInit {
   isResubmitMode: boolean = false;
   existingGallery: string[] = [];
 
-  // ✅ ควบคุมการแสดง popup สำเร็จแบบ custom (แทน alertCtrl ที่ไม่ render HTML)
+  // โ… เธเธงเธเธเธธเธกเธเธฒเธฃเนเธชเธ”เธ popup เธชเธณเน€เธฃเนเธเนเธเธ custom (เนเธ—เธ alertCtrl เธ—เธตเนเนเธกเน render HTML)
   showSuccessModal: boolean = false;
 
-  // ✅ แสดง Preview ก่อนส่งข้อมูล
+  // โ… เนเธชเธ”เธ Preview เธเนเธญเธเธชเนเธเธเนเธญเธกเธนเธฅ (using DormDetailPage)
   showPreviewModal: boolean = false;
 
   formState: 'editing' | 'pending' | 'rejected' = 'editing';
@@ -75,10 +75,10 @@ export class DormFormPage implements OnInit {
 
 
 
-  // ✅ เก็บข้อมูล user เต็มๆ ไว้ใช้ตลอด
+  // โ… เน€เธเนเธเธเนเธญเธกเธนเธฅ user เน€เธ•เนเธกเน เนเธงเนเนเธเนเธ•เธฅเธญเธ”
   currentUser: any = null;
-  ownerId: number = 0;       // USER_ID จาก USERS table
-  isAdmin: boolean = false;  // true ถ้า ROLE_TYPE_ID === 3
+  ownerId: number = 0;       // USER_ID เธเธฒเธ USERS table
+  isAdmin: boolean = false;  // true เธ–เนเธฒ ROLE_TYPE_ID === 3
 
   formData: any = {
     name: '', address: '',
@@ -94,14 +94,14 @@ export class DormFormPage implements OnInit {
   roomTypes: any[] = [];
   priceTypes: any[] = [];
   
-  // ✅ สำหรับตัวเลือกจาก Database
+  // โ… เธชเธณเธซเธฃเธฑเธเธ•เธฑเธงเน€เธฅเธทเธญเธเธเธฒเธ Database
   dormTypesDB: any[] = [];
   roomTypesDB: any[] = [];
   bedTypesDB: any[] = [];
-  currentZoneName: string = 'กรุณาปักหมุดเพื่อเลือกตำแหน่งหอพักและโซน';
+  currentZoneName: string = 'เธเธฃเธธเธ“เธฒเธเธฑเธเธซเธกเธธเธ”เน€เธเธทเนเธญเน€เธฅเธทเธญเธเธ•เธณเนเธซเธเนเธเธซเธญเธเธฑเธเนเธฅเธฐเนเธเธ';
   overlappingZones: any[] = [];
 
-  // ✅ สำหรับแอดมินเลือกเจ้าของหอพัก
+  // โ… เธชเธณเธซเธฃเธฑเธเนเธญเธ”เธกเธดเธเน€เธฅเธทเธญเธเน€เธเนเธฒเธเธญเธเธซเธญเธเธฑเธ
   dormOwners: any[] = [];
   selectedOwnerId: number | null = null;
 
@@ -129,7 +129,7 @@ export class DormFormPage implements OnInit {
   circleOptions: google.maps.CircleOptions = {
     fillColor: '#4285F4', fillOpacity: 0.15,
     strokeColor: '#4285F4', strokeOpacity: 0.6, strokeWeight: 2,
-    clickable: false  // ✅ ทำให้คลิกผ่านวงกลมไปยังแผนที่ได้
+    clickable: false  // โ… เธ—เธณเนเธซเนเธเธฅเธดเธเธเนเธฒเธเธงเธเธเธฅเธกเนเธเธขเธฑเธเนเธเธเธ—เธตเนเนเธ”เน
   };
   zoneMarkerOptions: google.maps.MarkerOptions = { 
     icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
@@ -151,21 +151,22 @@ export class DormFormPage implements OnInit {
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private actionSheetCtrl: ActionSheetController
+    private actionSheetCtrl: ActionSheetController,
+    private modalCtrl: ModalController
   ) {}
 
   async ngOnInit() {
-    // ✅ FIX: รองรับทุก key ที่ backend อาจส่งกลับมาใน localStorage
+    // โ… FIX: เธฃเธญเธเธฃเธฑเธเธ—เธธเธ key เธ—เธตเน backend เธญเธฒเธเธชเนเธเธเธฅเธฑเธเธกเธฒเนเธ localStorage
     const stored = localStorage.getItem('loggedIn');
     if (!stored) {
-      this.showToast('กรุณาเข้าสู่ระบบก่อน', 'danger');
+      this.showToast('เธเธฃเธธเธ“เธฒเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธเธเนเธญเธ', 'danger');
       this.router.navigate(['/login']);
       return;
     }
 
     try {
       this.currentUser = JSON.parse(stored);
-      // รองรับทุกรูปแบบ key ที่ backend อาจส่งมา
+      // เธฃเธญเธเธฃเธฑเธเธ—เธธเธเธฃเธนเธเนเธเธ key เธ—เธตเน backend เธญเธฒเธเธชเนเธเธกเธฒ
       this.ownerId =
         this.currentUser?.USER_ID ??
         this.currentUser?.user_id ??
@@ -173,7 +174,7 @@ export class DormFormPage implements OnInit {
         this.currentUser?.id ??
         0;
 
-      // ✅ ตรวจสอบ role: 3 = Admin, 2 = Dorm Owner
+      // โ… เธ•เธฃเธงเธเธชเธญเธ role: 3 = Admin, 2 = Dorm Owner
       const roleId =
         this.currentUser?.ROLE_TYPE_ID ??
         this.currentUser?.role_id ??
@@ -181,18 +182,18 @@ export class DormFormPage implements OnInit {
         1;
       this.isAdmin = (roleId === 3);
 
-      console.log('👤 currentUser:', this.currentUser);
-      console.log('🔑 ownerId:', this.ownerId, '| isAdmin:', this.isAdmin, '| roleId:', roleId);
+      console.log('๐‘ค currentUser:', this.currentUser);
+      console.log('๐”‘ ownerId:', this.ownerId, '| isAdmin:', this.isAdmin, '| roleId:', roleId);
 
       if (!this.ownerId) {
-        this.showToast('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่', 'danger');
+        this.showToast('เนเธกเนเธเธเธเนเธญเธกเธนเธฅเธเธนเนเนเธเน เธเธฃเธธเธ“เธฒเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธเนเธซเธกเน', 'danger');
         this.router.navigate(['/login']);
         return;
       }
 
-      // ✅ ถ้าไม่ใช่ Admin และไม่ใช่ Dorm Owner → ไม่มีสิทธิ์
+      // โ… เธ–เนเธฒเนเธกเนเนเธเน Admin เนเธฅเธฐเนเธกเนเนเธเน Dorm Owner โ’ เนเธกเนเธกเธตเธชเธดเธ—เธเธดเน
       if (roleId !== 2 && roleId !== 3) {
-        this.showToast('คุณไม่มีสิทธิ์ลงทะเบียนหอพัก', 'danger');
+        this.showToast('เธเธธเธ“เนเธกเนเธกเธตเธชเธดเธ—เธเธดเนเธฅเธเธ—เธฐเน€เธเธตเธขเธเธซเธญเธเธฑเธ', 'danger');
         this.router.navigate(['/home']);
         return;
       }
@@ -201,8 +202,8 @@ export class DormFormPage implements OnInit {
         this.loadDormOwners();
       }
     } catch (e) {
-      console.error('❌ Parse localStorage error:', e);
-      this.showToast('ข้อมูล Session ผิดพลาด กรุณา Login ใหม่', 'danger');
+      console.error('โ Parse localStorage error:', e);
+      this.showToast('เธเนเธญเธกเธนเธฅ Session เธเธดเธ”เธเธฅเธฒเธ” เธเธฃเธธเธ“เธฒ Login เนเธซเธกเน', 'danger');
       this.router.navigate(['/login']);
       return;
     }
@@ -218,7 +219,7 @@ export class DormFormPage implements OnInit {
     }
   }
 
-  // ย้อนกลับโดยดูว่าเข้ามาจากหน้าไหน
+  // เธขเนเธญเธเธเธฅเธฑเธเนเธ”เธขเธ”เธนเธงเนเธฒเน€เธเนเธฒเธกเธฒเธเธฒเธเธซเธเนเธฒเนเธซเธ
   goBack() {
     const from = this.route.snapshot.queryParamMap.get('from');
     if (from === 'manage-dorm') {
@@ -231,7 +232,7 @@ export class DormFormPage implements OnInit {
   async loadDormOwners() {
     this.dormOwners = await this.userService.getDormOwners();
     if (this.dormOwners.length > 0) {
-      this.selectedOwnerId = this.ownerId; // ค่าเริ่มต้นคือตัวแอดมินเอง
+      this.selectedOwnerId = this.ownerId; // เธเนเธฒเน€เธฃเธดเนเธกเธ•เนเธเธเธทเธญเธ•เธฑเธงเนเธญเธ”เธกเธดเธเน€เธญเธ
     }
   }
 
@@ -240,7 +241,7 @@ export class DormFormPage implements OnInit {
       const zoneRes = await this.dormService.getZones();
       if (zoneRes.success) this.zones = zoneRes.data;
 
-      // ✅ โหลดตัวเลือกอื่นๆ จาก DB
+      // โ… เนเธซเธฅเธ”เธ•เธฑเธงเน€เธฅเธทเธญเธเธญเธทเนเธเน เธเธฒเธ DB
       const dtRes: any = await lastValueFrom(this.dormService.getDormTypes());
       this.dormTypesDB = Array.isArray(dtRes) ? dtRes : (dtRes?.data || []);
       
@@ -250,7 +251,7 @@ export class DormFormPage implements OnInit {
       const btRes: any = await lastValueFrom(this.dormService.getBedTypes());
       this.bedTypesDB = Array.isArray(btRes) ? btRes : (btRes?.data || []);
 
-      // ✅ FIX: รองรับทั้ง array ตรงๆ และแบบห่อ {data: [...]}
+      // โ… FIX: เธฃเธญเธเธฃเธฑเธเธ—เธฑเนเธ array เธ•เธฃเธเน เนเธฅเธฐเนเธเธเธซเนเธญ {data: [...]}
       const facRes: any = await lastValueFrom(this.dormService.getFacilities());
       const facArray = Array.isArray(facRes) ? facRes : (facRes?.data || []);
 
@@ -259,7 +260,7 @@ export class DormFormPage implements OnInit {
           id: f.FAC_TYPE_ID,
           name: f.FAC_TYPE_NAME,
           icon: f.FAC_TYPE_ICON || '',
-          // ✅ FIX: ตรวจสอบว่า icon เป็น Font Awesome class หรือ URL
+          // โ… FIX: เธ•เธฃเธงเธเธชเธญเธเธงเนเธฒ icon เน€เธเนเธ Font Awesome class เธซเธฃเธทเธญ URL
           isFontAwesome: f.FAC_TYPE_ICON &&
             !f.FAC_TYPE_ICON.startsWith('http') &&
             !f.FAC_TYPE_ICON.startsWith('/') &&
@@ -268,7 +269,7 @@ export class DormFormPage implements OnInit {
         }));
       }
 
-      // โหลด priceTypes
+      // เนเธซเธฅเธ” priceTypes
       const priceRes: any = await lastValueFrom(this.dormService.getPriceTypes());
       if (priceRes && priceRes.success && priceRes.data) {
         this.priceTypes = priceRes.data;
@@ -283,7 +284,7 @@ export class DormFormPage implements OnInit {
       // (No longer auto-calculating zone)
       setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
     } catch (error) {
-      console.error('❌ loadInitialData error:', error);
+      console.error('โ loadInitialData error:', error);
     }
   }
 
@@ -301,11 +302,11 @@ export class DormFormPage implements OnInit {
 
     this.facilities.forEach(f => f.checked = false);
 
-    // ✅ ห้องเริ่มต้น 1 ห้อง
+    // โ… เธซเนเธญเธเน€เธฃเธดเนเธกเธ•เนเธ 1 เธซเนเธญเธ
     this.roomTypes = [{
       id: null,
-      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
-      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'เธซเนเธญเธเนเธญเธฃเน',
+      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'เธซเนเธญเธเนเธญเธฃเน',
       bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1',
       prices: this.priceTypes.map(pt => ({ priceTypeId: pt.id, name: pt.name, price: null }))
     }];
@@ -329,7 +330,7 @@ export class DormFormPage implements OnInit {
 
 
   async loadDormData(id: number) {
-    const loading = await this.loadingCtrl.create({ message: 'กำลังโหลดข้อมูลหอพักเดิม...' });
+    const loading = await this.loadingCtrl.create({ message: 'เธเธณเธฅเธฑเธเนเธซเธฅเธ”เธเนเธญเธกเธนเธฅเธซเธญเธเธฑเธเน€เธ”เธดเธก...' });
     await loading.present();
 
     try {
@@ -342,9 +343,9 @@ export class DormFormPage implements OnInit {
         if (d.REQ_STATUS === 2) {
            this.isReadOnly = true;
            this.formState = 'rejected';
-           this.rejectReason = d.REJECT_REASON || 'ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง';
+           this.rejectReason = d.REJECT_REASON || 'เธเนเธญเธกเธนเธฅเนเธกเนเธเธฃเธเธ–เนเธงเธเธซเธฃเธทเธญเนเธกเนเธ–เธนเธเธ•เนเธญเธ';
         } else if (d.REQ_STATUS === 0 || d.REQ_STATUS === 3) {
-           this.isReadOnly = true;
+           this.isReadOnly = false; // User requested to edit and resubmit
            this.formState = 'pending';
         } else if (d.REQ_STATUS === 4) {
            this.isReadOnly = false;
@@ -394,11 +395,11 @@ export class DormFormPage implements OnInit {
             const selectedType = isStandardRoom ? r.ROOM_TYPE_NAME : 'custom';
             let matchedBedId = '1';
             const bedNameLower = (r.bedType || '').toLowerCase();
-            if (bedNameLower.includes('double') || bedNameLower.includes('คู่')) {
-               const bmatch = this.bedTypesDB.find(bt => (bt.name || bt.BED_TYPE_NAME || '').toLowerCase().includes('คู่'));
+            if (bedNameLower.includes('double') || bedNameLower.includes('เธเธนเน')) {
+               const bmatch = this.bedTypesDB.find(bt => (bt.name || bt.BED_TYPE_NAME || '').toLowerCase().includes('เธเธนเน'));
                if(bmatch) matchedBedId = (bmatch.id || bmatch.BED_TYPE_ID).toString();
             } else {
-               const bmatch = this.bedTypesDB.find(bt => (bt.name || bt.BED_TYPE_NAME || '').toLowerCase().includes('เดี่ยว'));
+               const bmatch = this.bedTypesDB.find(bt => (bt.name || bt.BED_TYPE_NAME || '').toLowerCase().includes('เน€เธ”เธตเนเธขเธง'));
                if(bmatch) matchedBedId = (bmatch.id || bmatch.BED_TYPE_ID).toString();
             }
             return {
@@ -423,7 +424,7 @@ export class DormFormPage implements OnInit {
       }
       setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
     } catch (error) {
-      this.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'danger');
+      this.showToast('เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เนเธเธเธฒเธฃเนเธซเธฅเธ”เธเนเธญเธกเธนเธฅ', 'danger');
     } finally {
       loading.dismiss();
     }
@@ -443,7 +444,7 @@ export class DormFormPage implements OnInit {
     });
 
     if (matchingZones.length === 0) {
-      // No zone covers the pin — fall back to nearest
+      // No zone covers the pin โ€” fall back to nearest
       let minDistance = Infinity;
       let nearestZone = this.zones[0];
       for (const zone of this.zones) {
@@ -453,19 +454,19 @@ export class DormFormPage implements OnInit {
         }
       }
       this.applyZone(nearestZone);
-      this.showToast(`ไม่อยู่ในรัศมีโซนใด — เลือกโซนใกล้ที่สุด: ${nearestZone.ZONE_NAME}`, 'warning');
+      this.showToast(`เนเธกเนเธญเธขเธนเนเนเธเธฃเธฑเธจเธกเธตเนเธเธเนเธ” โ€” เน€เธฅเธทเธญเธเนเธเธเนเธเธฅเนเธ—เธตเนเธชเธธเธ”: ${nearestZone.ZONE_NAME}`, 'warning');
     } else if (matchingZones.length === 1) {
       this.applyZone(matchingZones[0]);
     } else {
-      // Multiple overlapping zones — let user choose
+      // Multiple overlapping zones โ€” let user choose
       const buttons = matchingZones.map((zone: any) => ({
         text: zone.ZONE_NAME,
         handler: () => { this.applyZone(zone); }
       }));
-      buttons.push({ text: 'ยกเลิก', handler: () => {} } as any);
+      buttons.push({ text: 'เธขเธเน€เธฅเธดเธ', handler: () => {} } as any);
 
       const sheet = await this.actionSheetCtrl.create({
-        header: '🗺️ ตำแหน่งนี้อยู่ใน ' + matchingZones.length + ' โซน — กรุณาเลือกโซน',
+        header: '๐—บ๏ธ เธ•เธณเนเธซเธเนเธเธเธตเนเธญเธขเธนเนเนเธ ' + matchingZones.length + ' เนเธเธ โ€” เธเธฃเธธเธ“เธฒเน€เธฅเธทเธญเธเนเธเธ',
         buttons
       });
       await sheet.present();
@@ -578,7 +579,7 @@ export class DormFormPage implements OnInit {
 
   onZoneMarkerClick(zone: any) {
     this.applyZone(zone);
-    this.showToast(`เลือกโซน: ${zone.ZONE_NAME}`, 'success');
+    this.showToast(`เน€เธฅเธทเธญเธเนเธเธ: ${zone.ZONE_NAME}`, 'success');
   }
   // ==========================
   // ==========================
@@ -591,7 +592,7 @@ export class DormFormPage implements OnInit {
       while (this.currentStep < step) {
         const oldStep = this.currentStep;
         this.nextStep();
-        // ถ้าไม่เปลี่ยน step แสดงว่าติด validation ให้หยุดการกระโดด
+        // เธ–เนเธฒเนเธกเนเน€เธเธฅเธตเนเธขเธ step เนเธชเธ”เธเธงเนเธฒเธ•เธดเธ” validation เนเธซเนเธซเธขเธธเธ”เธเธฒเธฃเธเธฃเธฐเนเธ”เธ”
         if (this.currentStep === oldStep) {
           break;
         }
@@ -602,33 +603,33 @@ export class DormFormPage implements OnInit {
   nextStep() {
     if (this.currentStep === 1) {
       if (!this.formData.name?.trim()) {
-        this.showToast('กรุณากรอกชื่อหอพัก', 'warning');
+        this.showToast('เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเธทเนเธญเธซเธญเธเธฑเธ', 'warning');
         return;
       }
       if (this.formData.water_unit === null || this.formData.water_unit === '' || this.formData.water_unit < 0) {
-        this.showToast('กรุณากรอกค่าน้ำ (บาท/หน่วย) ให้ถูกต้อง (ห้ามติดลบ)', 'warning');
+        this.showToast('เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเนเธฒเธเนเธณ (เธเธฒเธ—/เธซเธเนเธงเธข) เนเธซเนเธ–เธนเธเธ•เนเธญเธ (เธซเนเธฒเธกเธ•เธดเธ”เธฅเธ)', 'warning');
         return;
       }
       if (this.formData.water_lump < 0) {
-        this.showToast('ค่าน้ำเหมาจ่ายห้ามติดลบ', 'warning');
+        this.showToast('เธเนเธฒเธเนเธณเน€เธซเธกเธฒเธเนเธฒเธขเธซเนเธฒเธกเธ•เธดเธ”เธฅเธ', 'warning');
         return;
       }
       if (this.formData.elect_unit === null || this.formData.elect_unit === '' || this.formData.elect_unit < 0) {
-        this.showToast('กรุณากรอกค่าไฟ (บาท/หน่วย) ให้ถูกต้อง (ห้ามติดลบ)', 'warning');
+        this.showToast('เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธเนเธฒเนเธ (เธเธฒเธ—/เธซเธเนเธงเธข) เนเธซเนเธ–เธนเธเธ•เนเธญเธ (เธซเนเธฒเธกเธ•เธดเธ”เธฅเธ)', 'warning');
         return;
       }
     }
     if (this.currentStep === 3) {
-      // ตรวจสอบว่าแต่ละห้องมีราคาอย่างน้อย 1 ช่อง และห้ามติดลบ
+      // เธ•เธฃเธงเธเธชเธญเธเธงเนเธฒเนเธ•เนเธฅเธฐเธซเนเธญเธเธกเธตเธฃเธฒเธเธฒเธญเธขเนเธฒเธเธเนเธญเธข 1 เธเนเธญเธ เนเธฅเธฐเธซเนเธฒเธกเธ•เธดเธ”เธฅเธ
       for (const room of this.roomTypes) {
         const hasPrice = room.prices.some((p: any) => p.price !== null && p.price !== '' && Number(p.price) > 0);
         if (!hasPrice) {
-          this.showToast('กรุณากรอกราคาอย่างน้อย 1 ช่อง ในทุกประเภทห้อง', 'warning');
+          this.showToast('เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธฃเธฒเธเธฒเธญเธขเนเธฒเธเธเนเธญเธข 1 เธเนเธญเธ เนเธเธ—เธธเธเธเธฃเธฐเน€เธ เธ—เธซเนเธญเธ', 'warning');
           return;
         }
         for (const p of room.prices) {
           if (p.price !== null && p.price !== '' && Number(p.price) < 0) {
-            this.showToast('ราคาห้องพักห้ามติดลบ', 'warning');
+            this.showToast('เธฃเธฒเธเธฒเธซเนเธญเธเธเธฑเธเธซเนเธฒเธกเธ•เธดเธ”เธฅเธ', 'warning');
             return;
           }
         }
@@ -647,7 +648,7 @@ export class DormFormPage implements OnInit {
   }
 
   // ==========================
-  // แผนที่
+  // เนเธเธเธ—เธตเน
   // ==========================
   getCurrentLocation() {
     if (navigator.geolocation) {
@@ -657,9 +658,9 @@ export class DormFormPage implements OnInit {
           this.formData.lng = position.coords.longitude;
           this.center = { lat: this.formData.lat, lng: this.formData.lng };
           this.markerPosition = { ...this.center };
-          this.showToast('ดึงตำแหน่งปัจจุบันสำเร็จ ✓', 'success');
+          this.showToast('เธ”เธถเธเธ•เธณเนเธซเธเนเธเธเธฑเธเธเธธเธเธฑเธเธชเธณเน€เธฃเนเธ โ“', 'success');
         },
-        () => { this.showToast('ไม่สามารถดึงตำแหน่งได้ กรุณาเปิด GPS', 'danger'); }
+        () => { this.showToast('เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เธ”เธถเธเธ•เธณเนเธซเธเนเธเนเธ”เน เธเธฃเธธเธ“เธฒเน€เธเธดเธ” GPS', 'danger'); }
       );
     }
   }
@@ -701,9 +702,9 @@ export class DormFormPage implements OnInit {
         const dist = this.getDistanceFromLatLonInKm(lat, lng, dorm.lat, dorm.lng);
         if (dist < 0.02) { // less than 20 meters
           const alert = await this.alertCtrl.create({
-            header: 'พบตำแหน่งที่ซ้ำกัน',
-            message: `พิกัดนี้อยู่ใกล้เคียงกับหอพัก <b>${dorm.DORM_NAME || dorm.DORMNAME}</b> มาก (ระยะห่างประมาณ ${Math.round(dist * 1000)} เมตร) คุณต้องการใช้พิกัดนี้จริงๆ ใช่หรือไม่?`,
-            buttons: ['ตกลง']
+            header: 'เธเธเธ•เธณเนเธซเธเนเธเธ—เธตเนเธเนเธณเธเธฑเธ',
+            message: `เธเธดเธเธฑเธ”เธเธตเนเธญเธขเธนเนเนเธเธฅเนเน€เธเธตเธขเธเธเธฑเธเธซเธญเธเธฑเธ <b>${dorm.DORM_NAME || dorm.DORMNAME}</b> เธกเธฒเธ (เธฃเธฐเธขเธฐเธซเนเธฒเธเธเธฃเธฐเธกเธฒเธ“ ${Math.round(dist * 1000)} เน€เธกเธ•เธฃ) เธเธธเธ“เธ•เนเธญเธเธเธฒเธฃเนเธเนเธเธดเธเธฑเธ”เธเธตเนเธเธฃเธดเธเน เนเธเนเธซเธฃเธทเธญเนเธกเน?`,
+            buttons: ['เธ•เธเธฅเธ']
           });
           await alert.present();
           break; // alert once
@@ -722,13 +723,13 @@ export class DormFormPage implements OnInit {
   }
 
   // ==========================
-  // ห้องพัก
+  // เธซเนเธญเธเธเธฑเธ
   // ==========================
   addRoomType() {
     this.roomTypes.push({
       id: null, 
-      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
-      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'ห้องแอร์',
+      selectedType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'เธซเนเธญเธเนเธญเธฃเน',
+      roomType: this.roomTypesDB.length > 0 ? (this.roomTypesDB[0].name || this.roomTypesDB[0].ROOM_TYPE_NAME) : 'เธซเนเธญเธเนเธญเธฃเน',
       bedType: this.bedTypesDB.length > 0 ? (this.bedTypesDB[0].id || this.bedTypesDB[0].BED_TYPE_ID)?.toString() : '1', 
       prices: this.priceTypes.map(pt => ({ priceTypeId: pt.id, name: pt.name, price: null }))
     });
@@ -747,20 +748,20 @@ export class DormFormPage implements OnInit {
   }
 
   // ==========================
-  // รูปภาพ
+  // เธฃเธนเธเธ เธฒเธ
   // ==========================
   onFileSelect(event: any, field: string) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-      this.showToast('รองรับเฉพาะไฟล์รูปภาพ JPG หรือ PNG เท่านั้น', 'warning');
+      this.showToast('เธฃเธญเธเธฃเธฑเธเน€เธเธเธฒเธฐเนเธเธฅเนเธฃเธนเธเธ เธฒเธ JPG เธซเธฃเธทเธญ PNG เน€เธ—เนเธฒเธเธฑเนเธ', 'warning');
       return;
     }
 
-    // ✅ เช็คขนาดเกิน 5MB
+    // โ… เน€เธเนเธเธเธเธฒเธ”เน€เธเธดเธ 5MB
     if (file.size > 5 * 1024 * 1024) {
-      this.showToast('ขนาดไฟล์ใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+      this.showToast('เธเธเธฒเธ”เนเธเธฅเนเนเธซเธเนเน€เธเธดเธเนเธ (เธชเธนเธเธชเธธเธ” 5MB)', 'warning');
       return;
     }
 
@@ -781,7 +782,7 @@ export class DormFormPage implements OnInit {
         const file = item.getAsFile();
         if (file) {
           if (file.size > 5 * 1024 * 1024) {
-            this.showToast('ภาพที่วางมีขนาดใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+            this.showToast('เธ เธฒเธเธ—เธตเนเธงเธฒเธเธกเธตเธเธเธฒเธ”เนเธซเธเนเน€เธเธดเธเนเธ (เธชเธนเธเธชเธธเธ” 5MB)', 'warning');
             return;
           }
           this.selectedFiles[field] = file;
@@ -790,7 +791,7 @@ export class DormFormPage implements OnInit {
             this.previews[field] = reader.result;
           };
           reader.readAsDataURL(file);
-          this.showToast('วางรูปภาพสำเร็จ', 'success');
+          this.showToast('เธงเธฒเธเธฃเธนเธเธ เธฒเธเธชเธณเน€เธฃเนเธ', 'success');
         }
         break; // Process only the first image pasted
       }
@@ -803,14 +804,14 @@ export class DormFormPage implements OnInit {
 
     const currentCount = this.selectedFiles.OTHER_IMG.length;
     if (currentCount + files.length > 5) {
-      this.showToast('คุณอัปโหลดรูปภาพได้สูงสุด 5 รูป', 'warning');
+      this.showToast('เธเธธเธ“เธญเธฑเธเนเธซเธฅเธ”เธฃเธนเธเธ เธฒเธเนเธ”เนเธชเธนเธเธชเธธเธ” 5 เธฃเธนเธ', 'warning');
       return;
     }
 
     let hasOversized = false;
     for (let i = 0; i < files.length; i++) {
       if (files[i].type !== 'image/jpeg' && files[i].type !== 'image/png') {
-        this.showToast(`ไฟล์ ${files[i].name} ไม่รองรับ (เฉพาะ JPG/PNG)`, 'warning');
+        this.showToast(`เนเธเธฅเน ${files[i].name} เนเธกเนเธฃเธญเธเธฃเธฑเธ (เน€เธเธเธฒเธฐ JPG/PNG)`, 'warning');
         continue;
       }
       if (files[i].size > 5 * 1024 * 1024) {
@@ -824,7 +825,7 @@ export class DormFormPage implements OnInit {
     }
 
     if (hasOversized) {
-      this.showToast('มีรูปภาพบางรูปขนาดเกิน 5MB จึงไม่ถูกเพิ่ม', 'warning');
+      this.showToast('เธกเธตเธฃเธนเธเธ เธฒเธเธเธฒเธเธฃเธนเธเธเธเธฒเธ”เน€เธเธดเธ 5MB เธเธถเธเนเธกเนเธ–เธนเธเน€เธเธดเนเธก', 'warning');
     }
   }
 
@@ -855,7 +856,7 @@ export class DormFormPage implements OnInit {
 
   suggestNewFacility() {
     if (this.formData.new_facilities.length >= 4) {
-      this.showToast('คุณสามารถเสนอสิ่งอำนวยความสะดวกใหม่ได้สูงสุด 4 รายการ', 'warning');
+      this.showToast('เธเธธเธ“เธชเธฒเธกเธฒเธฃเธ–เน€เธชเธเธญเธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธเนเธซเธกเนเนเธ”เนเธชเธนเธเธชเธธเธ” 4 เธฃเธฒเธขเธเธฒเธฃ', 'warning');
       return;
     }
     
@@ -873,11 +874,11 @@ export class DormFormPage implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-        this.showToast('รองรับเฉพาะไฟล์รูปภาพ JPG หรือ PNG เท่านั้น', 'warning');
+        this.showToast('เธฃเธญเธเธฃเธฑเธเน€เธเธเธฒเธฐเนเธเธฅเนเธฃเธนเธเธ เธฒเธ JPG เธซเธฃเธทเธญ PNG เน€เธ—เนเธฒเธเธฑเนเธ', 'warning');
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        this.showToast('ขนาดไอคอนใหญ่เกินไป (สูงสุด 5MB)', 'warning');
+        this.showToast('เธเธเธฒเธ”เนเธญเธเธญเธเนเธซเธเนเน€เธเธดเธเนเธ (เธชเธนเธเธชเธธเธ” 5MB)', 'warning');
         return;
       }
       const reader = new FileReader();
@@ -895,7 +896,7 @@ export class DormFormPage implements OnInit {
   async confirmAddFacility() {
     const trimmedName = this.newFacilityName ? this.newFacilityName.trim() : '';
     if (!trimmedName) {
-      this.showToast('กรุณาระบุชื่อสิ่งอำนวยความสะดวก', 'warning');
+      this.showToast('เธเธฃเธธเธ“เธฒเธฃเธฐเธเธธเธเธทเนเธญเธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธ', 'warning');
       return;
     }
     
@@ -904,17 +905,17 @@ export class DormFormPage implements OnInit {
     const existsInNew = this.formData.new_facilities.some((f: any) => f.name.toLowerCase() === trimmedName.toLowerCase());
     
     if (existsInMain || existsInNew) {
-      this.showToast(`สิ่งอำนวยความสะดวก "${trimmedName}" มีอยู่แล้วในระบบ`, 'danger');
+      this.showToast(`เธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธ "${trimmedName}" เธกเธตเธญเธขเธนเนเนเธฅเนเธงเนเธเธฃเธฐเธเธ`, 'danger');
       return;
     }
     
     const alert = await this.alertCtrl.create({
-      header: 'ยืนยันการเพิ่ม',
-      message: `ต้องการเพิ่ม "${trimmedName}" ใช่หรือไม่?<br>สิทธิ์คงเหลือ: ${4 - this.formData.new_facilities.length - 1} รายการ`,
+      header: 'เธขเธทเธเธขเธฑเธเธเธฒเธฃเน€เธเธดเนเธก',
+      message: `เธ•เนเธญเธเธเธฒเธฃเน€เธเธดเนเธก "${trimmedName}" เนเธเนเธซเธฃเธทเธญเนเธกเน?<br>เธชเธดเธ—เธเธดเนเธเธเน€เธซเธฅเธทเธญ: ${4 - this.formData.new_facilities.length - 1} เธฃเธฒเธขเธเธฒเธฃ`,
       buttons: [
-        { text: 'ยกเลิก', role: 'cancel' },
+        { text: 'เธขเธเน€เธฅเธดเธ', role: 'cancel' },
         {
-          text: 'ตกลง',
+          text: 'เธ•เธเธฅเธ',
           handler: () => {
             // 3. Add to new facilities
             this.formData.new_facilities.push({
@@ -922,7 +923,7 @@ export class DormFormPage implements OnInit {
               icon: this.newFacilityCustomIcon ? this.newFacilityCustomIcon : ''
             });
             this.closeAddFacilityModal();
-            this.showToast('เพิ่มสิ่งอำนวยความสะดวกสำเร็จ', 'success');
+            this.showToast('เน€เธเธดเนเธกเธชเธดเนเธเธญเธณเธเธงเธขเธเธงเธฒเธกเธชเธฐเธ”เธงเธเธชเธณเน€เธฃเนเธ', 'success');
           }
         }
       ]
@@ -942,48 +943,92 @@ export class DormFormPage implements OnInit {
     const hasLicense = this.isApproved || this.selectedFiles.LICENSE_IMG || this.previews.LICENSE_IMG;
     
     if (!hasFront || !hasLicense) {
-      this.showToast('กรุณาแนบ รูปหน้าปก และ เอกสารยืนยันตัวตน ให้ครบ', 'warning');
+      this.showToast('กรุณาแนบ รูปหน้าหอพัก และ เอกสารใบอนุญาตฯ ให้ครบ', 'warning');
       return;
     }
-    // ✅ บังคับ 5 รูปส่วนประกอบห้อง
     const requiredRoomImgs = [
       { key: 'BED_IMG', label: '1. เตียงนอน' },
-      { key: 'WALL_IMG', label: '2. ผนังปลายเตียง' },
+      { key: 'WALL_IMG', label: '2. ผนังห้อง' },
       { key: 'CEILING_IMG', label: '3. เพดาน' },
-      { key: 'FLOOR_IMG', label: '4. ฝั่งติดประตู' },
+      { key: 'FLOOR_IMG', label: '4. พื้น' },
       { key: 'BATHROOM_IMG', label: '5. ห้องน้ำ' },
     ];
     for (const img of requiredRoomImgs) {
       if (!this.selectedFiles[img.key] && !this.previews[img.key]) {
-        this.showToast(`กรุณาแนบรูปภาพส่วนประกอบห้อง: ${img.label}`, 'warning');
+        this.showToast(กรุณาแนบรูปภาพส่วนประกอบห้อง: , 'warning');
         return;
       }
     }
 
-    // Show Preview Modal instead of generic confirm modal
-    this.showPreviewModal = true;
+    // Show Preview Modal using DormDetailPage
+    const previewData = {
+      DORM_NAME: this.formData.name || 'ไม่ได้ระบุชื่อหอพัก',
+      ADDRESS: this.formData.address || 'ไม่ได้ระบุที่อยู่',
+      lat: this.formData.lat,
+      lng: this.formData.lng,
+      ZONE_NAME: this.zones.find(z => z.ZONE_ID === Number(this.formData.zone_id))?.ZONE_NAME || 'ไม่ได้ระบุโซน',
+      DORM_TYPE_NAME: this.dormTypesDB.find(t => t.id === Number(this.formData.type_id))?.name || '',
+      start_price: null,
+      term_price: null,
+      water_unit: this.formData.water_unit,
+      water_lump: this.formData.water_lump,
+      elect_unit: this.formData.elect_unit,
+      description: this.formData.detail,
+      facilities: this.facilities.filter((f: any) => f.checked).map((f: any) => ({ name: f.name, icon: f.icon })),
+      new_facilities: this.formData.new_facilities || [],
+      rooms: this.roomTypes.map(r => ({
+        roomType: r.selectedType === 'custom' ? r.roomType : r.selectedType,
+        bedType: r.bedType,
+        prices: r.prices
+      })),
+      image: this.previews.FRONT_DORM_IMG || 'assets/dorm-placeholder.jpg',
+      gallery: this.previews.OTHER_IMG || []
+    };
+
+    const modal = await this.modalCtrl.create({
+      component: DormDetailPage,
+      componentProps: {
+        dormData: previewData,
+        isPopup: true
+      }
+    });
+
+    await modal.present();
+
+    const { role } = await modal.onDidDismiss();
+    if (role === 'confirm') {
+      this.processSaveData();
+    }
   }
 
   getCheckedFacilitiesCount(): number {
     return this.facilities?.filter((fac: any) => fac.checked).length ?? 0;
   }
 
-  // ✅ เรียกตอนกด "ยืนยันส่งข้อมูล" ใน preview-modal
+  // โ… เน€เธฃเธตเธขเธเธ•เธญเธเธเธ” "เธขเธทเธเธขเธฑเธเธชเนเธเธเนเธญเธกเธนเธฅ" เนเธ preview-modal
   onPreviewConfirmed() {
     this.showPreviewModal = false;
     this.processSaveData();
   }
 
-  // ✅ เรียกตอนกด "กลับไปแก้ไข" ใน preview-modal
+  // โ… เน€เธฃเธตเธขเธเธ•เธญเธเธเธ” "เธเธฅเธฑเธเนเธเนเธเนเนเธ" เนเธ preview-modal
   onPreviewCancelled() {
     this.showPreviewModal = false;
+  }
+
+  getIconPath(iconPath: string): string {
+    if (!iconPath) return '';
+    if (iconPath.startsWith('assets/icon/')) {
+      return iconPath.replace('assets/icon/', 'assets/allIcons/');
+    }
+    return iconPath;
   }
 
   async processSaveData() {
     if (this.isSubmitting) return;
     this.isSubmitting = true;
     const loading = await this.loadingCtrl.create({
-      message: 'กำลังส่งข้อมูล...',
+      message: 'เธเธณเธฅเธฑเธเธชเนเธเธเนเธญเธกเธนเธฅ...',
       spinner: 'crescent'
     });
     await loading.present();
@@ -991,9 +1036,9 @@ export class DormFormPage implements OnInit {
     try {
       const form = new FormData();
 
-      // ✅ FIX: ส่ง user_id (USER_ID จาก USERS table)
-      // Backend จะไป lookup DORM_OWNER_ID เอง
-      // ถ้า Admin ยังไม่มี DORM_OWNERS record → Backend ต้อง auto-create
+      // โ… FIX: เธชเนเธ user_id (USER_ID เธเธฒเธ USERS table)
+      // Backend เธเธฐเนเธ lookup DORM_OWNER_ID เน€เธญเธ
+      // เธ–เนเธฒ Admin เธขเธฑเธเนเธกเนเธกเธต DORM_OWNERS record โ’ Backend เธ•เนเธญเธ auto-create
       const finalOwnerId = (this.isAdmin && this.selectedOwnerId) ? this.selectedOwnerId : this.ownerId;
       form.append('user_id', finalOwnerId.toString());
       form.append('name', this.formData.name?.trim() || '');
@@ -1007,9 +1052,9 @@ export class DormFormPage implements OnInit {
       form.append('water_lump', (this.formData.water_lump || 0).toString());
       form.append('elect_unit', (this.formData.elect_unit || 0).toString());
 
-      // ✅ FIX: format roomTypes ให้ตรงกับที่ Backend ต้องการ
+      // โ… FIX: format roomTypes เนเธซเนเธ•เธฃเธเธเธฑเธเธ—เธตเน Backend เธ•เนเธญเธเธเธฒเธฃ
       const roomTypesFormatted = this.roomTypes.map(r => ({
-        roomType: r.selectedType === 'custom' ? (r.roomType || 'อื่นๆ') : r.selectedType,
+        roomType: r.selectedType === 'custom' ? (r.roomType || 'เธญเธทเนเธเน') : r.selectedType,
         bedType: r.bedType || '1',
         prices: r.prices
       }));
@@ -1024,7 +1069,7 @@ export class DormFormPage implements OnInit {
         form.append('new_facilities', JSON.stringify(this.formData.new_facilities));
       }
 
-      // รูปภาพ
+      // เธฃเธนเธเธ เธฒเธ
       if (this.selectedFiles.FRONT_DORM_IMG) form.append('FRONT_DORM_IMG', this.selectedFiles.FRONT_DORM_IMG);
       if (this.selectedFiles.LICENSE_IMG) form.append('LICENSE_IMG', this.selectedFiles.LICENSE_IMG);
       if (this.selectedFiles.BED_IMG) form.append('BED_IMG', this.selectedFiles.BED_IMG);
@@ -1040,8 +1085,8 @@ export class DormFormPage implements OnInit {
         });
       }
 
-      // Debug log ก่อนส่ง
-      console.log('📤 Submitting FormData:');
+      // Debug log เธเนเธญเธเธชเนเธ
+      console.log('๐“ค Submitting FormData:');
       form.forEach((val, key) => console.log(`  ${key}:`, typeof val === 'string' ? val : '[File]'));
 
       if (this.dormId) {
@@ -1059,10 +1104,10 @@ export class DormFormPage implements OnInit {
         error?.error?.message ||
         error?.error?.error ||
         error?.message ||
-        'ไม่ทราบสาเหตุ';
-      console.error('❌ createDorm error:', error);
-      console.error('📩 Server message:', serverMsg);
-      this.showToast(`บันทึกไม่สำเร็จ: ${serverMsg}`, 'danger');
+        'เนเธกเนเธ—เธฃเธฒเธเธชเธฒเน€เธซเธ•เธธ';
+      console.error('โ createDorm error:', error);
+      console.error('๐“ฉ Server message:', serverMsg);
+      this.showToast(`เธเธฑเธเธ—เธถเธเนเธกเนเธชเธณเน€เธฃเนเธ: ${serverMsg}`, 'danger');
     } finally {
       this.isSubmitting = false;
     }
@@ -1072,7 +1117,7 @@ export class DormFormPage implements OnInit {
     this.showSuccessModal = true;
   }
 
-  // ✅ เรียกตอนกด "ตกลงรับทราบ" ใน success-modal
+  // โ… เน€เธฃเธตเธขเธเธ•เธญเธเธเธ” "เธ•เธเธฅเธเธฃเธฑเธเธ—เธฃเธฒเธ" เนเธ success-modal
   onSuccessConfirmed() {
     this.showSuccessModal = false;
     this.router.navigate(['/my-dorms']);
@@ -1085,7 +1130,7 @@ export class DormFormPage implements OnInit {
   }
 
   viewPendingInfo() {
-    this.router.navigate(['/my-dorms']);
+    this.formState = 'editing';
   }
 
   async showToast(msg: string, color: string) {
@@ -1096,3 +1141,6 @@ export class DormFormPage implements OnInit {
     toast.present();
   }
 }
+
+
+

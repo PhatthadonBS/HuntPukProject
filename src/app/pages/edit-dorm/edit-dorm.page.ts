@@ -128,6 +128,15 @@ export class EditDormPage implements OnInit {
   newFacilityName = '';
   newFacilitySelectedIconPreview: string | ArrayBuffer | null = null;
   newFacilitySelectedIconFile: File | null = null;
+  isSubmitting = false;
+
+  getIconPath(iconPath: string): string {
+    if (!iconPath) return '';
+    if (iconPath.startsWith('assets/icon/')) {
+      return iconPath.replace('assets/icon/', 'assets/allIcons/');
+    }
+    return iconPath;
+  }
 
   constructor(
     private route: ActivatedRoute,

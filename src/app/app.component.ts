@@ -40,5 +40,13 @@ export class AppComponent implements OnInit {
         ionApp.classList.remove('sidebar-open');
       }
     });
+
+    // ✅ ฟัง event เมื่อ localStorage มีการเปลี่ยนแปลงจาก tab อื่น (เช่น login/logout สลับ user)
+    window.addEventListener('storage', (event: StorageEvent) => {
+      if (event.key === 'loggedIn' || event.key === 'token') {
+        // ถ้ายกเลิก login หรือมีการเปลี่ยนแปลง ให้ reload หน้าเพื่อล้าง state ใน memory
+        window.location.reload();
+      }
+    });
   }
 }

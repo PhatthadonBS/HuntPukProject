@@ -11,10 +11,22 @@
 
     <p class="success-detail" [innerHTML]="message"></p>
 
-    <button class="btn-confirm" (click)="confirm()">
-      <span>{{ buttonText }}</span>
-      <ion-icon name="checkmark-circle"></ion-icon>
-    </button>
+    <div class="button-group" *ngIf="showCancelButton; else singleButton">
+      <button class="btn-cancel" (click)="cancel()">
+        <span>{{ cancelButtonText }}</span>
+      </button>
+      <button class="btn-confirm" (click)="confirm()">
+        <span>{{ buttonText }}</span>
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </button>
+    </div>
+
+    <ng-template #singleButton>
+      <button class="btn-confirm" (click)="confirm()">
+        <span>{{ buttonText }}</span>
+        <ion-icon name="checkmark-circle"></ion-icon>
+      </button>
+    </ng-template>
 
   </div>
 </div>

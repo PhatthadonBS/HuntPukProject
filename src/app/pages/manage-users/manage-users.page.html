@@ -25,11 +25,17 @@
           <ion-icon name="chevron-down-outline" class="select-icon"></ion-icon>
         </div>
 
-        <div class="search-section">
-          <input type="text" placeholder="ค้นหา (ID หรือ ชื่อ)..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+        <div class="search-section" style="position: relative;">
+          <input type="text" placeholder="ค้นหา (ID หรือ ชื่อ)..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput()" (keyup.enter)="onSearch()">
           <button class="btn-search" (click)="onSearch()">
             <ion-icon name="search-outline"></ion-icon> ค้นหา
           </button>
+          
+          <div class="autocomplete-dropdown" *ngIf="showAutocomplete">
+            <div class="autocomplete-item" *ngFor="let name of filteredUsernames" (click)="selectAutocomplete(name)">
+              {{ name }}
+            </div>
+          </div>
         </div>
 
         <div class="add-section" (click)="openTypeSelectModal()">
@@ -127,12 +133,17 @@
               
               <!-- Ban Button -->
               <button *ngIf="user.status === 0" class="action-btn ban-btn" (click)="openBanConfirmModal(user, 'ban')" title="ระงับการใช้งาน">
-                <ion-icon name="trash-outline"></ion-icon>
+                <ion-icon name="warning-outline"></ion-icon>
               </button>
               
               <!-- Unban Button -->
               <button *ngIf="user.status !== 0" class="action-btn unban-btn" (click)="openBanConfirmModal(user, 'unban')" title="ยกเลิกระงับ">
                 <ion-icon name="refresh-outline"></ion-icon>
+              </button>
+
+              <!-- Delete Button -->
+              <button class="action-btn delete-btn" (click)="openDeleteConfirmModal(user)" title="ลบบัญชีผู้ใช้" style="background: rgba(244, 67, 54, 0.1); color: #d32f2f; margin-left: 5px;">
+                <ion-icon name="trash-outline"></ion-icon>
               </button>
             </div>
           </div>
@@ -145,43 +156,7 @@
     </div>
   </div>
 
-  <ion-modal [isOpen]="isAddModalOpen" (didDismiss)="closeAddModal()" class="add-user-modal">
-    <ng-template>
-      <div class="modal-content">
-        
-        <div class="modal-header">
-          <h3>เพิ่มสมาชิกใหม่</h3>
-          <ion-icon name="close" (click)="closeAddModal()"></ion-icon>
-        </div>
-
-        <div class="form-container">
-          
-          <div class="form-group">
-            <label>ชื่อผู้ใช้งาน (Username)</label>
-            <input type="text" [(ngModel)]="newUser.username" placeholder="ตั้งชื่อผู้ใช้">
-          </div>
-
-          <div class="form-group">
-            <label>รหัสผ่าน (Password)</label>
-            <input type="password" [(ngModel)]="newUser.password" placeholder="ตั้งรหัสผ่าน">
-          </div>
-
-          <div class="form-group">
-            <label>อีเมล (Email)</label>
-            <input type="email" [(ngModel)]="newUser.email" placeholder="example@mail.com">
-          </div>
-
-          <div class="form-group">
-            <label>เบอร์โทรศัพท์</label>
-            <input type="tel" [(ngModel)]="newUser.phone_number" placeholder="08xxxxxxxx">
-          </div>
-
-          <button class="btn-save" (click)="saveNewUser()">บันทึกข้อมูล</button>
-
-        </div>
-      </div>
-    </ng-template>
-  </ion-modal>
+  <!-- Removed add-user-modal -->
 
   <!-- Modal แสดงข้อมูลคำร้องเป็นเจ้าของหอพัก -->
   <ion-modal [isOpen]="isOwnerModalOpen" (didDismiss)="closeOwnerModal()" class="owner-info-modal">
@@ -266,6 +241,33 @@
 
         </div>
       </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal ยืนยันการลบบัญชี -->
+  <ion-modal [isOpen]="isDeleteModalOpen" (didDismiss)="closeDeleteConfirmModal()" class="ban-confirm-modal">
+    <ng-template>
+      <div class="ban-modal-content">
+        <div class="ban-modal-icon is-unban" style="background: rgba(244, 67, 54, 0.1); color: var(--ion-color-danger);">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+        
+        <h3 class="ban-modal-title">
+          ยืนยันการลบบัญชีผู้ใช้
+        </h3>
+        
+        <p class="ban-modal-desc">
+          คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีผู้ใช้ <br><strong>{{ selectedDeleteUser?.username }}</strong>?<br>
+          <span class="warning-text" style="color: var(--ion-color-danger); font-weight: 600;">การลบบัญชีไม่สามารถกู้คืนได้ โปรดตัดสินใจให้ดี!</span>
+        </p>
+
+        <div class="ban-modal-actions">
+          <button class="btn-cancel" (click)="closeDeleteConfirmModal()">ยกเลิก</button>
+          <button class="btn-confirm" (click)="confirmDeleteAction()">
+            ลบบัญชี
+          </button>
+        </div>
+      </div>
     </ng-template>
   </ion-modal>
 

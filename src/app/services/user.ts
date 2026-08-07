@@ -127,6 +127,48 @@ export class UserService {
     }
   }
 
+  // 3.5 ลบบัญชีผู้ใช้ (Soft Delete) สำหรับ My Account
+  async deleteAccount(userId: number): Promise<boolean> {
+    const url = `${this.apiUrl}/spec/delaccount/${userId}`;
+    try {
+      const stored = localStorage.getItem('loggedIn');
+      let token = '';
+      if (stored) {
+         const parsed = JSON.parse(stored);
+         token = parsed.token || '';
+      }
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}` 
+      });
+      await lastValueFrom(this.http.delete(url, { headers }));
+      return true;
+    } catch (error) {
+      console.error('Delete User Error:', error);
+      return false;
+    }
+  }
+
+  // 3.6 ลบบัญชีผู้ใช้ถาวร (Hard Delete) สำหรับ Manage Users
+  async hardDeleteAccount(userId: number): Promise<boolean> {
+    const url = `${this.apiUrl}/spec/harddelaccount/${userId}`;
+    try {
+      const stored = localStorage.getItem('loggedIn');
+      let token = '';
+      if (stored) {
+         const parsed = JSON.parse(stored);
+         token = parsed.token || '';
+      }
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}` 
+      });
+      await lastValueFrom(this.http.delete(url, { headers }));
+      return true;
+    } catch (error) {
+      console.error('Hard Delete User Error:', error);
+      return false;
+    }
+  }
+
   // 4. Register Sec 1 (ตรวจสอบข้อมูลเบื้องต้น) ✅ ของใหม่
   public async register(user: UserRegPostReq) {
     const url = `${this.apiUrl}/user/registerSec1`;

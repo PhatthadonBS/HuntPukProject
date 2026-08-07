@@ -59,7 +59,7 @@
         <!-- Icon Box -->
         <div class="card-icon-box">
           <img *ngIf="fac.FAC_TYPE_ICON && (fac.FAC_TYPE_ICON.includes('/') || fac.FAC_TYPE_ICON.includes('.png'))"
-               [src]="fac.FAC_TYPE_ICON" class="card-img" alt="">
+               [src]="getIconPath(fac.FAC_TYPE_ICON)" class="card-img" alt="">
           <ion-icon *ngIf="fac.FAC_TYPE_ICON && !fac.FAC_TYPE_ICON.includes('/') && !fac.FAC_TYPE_ICON.includes('.png')"
                     [name]="fac.FAC_TYPE_ICON" class="card-icon"></ion-icon>
           <ion-icon *ngIf="!fac.FAC_TYPE_ICON" name="cube-outline" class="card-icon"></ion-icon>
@@ -100,7 +100,7 @@
 
         <div class="req-icon-box">
           <img *ngIf="fac.FAC_TYPE_ICON && (fac.FAC_TYPE_ICON.includes('/') || fac.FAC_TYPE_ICON.includes('.png'))"
-               [src]="fac.FAC_TYPE_ICON" class="card-img" alt="">
+               [src]="getIconPath(fac.FAC_TYPE_ICON)" class="card-img" alt="">
           <ion-icon *ngIf="fac.FAC_TYPE_ICON && !fac.FAC_TYPE_ICON.includes('/') && !fac.FAC_TYPE_ICON.includes('.png')"
                     [name]="fac.FAC_TYPE_ICON" class="req-icon"></ion-icon>
           <ion-icon *ngIf="!fac.FAC_TYPE_ICON" name="cube-outline" class="req-icon"></ion-icon>
@@ -128,10 +128,7 @@
 
 </ion-content>
 
-<!-- Floating Add Button -->
-<div class="fab-add" (click)="openAddModal()">
-  <ion-icon name="add-outline"></ion-icon>
-</div>
+
 
 
 <!-- ═══════════════════════════════════════════════

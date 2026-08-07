@@ -169,6 +169,38 @@
       }
       &:active { transform: translateY(0); }
     }
+    
+    .autocomplete-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      margin-top: 5px;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .autocomplete-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #111;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      &:hover {
+        background: #f8f9fa;
+        color: #E65100;
+      }
+    }
   }
 
   // --- ปุ่มเพิ่มสมาชิก ---
@@ -520,7 +552,23 @@ ion-modal.add-user-modal {
 @media (max-width: 600px) {
   .header-row { justify-content: center; }
   .search-section { width: 100%; max-width: 100%; }
+  .filter-dropdown { width: 100%; }
   .filter-dropdown select { width: 100%; }
+  .add-section { width: 100%; justify-content: center; }
+  
+  .table-header {
+    font-size: 0.75rem;
+    padding: 10px 5px;
+    
+    .col-1, .col-2, .col-3 {
+      flex-direction: column;
+      gap: 4px;
+      text-align: center;
+      align-items: center;
+      ion-icon { display: none; }
+    }
+  }
+
   .col-1 { flex: 1; font-size: 0.9rem; padding-left: 5px; flex-direction: column; align-items: flex-start; gap: 5px; }
   .user-avatar-small { display: none; }
   .col-2 { flex: 1; font-size: 0.8rem; }

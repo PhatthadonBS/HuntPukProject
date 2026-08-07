@@ -300,7 +300,7 @@ export class MyAccountPage implements OnInit {
   async deleteAccount() {
     const alert = await this.alertCtrl.create({
       header: 'ยืนยันการลบบัญชี',
-      message: 'พิมพ์คำว่า "DELETE" เพื่อยืนยันการลบบัญชีของคุณ',
+      message: 'การลบบัญชีไม่สามารถกู้คืนได้ โปรดตัดสินใจให้ดี!\n\nพิมพ์คำว่า "DELETE" เพื่อยืนยันการลบบัญชีของคุณ',
       inputs: [
         {
           name: 'confirmText',
@@ -316,11 +316,16 @@ export class MyAccountPage implements OnInit {
           handler: async (data) => {
             if (data.confirmText === 'DELETE') {
               try {
-                await this.authService.deactivateUser(this.user.id);
-                this.showToast('ลบบัญชีสำเร็จ', 'success');
-                localStorage.removeItem('loggedIn');
-                this.router.navigate(['/login']);
-                return true;
+                // ใช้ deleteAccount แทน deactivateUser เพื่อลบข้อมูลจริงๆ
+                const success = await this.userService.deleteAccount(this.user.id);
+                if (success) {
+                  this.showToast('ลบบัญชีสำเร็จ', 'success');
+                  localStorage.removeItem('loggedIn');
+                  this.router.navigate(['/login']);
+                  return true;
+                } else {
+                  throw new Error('Delete account failed');
+                }
               } catch (err: any) {
                 this.showToast(err.error?.message || 'เกิดข้อผิดพลาดในการลบบัญชี', 'danger');
                 return false;
