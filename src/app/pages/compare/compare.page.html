@@ -48,7 +48,21 @@
 
         <div class="card-content">
           <h3>{{ dorm.DORM_NAME }}</h3>
-          <p class="zone"><ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}</p>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid #f0f0f0;">
+            <div class="rating-row" style="margin: 0; display: flex; align-items: center; gap: 4px; color: #fbc02d; font-weight: bold;">
+              <ion-icon name="star"></ion-icon>
+              <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; color: #666; font-size: 13px;">
+              <ion-icon name="eye"></ion-icon>
+              <span>{{ dorm.VIEW_COUNT || dorm.views || 0 | number }} เข้าชม</span>
+            </div>
+          </div>
+
+          <p class="zone" style="margin: 0; color: #888; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+            <ion-icon name="location-outline"></ion-icon> {{ dorm.zone || 'ไม่ระบุโซน' }}
+          </p>
         </div>
         
         <div class="selected-badge" *ngIf="dorm.isChecked">ถูกเลือกแล้ว</div>

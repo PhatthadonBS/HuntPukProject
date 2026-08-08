@@ -1,0 +1,179 @@
+.download-content {
+  --background: #121212; /* Black background */
+}
+
+.download-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 20px;
+}
+
+.download-card {
+  background: #1e1e1e; /* Dark Gray */
+  border-radius: 20px;
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.header-text {
+  margin-bottom: 30px;
+
+  .title {
+    color: #ffc409; /* Yellow theme color */
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle {
+    color: #a0a0a0; /* Light Gray */
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+.qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+
+  .qr-wrapper {
+    background: #ffffff; /* White background for QR */
+    padding: 15px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(255, 196, 9, 0.2);
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
+
+  .qr-hint {
+    color: #ffffff; /* White */
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #777; /* Gray */
+  margin-bottom: 30px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #444; /* Darker Gray */
+  }
+
+  span {
+    padding: 0 15px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.store-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .store-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    ion-icon {
+      font-size: 32px;
+      margin-right: 15px;
+    }
+
+    .btn-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+
+      .small {
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .big {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+
+  .single-download-btn {
+    background-color: #ffc409; /* Yellow */
+    color: #000000;
+    box-shadow: 0 4px 15px rgba(255, 196, 9, 0.3);
+    border: none;
+    
+    .btn-text {
+      align-items: center;
+      text-align: center;
+      
+      .big {
+        font-size: 18px;
+        font-weight: 800;
+      }
+      
+      .small {
+        font-size: 12px;
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+@media (min-width: 600px) {
+  .store-buttons {
+    flex-direction: row;
+    justify-content: center;
+    
+    .store-btn {
+      max-width: 350px;
+      width: 100%;
+    }
+  }
+}

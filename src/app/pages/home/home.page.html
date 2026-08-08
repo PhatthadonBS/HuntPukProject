@@ -178,11 +178,14 @@
           </div>
 
 
-          <div class="rating-box" style="display: flex; align-items: center; gap: 5px; color: #fbc02d; font-weight: bold; font-size: 18px; margin-bottom: 20px;">
+          <div class="rating-box" style="display: flex; align-items: center; gap: 5px; color: #fbc02d; font-weight: bold; font-size: 18px; margin-bottom: 20px; flex-wrap: wrap;">
             <ion-icon name="star"></ion-icon>
             <span class="score">{{ selectedDorm.SCORE | number:'1.1-1' }}</span>
             <span class="reviews link" (click)="sidePanelTab = 'reviews'" style="font-size: 14px; color: #1976d2; cursor: pointer; text-decoration: underline; margin-left: 5px;">
               (อ่าน {{ selectedDorm.reviews_count || reviews.length || 0 }} รีวิว)
+            </span>
+            <span style="font-size: 14px; color: #666; margin-left: 10px; display: flex; align-items: center; gap: 4px;">
+              <ion-icon name="eye"></ion-icon> {{ selectedDorm.VIEW_COUNT || selectedDorm.views || 0 | number }} เข้าชม
             </span>
           </div>
 

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, ToastController, NavController, AlertController, ModalController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { 
+import {   
   star, starHalf, starOutline, locationOutline, callOutline, arrowBack,
   wifi, car, snow, checkmarkCircleOutline, personCircle, timeOutline, send,
   person, logoFacebook, logoInstagram, chatbubbleEllipses, bedOutline, imageOutline, locationSharp,
@@ -12,7 +12,7 @@ import {
   logoTwitter, paperPlane,
   documentTextOutline, call, alertCircleOutline,
   close, chevronBackOutline, chevronForwardOutline, expandOutline
-} from 'ionicons/icons';
+, eye , bookmark, bookmarkOutline } from 'ionicons/icons';
 import { DormitoryService } from '../../services/dormitory'; 
 
 import { ThaiDatePipe } from '../../pipes/thai-date-pipe';
@@ -35,9 +35,11 @@ export class DormDetailPage implements OnInit, OnChanges {
       this.prepareOwnerInfo();
       this.parseFacilities();
       this.loadReviews();
+      this.checkFavoriteStatus();
     }
   }
 
+  isFavorite: boolean = false;
   activeTab: string = 'info';
   isLoading: boolean = false;
   isError: boolean = false;
@@ -87,7 +89,7 @@ export class DormDetailPage implements OnInit, OnChanges {
       'alert-circle-outline': alertCircleOutline,
       close, 'chevron-back-outline': chevronBackOutline, 'chevron-forward-outline': chevronForwardOutline,
       'expand-outline': expandOutline
-    });
+    , eye, bookmark, bookmarkOutline});
   }
 
   ngOnInit() {
@@ -186,6 +188,7 @@ export class DormDetailPage implements OnInit, OnChanges {
         this.prepareOwnerInfo();
         this.parseFacilities();
         this.loadReviews();
+        this.checkFavoriteStatus();
       } else {
         this.isError = true;
         this.errorMessage = 'ไม่พบข้อมูลหอพัก';
@@ -221,6 +224,47 @@ export class DormDetailPage implements OnInit, OnChanges {
         x: this.dormData.x || this.dormData.OWNER_X || '-',
         telegram: this.dormData.telegram || this.dormData.OWNER_TELEGRAM || '-',
       };
+    }
+  }
+
+  async checkFavoriteStatus() {
+    if (this.currentUserId > 0 && this.dormData?.DORM_ID) {
+      try {
+        const favs = await this.dormService.getMyFavorites(this.currentUserId);
+        if (favs) {
+          const found = favs.find((f: any) => f.DORM_ID === this.dormData.DORM_ID || f.DORMID === this.dormData.DORM_ID);
+          this.isFavorite = !!found;
+        }
+      } catch (err) {
+        console.error('Error checking favorite status', err);
+      }
+    }
+  }
+
+  async toggleFavorite(event?: Event) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    if (this.currentUserId <= 0) {
+       this.showToast('กรุณาเข้าสู่ระบบก่อนเพิ่มรายการสนใจ', 'warning');
+       return;
+    }
+
+    try {
+        if (this.isFavorite) {
+            await this.dormService.removeFavorite(this.currentUserId, this.dormData.DORM_ID);
+            this.isFavorite = false;
+            this.showToast('ลบออกจากรายการสนใจแล้ว', 'success');
+        } else {
+            await this.dormService.addFavorite(this.currentUserId, this.dormData.DORM_ID);
+            this.isFavorite = true;
+            this.showToast('เพิ่มในรายการสนใจแล้ว', 'success');
+        }
+    } catch (err) {
+        console.error(err);
+        this.showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'danger');
     }
   }
 

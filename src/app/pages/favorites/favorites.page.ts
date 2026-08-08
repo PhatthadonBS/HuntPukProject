@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, AlertController, ToastController, LoadingController, ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { arrowBack, trashOutline, locationSharp, home, star, heartDislikeOutline, checkmarkCircle, arrowForwardCircle, locationOutline, listCircle, closeCircle, swapVerticalOutline, bookmark, search } from 'ionicons/icons';
+import {  arrowBack, trashOutline, locationSharp, home, star, heartDislikeOutline, checkmarkCircle, arrowForwardCircle, locationOutline, listCircle, closeCircle, swapVerticalOutline, bookmark, search , eye } from 'ionicons/icons';
 import { DormitoryService, Dormitory } from '../../services/dormitory';
 import { HeaderComponent } from '../../components/header/header.component';
 
@@ -50,7 +50,7 @@ export class FavoritesPage implements OnInit {
       'swap-vertical-outline': swapVerticalOutline,
       'bookmark': bookmark,
       'search': search
-    });
+    , eye});
   }
 
   ngOnInit() { this.checkLoginStatus(); }

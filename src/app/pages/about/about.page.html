@@ -1,103 +1,151 @@
-<ion-header class="glass-header">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" text="" icon="arrow-back-outline"></ion-back-button>
-    </ion-buttons>
-    <ion-title>About Us / ติดต่อเรา</ion-title>
+<ion-header class="ion-no-border main-header">
+  <ion-toolbar class="main-toolbar">
+    <div
+      class="header-tool flex justify-between align-middle text-lg font-bold"
+    >
+      <a
+        (click)="goBack()"
+        class="back-btn flex justify-between align-middle ml-[.25rem] p-[.25rem] pl-1 pr-3 w-[5rem] rounded-full bg-slate-100"
+        style="cursor: pointer;"
+      >
+        <ion-icon
+          name="arrow-back-circle-outline"
+          size="large"
+          color="dark"
+        ></ion-icon>
+        <span class="">กลับ</span>
+      </a>
+      <span class="mt-1 text-white mr-[1rem] text-xl">เกี่ยวกับเรา</span>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="about-content" [fullscreen]="true">
+<ion-content [fullscreen]="true" class="about-content">
   <div class="hero-section">
-    <div class="hero-bg-shapes">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-    </div>
+    <div class="hero-overlay"></div>
     <div class="hero-content">
-      <img src="assets/logo1.jpg" alt="Logo" class="app-logo"
-           onerror="this.src='https://placehold.co/200x200/FFD600/ffffff?text=HP'">
+      <img src="/assets/logo1.jpg" alt="HuntPuk Logo" class="logo-image" 
+           onerror="this.src='https://placehold.co/200x200/FFD600/ffffff?text=HP'" />
       <h1>HuntPuk</h1>
-      <p>แพลตฟอร์มค้นหาหอพักที่ตอบโจทย์ไลฟ์สไตล์คุณ</p>
     </div>
   </div>
 
-  <div class="container fade-in-up">
+  <div class="main-container">
+    <div class="glass-card mission-card">
+      <h2>เป้าหมายของเรา</h2>
+      <p>
+        &emsp;ในปัจจุบัน (2569) พบว่านิสิตมีปัญหาในการหาหอพัก
+        ส่วนมากเป็นนิสิตชั้นปีที่1
+        เนื่องจากนิสิตชั้นปีต้นๆนั้นยังไม่มีข้อมูลเพียงพอเกี่ยวกับหอพักหรือไม่ได้ค้นคว้าข้อมูลเนื่องจากมีแหล่งข้อมูลที่ยังไม่อัปเดต
+        และมีแหล่งข้อมูลปลอม ซึ่งทำให้เกิดปัญหาการหลอกลวงให้นิสิตชวนเชื่อ
+        จากผู้ที่แอบอ้างเป็นเจ้าของหอพักมาโพสต์หาคนเข้าพักและทำให้นิสิตหลงเชื่อและนำไปสู่การโอนเงินมัดจำค่าประกันหอพักกันเป็นจำนวนมากซึ่งเกิดความเสียหายต่อตัวนิสิตและภาพลักษณ์ของสังคมรอบมหาวิทยาลัยมหาสารคาม
+        ดังนั้นผู้จัดทำได้เล็งเห็นปัญหาดังกล่าวจึงทำให้เกิดแนวคิดในการพัฒนาระบบเพื่อให้ข้อมูลที่ถูกต้องและมีความน่าเชื่อถือเกี่ยวกับหอพักรอบมหาวิทยาลัยมหาสารคามเพื่อแก้ไขปัญหาดังกล่าวที่เกิดขึ้น
+        ซึ่งจะทำให้ผู้ใช้งาน มีความสะดวกต่อการหาหอพัก
+      </p>
+    </div>
 
+    <h2 class="section-title">สมาชิกผู้พัฒนา</h2>
 
+    <div class="team-card adviser-card text-center">
+      <div class="profile-avatar">
+        <img
+          [src]="adviser.imageUrl"
+          [alt]="adviser.name"
+          onerror="this.src='https://placehold.co/200x200/ff4d4d/ffffff?text=T'"
+        />
+      </div>
+      <h3 class="mb-1" style="text-align: center; color: #1a1a1a;">{{ adviser.name }}</h3>
+      <p class="role-text primary-text mb-1" style="text-align: center;">{{ adviser.position }}</p>
+    </div>
 
-    <!-- Team Section -->
-    <h2 class="section-title"><ion-icon name="code-slash-outline"></ion-icon> ทีมผู้พัฒนา</h2>
-    
-    <div class="team-hierarchy">
-      <!-- Advisor -->
-      <div class="advisor-row">
-        <div class="member-card advisor-card">
-          <!-- Profile Icon -->
-          <div class="member-avatar"
-               [style.background]="advisor.avatarColor"
-               [style.color]="advisor.avatarTextColor">
-            {{ advisor.avatar }}
-          </div>
-          <!-- Name & Role -->
-          <h3>{{ advisor.name }}</h3>
-          <span class="role-badge">{{ advisor.role }}</span>
-          
-    
-          </div>
+    <div class="devs-grid">
+      <div class="team-card dev-card" *ngFor="let dev of developers">
+        <div class="profile-avatar">
+          <img
+            [src]="dev.imageUrl"
+            [alt]="dev.name"
+            onerror="this.src='https://placehold.co/200x200/1877f2/ffffff?text=P'"
+          />
         </div>
-      </div>
-
-      <!-- Developers -->
-      <div class="developer-row">
-        <div class="member-card" *ngFor="let member of teamMembers; let i = index"
-             [style.animation-delay]="(i * 0.1) + 's'">
-          <!-- Profile Icon -->
-          <div class="member-avatar"
-               [style.background]="member.avatarColor"
-               [style.color]="member.avatarTextColor">
-            {{ member.avatar }}
-          </div>
-          <!-- Name & Role -->
-          <h3>{{ member.name }}</h3>
-          <span class="role-badge">{{ member.role }}</span>
-          
-          
-        </div>
+        <h3 class="text-center" style="text-align: center; color: #1a1a1a;">{{ dev.name }}</h3>
+        <p class="role-text secondary-text text-center" style="text-align: center;">{{ dev.position }}</p>
       </div>
     </div>
 
-    <!-- Contact Info -->
-    <h2 class="section-title"><ion-icon name="call-outline"></ion-icon> ข้อมูลการติดต่อทีมงาน HuntPuk</h2>
-    <div class="contact-section glass-card">
-      <div class="contact-item">
-        <div class="icon-circle email-bg"><ion-icon name="mail-outline"></ion-icon></div>
-        <div class="item-info">
-          <h4>Email</h4>
-          <a href="mailto:support.huntpuk@gmail.com">support.huntpuk@gmail.com</a>
-        </div>
-      </div>
+    <h2 class="section-title" style="margin-top: 2rem;">ข้อตกลงและเงื่อนไขการใช้งาน</h2>
+    <div class="glass-card terms-card" style="text-align: left;">
+      <h3
+        style="
+          font-size: 1.1rem;
+          font-weight: bold;
+          margin-bottom: 12px;
+          color: #1a1a1a;
+        "
+      >
+        ข้อตกลงการใช้งาน
+      </h3>
+
+      <p style="margin-bottom: 12px">
+        <strong>1. บทนำและการยอมรับข้อตกลง</strong
+        ><br />&emsp;ยินดีต้อนรับสู่แอปพลิเคชัน HuntPuk การที่คุณดาวน์โหลด
+        ติดตั้ง หรือใช้งานแอปพลิเคชันนี้ ถือว่าคุณได้อ่าน เข้าใจ
+        และยอมรับที่จะผูกพันตามข้อตกลงและเงื่อนไขการใช้งานฉบับนี้ทุกประการ
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>2. วัตถุประสงค์ของการให้บริการ</strong><br />&emsp;HuntPuk
+        เป็นเพียง "สื่อกลาง" ในการรวบรวมและแสดงข้อมูลหอพักรอบมหาวิทยาลัย
+        แอปพลิเคชันไม่มีส่วนเกี่ยวข้องในการทำธุรกรรม การทำสัญญาเช่า
+        หรือการรับ-จ่ายเงินมัดจำใดๆ ระหว่างผู้เช่าและผู้ให้เช่าทั้งสิ้น
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>3. การสมัครสมาชิกและความปลอดภัยของบัญชี</strong
+        ><br />&emsp;ผู้ใช้งานต้องให้ข้อมูลที่เป็นความจริง ถูกต้อง
+        และรักษารหัสผ่านของตนเองให้เป็นความลับ
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>4. กฎระเบียบและข้อควรปฏิบัติของผู้ใช้งาน</strong
+        ><br />&emsp;ห้ามมิให้ลงประกาศหอพักปลอม หรือมีเจตนาหลอกลวง
+        หากตรวจสอบพบทางแอปพลิเคชันมีสิทธิ์ลบบัญชีทันที
+        &emsp;สำหรับนิสิต/นักศึกษาโปรดใช้วิจารณญาณในการตัดสินใจ
+        แอปพลิเคชันเป็นเพียงสื่อกลางเท่านั้น
+        ผู้ใช้งานควรตรวจสอบสถานที่จริงและรายละเอียดสัญญากับเจ้าของหอพักโดยตรงก่อนทำการโอนเงินมัดจำทุกครั้ง
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>5. สิทธิในทรัพย์สินทางปัญญา</strong><br />&emsp;ข้อมูล
+        รูปภาพ หรือข้อความที่ผู้ใช้งานอัปโหลดลงในระบบ
+        ผู้ใช้งานจะต้องเป็นเจ้าของลิขสิทธิ์ หรือได้รับอนุญาตอย่างถูกต้อง
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>6. ข้อจำกัดความรับผิดชอบ</strong><br />&emsp;แอปพลิเคชัน
+        HuntPuk จะไม่รับผิดชอบต่อความเสียหายใดๆ
+        รวมถึงการถูกหลอกลวงจากการทำธุรกรรมระหว่างผู้เช่าและเจ้าของหอพัก
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>7. นโยบายความเป็นส่วนตัว</strong
+        ><br />&emsp;ทางแอปพลิเคชันจะเก็บรวบรวมข้อมูลส่วนบุคคลของคุณ
+        เพื่อใช้ในการให้บริการและพัฒนาแอปพลิเคชันเท่านั้น
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>8. การยกเลิกบัญชีผู้ใช้</strong
+        ><br />&emsp;เราขอสงวนสิทธิ์ในการระงับหรือยกเลิกบัญชีผู้ใช้งานทันที
+        หากตรวจพบการละเมิดข้อตกลง
+      </p>
+
+      <p style="margin-bottom: 12px">
+        <strong>9. การเปลี่ยนแปลงข้อตกลง</strong
+        ><br />&emsp;ทีมผู้พัฒนาขอสงวนสิทธิ์ในการแก้ไขหรือเปลี่ยนแปลงข้อตกลงนี้ได้ตลอดเวลา
+      </p>
     </div>
 
-    <!-- Terms -->
-    <h2 class="section-title"><ion-icon name="document-text-outline"></ion-icon> ข้อตกลงการใช้งาน</h2>
-    <div class="terms-section glass-card">
-      <div class="terms-content">
-        <p><strong>1. ข้อมูลหอพัก</strong><br>
-        ข้อมูลหอพักบนแพลตฟอร์มเกิดจากการรวบรวมและนำเข้าโดยเจ้าของหอพักหรือทีมงาน ทางเราไม่สามารถรับประกันความถูกต้อง 100% ได้ตลอดเวลา โปรดตรวจสอบข้อมูลกับทางหอพักอีกครั้งก่อนตัดสินใจ</p>
-        <p><strong>2. การติดต่อและธุรกรรม</strong><br>
-        HuntPuk เป็นเพียงสื่อกลางในการเชื่อมต่อผู้เช่ากับเจ้าของหอพักเท่านั้น ไม่ได้มีส่วนเกี่ยวข้องกับธุรกรรมทางการเงิน ค่าเช่า หรือสัญญาเช่าแต่อย่างใด</p>
-        <p><strong>3. การรักษาข้อมูลส่วนบุคคล</strong><br>
-        ข้อมูลส่วนบุคคลของคุณ เช่น อีเมล เบอร์โทรศัพท์ จะถูกเก็บรักษาไว้เป็นความลับ และใช้สำหรับการติดต่อประสานงานที่เกี่ยวข้องกับแพลตฟอร์มเท่านั้น</p>
-        <p><strong>4. สิทธิ์ในการระงับบัญชี</strong><br>
-        ระบบขอสงวนสิทธิ์ในการระงับหรือยกเลิกบัญชีผู้ใช้งานที่พบว่ามีพฤติกรรมไม่เหมาะสม ละเมิดลิขสิทธิ์ หรือสร้างความเดือดร้อนแก่ผู้อื่นโดยไม่ต้องแจ้งให้ทราบล่วงหน้า</p>
-      </div>
+    <div class="copyright-section mt-6 mb-8 text-center" style="font-size: 0.85rem; color: var(--ion-color-medium); text-align: center; margin-bottom: 2rem;">
+      <p>&copy; 2026 HuntPuk. สงวนลิขสิทธิ์</p>
     </div>
-
-    <div class="footer-credit">
-      <p>&copy; 2026 HuntPuk. All rights reserved.</p>
-    </div>
- 
-
-
-
+  </div>
 </ion-content>

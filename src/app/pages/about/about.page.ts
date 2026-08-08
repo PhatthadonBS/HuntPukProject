@@ -1,12 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { IonicModule, NavController } from '@ionic/angular';
 import { HeaderComponent } from '../../components/header/header.component';
 import { addIcons } from 'ionicons';
 import {
-  bugOutline, starOutline, callOutline, documentTextOutline,
-  mailOutline, logoFacebook, chatbubblesOutline, arrowBackOutline,
-  openOutline, codeSlashOutline
+  mapOutline,
+  flashOutline,
+  shieldCheckmarkOutline,
+  mailOutline,
+  logoFacebook,
+  logoTwitter,
+  logoInstagram,
+  arrowBackCircleOutline,
+  callOutline,
+  documentTextOutline,
 } from 'ionicons/icons';
 import { RouterModule } from '@angular/router';
 
@@ -15,56 +23,48 @@ import { RouterModule } from '@angular/router';
   templateUrl: './about.page.html',
   styleUrls: ['./about.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, RouterModule, HeaderComponent]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule, HeaderComponent]
 })
 export class AboutPage implements OnInit {
-
-  // TODO: เปลี่ยนชื่อ, ตำแหน่ง, avatar (ตัวอักษรย่อ) และลิงก์ Facebook/เบอร์โทร ให้ถูกต้อง
-  advisor: any = {
-    name: 'ผู้ช่วยศาสตราจารย์ ดร.สำรวน เวียงสมุทร',
-    role: 'อาจารย์ที่ปรึกษา',
-    avatar: 'T',
-    avatarColor: '#ff4d4d',
-    avatarTextColor: '#ffffff',
+  
+  adviser = {
+    name: 'ผศ.ดร.สำรวน เวียงสมุทร',
+    position: 'อาจารย์ที่ปรึกษาโปรเจค',
+    imageUrl:
+      'https://cs.it.msu.ac.th/uploads/faculty/assistant_prof_3_1758177117.jpg',
   };
-
-  teamMembers: any[] = [
-    {
-      name: 'นายอรรมนาถ แป้นโสม',
-      role: 'Frontend Developer,Backend Developer',
-      avatar: 'P',
-      avatarColor: '#FFD600',
-      avatarTextColor: '#1a1a1a',
-    },
+  
+  developers = [
     {
       name: 'นายพัทธดนย์ สุดหลักทอง',
-      role: 'Frontend Developer,Backend Developer',
-      avatar: 'P',
-      avatarColor: '#1877f2',
-      avatarTextColor: '#ffffff',
-    }
+      position: 'Mobile Developer',
+      imageUrl: '/assets/devTeam/Phattadon.jpg',
+    },
+    {
+      name: 'นายอรรมนาถ แป้นโสม',
+      position: 'Web Developer',
+      imageUrl: '/assets/devTeam/Oammanat.jpg',
+    },
   ];
 
-  constructor() {
+  constructor(private navCtrl: NavController) {
     addIcons({
-      'bug-outline': bugOutline,
-      'star-outline': starOutline,
-      'call-outline': callOutline,
-      'document-text-outline': documentTextOutline,
-      'mail-outline': mailOutline,
-      'logo-facebook': logoFacebook,
-      'chatbubbles-outline': chatbubblesOutline,
-      'arrow-back-outline': arrowBackOutline,
-      'open-outline': openOutline,
-      'code-slash-outline': codeSlashOutline
+      mapOutline,
+      flashOutline,
+      shieldCheckmarkOutline,
+      mailOutline,
+      logoFacebook,
+      logoTwitter,
+      logoInstagram,
+      arrowBackCircleOutline,
+      callOutline,
+      documentTextOutline,
     });
   }
 
   ngOnInit() {}
 
-  openLink(url: string) {
-    if (url && url !== '#') {
-      window.open(url, '_blank');
-    }
+  goBack() {
+    this.navCtrl.back();
   }
 }

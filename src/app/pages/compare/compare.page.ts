@@ -10,12 +10,12 @@ import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { DormitoryService } from '../../services/dormitory'; 
 import { addIcons } from 'ionicons';
-import { 
+import {  
   checkmarkCircle, arrowBack, locationOutline, wifi, car, snow, 
   cashOutline, layersOutline, callOutline, checkmarkCircleOutline,
   logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle, 
   location, closeCircle, call, chatbubbleEllipsesOutline, trashOutline
-} from 'ionicons/icons';
+, eye } from 'ionicons/icons';
 import { AlertModalComponent } from '../../components/alert-modal/alert-modal.component';
 
 @Component({
@@ -72,7 +72,7 @@ export class ComparePage implements OnInit {
       cashOutline, layersOutline, callOutline, checkmarkCircleOutline,
       logoFacebook, logoInstagram, logoTwitter, paperPlaneOutline, arrowForwardCircle, 
       location, closeCircle, call, chatbubbleEllipsesOutline, trashOutline
-    });
+    , eye});
     // โหลด referencePoint จาก localStorage ถ้ามี
     try {
       const stored = localStorage.getItem('userLocation');

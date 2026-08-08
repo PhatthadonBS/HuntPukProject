@@ -8,7 +8,8 @@ import {
   home, listOutline, starOutline, person, personCircleOutline, 
   key, create, business, heartOutline, logOutOutline, cubeOutline,
   close, chevronBackOutline, barChartOutline, peopleOutline,
-  documentTextOutline, gridOutline, informationCircleOutline, chatbubblesOutline
+  documentTextOutline, gridOutline, informationCircleOutline, chatbubblesOutline,
+  phonePortraitOutline
 } from 'ionicons/icons';
 import { ActionConfirmModalComponent } from '../action-confirm-modal/action-confirm-modal.component';
 
@@ -49,7 +50,8 @@ export class MenuComponent implements OnInit, OnDestroy {
       documentTextOutline,
       gridOutline,
       informationCircleOutline,
-      chatbubblesOutline
+      chatbubblesOutline,
+      phonePortraitOutline
     });
   }
 

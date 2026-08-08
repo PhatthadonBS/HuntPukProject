@@ -6,6 +6,9 @@
       <div class="floating-back-btn" (click)="goBack()" *ngIf="!isPopup">
         <ion-icon name="arrow-back"></ion-icon>
       </div>
+      <div class="floating-fav-btn" (click)="toggleFavorite($event)" *ngIf="!isPopup">
+        <ion-icon [name]="isFavorite ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+      </div>
 
       <img [src]="dormData.image || 'assets/dorm-placeholder.jpg'"
            onerror="this.src='https://placehold.co/600x400?text=No+Image'"
@@ -36,7 +39,13 @@
         </div>
       </div>
       
-      <h1 class="dorm-name">{{ dormData.DORM_NAME }}</h1>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: 0 0 10px 0; gap: 10px;">
+        <h1 class="dorm-name" style="margin: 0;">{{ dormData.DORM_NAME }}</h1>
+        <div style="display: flex; align-items: center; gap: 4px; color: #666; font-size: 13px; font-weight: bold; background: #f8f9fa; padding: 4px 10px; border-radius: 20px; border: 1px solid #eee; flex-shrink: 0;">
+          <ion-icon name="eye"></ion-icon>
+          <span>{{ dormData.VIEW_COUNT || dormData.views || 0 | number }} เข้าชม</span>
+        </div>
+      </div>
       <div class="type-badge" *ngIf="dormData.DORM_TYPE_NAME">
         ประเภท: {{ dormData.DORM_TYPE_NAME }}
       </div>
@@ -79,12 +88,14 @@
         </div>
       </div>
 
-      <div class="rating-row">
-        <div class="stars-box">
-          <ion-icon name="star"></ion-icon>
-          <span class="score">{{ averageScore | number:'1.1-1' }}</span>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 15px; border-top: 1px solid #f0f0f0; margin-top: 15px;">
+        <div class="rating-row" style="margin: 0; padding: 0; display: flex; align-items: center;">
+          <div class="stars-box" style="display: flex; align-items: center; gap: 5px; background: #f0f0f0; color: #f5b041; padding: 5px 10px; border-radius: 8px; font-weight: bold;">
+            <ion-icon name="star"></ion-icon>
+            <span class="score">{{ averageScore | number:'1.1-1' }}</span>
+          </div>
+          <span class="reviews-count" style="margin-left: 10px; color: #888; font-size: 14px; text-decoration: underline;">จากผู้ใช้งาน {{ reviews.length }} รีวิว</span>
         </div>
-        <span class="reviews-count">จากผู้ใช้งาน {{ reviews.length }} รีวิว</span>
       </div>
     </div>
 

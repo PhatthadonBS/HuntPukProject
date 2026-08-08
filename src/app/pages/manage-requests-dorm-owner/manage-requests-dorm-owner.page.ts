@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { 
   people, folderOpenOutline, close, logoFacebook, chatbubbles, 
@@ -28,7 +28,8 @@ export class ManageRequestsDormOwnerPage implements OnInit {
   constructor(
     private requestService: OwnerRequestService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private loadingCtrl: LoadingController
   ) { 
     // เพิ่มไอคอนให้ครบ
     addIcons({ people, folderOpenOutline, close, logoFacebook, chatbubbles, checkmarkCircle, closeCircle, time, logoInstagram, logoTwitter, paperPlane });
@@ -140,20 +141,33 @@ export class ManageRequestsDormOwnerPage implements OnInit {
     await alert.present();
   }
 
-  processUpdate(userId: number, approveStatus: boolean, msg: string) {
+  async processUpdate(userId: number, approveStatus: boolean, msg: string) {
+    const loading = await this.loadingCtrl.create({
+      message: 'กำลังดำเนินการ...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
     this.requestService.approveRequest(userId, approveStatus, msg).subscribe({
       next: async () => {
+        await loading.dismiss();
+        
+        // ลบข้อมูลที่ดำเนินการแล้วออกจากหน้ารายการทันที
+        this.requests = this.requests.filter(req => req.user_id !== userId);
+        this.searchRequests(); // อัปเดต list ที่แสดงผล
+        
         const toast = await this.toastCtrl.create({
           message: approveStatus ? 'อนุมัติเรียบร้อย' : 'ปฏิเสธคำขอเรียบร้อย',
           duration: 2000, color: approveStatus ? 'success' : 'warning'
         });
         await toast.present();
+        
         this.closeModal();
-        this.fetchRequests();
       },
       error: async (err) => {
+        await loading.dismiss();
         const toast = await this.toastCtrl.create({
-          message: 'เกิดข้อผิดพลาดในการบันทึก', duration: 3000, color: 'danger'
+          message: 'เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่อีกครั้ง', duration: 3000, color: 'danger'
         });
         await toast.present();
       }

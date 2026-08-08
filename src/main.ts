@@ -2,6 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { enableProdMode } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
+import { provideAnimations } from '@angular/platform-browser/animations';
 // ✅ 1. นำเข้า withInterceptors เพิ่มจาก @angular/common/http
 import { provideHttpClient, withInterceptors } from '@angular/common/http'; 
 
@@ -26,6 +27,7 @@ bootstrapApplication(AppComponent, {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideAnimations(),
     
     // ✅ 3. ใส่ authInterceptor เข้าไปใน provideHttpClient
     provideHttpClient(

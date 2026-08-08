@@ -1,4 +1,4 @@
-﻿/* =========================================
+/* =========================================
    ๐จ Theme & Base (Luxury Yellow/Dark Theme)
    ========================================= */
 $msu-yellow: #FFD600;
@@ -32,10 +32,19 @@ $text-dark: #1a1a1a;
     &:active { transform: scale(0.9); }
   }
 
-  /* โ… เธเธธเนเธกเธเธขเธฒเธขเธฃเธนเธ โ€” เธกเธธเธกเธเธงเธฒเธเธ เธเธญเธเธเธฑเธ”เธงเนเธฒเธเธ”เธ”เธนเธเธขเธฒเธขเนเธ”เน */
-  .hero-expand-hint {
+  .floating-fav-btn {
     position: absolute; top: 20px; right: 20px; z-index: 10;
-    width: 40px; height: 40px; background: rgba(0,0,0,0.5); border-radius: 50%;
+    width: 45px; height: 45px; background: rgba(0,0,0,0.5); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: white;
+    font-size: 24px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s;
+    &:active { transform: scale(0.9); }
+    ion-icon[name="bookmark"] { color: #fbc02d; }
+  }
+
+  /* ✅ ปุ่มขยายรูป — มุมขวาบน บอกชัดว่ากดดูขยายได้ */
+  .hero-expand-hint {
+    position: absolute; top: 20px; right: 75px; z-index: 10;
+    width: 45px; height: 45px; background: rgba(0,0,0,0.5); border-radius: 50%;
     display: flex; align-items: center; justify-content: center; color: white;
     font-size: 20px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s;
     &:active { transform: scale(0.9); }
@@ -43,7 +52,7 @@ $text-dark: #1a1a1a;
 }
 
 /* =========================================
-   ๐  2. Main Info Card (เธเธฒเธฃเนเธ”เธเธทเนเธญเธซเธญเธเธฑเธเธขเธเธ•เธฑเธงเธฅเธญเธข)
+   ๐Ÿ   2. Main Info Card (เธ เธฒเธฃเนŒเธ”เธŠเธทเนˆเธญเธซเธญเธžเธฑเธ เธขเธ เธ•เธฑเธงเธฅเธญเธข)
    ========================================= */
 .main-info-card {
   background: $card-bg; border-radius: 35px 35px 0 0; 
@@ -484,6 +493,201 @@ $text-dark: #1a1a1a;
 
   @media (max-width: 600px) {
     width: 40px; height: 40px; font-size: 22px;
+    color: #1a1a1a !important; 
+    --placeholder-color: #999;
+  }
+  
+  .submit-btn { 
+    width: 100%; background: linear-gradient(135deg, $msu-yellow 0%, #ffc107 100%); 
+    color: $msu-dark; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 800; 
+    border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 214, 0, 0.3);
+    transition: all 0.2s ease;
+    &:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(255, 214, 0, 0.2); } 
+  }
+}
+
+.user-review-card {
+  background: #ffffff; border-radius: 20px; padding: 22px; margin-bottom: 18px; 
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+  
+  .reviewer-top { 
+    display: flex; align-items: center; gap: 15px; margin-bottom: 15px;
+    .avatar { 
+      width: 48px; height: 48px; background: linear-gradient(135deg, #f0f2f5 0%, #e4e6eb 100%); 
+      color: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      font-weight: 800; font-size: 18px; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .meta { 
+      flex: 1; 
+      .name { font-weight: 800; font-size: 15px; color: $text-dark; } 
+      .date { font-size: 12px; color: #888; margin-top: 4px; } 
+    }
+    .review-score { 
+      display: flex; align-items: center; gap: 4px; background: rgba(255, 214, 0, 0.15); 
+      color: #997d00; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 14px; 
+      ion-icon { color: #f5b041; } 
+    }
+  }
+  .comment-text { 
+    margin: 0; font-size: 14.5px; color: #444; line-height: 1.7; 
+    background: #f8f9fa; padding: 16px; border-radius: 14px; 
+    border-left: 4px solid #f0f0f0; 
+  }
+}
+
+.status-box { text-align: center; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 700; &.success { background: #e8f5e9; color: #2e7d32; } &.warning { background: #fff3e0; color: #e65100; } &.normal { background: #eee; color: #555; } }
+.loading-fullscreen {
+  height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #888; font-weight: 700;
+  ion-spinner { margin-bottom: 15px; transform: scale(1.5); }
+
+  .error-container {
+    text-align: center; padding: 30px; max-width: 320px;
+
+    .error-icon {
+      font-size: 64px; color: #e74c3c; margin-bottom: 15px; display: block;
+    }
+
+    .error-msg {
+      font-size: 16px; color: #555; margin-bottom: 25px; line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .retry-btn {
+      --background: #FFD600; --color: #1a1a1a; --border-radius: 12px;
+      margin-bottom: 10px; font-weight: bold;
+    }
+
+    .back-btn {
+      --border-radius: 12px; --color: #888; --border-color: #ccc;
+      font-weight: bold;
+    }
+  }
+}
+
+/* ๐ŸŒŸ CSS เธ›เน‰เธฒเธขเธชเธ–เธฒเธ™เธฐเธซเธญเธžเธฑเธ เธšเธ™เธฃเธนเธ›เธ›เธ  */
+.status-badge {
+  position: absolute; bottom: 20px; left: 20px; z-index: 10;
+  padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: 900; color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  &.available, &.status-1 { background: #2ecc71; }
+  &.full, &.status-3 { background: #e74c3c; }
+  &.closed, &.status-2 { background: #7f8c8d; }
+}
+
+/* ๐ŸŒŸ CSS เน‚เธ‹เธ™เธฃเธฒเธ„เธฒ (เธฃเธญเธ‡เธฃเธฑเธšเธฃเธฒเธขเน€เธ”เธทเธญเธ™เน เธฅเธฐเธฃเธฒเธขเน€เธ—เธญเธก) */
+.price-container {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; margin-top: -10px;
+  
+  .price-chip {
+    background: rgba(255, 214, 0, 0.2); color: #886a00;
+    padding: 8px 15px; border-radius: 12px; font-size: 13px; font-weight: bold;
+    display: inline-flex; align-items: center; gap: 8px;
+    span { font-size: 18px; font-weight: 900; color: #d32f2f; }
+    
+    &.term { background: rgba(52, 152, 219, 0.15); color: #2980b9; }
+  }
+}
+
+/* ๐ŸŒŸ CSS เธ›เธธเนˆเธกเธ™เธณเธ—เธฒเธ‡ & เธ„เนˆเธฒเธ™เน‰เธณเธ„เนˆเธฒเน„เธŸ */
+.nav-btn {
+  --background: #FFD600; --color: #1a1a1a; --border-radius: 12px;
+  margin: 15px 0; font-weight: bold; box-shadow: 0 4px 10px rgba(255, 214, 0, 0.3);
+}
+
+.utility-row {
+  display: flex; gap: 15px; margin-top: 5px; margin-bottom: 20px;
+  .util-box {
+    flex: 1; display: flex; align-items: center; gap: 10px; padding: 12px;
+    background: #f8f9fa; border-radius: 12px; border: 1px solid #edf2f7;
+    ion-icon { font-size: 26px; }
+    &.water ion-icon { color: #3498db; }
+    &.elect ion-icon { color: #f39c12; }
+    .util-text {
+      display: flex; flex-direction: column;
+      .label { font-size: 12px; color: #888; font-weight: bold; margin-bottom: 2px; }
+      .val {
+        font-size: 13px; font-weight: 900; color: #222;
+        .rate-line { margin-bottom: 2px; }
+        .sub-label { font-weight: normal; color: #666; font-size: 11px; margin-right: 4px; }
+      }
+    }
+  }
+}
+
+/* Animations */
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   ๐Ÿ–ผ๏ธ  7. Lightbox โ€” เธ‚เธขเธฒเธขเธฃเธนเธ›เธ เธฒเธž
+   ========================================= */
+.lightbox-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  animation: lightboxFadeIn 0.2s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes lightboxFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-image-wrap {
+  max-width: 92vw; max-height: 82vh;
+  display: flex; align-items: center; justify-content: center;
+
+  img {
+    max-width: 92vw; max-height: 82vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: lightboxZoomIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+@keyframes lightboxZoomIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.lightbox-close {
+  position: absolute; top: 24px; right: 24px; z-index: 10;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 26px; cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+
+  &:hover { background: rgba(255, 255, 255, 0.22); }
+  &:active { transform: scale(0.9); }
+}
+
+.lightbox-counter {
+  position: absolute; top: 28px; left: 24px; z-index: 10;
+  color: #fff; font-size: 14px; font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 6px 14px; border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 26px; cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+
+  &.prev { left: 16px; }
+  &.next { right: 16px; }
+
+  &:hover { background: rgba(255, 255, 255, 0.22); }
+  &:active { transform: translateY(-50%) scale(0.9); }
+
+  @media (max-width: 600px) {
+    width: 40px; height: 40px; font-size: 22px;
     &.prev { left: 8px; }
     &.next { right: 8px; }
   }
@@ -491,12 +695,12 @@ $text-dark: #1a1a1a;
 
 .type-badge {
   display: inline-block;
-  background: var(--ion-color-primary, #3880ff);
-  color: white;
+  background: #FFD600;
+  color: #1a1a1a;
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
   margin-top: 4px;
   margin-bottom: 12px;
 }.modal-footer {

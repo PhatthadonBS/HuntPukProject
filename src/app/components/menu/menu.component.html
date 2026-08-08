@@ -57,6 +57,10 @@
           <div class="menu-icon-wrap"><ion-icon name="chatbubbles-outline"></ion-icon></div>
           <span>Support / แจ้งปัญหา</span>
         </div>
+        <div class="menu-item" [class.active]="isActive('/download-app')" (click)="navigate('/download-app')">
+          <div class="menu-icon-wrap"><ion-icon name="phone-portrait-outline"></ion-icon></div>
+          <span>Download Mobile Application</span>
+        </div>
 
         <ng-container *ngIf="userRole > 0">
           <div class="menu-section-divider">

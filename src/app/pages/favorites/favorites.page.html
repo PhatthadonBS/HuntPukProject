@@ -62,9 +62,15 @@
             <div class="card-content">
               <h3>{{ dorm.DORM_NAME }}</h3>
               
-              <div class="rating-row">
-                <ion-icon name="star"></ion-icon>
-                <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid #f0f0f0; margin-bottom: 6px;">
+                <div class="rating-row" style="margin: 0;">
+                  <ion-icon name="star"></ion-icon>
+                  <span>{{ dorm.SCORE ? (dorm.SCORE | number:'1.1-1') : '0.0' }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px; color: #666; font-size: 13px;">
+                  <ion-icon name="eye"></ion-icon>
+                  <span>{{ dorm.VIEW_COUNT || dorm.views || 0 | number }} เข้าชม</span>
+                </div>
               </div>
 
               <p class="zone">

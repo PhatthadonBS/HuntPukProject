@@ -186,6 +186,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/support/support.page').then( m => m.SupportPage)
   },
   {
+    path: 'download-app',
+    loadComponent: () => import('./pages/download-app/download-app.page').then( m => m.DownloadAppPage)
+  },
+  {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found.page').then( m => m.NotFoundPage)
   }
